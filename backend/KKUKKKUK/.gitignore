@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# 설정 파일
+/src/main/resources/**.yml
+/src/main/resources/**.properties
+
+### macOS template
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
