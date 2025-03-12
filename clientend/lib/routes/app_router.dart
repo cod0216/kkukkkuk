@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
-import '../screens/splash_screen.dart';
-import '../screens/sign_in_or_sign_up_screen.dart';
-import '../screens/login_screen.dart';
+import 'package:kkuk_kkuk/screens/splash_screen.dart';
+import 'package:kkuk_kkuk/screens/auth/sign_in_or_sign_up_screen.dart';
+import 'package:kkuk_kkuk/screens/auth/login_screen.dart';
 
 // GoRouter configuration
 final router = GoRouter(
