@@ -111,8 +111,8 @@ class _WalletCreationScreenState extends ConsumerState<WalletCreationScreen> {
         const SizedBox(height: 40),
         ElevatedButton(
           onPressed: () {
-            // TODO: 다음 화면으로 이동
-            context.go('/home');
+            // 지갑 생성 후 PIN 설정 화면으로 이동
+            context.go('/pin-setup');
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black,

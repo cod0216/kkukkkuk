@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
 import 'package:kkuk_kkuk/screens/login_screen.dart';
 import 'package:kkuk_kkuk/screens/wallet_creation_screen.dart';
+import 'package:kkuk_kkuk/screens/pin_setup_screen.dart';
 
 // Add other screen imports as needed
 
@@ -19,6 +20,10 @@ final router = GoRouter(
     GoRoute(
       path: '/wallet-creation',
       builder: (context, state) => const WalletCreationScreen(),
+    ),
+    GoRoute(
+      path: '/pin-setup',
+      builder: (context, state) => const PinSetupScreen(),
     ),
     // Add other routes as needed
     GoRoute(
