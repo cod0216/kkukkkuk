@@ -1,25 +1,15 @@
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
-import 'package:kkuk_kkuk/screens/login_screen.dart';
-import 'package:kkuk_kkuk/screens/wallet_creation_screen.dart';
-import 'package:kkuk_kkuk/screens/pin_setup_screen.dart';
-import 'package:kkuk_kkuk/screens/main_screen.dart';
-import 'package:kkuk_kkuk/screens/pets_screen.dart';
-import 'package:kkuk_kkuk/screens/my_page_screen.dart';
+import 'package:kkuk_kkuk/screens/main/main_screen.dart';
+import 'package:kkuk_kkuk/screens/main/pets_screen.dart';
+import 'package:kkuk_kkuk/screens/main/my_page_screen.dart';
+import 'package:kkuk_kkuk/screens/auth/auth_screen.dart';
 
 final router = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
-    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-    GoRoute(
-      path: '/wallet-creation',
-      builder: (context, state) => const WalletCreationScreen(),
-    ),
-    GoRoute(
-      path: '/pin-setup',
-      builder: (context, state) => const PinSetupScreen(),
-    ),
+    GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
 
     StatefulShellRoute.indexedStack(
       builder:

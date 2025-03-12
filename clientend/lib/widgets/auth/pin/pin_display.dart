@@ -7,7 +7,7 @@ class PinDisplay extends StatelessWidget {
   const PinDisplay({
     super.key,
     required this.pinLength,
-    this.maxLength = 6,
+    required this.maxLength,
   });
 
   @override
@@ -17,9 +17,9 @@ class PinDisplay extends StatelessWidget {
       children: List.generate(
         maxLength,
         (index) => Container(
+          width: 12,
+          height: 12,
           margin: const EdgeInsets.symmetric(horizontal: 8),
-          width: 16,
-          height: 16,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: index < pinLength ? Colors.black : Colors.grey.shade300,

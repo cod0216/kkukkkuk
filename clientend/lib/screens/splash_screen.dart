@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Navigate to the login screen after 1.5 seconds
     Timer(const Duration(milliseconds: 1500), () {
       if (mounted) {
-        context.go('/login'); // Changed to /login
+        context.go('/auth');
       }
     });
   }
