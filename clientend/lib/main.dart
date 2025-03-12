@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
+import 'routes/app_router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +11,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: '꾹꾹',
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      routerConfig: router,
     );
   }
 }

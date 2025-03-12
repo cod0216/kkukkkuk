@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/custom_button.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -7,7 +8,7 @@ class SignInOrSignUpScreen extends StatelessWidget {
   const SignInOrSignUpScreen({super.key});
 
   void _handleSignIn(BuildContext context) {
-    // TODO: 로그인 기능 구현 예정
+    context.go('/login');
   }
 
   void _handleSignUp(BuildContext context) {

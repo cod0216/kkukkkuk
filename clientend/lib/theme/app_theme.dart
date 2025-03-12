@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_text_styles.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -12,6 +13,16 @@ class AppTheme {
         surface: AppColors.surface,
         background: AppColors.background,
         error: AppColors.error,
+      ),
+
+      // Text themes
+      textTheme: TextTheme(
+        displayLarge: AppTextStyles.headline1,
+        displayMedium: AppTextStyles.headline2,
+        titleMedium: AppTextStyles.subtitle1,
+        bodyLarge: AppTextStyles.body1,
+        labelLarge: AppTextStyles.button,
+        bodySmall: AppTextStyles.caption,
       ),
 
       // AppBar theme
@@ -38,6 +49,10 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.surface,
         hintStyle: TextStyle(color: AppColors.textHint),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
           borderSide: const BorderSide(color: AppColors.textHint),
@@ -54,6 +69,11 @@ class AppTheme {
           borderRadius: BorderRadius.circular(4),
           borderSide: const BorderSide(color: AppColors.error),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+        errorStyle: AppTextStyles.caption.copyWith(color: AppColors.error),
       ),
     );
   }

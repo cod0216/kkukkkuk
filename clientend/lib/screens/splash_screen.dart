@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'sign_in_or_sign_up_screen.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -34,9 +34,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to the signin/signup screen after 1.5 seconds
     Timer(const Duration(milliseconds: 1500), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SignInOrSignUpScreen()),
-      );
+      if (mounted) {
+        context.go('/signin-signup');
+      }
     });
   }
 
