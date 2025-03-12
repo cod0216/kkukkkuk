@@ -32,10 +32,10 @@ class _SplashScreenState extends State<SplashScreen>
     // Start the animation
     _controller.forward();
 
-    // Navigate to the signin/signup screen after 1.5 seconds
+    // Navigate to the login screen after 1.5 seconds
     Timer(const Duration(milliseconds: 1500), () {
       if (mounted) {
-        context.go('/signin-signup');
+        context.go('/login'); // Changed to /login
       }
     });
   }

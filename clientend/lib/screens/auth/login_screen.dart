@@ -1,114 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/widgets/custom_button.dart';
-import 'package:kkuk_kkuk/widgets/custom_text_field.dart';
+import 'package:kkuk_kkuk/providers/auth_provider.dart';
+import 'package:kkuk_kkuk/theme/app_colors.dart';
+import 'package:kkuk_kkuk/theme/app_text_styles.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isEmailError = false;
-  bool _isPasswordError = false;
-  String _emailErrorText = '이메일을 입력해주세요';
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  bool _isLoading = false;
 
-  // 이메일 형식 검증을 위한 정규식
-  final RegExp _emailRegExp = RegExp(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-  );
-
-  void _handleLogin() {
-    // Reset error states
+  Future<void> _handleKakaoLogin() async {
     setState(() {
-      if (_emailController.text.isEmpty) {
-        _isEmailError = true;
-        _emailErrorText = '이메일을 입력해주세요';
-      } else if (!_emailRegExp.hasMatch(_emailController.text)) {
-        _isEmailError = true;
-        _emailErrorText = '올바른 이메일 형식이 아닙니다';
-      } else {
-        _isEmailError = false;
-      }
-
-      _isPasswordError = _passwordController.text.isEmpty;
+      _isLoading = true;
     });
 
-    if (!_isEmailError && !_isPasswordError) {
-      // TODO: 로그인 기능 구현
+    final authNotifier = ref.read(authProvider.notifier);
+    final success = await authNotifier.signInWithKakao();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (success) {
+        // 로그인 성공 시 지갑 생성 화면으로 이동
+        context.go('/wallet-creation');
+      } else {
+        // 로그인 실패 시 에러 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그인에 실패했습니다. 다시 시도해주세요.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-  }
-
-  void _handleForgotPassword() {
-    // TODO: 비밀번호 찾기 기능 구현
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('꾹꾹'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/signin-signup'),
-        ),
-      ),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('이메일', style: textTheme.titleMedium),
-              const SizedBox(height: 8),
-              CustomTextField(
-                hintText: '이메일을 입력하세요',
-                controller: _emailController,
-                isError: _isEmailError,
-                errorText: _emailErrorText,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 24),
-              Text('비밀번호', style: textTheme.titleMedium),
-              const SizedBox(height: 8),
-              CustomTextField(
-                hintText: '비밀번호를 입력하세요',
-                controller: _passwordController,
-                obscureText: true,
-                isError: _isPasswordError,
-                errorText: '비밀번호를 입력해주세요',
+              const Spacer(),
+              Text('꾹꾹', style: AppTextStyles.headline2),
+              const SizedBox(height: 40),
+              Text('환영합니다', style: AppTextStyles.headline1),
+              const SizedBox(height: 16),
+              const Text(
+                '카카오 계정으로 로그인하여 서비스를 이용해보세요.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const Spacer(),
-              CustomButton(text: '로그인', onPressed: _handleLogin),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.center,
-                child: GestureDetector(
-                  onTap: _handleForgotPassword,
-                  child: Text(
-                    '비밀번호를 잊으셨나요?',
-                    style: textTheme.bodySmall?.copyWith(
-                      decoration: TextDecoration.underline,
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                    onPressed: _handleKakaoLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFEE500), // 카카오 노란색
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 8),
+                        const Text(
+                          '카카오로 시작하기',
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
