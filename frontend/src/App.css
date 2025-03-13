@@ -1,0 +1,277 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 사이드바 스타일 */
+.sidebar-container {
+  position: fixed;
+  top: 64px; /* 헤더 높이 */
+  left: -300px; /* 기본적으로 화면 밖에 위치 */
+  width: 300px;
+  height: calc(100vh - 64px);
+  background-color: white;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 부드러운 이징 추가 */
+  z-index: 40;
+  overflow-y: auto;
+}
+
+/* 사이드바가 열린 상태 */
+body.sidebar-open .sidebar-container {
+  left: 0;
+}
+
+/* 사이드바 오버레이 - 사용하지 않음 */
+.sidebar-overlay {
+  display: none; /* 오버레이 비활성화 */
+}
+
+/* 사이드바 접기/펼치기 버튼 */
+.sidebar-toggle {
+  position: fixed;
+  top: 50%;
+  left: 300px; /* 사이드바 너비와 같음 */
+  transform: translateY(-50%);
+  width: 24px;
+  height: 48px;
+  background-color: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 41;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease; /* 부드러운 이징 추가 */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-toggle:hover {
+  background-color: #f5f5f5;
+}
+
+body:not(.sidebar-open) .sidebar-toggle {
+  left: 0;
+}
+
+/* 메인 콘텐츠 영역 전환 - 사이드바가 열리면 메인 콘텐츠 영역이 리사이즈 됨 */
+.main-content {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 부드러운 이징 추가 */
+  margin-left: 0; /* 기본 상태는 margin 없음 */
+  will-change: margin-left, width; /* 성능 최적화 */
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 최대 컨테이너 너비 제한 - 배포 환경 간 일관성 유지 */
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: calc(100% - 2rem);
+  }
+}
+
+/* 일관된 뷰포트 크기 적용 */
+html, body, #root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body.sidebar-open .main-content {
+  margin-left: 300px; /* 사이드바가 열리면 300px만큼 여백 추가 */
+  width: calc(100% - 300px); /* 너비도 동시에 조정 */
+}
+
+/* 헤더 스타일 개선 - 그림자와 배경을 투명하게 처리 */
+header {
+  background-color: rgba(255, 255, 255, 0.95); /* 기본 모드에서 약간 투명하게 */
+  backdrop-filter: blur(5px); /* 블러 효과 추가 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+html.dark header {
+  background-color: rgba(31, 41, 55, 0.95); /* 다크모드에서 약간 투명하게 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 다크 모드에서의 스타일 */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark .sidebar-container {
+  background-color: #1f2937;
+  border-right: 1px solid #374151;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .sidebar-toggle {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #e5e7eb;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .sidebar-toggle:hover {
+  background-color: #2d3748;
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* 선택적으로 Firefox에 대한 스크롤바 스타일 */
+* {
+  scrollbar-color: #d1d5db transparent;
+  scrollbar-width: thin;
+}
+
+html.dark * {
+  scrollbar-color: #4b5563 transparent;
+}
+
+/* 진료 상태 애니메이션 효과 - 수정 및 개선 */
+@keyframes treatment-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse {
+  animation: treatment-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 경고등 스타일 깜빡임 효과 (색상 변경) */
+@keyframes treatment-blink {
+  0%, 100% {
+    border-color: rgba(59, 130, 246, 0.8); /* 진한 파란색 */
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    border-color: rgba(96, 165, 250, 0.3); /* 연한 파란색 */
+    box-shadow: 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.animate-blink {
+  animation: treatment-blink 1.5s ease-in-out infinite;
+  border: 2px solid rgba(59, 130, 246, 0.8);
+  border-radius: 0.5rem;
+}
+
+/* 다크모드에서 다른 색상 적용 */
+html.dark .animate-blink {
+  animation-name: treatment-blink-dark;
+}
+
+@keyframes treatment-blink-dark {
+  0%, 100% {
+    border-color: rgba(96, 165, 250, 0.8); /* 진한 파란색 - 다크모드 */
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+  }
+  50% {
+    border-color: rgba(147, 197, 253, 0.3); /* 연한 파란색 - 다크모드 */
+    box-shadow: 0 0 3px rgba(96, 165, 250, 0.2);
+  }
+}
+
+/* 진료 상태 전환 애니메이션 */
+.treatment-status-transition {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 사이드바가 열렸을 때 메인 콘텐츠 추가 조정 */
+.sidebar-adjusted {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 300px !important;
+  width: calc(100% - 300px) !important;
+}
+
+/* Vercel에서 1440p 설정 대응 */
+@media (min-width: 1440px) {
+  body.sidebar-open .main-content,
+  .sidebar-adjusted {
+    width: calc(100% - 300px) !important;
+    margin-left: 300px !important;
+  }
+  
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
