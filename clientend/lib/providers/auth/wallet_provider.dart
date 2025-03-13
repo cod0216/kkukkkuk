@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
-import 'package:kkuk_kkuk/services/auth_service.dart';
+import 'package:kkuk_kkuk/services/wallet_service.dart';
 
 enum WalletStatus {
   initial,
@@ -52,26 +52,21 @@ class WalletState {
 
 class WalletNotifier extends StateNotifier<WalletState> {
   final Ref ref;
-  final AuthService _authService;
+  final WalletService _walletService;
 
-  WalletNotifier(this.ref, this._authService) : super(WalletState());
+  WalletNotifier(this.ref, this._walletService) : super(WalletState());
 
   Future<void> createWallet() async {
     state = state.copyWith(status: WalletStatus.generating, error: null);
 
     try {
-      // Generate private key
-      final privateKey = await _authService.generatePrivateKey();
-
-      // Create wallet from private key
-      final walletAddress = await _authService.createWalletFromPrivateKey(
-        privateKey,
-      );
+      // Create wallet using wallet service
+      final walletData = await _walletService.createWallet();
 
       state = state.copyWith(
         status: WalletStatus.settingPin,
-        walletAddress: walletAddress,
-        privateKey: privateKey,
+        walletAddress: walletData['address'],
+        privateKey: walletData['privateKey'],
       );
     } catch (e) {
       state = state.copyWith(
@@ -129,7 +124,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         state = state.copyWith(status: WalletStatus.encrypting);
 
         // Encrypt private key with PIN
-        final encryptedPrivateKey = await _authService.encryptPrivateKey(
+        final encryptedPrivateKey = await _walletService.encryptPrivateKey(
           state.privateKey!,
           state.firstPin!,
         );
@@ -137,7 +132,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         state = state.copyWith(status: WalletStatus.saving);
 
         // Save encrypted wallet to server
-        await _authService.saveEncryptedWallet(
+        await _walletService.saveEncryptedWallet(
           state.walletAddress!,
           encryptedPrivateKey,
         );
@@ -167,6 +162,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
 final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
   ref,
 ) {
-  final authService = ref.watch(authServiceProvider);
-  return WalletNotifier(ref, authService);
+  final walletService = ref.watch(walletServiceProvider);
+  return WalletNotifier(ref, walletService);
 });

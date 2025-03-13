@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/services/auth_service.dart';
+import 'package:kkuk_kkuk/services/wallet_service.dart';
 
 class LoginState {
   final bool isLoading;
@@ -19,8 +20,10 @@ class LoginState {
 class LoginNotifier extends StateNotifier<LoginState> {
   final Ref ref;
   final AuthService _authService;
+  final WalletService _walletService;
 
-  LoginNotifier(this.ref, this._authService) : super(LoginState());
+  LoginNotifier(this.ref, this._authService, this._walletService)
+    : super(LoginState());
 
   Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -28,7 +31,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
     try {
       await _authService.signInWithKakao();
 
-      final hasWallet = await _authService.checkWallet();
+      final hasWallet = await _walletService.checkWalletExists();
       if (hasWallet) {
         ref.read(authCoordinatorProvider.notifier).completeAuth();
       } else {
@@ -52,5 +55,6 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
 final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
   final authService = ref.watch(authServiceProvider);
-  return LoginNotifier(ref, authService);
+  final walletService = ref.watch(walletServiceProvider);
+  return LoginNotifier(ref, authService, walletService);
 });
