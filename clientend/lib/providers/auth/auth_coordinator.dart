@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum AuthStep { initial, login, creatingWallet, settingPin, completed, error }
+enum AuthStep { initial, login, walletSetup, completed, error }
 
 class AuthCoordinator extends StateNotifier<AuthStep> {
   final Ref ref;
@@ -11,12 +11,8 @@ class AuthCoordinator extends StateNotifier<AuthStep> {
     state = AuthStep.login;
   }
 
-  void moveToWalletCreation() {
-    state = AuthStep.creatingWallet;
-  }
-
-  void moveToPinSetup() {
-    state = AuthStep.settingPin;
+  void moveToWalletSetup() {
+    state = AuthStep.walletSetup;
   }
 
   void completeAuth() {
@@ -32,6 +28,7 @@ class AuthCoordinator extends StateNotifier<AuthStep> {
   }
 }
 
-final authCoordinatorProvider = StateNotifierProvider<AuthCoordinator, AuthStep>((ref) {
-  return AuthCoordinator(ref);
-});
+final authCoordinatorProvider =
+    StateNotifierProvider<AuthCoordinator, AuthStep>((ref) {
+      return AuthCoordinator(ref);
+    });

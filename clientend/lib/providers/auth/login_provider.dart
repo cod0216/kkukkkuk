@@ -1,19 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
+import 'package:kkuk_kkuk/services/auth_service.dart';
 
 class LoginState {
   final bool isLoading;
   final String? error;
 
-  LoginState({
-    this.isLoading = false,
-    this.error,
-  });
+  LoginState({this.isLoading = false, this.error});
 
-  LoginState copyWith({
-    bool? isLoading,
-    String? error,
-  }) {
+  LoginState copyWith({bool? isLoading, String? error}) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
@@ -23,23 +18,23 @@ class LoginState {
 
 class LoginNotifier extends StateNotifier<LoginState> {
   final Ref ref;
+  final AuthService _authService;
 
-  LoginNotifier(this.ref) : super(LoginState());
+  LoginNotifier(this.ref, this._authService) : super(LoginState());
 
   Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: Implement actual Kakao login
-      await Future.delayed(const Duration(seconds: 2));
-      
-      final hasWallet = await checkWallet();
+      await _authService.signInWithKakao();
+
+      final hasWallet = await _authService.checkWallet();
       if (hasWallet) {
-        ref.read(authCoordinatorProvider.notifier).moveToPinSetup();
+        ref.read(authCoordinatorProvider.notifier).completeAuth();
       } else {
-        ref.read(authCoordinatorProvider.notifier).moveToWalletCreation();
+        ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
-      
+
       state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
@@ -50,16 +45,12 @@ class LoginNotifier extends StateNotifier<LoginState> {
     }
   }
 
-  Future<bool> checkWallet() async {
-    // TODO: Implement wallet check
-    return false;
-  }
-
   void reset() {
     state = LoginState();
   }
 }
 
 final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
-  return LoginNotifier(ref);
+  final authService = ref.watch(authServiceProvider);
+  return LoginNotifier(ref, authService);
 });
