@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/models/pet_model.dart';
-import 'package:kkuk_kkuk/widgets/pet/card/pet_card_image.dart';
-import 'package:kkuk_kkuk/widgets/pet/card/pet_card_info.dart';
+import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_image.dart';
+import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_info.dart';
 
 class PetCard extends StatelessWidget {
   final Pet pet;

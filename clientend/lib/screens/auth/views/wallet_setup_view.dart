@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/auth/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
-import 'package:kkuk_kkuk/widgets/auth/common/auth_container.dart';
-import 'package:kkuk_kkuk/widgets/auth/common/auth_status_indicator.dart';
-import 'package:kkuk_kkuk/widgets/auth/pin/pin_display.dart';
-import 'package:kkuk_kkuk/widgets/auth/pin/pin_keypad.dart';
+import 'package:kkuk_kkuk/screens/auth/widgets/auth_container.dart';
+import 'package:kkuk_kkuk/screens/auth/widgets/auth_status_indicator.dart';
+import 'package:kkuk_kkuk/screens/auth/widgets/pin/pin_display.dart';
+import 'package:kkuk_kkuk/screens/auth/widgets/pin/pin_keypad.dart';
 
 class WalletSetupView extends ConsumerStatefulWidget {
   final AuthController controller;

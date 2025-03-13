@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/widgets/common/primary_button.dart';
+import 'package:kkuk_kkuk/screens/common/widgets/primary_button.dart';
 
 class ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const ErrorView({
-    super.key,
-    required this.message,
-    required this.onRetry,
-  });
+  const ErrorView({super.key, required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +27,7 @@ class ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            PrimaryButton(
-              text: '다시 시도',
-              onPressed: onRetry,
-            ),
+            PrimaryButton(text: '다시 시도', onPressed: onRetry),
           ],
         ),
       ),

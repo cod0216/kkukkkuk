@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/models/pet_model.dart';
 
 class PetService {
@@ -90,4 +91,6 @@ class PetService {
   }
 }
 
-final petService = PetService();
+final petServiceProvider = Provider<PetService>((ref) {
+  return PetService();
+});

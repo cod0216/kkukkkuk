@@ -141,5 +141,6 @@ class PetNotifier extends StateNotifier<PetState> {
 }
 
 final petProvider = StateNotifierProvider<PetNotifier, PetState>((ref) {
-  return PetNotifier(PetService());
+  final petService = ref.watch(petServiceProvider);
+  return PetNotifier(petService);
 });

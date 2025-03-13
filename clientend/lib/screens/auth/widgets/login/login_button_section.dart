@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/widgets/auth/kakao_login_button.dart';
+import 'package:kkuk_kkuk/screens/auth/widgets/kakao_login_button.dart';
 
 class LoginButtonSection extends StatelessWidget {
   final VoidCallback onLoginPressed;

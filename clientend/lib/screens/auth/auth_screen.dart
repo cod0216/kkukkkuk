@@ -5,9 +5,8 @@ import 'package:kkuk_kkuk/controllers/auth/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/wallet_setup_view.dart';
-import 'package:kkuk_kkuk/widgets/auth/common/auth_app_bar.dart';
-import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart';
-import 'package:kkuk_kkuk/widgets/common/error_view.dart';
+import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/screens/common/widgets/error_view.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -37,7 +36,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
 
     return Scaffold(
-      appBar: AuthAppBar(title: "꾹꾹"),
+      appBar: AppBar(title: const Text('꾹꾹 로그인인')),
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
