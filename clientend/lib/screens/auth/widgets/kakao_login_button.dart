@@ -4,6 +4,8 @@ class KakaoLoginButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
 
+  // TODO: 실제 카카오 로고 에셋 추가
+
   const KakaoLoginButton({
     super.key,
     required this.onPressed,
@@ -26,6 +28,7 @@ class KakaoLoginButton extends StatelessWidget {
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Icon(Icons.chat_bubble, color: Colors.black87, size: 20),
           SizedBox(width: 8),
           Text(
             '카카오로 시작하기',
