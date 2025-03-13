@@ -4,6 +4,7 @@ import 'package:kkuk_kkuk/screens/main/main_screen.dart';
 import 'package:kkuk_kkuk/screens/main/views/pets_view.dart';
 import 'package:kkuk_kkuk/screens/main/views/my_page_view.dart';
 import 'package:kkuk_kkuk/screens/auth/auth_screen.dart';
+import 'package:kkuk_kkuk/screens/pet_register/pet_register_screen.dart';
 
 final router = GoRouter(
   initialLocation: '/',
@@ -38,5 +39,10 @@ final router = GoRouter(
     ),
 
     GoRoute(path: '/home', redirect: (context, state) => '/pets'),
+
+    GoRoute(
+      path: '/pet-register',
+      builder: (context, state) => const PetRegisterScreen(),
+    ),
   ],
 );

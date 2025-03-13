@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kkuk_kkuk/screens/common/widgets/add_circle_icon.dart';
 
 class AddPetButton extends StatelessWidget {
   final VoidCallback? onTap;
@@ -17,6 +18,8 @@ class AddPetButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        width: double.infinity,
+        height: 400,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -25,57 +28,27 @@ class AddPetButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AddPetButtonIcon(),
-            const SizedBox(height: 24),
-            AddPetButtonText(title: title, subtitle: subtitle),
+            const Spacer(flex: 2),
+            AddPetButtonCircle(
+              onTap: onTap ?? () {},
+              size: 60,
+              iconSize: 30,
+              borderWidth: 2.0,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+            const Spacer(flex: 3),
           ],
         ),
       ),
-    );
-  }
-}
-
-class AddPetButtonIcon extends StatelessWidget {
-  const AddPetButtonIcon({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: const Icon(Icons.add, size: 30, color: Colors.black),
-    );
-  }
-}
-
-class AddPetButtonText extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-
-  const AddPetButtonText({super.key, required this.title, this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            subtitle!,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-          ),
-        ],
-      ],
     );
   }
 }

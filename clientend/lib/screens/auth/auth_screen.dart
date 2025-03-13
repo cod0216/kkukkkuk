@@ -6,7 +6,7 @@ import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/wallet_setup_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
-import 'package:kkuk_kkuk/screens/common/widgets/error_view.dart';
+import 'package:kkuk_kkuk/screens/common/error_view.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});

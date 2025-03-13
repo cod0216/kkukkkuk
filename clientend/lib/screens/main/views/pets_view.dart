@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/main/pet_controller.dart';
 import 'package:kkuk_kkuk/providers/main/pet_provider.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/add_pet_button.dart';
+import 'package:kkuk_kkuk/screens/common/widgets/add_circle_icon.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/pet_carousel.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/qr_scan_button.dart';
 
@@ -16,6 +17,10 @@ class PetsView extends ConsumerStatefulWidget {
 
 class _PetsScreenState extends ConsumerState<PetsView> {
   late final PetController _controller;
+
+  void _navigateToPetRegister() {
+    context.push('/pet-register');
+  }
 
   @override
   void initState() {
@@ -43,13 +48,21 @@ class _PetsScreenState extends ConsumerState<PetsView> {
                     ? Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                        child: AddPetButton(
-                          onTap: () => context.push('/pet-register'),
-                        ),
+                        child: AddPetButton(onTap: _navigateToPetRegister),
                       ),
                     )
                     // 반려동물이 있을 때
-                    : PetCarousel(pets: pets),
+                    : Column(
+                      children: [
+                        Expanded(child: PetCarousel(pets: pets)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          child: AddPetButtonCircle(
+                            onTap: _navigateToPetRegister,
+                          ),
+                        ),
+                      ],
+                    ),
           ),
           QrScanCard(
             onTap: () {
