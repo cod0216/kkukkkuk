@@ -31,7 +31,7 @@ class PetService {
     try {
       await Future.delayed(const Duration(seconds: 1));
 
-      return [];
+      // return [];
       return _tempPetList;
     } catch (e) {
       throw Exception('Failed to fetch pets: $e');

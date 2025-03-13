@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/controllers/main/pet_controller.dart';
+import 'package:kkuk_kkuk/controllers/pet_controller.dart';
+import 'package:kkuk_kkuk/models/pet_model.dart';
 import 'package:kkuk_kkuk/providers/main/pet_provider.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/add_pet_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/add_circle_icon.dart';
@@ -20,6 +21,10 @@ class _PetsScreenState extends ConsumerState<PetsView> {
 
   void _navigateToPetRegister() {
     context.push('/pet-register');
+  }
+
+  void _onPetTap(BuildContext context, Pet pet) {
+    context.push('/pet-detail', extra: pet);
   }
 
   @override
@@ -54,7 +59,12 @@ class _PetsScreenState extends ConsumerState<PetsView> {
                     // 반려동물이 있을 때
                     : Column(
                       children: [
-                        Expanded(child: PetCarousel(pets: pets)),
+                        Expanded(
+                          child: PetCarousel(
+                            pets: pets,
+                            onPetTap: (pet) => _onPetTap(context, pet),
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: AddPetButtonCircle(

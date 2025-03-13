@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth/auth_controller.dart';
+import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/widgets/auth_container.dart';
 import 'package:kkuk_kkuk/screens/auth/widgets/auth_status_indicator.dart';

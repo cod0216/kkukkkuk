@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/pet_register/pet_register_controller.dart';
+import 'package:kkuk_kkuk/controllers/pet_register_controller.dart';
 import 'package:kkuk_kkuk/providers/pet_register/pet_register_provider.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_image_placeholder.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/image_source_button.dart';

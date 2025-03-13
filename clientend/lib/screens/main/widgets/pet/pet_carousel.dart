@@ -5,8 +5,9 @@ import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card.dart';
 
 class PetCarousel extends StatelessWidget {
   final List<Pet> pets;
+  final void Function(Pet pet)? onPetTap;
 
-  const PetCarousel({super.key, required this.pets});
+  const PetCarousel({super.key, required this.pets, this.onPetTap});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class PetCarousel extends StatelessWidget {
       ),
       itemBuilder: (context, index, realIndex) {
         final pet = pets[index];
-        return PetCard(pet: pet);
+        return PetCard(pet: pet, onTap: onPetTap);
       },
     );
   }

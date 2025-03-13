@@ -5,14 +5,14 @@ import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_info.dart';
 
 class PetCard extends StatelessWidget {
   final Pet pet;
-  final VoidCallback? onTap;
+  final void Function(Pet pet)? onTap;
 
   const PetCard({super.key, required this.pet, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap != null ? () => onTap!(pet) : null,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
