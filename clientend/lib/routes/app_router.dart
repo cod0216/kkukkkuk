@@ -1,8 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
 import 'package:kkuk_kkuk/screens/main/main_screen.dart';
-import 'package:kkuk_kkuk/screens/main/pets_screen.dart';
-import 'package:kkuk_kkuk/screens/main/my_page_screen.dart';
+import 'package:kkuk_kkuk/screens/main/views/pets_view.dart';
+import 'package:kkuk_kkuk/screens/main/views/my_page_view.dart';
 import 'package:kkuk_kkuk/screens/auth/auth_screen.dart';
 
 final router = GoRouter(
@@ -21,7 +21,7 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: '/pets',
-              builder: (context, state) => const PetsScreen(),
+              builder: (context, state) => const PetsView(),
             ),
           ],
         ),
@@ -30,7 +30,7 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: '/mypage',
-              builder: (context, state) => const MyPageScreen(),
+              builder: (context, state) => const MyPageView(),
             ),
           ],
         ),

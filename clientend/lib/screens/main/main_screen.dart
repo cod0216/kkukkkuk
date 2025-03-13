@@ -11,6 +11,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Kkuk Kkuk')),
       body: navigationShell,
       bottomNavigationBar: CustomNavigationBar(
         navigationShell: navigationShell,
