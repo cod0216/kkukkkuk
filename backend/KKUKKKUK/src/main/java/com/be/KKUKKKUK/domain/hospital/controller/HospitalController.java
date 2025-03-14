@@ -6,6 +6,7 @@ import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalAuthorizationRespons
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalUpdateResponse;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.global.api.ApiResponseWrapper;
+import com.be.KKUKKKUK.global.util.ResponseUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,36 +32,28 @@ import org.springframework.web.bind.annotation.*;
 public class HospitalController {
     private final HospitalService hospitalService;
 
-    @ApiResponseWrapper(message = "인허가번호로 조회한 동물병원 정보입니다.")
     @GetMapping("/authorization-number/{authorizationNumber}")
-    public ResponseEntity<HospitalAuthorizationResponse> getHospitalByAuthorizationNumber(
+    public ResponseEntity<?> getHospitalByAuthorizationNumber(
             @PathVariable String authorizationNumber) {
-        return ResponseEntity.ok(hospitalService.getHospitalByAuthorizationNumber(authorizationNumber));
+        return ResponseUtility.success("인허가번호로 조회한 동물병원 정보입니다.", hospitalService.getHospitalByAuthorizationNumber(authorizationNumber));
     }
 
-    @ApiResponseWrapper
-//    @ApiResponseWrapper(message = "사용 가능한 계정입니다.")
     @GetMapping("/account/{account}")
-    public ResponseEntity<Boolean> checkAccountAvailable(
-            @PathVariable String account) {
-        return ResponseEntity.ok(hospitalService.checkAccountAvailable(account));
+    public ResponseEntity<?> checkAccountAvailable(@PathVariable String account) {
+        return ResponseUtility.success( "사용 가능한 계정입니다.", hospitalService.checkAccountAvailable(account));
     }
 
-    @ApiResponseWrapper
-//    @ApiResponseWrapper(message = "사용 가능한 라이센스입니다.")
     @GetMapping("/license/{licenseNumber}")
-    public ResponseEntity<Boolean> checkLicenseAvailable(
-            @PathVariable String licenseNumber) {
-        return ResponseEntity.ok(hospitalService.checkLicenseAvailable(licenseNumber));
+    public ResponseEntity<?> checkLicenseAvailable(@PathVariable String licenseNumber) {
+        return ResponseUtility.success( "사용 가능한 라이센스입니다.", hospitalService.checkLicenseAvailable(licenseNumber));
     }
 
-    @ApiResponseWrapper(message = "동물병원 정보가 성공적으로 수정되었습니다.")
     @PutMapping("/me")
-    public ResponseEntity<HospitalUpdateResponse> updateHospital(
+    public ResponseEntity<?> updateHospital(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
             @RequestBody HospitalUpdateRequest request) {
-        log.info("updateHospital request: {}", request);
         Integer id = Integer.parseInt(hospitalDetails.getUsername());
-        return ResponseEntity.ok(hospitalService.updateHospital(id, request));
+        return ResponseUtility.success( "동물병원 정보가 성공적으로 수정되었습니다.", hospitalService.updateHospital(id, request));
+
     }
 }

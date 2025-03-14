@@ -5,11 +5,10 @@ import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.domain.auth.service.AuthService;
-import com.be.KKUKKKUK.global.api.ApiResponseWrapper;
+import com.be.KKUKKKUK.global.util.ApiResponse;
+import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,38 +37,32 @@ public class AuthController {
     private final AuthService authService;
 
     /** 보호자 로그인 **/
-    @ApiResponseWrapper(message = "현재 로그인한 보호자 회원의 정보와 토큰 정보입니다.")
     @PostMapping("/owners/kakao/login")
-    public ResponseEntity<OwnerLoginResponse> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
+    public ResponseEntity<?> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
         log.info("OwnerLoginRequest: {}", request);
         return ResponseEntity.status(HttpStatus.OK).body(authService.ownerLogin(request));
     }
 
     /** 동물병원 로그인 **/
-    @ApiResponseWrapper(message = "현재 로그인한 동물병원 회원의 토큰 정보입니다.")
     @PostMapping("/hospitals/login")
-    public ResponseEntity<HospitalLoginResponse> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
+    public ResponseEntity<?> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
         log.info("HospitalLoginRequest: {}", request);
-        return ResponseEntity.status(HttpStatus.OK).body(authService.hospitalLogin(request));
+        return ResponseUtility.success("현재 로그인한 동물병원 회원의 토큰 정보입니다.", authService.hospitalLogin(request));
+
     }
 
     /** 동물병원 회원가입 **/
-    @ApiResponseWrapper(message = "병원 회원가입이 완료되었습니다.", status = HttpStatus.OK)
     @PostMapping("/hospitals/signup")
     public ResponseEntity<?> hospitalSignup(@Valid @RequestBody HospitalSignupRequest request) {
-        return ResponseEntity.ok(authService.hospitalSignup(request));
+        return ResponseUtility.success( "병원 회원가입이 완료되었습니다.", authService.hospitalSignup(request));
     }
 
     /**
      * 리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.
      */
-    @ApiResponseWrapper(message = "액세스 토큰 재발급이 완료되었습니다.")
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest request) {
-        log.info("RefreshTokenRequest: {}", request);
-        return ResponseEntity.status(HttpStatus.OK).body(authService.refreshAccessToken(request));
+    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseUtility.success("액세스 토큰 재발급이 완료되었습니다.", authService.refreshAccessToken(request));
     }
-
-
 
 }

@@ -83,6 +83,7 @@ public class HospitalService {
 
         hospital.setPassword(request.getPassword());
         hospital.setDoctorName(request.getDoctorName());
+        hospital.setDid(request.getDid());
 
         hospital.setFlagCertified(true);
         hospitalRepository.save(hospital);
