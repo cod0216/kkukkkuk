@@ -38,8 +38,11 @@ public class Owner {
     private String email;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate birth;
 
     @Column(name = "public_key")
     private String publicKey;
+
+    @Column(name = "provider_id")
+    private String providerId;
 }

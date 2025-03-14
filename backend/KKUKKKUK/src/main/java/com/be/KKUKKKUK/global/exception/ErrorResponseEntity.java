@@ -1,6 +1,7 @@
 package com.be.KKUKKKUK.global.exception;
 
 import com.be.KKUKKKUK.global.api.StatusEnum;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.http.ResponseEntity;
 
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.10          Fiat_lux           최초생성<br>
+ * 25.03.14          haelim           JsonProperty 추가, statusEnum -> status, status -> http_code<br>
  */
 @Setter
 @Getter
@@ -22,7 +24,9 @@ import org.springframework.http.ResponseEntity;
 @ToString
 @Builder
 public class ErrorResponseEntity {
+    @JsonProperty("status")
     private StatusEnum statusEnum;
+    @JsonProperty("http_code")
     private int status;
     private String name;
     private String code;
