@@ -14,8 +14,10 @@ import {
   fetchHospitalInfo,
   registerHospital,
 } from "../services/hospitalService";
+import { signup } from "../api/authApi";
 
 interface HospitalFormData {
+  hospitalId: number;
   hospitalName: string;
   address: string;
   phoneNumber: string;
@@ -23,11 +25,11 @@ interface HospitalFormData {
   username: string;
   password: string;
   confirmPassword: string;
-  email: string;
 }
 
 const HospitalRegister: React.FC = () => {
   const [formData, setFormData] = useState<HospitalFormData>({
+    hospitalId: 0,
     hospitalName: "",
     address: "",
     phoneNumber: "",
@@ -35,7 +37,6 @@ const HospitalRegister: React.FC = () => {
     username: "",
     password: "",
     confirmPassword: "",
-    email: "",
   });
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -60,29 +61,25 @@ const HospitalRegister: React.FC = () => {
     }
   };
 
-  // 병원 정보 검색 핸들러
+  // 병원 정보 검색 함수 추가
   const searchHospitalInfo = async () => {
     const { licenseNumber } = formData;
-
     if (!licenseNumber.trim()) {
       toast.error("인허가 번호를 입력해주세요.");
       return;
     }
-
     try {
       setIsSearching(true);
       const result = await fetchHospitalInfo(licenseNumber);
-
       if (result.success) {
-        const { hospitalName, address, phoneNumber } = result.data;
-
+        const { id, hospitalName, address, phoneNumber } = result.data;
         setFormData((prev) => ({
           ...prev,
+          hospitalId: id,
           hospitalName,
           address,
           phoneNumber,
         }));
-
         setLicenseFound(true);
         toast.success("병원 정보를 찾았습니다.");
       } else {
@@ -99,57 +96,49 @@ const HospitalRegister: React.FC = () => {
   // 회원가입 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const { licenseNumber, username, password, confirmPassword, email } =
-      formData;
-
-    if (
-      !licenseNumber ||
-      !username ||
-      !password ||
-      !confirmPassword ||
-      !email
-    ) {
+    const { licenseNumber, username, password, confirmPassword } = formData;
+    if (!licenseNumber || !username || !password || !confirmPassword) {
       toast.error("필수 정보를 모두 입력해주세요.");
       return;
     }
-
-    if (!licenseFound) {
+    if (!licenseFound || formData.hospitalId === 0) {
       toast.error("인허가 번호 검증이 필요합니다.");
       return;
     }
-
     if (password !== confirmPassword) {
       toast.error("비밀번호가 일치하지 않습니다.");
       return;
     }
-
     if (doctors.length === 0) {
       toast.error("최소 1명 이상의 의사를 등록해야 합니다.");
       return;
     }
-
     try {
       dispatch(registerStart());
+      const payload = {
+        account: username,
+        password: password,
+        hospitalId: formData.hospitalId, // hospitalId 전달
+        did: `did:kkuk:hospital:${Date.now().toString(36)}`,
+        license_number: licenseNumber,
+        doctor_name: doctors[0].name,
+      };
 
-      const doctorsData = doctors.map((doctor) => ({
-        name: doctor.name,
-        licenseNumber: doctor.licenseNumber,
-      }));
-
-      const result = await registerHospital({
-        ...formData,
-        doctors: doctorsData,
-      });
-
-      if (result.success) {
-        dispatch(registerSuccess(result.data));
+      // authApi.ts의 signup 함수 사용
+      const result = await signup(
+        payload.account,
+        payload.password,
+        payload.hospitalId,
+        payload.did,
+        payload.license_number,
+        payload.doctor_name
+      );
+      if (result) {
+        dispatch(registerSuccess(result));
         toast.success(
           "병원 등록이 완료되었습니다! 로그인 페이지로 이동합니다."
         );
         navigate("/login");
-      } else {
-        throw new Error("병원 등록에 실패했습니다.");
       }
     } catch (err) {
       dispatch(registerFailure("회원가입 중 오류가 발생했습니다."));
@@ -306,87 +295,77 @@ const HospitalRegister: React.FC = () => {
           </div>
 
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              계정 정보
-            </h3>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  아이디 *
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  계정 정보
+                </h3>
+
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label
+                      htmlFor="username"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      아이디 *
+                    </label>
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      required
+                      value={formData.username}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      비밀번호 *
+                    </label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="confirmPassword"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      비밀번호 확인 *
+                    </label>
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      required
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                </div>
               </div>
-
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  이메일 *
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  비밀번호 *
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  비밀번호 확인 *
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
+                <div>
+                  <DoctorRegistration
+                    doctors={doctors}
+                    setDoctors={setDoctors}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <DoctorRegistration doctors={doctors} setDoctors={setDoctors} />
           </div>
 
           <div className="pt-6">
