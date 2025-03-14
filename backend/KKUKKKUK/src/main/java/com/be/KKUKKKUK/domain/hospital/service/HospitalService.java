@@ -43,11 +43,14 @@ public class HospitalService {
     private final DoctorService doctorService;
 
 
+    /**
+     *
+     * @param request
+     * @return
+     */
     public HospitalLoginResponse login(HospitalLoginRequest request) {
         Hospital hospital = hospitalRepository.findHospitalByAccount(request.getAccount())
                 .orElseThrow(() -> new ApiException(ErrorCode.ACCOUNT_NOT_FOUND));
-
-        log.info("hospital: {}", hospital);
 
         if (!hospital.getPassword().equals(request.getPassword())) {
             throw new ApiException(ErrorCode.PASSWORD_NOT_MATCH);
@@ -58,8 +61,11 @@ public class HospitalService {
         return new HospitalLoginResponse(hospitalMapper.hospitalToHospitalInfo(hospital), tokenPair);
     }
 
-
-
+    /**
+     *
+     * @param request
+     * @return
+     */
     public HospitalSignupResponse signup(HospitalSignupRequest request) {
         // 1. id로 동물병원을 찾을 수 없는 경우 예외 발생
         Hospital hospital = hospitalRepository.findById(request.getId())
@@ -69,14 +75,12 @@ public class HospitalService {
         log.info("flagCertified 확인, 이미 해당 병원으로 등록된 계정이 있는 경우 예외 발생 hospital: {}", hospital);
         if(hospital.getFlagCertified()) throw new ApiException(ErrorCode.HOSPITAL_DUPLICATED);
 
-        // 3. 이미 해당 병원으로 등록된 계정이 있는 경우 예외 발생?
-
-        // 4. 계정이 유니크하지 않은 경우 예외 발생
+        // 3. 계정이 유니크하지 않은 경우 예외 발생
         log.info("등록하려는 계정이 유니크하지 않은 경우 예외 발생 hospital: {}", hospital);
         if(!checkAccountAvailable(request.getAccount())) throw new ApiException(ErrorCode.ACCOUNT_NOT_AVAILABLE);
         hospital.setAccount(request.getAccount());
 
-        // 5. 라이센스가 유니크하지 않은 경우 예외 발생
+        // 4. 라이센스가 유니크하지 않은 경우 예외 발생
         log.info("라이센스가 유니크하지 않은 경우 예외 발생 hospital: {}", hospital);
         if(!checkLicenseAvailable(request.getLicenseNumber())) throw new ApiException(ErrorCode.LICENSE_NOT_AVAILABLE);
         hospital.setLicenseNumber(request.getLicenseNumber());
@@ -125,8 +129,13 @@ public class HospitalService {
         return hospitalRepository.findByLicenseNumber(licenseNumber).isEmpty();
     }
 
+    /**
+     *
+     * @param id 동물병원 식별을 위한 id
+     * @param request
+     * @return
+     */
     public HospitalUpdateResponse updateHospital(Integer id, HospitalUpdateRequest request) {
-
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
 

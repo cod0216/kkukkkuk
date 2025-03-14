@@ -42,22 +42,22 @@ public class AuthController {
     /** 보호자 로그인 **/
     @PostMapping("/owners/kakao/login")
     public ResponseEntity<?> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
-        log.info("OwnerLoginRequest: {}", request);
-        return ResponseEntity.status(HttpStatus.OK).body(authService.ownerLogin(request));
+        return ResponseUtility.success("현재 로그인한 보호자 회원의 토큰 정보입니다.", authService.ownerLogin(request));
+
     }
 
     /** 동물병원 로그인 **/
     @PostMapping("/hospitals/login")
     public ResponseEntity<?> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
         log.info("HospitalLoginRequest: {}", request);
-        return ResponseUtility.success("현재 로그인한 동물병원 회원의 토큰 정보입니다.", authService.hospitalLogin(request));
+        return ResponseUtility.success("동물병원 로그인이 완료되었습니다.", authService.hospitalLogin(request));
 
     }
 
     /** 동물병원 회원가입 **/
     @PostMapping("/hospitals/signup")
     public ResponseEntity<?> hospitalSignup(@Valid @RequestBody HospitalSignupRequest request) {
-        return ResponseUtility.success( "병원 회원가입이 완료되었습니다.", authService.hospitalSignup(request));
+        return ResponseUtility.success( "동물병원 회원가입이 완료되었습니다.", authService.hospitalSignup(request));
     }
 
     /**

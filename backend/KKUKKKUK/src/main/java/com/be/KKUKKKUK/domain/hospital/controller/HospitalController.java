@@ -40,12 +40,14 @@ public class HospitalController {
 
     @GetMapping("/account/{account}")
     public ResponseEntity<?> checkAccountAvailable(@PathVariable String account) {
-        return ResponseUtility.success( "사용 가능한 계정입니다.", hospitalService.checkAccountAvailable(account));
+        Boolean flagAvailable = hospitalService.checkAccountAvailable(account);
+        return ResponseUtility.success( flagAvailable ? "사용 가능한 계정입니다." : "사용할 수 없는 계정입니다.", flagAvailable);
     }
 
     @GetMapping("/license/{licenseNumber}")
     public ResponseEntity<?> checkLicenseAvailable(@PathVariable String licenseNumber) {
-        return ResponseUtility.success( "사용 가능한 라이센스입니다.", hospitalService.checkLicenseAvailable(licenseNumber));
+        Boolean flagAvailable = hospitalService.checkLicenseAvailable(licenseNumber);
+        return ResponseUtility.success( flagAvailable ? "사용 가능한 라이센스입니다." : "사용할 수 없는 라이센스입니다.", flagAvailable);
     }
 
     @PutMapping("/me")
