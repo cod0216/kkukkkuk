@@ -16,7 +16,7 @@ import { login as apiLogin } from "../api/authApi";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.auth);
@@ -25,14 +25,14 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!id || !password) {
       toast.error("이메일과 비밀번호를 모두 입력해주세요.");
       return;
     }
 
     dispatch(loginStart());
     try {
-      const response = await apiLogin(email, password);
+      const response = await apiLogin(id, password);
 
       dispatch(
         loginSuccess({
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
       navigate("/");
     } catch (err: any) {
       dispatch(loginFailure(err.message));
-      toast.error("로그인 실패: $(err.message}");
+      toast.error(`로그인 실패: ${err.message}`);
     }
   };
 
@@ -67,19 +67,19 @@ const Login: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
-              htmlFor="email"
+              htmlFor="id"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              이메일
+              아이디
             </label>
             <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
+              id="id"
+              name="id"
+              type="id"
+              autoComplete="id"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={id}
+              onChange={(e) => setId(e.target.value)}
               className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
