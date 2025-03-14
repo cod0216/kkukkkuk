@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          Fiat_lux           최초생성<br>
+ * 25.03.14          haelim            생성자 추가<br>
  */
 @Entity
 @Table(name = "doctor")
@@ -36,4 +37,11 @@ public class Doctor {
     @ManyToOne
     @JoinColumn(name = "hospital_id", nullable = false)
     private Hospital hospital;
+
+    @Builder
+    public Doctor(String name, Hospital hospital) {
+        this.name = name;
+        this.hospital = hospital;
+    }
+
 }

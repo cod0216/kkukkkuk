@@ -17,12 +17,14 @@ import java.time.LocalDate;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          Fiat_lux           최초생성<br>
+ * 25.03.14          haelim             licenseNumber, doctorName 필드 추가
  */
 @Entity
 @Table(name = "hospital")
 @Getter
 @Setter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -67,4 +69,11 @@ public class Hospital {
 
     @Column(name = "y_axis", nullable = false)
     private BigDecimal yAxis;
+
+    @Column(name = "license_number")
+    private String licenseNumber;
+
+    @Column(name = "doctor_name")
+    private String doctorName;
+
 }
