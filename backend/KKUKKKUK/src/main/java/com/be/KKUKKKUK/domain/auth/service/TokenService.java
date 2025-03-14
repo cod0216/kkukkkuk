@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.14          haelim           토큰 생성, 삭제 시 type 정보 추가<br>
+ *
  */
 @RequiredArgsConstructor
 @Service
@@ -36,27 +38,27 @@ public class TokenService {
         String accessToken = jwtUtility.createAccessToken(userId, type);
         String refreshToken = jwtUtility.createRefreshToken(userId, type);
 
-        saveRefreshToken(userId, refreshToken);
+        saveRefreshToken(userId, type, refreshToken);
         return new JwtTokenPair(accessToken, refreshToken);
     }
 
-    public void saveRefreshToken(Integer userId, String refreshToken) {
+    public void deleteRefreshToken(Integer userId, RelatedType type) {
+        redisTemplate.delete(getRefreshTokenKey(userId, type));
+    }
+
+
+    public void saveRefreshToken(Integer userId, RelatedType type, String refreshToken) {
+        String key = getRefreshTokenKey(userId, type);
         try {
-            redisTemplate.opsForValue().set(String.valueOf(userId), refreshToken, 30, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(key, refreshToken, 30, TimeUnit.DAYS);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to save refresh token for user: " + userId, e);
+            throw new ApiException(ErrorCode.TOKEN_STORAGE_FAILED);
         }
     }
 
-    public String getRefreshToken(Integer userId) {
-        return redisTemplate.opsForValue().get(userId);
+    private String getRefreshTokenKey(Integer userId, RelatedType type) {
+        return userId + ":" + type.name(); // e.g., "123:ADMIN"
     }
-
-
-    public void deleteRefreshToken(Integer userId) {
-        redisTemplate.delete(String.valueOf(userId));
-    }
-
 
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
@@ -66,18 +68,18 @@ public class TokenService {
         }
 
         RelatedType type = jwtUtility.getUserType(refreshToken);
-
         Integer userId = jwtUtility.getUserId(refreshToken);
 
-        String storedRefreshToken = getRefreshToken(userId);
+        String storedRefreshToken = getRefreshToken(userId, type); // 변경된 부분
         if (!refreshToken.equals(storedRefreshToken)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
         String newAccessToken = jwtUtility.createAccessToken(userId, type);
-
         return new RefreshTokenResponse(newAccessToken, refreshToken);
     }
 
-
+    public String getRefreshToken(Integer userId, RelatedType type) {
+        return redisTemplate.opsForValue().get(getRefreshTokenKey(userId, type));
+    }
 }

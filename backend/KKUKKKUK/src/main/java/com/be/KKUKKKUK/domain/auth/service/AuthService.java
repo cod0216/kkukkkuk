@@ -8,10 +8,13 @@ import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
+import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
+import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,5 +50,14 @@ public class AuthService {
 
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request){
         return tokenService.refreshAccessToken(request);
+    }
+
+    public boolean logout(UserDetails userDetails) {
+        if(userDetails instanceof HospitalDetails){
+            tokenService.deleteRefreshToken(Integer.valueOf(userDetails.getUsername()), RelatedType.HOSPITAL);
+        }else{
+            tokenService.deleteRefreshToken(Integer.valueOf(userDetails.getUsername()), RelatedType.OWNER);
+        }
+        return true;
     }
 }

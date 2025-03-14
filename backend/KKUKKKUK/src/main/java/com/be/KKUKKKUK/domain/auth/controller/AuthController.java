@@ -7,6 +7,7 @@ import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.domain.auth.service.AuthService;
+import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.global.util.ApiResponse;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.Valid;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,6 +66,11 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseUtility.success("액세스 토큰 재발급이 완료되었습니다.", authService.refreshAccessToken(request));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails userDetails){
+        return ResponseUtility.success("로그아웃이 성공적으로 처리되었습니다.", authService.logout(userDetails));
     }
 
 }
