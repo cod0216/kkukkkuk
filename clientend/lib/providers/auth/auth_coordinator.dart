@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 인증 단계
 enum AuthStep {
-  initial, // 초기 상태
   login, // 로그인 단계
   walletSetup, // 지갑 설정 단계
   completed, // 인증 완료
@@ -14,12 +13,7 @@ enum AuthStep {
 class AuthCoordinator extends StateNotifier<AuthStep> {
   final Ref ref;
 
-  AuthCoordinator(this.ref) : super(AuthStep.initial);
-
-  /// 로그인 화면으로 이동
-  void moveToLogin() {
-    state = AuthStep.login;
-  }
+  AuthCoordinator(this.ref) : super(AuthStep.login);
 
   /// 지갑 설정 화면으로 이동
   void moveToWalletSetup() {
@@ -38,7 +32,7 @@ class AuthCoordinator extends StateNotifier<AuthStep> {
 
   /// 상태 초기화
   void reset() {
-    state = AuthStep.initial;
+    state = AuthStep.login;
   }
 }
 

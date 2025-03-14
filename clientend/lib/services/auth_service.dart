@@ -1,12 +1,31 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class AuthService {
   Future<bool> signInWithKakao() async {
-    // TODO: 카카오 SDK 연동 구현
-    // TODO: 카카오 로그인 후 서버 인증 처리
-    // TODO: 사용자 정보 및 토큰 저장 로직 추가
-    await Future.delayed(const Duration(seconds: 2));
-    return true;
+    try {
+      OAuthToken token;
+      // 카카오톡 설치 여부 확인
+      final installed = await isKakaoTalkInstalled();
+      if (installed) {
+        token = await UserApi.instance.loginWithKakaoTalk();
+      } else {
+        token = await UserApi.instance.loginWithKakaoAccount();
+      }
+
+      token.accessToken;
+      User user = await UserApi.instance.me();
+
+      // TODO: 카카오 로그인 후 서버 인증 처리
+      // TODO: 사용자 정보 및 토큰 저장 로직 추가
+      print('Kakao login success: ${user.id}, ${token.accessToken}');
+      return true;
+    } catch (error) {
+      print('Kakao login failed: $error');
+      throw Exception('Kakao login failed: $error');
+    }
   }
 
   Future<bool> logout() async {

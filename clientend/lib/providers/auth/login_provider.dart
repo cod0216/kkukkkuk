@@ -30,12 +30,17 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
   /// 카카오 로그인 처리
   Future<void> signInWithKakao() async {
-    // 로딩 상태로 전환
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       // 카카오 로그인 시도
-      await _authService.signInWithKakao();
+      final success = await _authService.signInWithKakao();
+
+      if (!success) {
+        state = state.copyWith(isLoading: false, error: '카카오 로그인에 실패했습니다.');
+        ref.read(authCoordinatorProvider.notifier).handleError();
+        return;
+      }
 
       // 지갑 존재 여부 확인
       final hasWallet = await _walletService.checkWalletExists();
@@ -45,10 +50,8 @@ class LoginNotifier extends StateNotifier<LoginState> {
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
 
-      // 로딩 상태 해제
       state = state.copyWith(isLoading: false);
     } catch (e) {
-      // 에러 처리
       state = state.copyWith(
         isLoading: false,
         error: '로그인에 실패했습니다. 다시 시도해주세요.',
