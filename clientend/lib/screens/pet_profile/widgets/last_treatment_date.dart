@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/models/pet_medical_record.dart';
-import 'package:kkuk_kkuk/theme/app_text_styles.dart';
 
 /// 최근 진료일 정보를 표시하는 위젯
 class LastTreatmentDate extends StatelessWidget {
@@ -31,7 +30,7 @@ class LastTreatmentDate extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '최근 진료일: ${latestRecord.treatmentDate.year}.${latestRecord.treatmentDate.month.toString().padLeft(2, '0')}.${latestRecord.treatmentDate.day.toString().padLeft(2, '0')}',
-            style: AppTextStyles.caption,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],
       ),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/models/pet_medical_record.dart';
-import 'package:kkuk_kkuk/theme/app_colors.dart';
-import 'package:kkuk_kkuk/theme/app_text_styles.dart';
 
 class MedicalRecordCard extends StatelessWidget {
   final PetMedicalRecord record;
@@ -36,28 +34,28 @@ class MedicalRecordCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
             record.recordType,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.grey.shade700),
           ),
         ),
         const Spacer(),
         Text(
           '${record.treatmentDate.year}.${record.treatmentDate.month.toString().padLeft(2, '0')}.${record.treatmentDate.day.toString().padLeft(2, '0')}',
-          style: AppTextStyles.caption,
+          style: TextStyle(color: Colors.grey.shade700),
         ),
       ],
     );
   }
 
   Widget _buildTreatmentDetails() {
-    return Text(record.treatmentDetails, style: AppTextStyles.body1);
+    return Text(
+      record.treatmentDetails,
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    );
   }
 
   Widget _buildMedicalInfo() {
@@ -79,10 +77,14 @@ class MedicalRecordCard extends StatelessWidget {
         const Divider(height: 24),
         Text(
           '메모',
-          style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.grey.shade700,
+          ),
         ),
         const SizedBox(height: 4),
-        Text(record.memo!, style: AppTextStyles.caption),
+        Text(record.memo!, style: TextStyle(color: Colors.grey.shade700)),
       ],
     );
   }
@@ -93,20 +95,9 @@ class MedicalRecordCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$label: ',
-            style: AppTextStyles.caption.copyWith(
-              color: Colors.grey.shade700,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('$label: ', style: TextStyle(fontWeight: FontWeight.bold)),
           Expanded(
-            child: Text(
-              value,
-              style: AppTextStyles.caption.copyWith(
-                color: Colors.grey.shade700,
-              ),
-            ),
+            child: Text(value, style: TextStyle(color: Colors.grey.shade700)),
           ),
         ],
       ),

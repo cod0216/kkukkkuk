@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/theme/app_colors.dart';
-import 'package:kkuk_kkuk/theme/app_text_styles.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -14,8 +12,8 @@ class CustomButton extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.backgroundColor = AppColors.black,
-    this.textColor = AppColors.white,
+    this.backgroundColor = Colors.black,
+    this.textColor = Colors.white,
     this.width = double.infinity,
     this.height = 50,
   });
@@ -33,10 +31,7 @@ class CustomButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           elevation: 0,
         ),
-        child: Text(
-          text,
-          style: AppTextStyles.button.copyWith(color: textColor),
-        ),
+        child: Text(text, style: const TextStyle(fontSize: 16)),
       ),
     );
   }

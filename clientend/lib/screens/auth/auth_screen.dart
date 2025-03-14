@@ -60,7 +60,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   /// 앱바 구성
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(title: const Text('꾹꾹 로그인'));
+    return AppBar(title: const Text('auth screen app bar'));
   }
 
   /// 홈 화면 이동 처리

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/theme/app_text_styles.dart';
 
 class EmptyRecords extends StatelessWidget {
   const EmptyRecords({super.key});
@@ -18,9 +17,7 @@ class EmptyRecords extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             '진료 기록이 없습니다',
-            style: AppTextStyles.subtitle1.copyWith(
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade400),
           ),
         ],
       ),

@@ -16,31 +16,25 @@ class LoginView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 로그인 상태 관리
     final loginState = ref.watch(loginProvider);
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 상단 여백
-            const Spacer(flex: 2),
+            const Spacer(flex: 1),
 
-            // 앱 로고
-            AppLogo(),
+            const AppLogo(),
 
-            // 로고와 버튼 사이 여백
-            const Spacer(flex: 2),
+            SizedBox(height: 40),
 
-            // 카카오 로그인 버튼
             KakaoLoginButton(
               onPressed: () => controller.handleLogin(),
               isLoading: loginState.isLoading,
             ),
 
-            // 하단 여백
             const Spacer(flex: 1),
           ],
         ),
