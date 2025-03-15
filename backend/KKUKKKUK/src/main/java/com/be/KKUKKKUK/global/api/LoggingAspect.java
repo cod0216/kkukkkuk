@@ -66,17 +66,12 @@ public class LoggingAspect {
      */
     @AfterReturning(value = "onRequest()", returning = "returnObj")
     public void afterReturnLog(JoinPoint joinPoint, Object returnObj) {
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-
         log.info("[Response] : {}", returnObj);
     }
 
     /**
-     * 메서드 파라미터를 이름과 값의 쌍으로 변환하여 맵 형태로 반환합니다.
-     * <p>
+     *
      * 메서드의 파라미터 이름과 값을 매핑하여, 로깅을 위한 파라미터 정보를 생성합니다.
-     * </p>
      *
      * @param joinPoint 호출된 메서드의 정보를 제공하는 JoinPoint 객체
      * @return 파라미터 이름과 값의 쌍을 포함하는 맵
