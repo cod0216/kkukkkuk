@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
  */
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class AuthService {
     private final HospitalService hospitalService;
     private final OwnerService ownerService;

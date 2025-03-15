@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
  */
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class TokenService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtility jwtUtility;

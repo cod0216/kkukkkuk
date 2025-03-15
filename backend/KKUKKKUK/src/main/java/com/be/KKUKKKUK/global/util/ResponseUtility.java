@@ -1,5 +1,6 @@
 package com.be.KKUKKKUK.global.util;
 
+import com.be.KKUKKKUK.global.api.ApiResponse;
 import com.be.KKUKKKUK.global.api.StatusEnum;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -11,10 +11,7 @@ import com.be.KKUKKKUK.domain.owner.repository.OwnerRepository;
 import com.be.KKUKKKUK.domain.wallet.service.WalletService;
 import com.be.KKUKKKUK.domain.wallet.dto.WalletInfo;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
-import com.be.KKUKKKUK.global.exception.ApiException;
-import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +31,6 @@ import java.util.Optional;
  */
 @Transactional(readOnly = true)
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class OwnerService {
     private final TokenService tokenService;

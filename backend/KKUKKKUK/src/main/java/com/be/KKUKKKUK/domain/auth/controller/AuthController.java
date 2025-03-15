@@ -9,13 +9,11 @@ import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.domain.auth.service.AuthService;
-import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
-import com.be.KKUKKKUK.global.util.ApiResponse;
+import com.be.KKUKKKUK.global.api.ApiResponse;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @Controller
-@Slf4j
 public class AuthController {
     private final AuthService authService;
 
@@ -50,9 +47,7 @@ public class AuthController {
     /** 동물병원 로그인 **/
     @PostMapping("/hospitals/login")
     public ResponseEntity<ApiResponse<HospitalLoginResponse>> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
-        log.info("HospitalLoginRequest: {}", request);
         return ResponseUtility.success("동물병원 로그인이 완료되었습니다.", authService.hospitalLogin(request));
-
     }
 
     /** 동물병원 회원가입 **/
