@@ -3,6 +3,8 @@ package com.be.KKUKKKUK.domain.owner.service;
 import com.be.KKUKKKUK.domain.owner.dto.mapper.OwnerMapper;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import com.be.KKUKKKUK.domain.owner.repository.OwnerRepository;
+import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,7 +32,7 @@ public class OwnerDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         Owner owner = ownerRepository.findById(Integer.parseInt(id))
-                .orElseThrow(() -> new UsernameNotFoundException("Hospital not found"));
+                .orElseThrow(() -> new ApiException(ErrorCode.INVALID_TOKEN));
         return ownerMapper.ownerToOwnerDetails(owner);
     }
 }

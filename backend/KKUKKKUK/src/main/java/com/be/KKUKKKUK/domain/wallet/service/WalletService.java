@@ -26,9 +26,18 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final WalletMapper walletMapper;
 
-    public WalletInfo getWalletByOwnerId(Integer ownerId) {
+    /**
+     * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
+     * 지갑이 없다면 null 을 반환합니다.
+     *
+     * @param ownerId 보호자 회원의 ID
+     * @return 디지털 지갑 정보
+     */
+    public WalletInfo getWalletInfoByOwnerId(Integer ownerId) {
         Wallet wallet = walletRepository.findWalletByOwnerId(ownerId).orElse(null);
         return walletMapper.walletToWalletInfo(wallet);
     }
+
+
 
 }

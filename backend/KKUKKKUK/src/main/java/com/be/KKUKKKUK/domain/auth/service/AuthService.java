@@ -36,28 +36,63 @@ public class AuthService {
     private final OwnerService ownerService;
     private final TokenService tokenService;
 
+    /**
+     * 보호자 로그인을 수행합니다.
+     *
+     * @param request 보호자 로그인 요청 정보
+     * @return 보호자 로그인 응답 객체
+     */
     public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
         return ownerService.loginOrSignup(request);
     }
 
+    /**
+     * 동물병원 로그인을 수행합니다.
+     *
+     * @param request 동물병원 로그인 요청 정보
+     * @return 동물병원 로그인 응답 객체
+     */
     public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
         return hospitalService.login(request);
     }
 
+    /**
+     * 동물병원 회원가입을 수행합니다.
+     *
+     * @param request 동물병원 회원가입 요청 정보
+     * @return 동물병원 회원가입 응답 객체
+     */
     public HospitalSignupResponse hospitalSignup(HospitalSignupRequest request) {
         return hospitalService.signup(request);
     }
 
+
+    /**
+     * 액세스 토큰을 갱신합니다.
+     *
+     * @param request 리프레시 토큰 요청 객체
+     * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
+     */
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request){
         return tokenService.refreshAccessToken(request);
     }
 
+    /**
+     * 사용자를 로그아웃시킵니다.
+     * 사용자 정보에서 사용자의 type (동물병원, 보호자)을 구분하여 요청을 처리합니다.
+     *
+     * @param userDetails 현재 인증된 사용자 정보
+     * @return 로그아웃 성공 여부 (항상 true 반환)
+     */
     public boolean logout(UserDetails userDetails) {
-        if(userDetails instanceof HospitalDetails){
-            tokenService.deleteRefreshToken(Integer.valueOf(userDetails.getUsername()), RelatedType.HOSPITAL);
-        }else{
-            tokenService.deleteRefreshToken(Integer.valueOf(userDetails.getUsername()), RelatedType.OWNER);
+        try {
+            int userId = Integer.parseInt(userDetails.getUsername());
+            RelatedType type = (userDetails instanceof HospitalDetails) ? RelatedType.HOSPITAL : RelatedType.OWNER;
+            tokenService.deleteRefreshToken(userId, type);
+
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
-        return true;
     }
 }

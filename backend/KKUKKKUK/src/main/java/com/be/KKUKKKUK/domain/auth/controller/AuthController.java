@@ -5,6 +5,8 @@ import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
+import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
+import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.domain.auth.service.AuthService;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
@@ -31,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @Controller
@@ -41,14 +42,14 @@ public class AuthController {
 
     /** 보호자 로그인 **/
     @PostMapping("/owners/kakao/login")
-    public ResponseEntity<?> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
+    public ResponseEntity<ApiResponse<OwnerLoginResponse>> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
         return ResponseUtility.success("현재 로그인한 보호자 회원의 토큰 정보입니다.", authService.ownerLogin(request));
 
     }
 
     /** 동물병원 로그인 **/
     @PostMapping("/hospitals/login")
-    public ResponseEntity<?> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
+    public ResponseEntity<ApiResponse<HospitalLoginResponse>> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
         log.info("HospitalLoginRequest: {}", request);
         return ResponseUtility.success("동물병원 로그인이 완료되었습니다.", authService.hospitalLogin(request));
 
@@ -56,7 +57,7 @@ public class AuthController {
 
     /** 동물병원 회원가입 **/
     @PostMapping("/hospitals/signup")
-    public ResponseEntity<?> hospitalSignup(@Valid @RequestBody HospitalSignupRequest request) {
+    public ResponseEntity<ApiResponse<HospitalSignupResponse>> hospitalSignup(@Valid @RequestBody HospitalSignupRequest request) {
         return ResponseUtility.success( "동물병원 회원가입이 완료되었습니다.", authService.hospitalSignup(request));
     }
 
@@ -64,12 +65,13 @@ public class AuthController {
      * 리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.
      */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseUtility.success("액세스 토큰 재발급이 완료되었습니다.", authService.refreshAccessToken(request));
     }
 
+
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<ApiResponse<Boolean>> logout(@AuthenticationPrincipal UserDetails userDetails){
         return ResponseUtility.success("로그아웃이 성공적으로 처리되었습니다.", authService.logout(userDetails));
     }
 

@@ -3,6 +3,8 @@ package com.be.KKUKKKUK.domain.hospital.service;
 import com.be.KKUKKKUK.domain.hospital.dto.mapper.HospitalMapper;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.domain.hospital.repository.HospitalRepository;
+import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,7 +32,7 @@ public class HospitalDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         Hospital hospital = hospitalRepository.findById(Integer.parseInt(id))
-                .orElseThrow(() -> new UsernameNotFoundException("Hospital not found"));
+                .orElseThrow(() -> new ApiException(ErrorCode.INVALID_TOKEN));
 
         return hospitalMapper.hospitalToHospitalDetails(hospital);
     }

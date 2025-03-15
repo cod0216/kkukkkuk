@@ -9,6 +9,7 @@ import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.doctor.service.DoctorService;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalAuthorizationResponse;
+import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalUpdateResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.domain.hospital.dto.mapper.HospitalMapper;
@@ -18,6 +19,7 @@ import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -32,6 +34,7 @@ import java.util.Objects;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.15          haelim           비밀번호 encording, 주석 추가
  */
 @RequiredArgsConstructor
 @Slf4j
@@ -41,12 +44,15 @@ public class HospitalService {
     private final HospitalMapper hospitalMapper;
     private final TokenService tokenService;
     private final DoctorService doctorService;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
     /**
+     * 동물병원 로그인 기능.
      *
-     * @param request
-     * @return
+     * @param request 로그인 요청 정보
+     * @return 로그인 성공 시 병원 정보 및 토큰 반환
+     * @throws ApiException 계정이 존재하지 않거나 비밀번호가 틀린 경우 예외 발생
      */
     public HospitalLoginResponse login(HospitalLoginRequest request) {
         Hospital hospital = hospitalRepository.findHospitalByAccount(request.getAccount())
@@ -62,36 +68,34 @@ public class HospitalService {
     }
 
     /**
+     * 동물병원 회원가입 기능.
      *
-     * @param request
-     * @return
+     * @param request 회원가입 요청 정보
+     * @return 회원가입 성공 시 병원 정보 반환
+     * @throws ApiException 병원이 존재하지 않거나 중복된 계정 또는 라이센스일 경우 예외 발생
      */
     public HospitalSignupResponse signup(HospitalSignupRequest request) {
         // 1. id로 동물병원을 찾을 수 없는 경우 예외 발생
-        Hospital hospital = hospitalRepository.findById(request.getId())
-                .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
+        Hospital hospital = findHospitalById(request.getId());
 
         // 2. 이미 해당 병원으로 등록된 계정이 있는 경우 예외 발생
-        log.info("flagCertified 확인, 이미 해당 병원으로 등록된 계정이 있는 경우 예외 발생 hospital: {}", hospital);
         if(hospital.getFlagCertified()) throw new ApiException(ErrorCode.HOSPITAL_DUPLICATED);
 
         // 3. 계정이 유니크하지 않은 경우 예외 발생
-        log.info("등록하려는 계정이 유니크하지 않은 경우 예외 발생 hospital: {}", hospital);
         if(!checkAccountAvailable(request.getAccount())) throw new ApiException(ErrorCode.ACCOUNT_NOT_AVAILABLE);
         hospital.setAccount(request.getAccount());
 
         // 4. 라이센스가 유니크하지 않은 경우 예외 발생
-        log.info("라이센스가 유니크하지 않은 경우 예외 발생 hospital: {}", hospital);
         if(!checkLicenseAvailable(request.getLicenseNumber())) throw new ApiException(ErrorCode.LICENSE_NOT_AVAILABLE);
         hospital.setLicenseNumber(request.getLicenseNumber());
-
-        hospital.setPassword(request.getPassword());
+        hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         hospital.setDoctorName(request.getDoctorName());
         hospital.setDid(request.getDid());
 
         hospital.setFlagCertified(true);
         hospitalRepository.save(hospital);
         doctorService.registerDoctor(request.getDoctorName(), hospital);
+
         return hospitalMapper.hospitalToHospitalSignupRequest(hospital);
     }
 
@@ -109,6 +113,40 @@ public class HospitalService {
         return hospitalMapper.hospitalToHospitalAuthorizationRequest(hospital);
     }
 
+
+    /**
+     * 동물병원의 정보를 업데이트합니다.
+     *
+     * @param id 병원 ID
+     * @param request 업데이트 요청 정보
+     * @return 업데이트된 병원 정보
+     * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
+     */
+    public HospitalUpdateResponse updateHospital(Integer id, HospitalUpdateRequest request) {
+        Hospital hospital = findHospitalById(id);
+
+        if(!Objects.isNull(request.getDid())) hospital.setDid(request.getDid());
+        if(!Objects.isNull(request.getPassword())) hospital.setPassword(passwordEncoder.encode(request.getPassword()));
+        if(!Objects.isNull(request.getName())) hospital.setName(request.getName());
+        if(!Objects.isNull(request.getPhoneNumber())) hospital.setPhoneNumber(request.getPhoneNumber());
+
+        hospitalRepository.save(hospital);
+
+        return new HospitalUpdateResponse(hospitalMapper.hospitalToHospitalInfo(hospital));
+    }
+
+    /**
+     * ID를 기반으로 병원 정보를 조회합니다.
+     *
+     * @param id 병원 ID
+     * @return 병원 정보
+     * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
+     */
+    public HospitalInfoResponse getHospitalById(Integer id) {
+        Hospital hospital = findHospitalById(id);
+        return hospitalMapper.hospitalToHospitalInfoResponse(hospital);
+    }
+
     /**
      * 동물병원용 계정의 사용 가능 여부를 확인합니다.
      * @param account 로그인 시 사용할 동물병원 계정
@@ -116,6 +154,18 @@ public class HospitalService {
      */
     public boolean checkAccountAvailable(String account) {
         return hospitalRepository.findByAccount(account).isEmpty();
+    }
+
+    /**
+     * ID를 기반으로 병원 entity 를 조회합니다.
+     *
+     * @param id 병원 ID
+     * @return 병원 entity
+     * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
+     */
+    private Hospital findHospitalById(Integer id) {
+        return hospitalRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
     }
 
     /**
@@ -129,22 +179,6 @@ public class HospitalService {
         return hospitalRepository.findByLicenseNumber(licenseNumber).isEmpty();
     }
 
-    /**
-     *
-     * @param id 동물병원 식별을 위한 id
-     * @param request
-     * @return
-     */
-    public HospitalUpdateResponse updateHospital(Integer id, HospitalUpdateRequest request) {
-        Hospital hospital = hospitalRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
-
-        hospital.setPassword(request.getPassword());
-        hospital.setName(request.getName());
-        hospitalRepository.save(hospital);
-
-        return new HospitalUpdateResponse(hospitalMapper.hospitalToHospitalInfo(hospital));
-    }
 
 }
 

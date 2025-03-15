@@ -1,5 +1,6 @@
 package com.be.KKUKKKUK.domain.hospital.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -21,4 +22,7 @@ public class HospitalInfo {
     private String did;
     private String account;
     private String name;
+    @JsonProperty("phone_number")
+    private String phoneNumber;
+    private String address;
 }
