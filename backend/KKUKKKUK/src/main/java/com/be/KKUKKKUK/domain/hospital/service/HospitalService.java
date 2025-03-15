@@ -58,7 +58,7 @@ public class HospitalService {
         Hospital hospital = hospitalRepository.findHospitalByAccount(request.getAccount())
                 .orElseThrow(() -> new ApiException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        if (!hospital.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {
             throw new ApiException(ErrorCode.PASSWORD_NOT_MATCH);
         }
 
