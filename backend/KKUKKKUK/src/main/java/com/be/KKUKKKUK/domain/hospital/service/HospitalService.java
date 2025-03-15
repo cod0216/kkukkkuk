@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -36,6 +37,8 @@ import java.util.Objects;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.15          haelim           비밀번호 encording, 주석 추가
  */
+
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -74,6 +77,7 @@ public class HospitalService {
      * @return 회원가입 성공 시 병원 정보 반환
      * @throws ApiException 병원이 존재하지 않거나 중복된 계정 또는 라이센스일 경우 예외 발생
      */
+    @Transactional
     public HospitalSignupResponse signup(HospitalSignupRequest request) {
         // 1. id로 동물병원을 찾을 수 없는 경우 예외 발생
         Hospital hospital = findHospitalById(request.getId());
@@ -122,6 +126,7 @@ public class HospitalService {
      * @return 업데이트된 병원 정보
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
+    @Transactional
     public HospitalUpdateResponse updateHospital(Integer id, HospitalUpdateRequest request) {
         Hospital hospital = findHospitalById(id);
 
@@ -163,7 +168,7 @@ public class HospitalService {
      * @return 병원 entity
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
-    private Hospital findHospitalById(Integer id) {
+    public Hospital findHospitalById(Integer id) {
         return hospitalRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
     }

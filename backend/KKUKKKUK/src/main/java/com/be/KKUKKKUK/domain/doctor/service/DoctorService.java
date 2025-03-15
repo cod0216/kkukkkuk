@@ -8,6 +8,7 @@ import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -16,6 +17,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorMapper doctorMapper;
 
+    @Transactional
     public DoctorInfo registerDoctor(String name, Hospital hospital) {
         return doctorMapper.doctorToDoctorInfo(doctorRepository.save(new Doctor(name, hospital)));
     }

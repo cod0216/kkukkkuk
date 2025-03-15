@@ -16,6 +16,7 @@ import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -31,6 +32,7 @@ import java.util.Optional;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
+@Transactional(readOnly = true)
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -79,7 +81,8 @@ public class OwnerService {
      * @param request 회원가입 요청 정보
      * @return Owner 생성된 Owner 엔티티
      */
-    private Owner signUpOwner(OwnerLoginRequest request){
+    @Transactional
+    public Owner signUpOwner(OwnerLoginRequest request){
         Owner newOwner = request.toOwnerEntity();
         ownerRepository.save(newOwner);
         return newOwner;
@@ -92,7 +95,8 @@ public class OwnerService {
      * @param request 업데이트할 정보가 담긴 요청 객체
      * @return Owner 업데이트된 Owner 엔티티
      */
-    private Owner updateOwnerInfo(Owner owner, OwnerLoginRequest request) {
+    @Transactional
+    public Owner updateOwnerInfo(Owner owner, OwnerLoginRequest request) {
         owner.setName(request.getName());
         owner.setEmail(request.getEmail());
 
