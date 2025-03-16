@@ -30,7 +30,7 @@ public class DoctorService {
     private final DoctorMapper doctorMapper;
 
     @Transactional
-    public DoctorInfo registerDoctor(String name, Hospital hospital) {
+    public DoctorInfo registerDoctor(String name, Hospital hospital) { //TODO 반환값이 사용되지 않은데 굳이 반환을 해야하는 이유가 있을까요?
         return doctorMapper.doctorToDoctorInfo(doctorRepository.save(new Doctor(name, hospital)));
     }
 

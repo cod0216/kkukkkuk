@@ -13,7 +13,6 @@ import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 

@@ -34,8 +34,8 @@ public class WalletService {
      * @return 디지털 지갑 정보
      */
     public WalletInfo getWalletInfoByOwnerId(Integer ownerId) {
-        Wallet wallet = walletRepository.findWalletByOwnerId(ownerId).orElse(null);
-        return walletMapper.walletToWalletInfo(wallet);
+        Wallet wallet = walletRepository.getWalletByOwnerId(ownerId).orElse(null);
+        return walletMapper.mapWalletToWalletInfo(wallet);
     }
 
 

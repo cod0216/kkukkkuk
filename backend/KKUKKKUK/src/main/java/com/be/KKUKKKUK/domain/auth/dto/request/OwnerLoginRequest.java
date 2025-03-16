@@ -35,7 +35,7 @@ public class OwnerLoginRequest {
 
     @NotBlank
     @Pattern(regexp = "\\d{4}", message = "출생연도은 1999 형식이어야 합니다.")
-    private String birthyear;
+    private String birthyear; //TODO 스네이크 케이스로 수정해주세요
 
     @NotBlank
     @Pattern(regexp = "\\d{4}", message = "출생일은 0523 형식이어야 합니다.")

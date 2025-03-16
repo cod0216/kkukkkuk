@@ -20,12 +20,15 @@ import org.mapstruct.Mapper;
  * 25.03.13          haelim           최초생성<br>
  */
 @Mapper(componentModel = "spring")
-public interface HospitalMapper {
+public interface HospitalMapper { //TODO 좀 가독성 좋게 메서드마다 띄어쓰기 하는건 어떨까요?
     HospitalInfo hospitalToHospitalInfo(Hospital hospital);
-    HospitalAuthorizationResponse hospitalToHospitalAuthorizationRequest(Hospital hospital);
-    HospitalSignupResponse hospitalToHospitalSignupRequest(Hospital hospital);
-    HospitalDetails hospitalToHospitalDetails(Hospital hospital);
-    HospitalInfoResponse hospitalToHospitalInfoResponse(Hospital hospital);
 
+    HospitalAuthorizationResponse hospitalToHospitalAuthorizationRequest(Hospital hospital);
+
+    HospitalSignupResponse hospitalToHospitalSignupRequest(Hospital hospital);
+
+    HospitalDetails hospitalToHospitalDetails(Hospital hospital);
+
+    HospitalInfoResponse hospitalToHospitalInfoResponse(Hospital hospital);
 }
 

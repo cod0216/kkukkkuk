@@ -27,9 +27,8 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.13          haelim           최초 생성<br>
  */
 @RequestMapping("/api/hospitals")
-@Slf4j
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class HospitalController {
     private final HospitalService hospitalService;
 

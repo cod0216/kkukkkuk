@@ -58,10 +58,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String[] AllowUrls = new String[]{
             "/",
             "/error",
-            "/api/auth/refresh",
-            "/api/auth/owners/kakao/login",
-            "/api/auth/hospitals/signup",
-            "/api/auth/hospitals/login",
+            "/api/auths/refresh",
+            "/api/auths/owners/kakao/login",
+            "/api/auths/hospitals/signup",
+            "/api/auths/hospitals/login",
             "/api/hospitals/authorization-number/**",
             "/api/hospitals/account/**",
             "/api/hospitals/license/**",
@@ -106,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         UserDetails userDetails;
         if (type.equals(RelatedType.OWNER)) {
-            userDetails = ownerDetailService.loadUserByUsername(userId.toString());
+            userDetails = ownerDetailService.loadUserByUsername(userId.toString()); //TODO Integer UserId 를 String 으로 캐스팅하고 다시 저 메서드에서는 Integer로 캐스팅하는데 이부분 확인해주세요
         } else if (type.equals(RelatedType.HOSPITAL)) {
             userDetails = hospitalDetailService.loadUserByUsername(userId.toString());
         } else {

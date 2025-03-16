@@ -59,9 +59,10 @@ public class TokenService {
      */
     public void deleteRefreshToken(Integer userId, RelatedType type) {
         String tokenKey = getRefreshTokenKey(userId, type);
-        if(redisTemplate.hasKey(tokenKey)) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(tokenKey))) {
             redisTemplate.delete(tokenKey);
-        }else throw new ApiException(ErrorCode.INVALID_TOKEN);
+        }
+        else throw new ApiException(ErrorCode.INVALID_TOKEN);
     }
 
     /**
