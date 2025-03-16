@@ -23,6 +23,6 @@ import java.util.Optional;
 @Data
 public class OwnerLoginResponse {
     private OwnerInfo owner;
-    private JwtTokenPair tokens;
+    private JwtTokenPair tokens; //TODO 변수 명을 이것만 복수로 하신 이유가 있을까요?
     private WalletInfo wallet;
 }

@@ -59,7 +59,7 @@ public class TokenService {
      */
     public void deleteRefreshToken(Integer userId, RelatedType type) {
         String tokenKey = getRefreshTokenKey(userId, type);
-        if(redisTemplate.hasKey(tokenKey)) {
+        if(redisTemplate.hasKey(tokenKey)) { //TODO 메서드 return 타입이 Boolean 이라는 Wrapper 클래스인데 Boolean Wrapper 클래스는 if 문을 사용할때 어떤식으로 쓰는지 알면 좋을 것 같아요
             redisTemplate.delete(tokenKey);
         }else throw new ApiException(ErrorCode.INVALID_TOKEN);
     }

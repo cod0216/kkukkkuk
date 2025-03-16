@@ -18,8 +18,8 @@ import lombok.ToString;
  * 25.03.13          haelim           최초 생성<br>
  */
 @Getter
-@AllArgsConstructor
-@ToString
+@AllArgsConstructor //TODO 필요할까요?
+@ToString //TODO 필요할까요?
 public class HospitalLoginRequest {
     @NotBlank(message = "계정은 필수로 입력해주세요.")
     @Pattern(regexp = "^[a-z0-9_]{5,10}$", message = "계정은 5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.")
