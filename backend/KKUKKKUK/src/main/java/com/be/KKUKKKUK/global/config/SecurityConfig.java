@@ -82,10 +82,11 @@ public class SecurityConfig {
                 )
                 // CSRF 보호 비활성화
                 .csrf(CsrfConfigurer::disable)
-                // 폼 로그인 및 기본 HTTP 인증을 비활성화
+                .cors(cors-> cors.configurationSource(corsConfigurationSource()))
+                // 폼 로그인 및 기본 HTTP 인증 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(HttpBasicConfigurer::disable)
-                // 세션을 사용하지 않고, JWT 인증 방식을 사용
+                // 세션을 사용하지 않고, JWT 인증 방식 사용
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

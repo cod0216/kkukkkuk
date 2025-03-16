@@ -4,6 +4,7 @@ import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalInfo;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalAuthorizationResponse;
+import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import org.mapstruct.Mapper;
 
@@ -24,5 +25,7 @@ public interface HospitalMapper {
     HospitalAuthorizationResponse hospitalToHospitalAuthorizationRequest(Hospital hospital);
     HospitalSignupResponse hospitalToHospitalSignupRequest(Hospital hospital);
     HospitalDetails hospitalToHospitalDetails(Hospital hospital);
+    HospitalInfoResponse hospitalToHospitalInfoResponse(Hospital hospital);
+
 }
 

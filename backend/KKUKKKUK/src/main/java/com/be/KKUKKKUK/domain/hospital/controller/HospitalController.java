@@ -2,16 +2,14 @@ package com.be.KKUKKKUK.domain.hospital.controller;
 
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
-import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalAuthorizationResponse;
-import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalUpdateResponse;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
-import com.be.KKUKKKUK.global.api.ApiResponseWrapper;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -50,12 +48,20 @@ public class HospitalController {
         return ResponseUtility.success( flagAvailable ? "사용 가능한 라이센스입니다." : "사용할 수 없는 라이센스입니다.", flagAvailable);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getHospitalInfoMine(
+            @AuthenticationPrincipal HospitalDetails hospitalDetails
+    ) {
+        Integer id = Integer.parseInt(hospitalDetails.getUsername());
+        return ResponseUtility.success( "동물병원 정보 조회에 성공했습니다.", hospitalService.getHospitalById(id));
+    }
+
     @PutMapping("/me")
-    public ResponseEntity<?> updateHospital(
+    public ResponseEntity<?> updateHospitalInfoMine(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
-            @RequestBody HospitalUpdateRequest request) {
+            @Validated @RequestBody HospitalUpdateRequest request) {
         Integer id = Integer.parseInt(hospitalDetails.getUsername());
         return ResponseUtility.success( "동물병원 정보가 성공적으로 수정되었습니다.", hospitalService.updateHospital(id, request));
-
     }
+
 }

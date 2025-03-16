@@ -82,7 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
 //            throw new ApiException(ErrorCode.NO_ACCESS_TOKEN);
-            writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
+            writeErrorResponse(response, ErrorCode.NO_ACCESS_TOKEN);
             return;
         }
 
@@ -94,7 +94,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            throw new ApiException(ErrorCode.INVALID_TOKEN);
             writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
             return;
-
         }
 
         filterChain.doFilter(request, response);
@@ -104,8 +103,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void processValidAccessToken(String accessToken) {
         RelatedType type = jwtUtility.getUserType(accessToken);
         Integer userId = jwtUtility.getUserId(accessToken);
-
-        log.info("RelatedType : {}, userId : {}", type, userId);
 
         UserDetails userDetails;
         if (type.equals(RelatedType.OWNER)) {

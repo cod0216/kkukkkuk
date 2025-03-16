@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_PATH" value="./logs"/>
+
+    <!-- 콘솔 출력 설정 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 파일 출력 설정 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 로그 파일 경로 및 이름 -->
+        <file>${LOG_PATH}/application.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <!-- 로그 파일 교체하는 정책 설정 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- level 오버라이드, 디버깅 로그 설정 -->
+    <logger name="com.be.KKUKKKUK.domain.auth" level="INFO"/>
+    <!-- SQL 쿼리 로그 -->
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <!-- SQL 파라미터 로그 -->
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
+</configuration>

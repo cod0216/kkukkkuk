@@ -1,6 +1,5 @@
-package com.be.KKUKKKUK.global.util;
+package com.be.KKUKKKUK.global.api;
 
-import com.be.KKUKKKUK.global.api.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
