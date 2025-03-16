@@ -32,8 +32,8 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.13          haelim           최초 생성<br>
  */
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
-@Controller
+@RequestMapping("/api/auth") //TODO RestFul 하게 컨벤션 지켜주세요
+@Controller //TODO 저희 Rest Api아닌가요?
 public class AuthController {
     private final AuthService authService;
 

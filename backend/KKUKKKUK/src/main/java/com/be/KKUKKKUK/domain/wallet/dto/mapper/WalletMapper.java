@@ -19,5 +19,5 @@ import java.util.Optional;
  */
 @Mapper(componentModel = "spring")
 public interface WalletMapper {
-    WalletInfo walletToWalletInfo(Wallet wallet);
+    WalletInfo walletToWalletInfo(Wallet wallet); //TODO 메서드 명 mapWalletToWalletInfo 로 하는건 어떨까요?
 }

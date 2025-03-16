@@ -39,7 +39,7 @@ public class HospitalSignupRequest {
     private String did;
 
     @NotBlank
-    @JsonProperty("license_number")
+    @JsonProperty("license_number") //TODO 한번에 처리하는것도 있습니다.
     private String licenseNumber;
 
     @NotBlank

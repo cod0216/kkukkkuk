@@ -22,7 +22,7 @@ import java.util.Collections;
  * 25.03.13          haerim           최초생성<br>
  * <br>
  */
-@Getter
+@Getter //TODO 필요할까요?
 public class HospitalDetails implements UserDetails {
     private final Hospital hospital;
 

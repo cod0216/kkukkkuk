@@ -83,7 +83,7 @@ public class HospitalService {
         Hospital hospital = findHospitalById(request.getId());
 
         // 2. 이미 해당 병원으로 등록된 계정이 있는 경우 예외 발생
-        if(hospital.getFlagCertified()) throw new ApiException(ErrorCode.HOSPITAL_DUPLICATED);
+        if(hospital.getFlagCertified()) throw new ApiException(ErrorCode.HOSPITAL_DUPLICATED); //TODO 취향 차이긴 한데 if 문 한줄로 처리하는 거랑 {, }괄호로 처리하는 거랑 어떤게 가독성 좋을지 고민 해봤으면 좋겠어요
 
         // 3. 계정이 유니크하지 않은 경우 예외 발생
         if(!checkAccountAvailable(request.getAccount())) throw new ApiException(ErrorCode.ACCOUNT_NOT_AVAILABLE);
@@ -100,7 +100,7 @@ public class HospitalService {
         hospitalRepository.save(hospital);
         doctorService.registerDoctor(request.getDoctorName(), hospital);
 
-        return hospitalMapper.hospitalToHospitalSignupRequest(hospital);
+        return hospitalMapper.hospitalToHospitalSignupRequest(hospital); //TODO save 한 결과 객체를 mapping 하는 건 어떨까요? 만약에 데이터베이스에 반영이 안되는 문제가 발생했을때는 데이터가 다를 것 같아서요
     }
 
     /**

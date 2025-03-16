@@ -18,10 +18,10 @@ import org.springframework.stereotype.Component;
  * 2025-03-14        haelim            최초생성<br>
  */
 @Component
-public class ResponseUtility {
+public class ResponseUtility { //TODO Util 클래스인데 bean 으로 등록되는 게 맞을까요? 메서드들은 static 메서드인데 이 부분 생각 해보셔야 할 것 같습니다.
 
     public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, "Request successful", data));
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, "Request successful", data)); //TODO 모든 api 들이 200 OK 만 보내는 건가요..?
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> success(String message, T data) {
