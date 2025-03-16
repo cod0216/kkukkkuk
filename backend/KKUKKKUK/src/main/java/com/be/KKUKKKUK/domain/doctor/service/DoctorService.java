@@ -9,6 +9,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+/**
+ * packageName    : com.be.KKUKKKUK.domain.doctor.repository<br>
+ * fileName       : DoctorRepository.java<br>
+ * author         : haelim <br>
+ * date           : 2025-03-13<br>
+ * description    : Doctor entity 의 repository 클래스입니다. <br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.03.13          haelim           최초생성<br>
+ * <br>
+ */
 @Service
 @RequiredArgsConstructor
 public class DoctorService {
@@ -19,4 +33,11 @@ public class DoctorService {
     public DoctorInfo registerDoctor(String name, Hospital hospital) {
         return doctorMapper.doctorToDoctorInfo(doctorRepository.save(new Doctor(name, hospital)));
     }
+
+    @Transactional(readOnly = true)
+    public List<DoctorInfo> getDoctorsByHospitalId(Integer hospitalId) {
+        return doctorRepository.getDoctorsByHospitalId(hospitalId);
+    }
+
+
 }
