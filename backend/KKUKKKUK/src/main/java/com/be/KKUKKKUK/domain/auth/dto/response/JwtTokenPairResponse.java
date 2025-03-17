@@ -16,8 +16,8 @@ import lombok.Data;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class JwtTokenPairResponse {
     @JsonProperty("access_token")
     private String accessToken;

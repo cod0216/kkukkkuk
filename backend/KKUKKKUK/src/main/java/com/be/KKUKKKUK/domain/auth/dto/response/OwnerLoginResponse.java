@@ -16,8 +16,8 @@ import lombok.Data;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class OwnerLoginResponse {
     private OwnerInfoResponse owner;
     private JwtTokenPairResponse tokens; //TODO 변수 명을 이것만 복수로 하신 이유가 있을까요?

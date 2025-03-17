@@ -4,12 +4,7 @@ import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
-import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.service.AuthService;
-import com.be.KKUKKKUK.global.api.ApiResponse;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +24,9 @@ import org.springframework.web.bind.annotation.*;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auths")
-@RestController
 public class AuthController {
     private final AuthService authService;
 

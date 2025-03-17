@@ -1,16 +1,23 @@
 package com.be.KKUKKKUK.domain.wallet.dto.request;
 
-import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * packageName    :  com.be.KKUKKKUK.domain.wallet.dto.request<br>
+ * fileName       :  WalletRegisterRequest.java<br>
+ * author         :  haelim<br>
+ * date           :  2025-03-17<br>
+ * description    :  Wallet 등록 요청을 처리하는 request DTO 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.03.17          haelim           최초생성<br>
+ */
 @Getter
 @ToString
 public class WalletRegisterRequest {

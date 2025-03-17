@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.domain.hospital.controller;
 import com.be.KKUKKKUK.domain.doctor.dto.request.DoctorRegisterRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
+import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.constraints.Max;
@@ -25,11 +26,13 @@ import org.springframework.web.bind.annotation.*;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
+@RestController
 @RequestMapping("/api/hospitals")
 @RequiredArgsConstructor
-@RestController
 public class HospitalController {
+    private final HospitalComplexService hospitalComplexService;
     private final HospitalService hospitalService;
+
 
     /**
      * 인허가 번호로 동물병원을 조회합니다.
@@ -72,7 +75,7 @@ public class HospitalController {
     @GetMapping("/me")
     public ResponseEntity<?> getHospitalInfoMine(@AuthenticationPrincipal HospitalDetails hospitalDetails) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
-        return ResponseUtility.success( "동물병원 정보 조회에 성공했습니다.", hospitalService.getHospitalById(hospitalId));
+        return ResponseUtility.success( "동물병원 정보 조회에 성공했습니다.", hospitalService.getHospitalDetailInfoById(hospitalId));
     }
 
     /**
@@ -100,7 +103,7 @@ public class HospitalController {
             @RequestBody DoctorRegisterRequest request
     ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
-        return ResponseUtility.success("수의사 등록이 정상적으로 완료되었습니다.", hospitalService.registerDoctor(hospitalId, request));
+        return ResponseUtility.success("수의사 등록이 정상적으로 완료되었습니다.", hospitalComplexService.registerDoctor(hospitalId, request));
     }
 
 
@@ -112,11 +115,12 @@ public class HospitalController {
     @GetMapping("/me/doctors")
     public ResponseEntity<?> getAllDoctorsOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
-        return ResponseUtility.success( "동물 병원의 수의사 목록입니다.", hospitalService.getAllDoctorsOnHospital(hospitalId));
+        return ResponseUtility.success( "동물 병원의 수의사 목록입니다.", hospitalComplexService.getAllDoctorsOnHospital(hospitalId));
     }
 
 
     /**
+     * TODO : service 구현 끝내기
      * 요청된 위치 좌표(xAxis, yAxis) 주변의 동물병원 목록을 조회합니다.
      * @param xAxis 기준 x좌표
      * @param yAxis 기준 y좌표

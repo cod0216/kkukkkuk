@@ -30,9 +30,9 @@ public class OwnerDetailService implements UserDetailsService {
     private final OwnerMapper ownerMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException { //TODO 그리고 userId로 조회하는거 아닌가요? byUserName 이라는 메서드 네이밍이 맞지 않는 것 같아요
+    public UserDetails loadUserByUsername(String id) {
         Owner owner = ownerRepository.findById(Integer.parseInt(id))
                 .orElseThrow(() -> new ApiException(ErrorCode.INVALID_TOKEN));
-        return ownerMapper.ownerToOwnerDetails(owner);
+        return ownerMapper.mapToOwnerDetails(owner);
     }
 }

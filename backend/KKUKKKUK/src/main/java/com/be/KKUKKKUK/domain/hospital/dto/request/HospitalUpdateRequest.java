@@ -16,8 +16,8 @@ import lombok.*;
  */
 
 @Getter
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class HospitalUpdateRequest {
     private String did;
 

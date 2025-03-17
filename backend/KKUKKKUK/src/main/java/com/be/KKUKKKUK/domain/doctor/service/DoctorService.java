@@ -44,7 +44,7 @@ public class DoctorService {
      */
     @Transactional
     public DoctorInfoResponse registerDoctor(Hospital hospital, DoctorRegisterRequest request) {
-        return doctorMapper.doctorToDoctorInfo(doctorRepository.save(new Doctor(request.getName(), hospital)));
+        return doctorMapper.mapToDoctorInfo(doctorRepository.save(new Doctor(request.getName(), hospital)));
     }
 
     /**
@@ -60,7 +60,7 @@ public class DoctorService {
         // 수의사가 속한 병원이 아니면 조회 불가
         checkPermissionToDoctor(doctor, hospitalId);
 
-        return doctorMapper.doctorToDoctorInfo(doctor);
+        return doctorMapper.mapToDoctorInfo(doctor);
     }
 
     /**
@@ -110,7 +110,7 @@ public class DoctorService {
         doctor.setName(request.getName());
 
         // 4. 저장
-        return doctorMapper.doctorToDoctorInfo(doctorRepository.save(doctor));
+        return doctorMapper.mapToDoctorInfo(doctorRepository.save(doctor));
     }
 
     /**

@@ -19,8 +19,8 @@ import lombok.ToString;
  */
 
 @Getter
-@NoArgsConstructor
 @ToString
+@NoArgsConstructor
 public class DoctorUpdateRequest {
     @NotBlank
     private String name;

@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.16          haelim           최초 생성<br>
  */
 
-@RequestMapping("/api/doctors")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/doctors")
 public class DoctorController {
     private final DoctorService doctorService;
 
@@ -65,7 +65,5 @@ public class DoctorController {
         doctorService.deleteDoctorOnHospital(hospitalId, doctorId);
         return ResponseUtility.success("수의사가 정상적으로 삭제되었습니다.", null);
     }
-
-
 
 }

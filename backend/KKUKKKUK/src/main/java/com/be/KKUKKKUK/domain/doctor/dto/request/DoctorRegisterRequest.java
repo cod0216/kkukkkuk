@@ -20,10 +20,10 @@ import lombok.ToString;
  */
 
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class DoctorRegisterRequest {
     @NotBlank
-    String name;
+    private String name;
 }

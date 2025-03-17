@@ -1,6 +1,6 @@
 package com.be.KKUKKKUK.domain.auth.dto.response;
 
-import com.be.KKUKKKUK.domain.hospital.dto.HospitalInfo;
+import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,9 +16,9 @@ import lombok.Data;
  * 25.03.13          haelim           최초 생성<br>
  */
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class HospitalLoginResponse {
-    private HospitalInfo hospital;
+    private HospitalInfoResponse hospital;
     private JwtTokenPairResponse tokens;
 }

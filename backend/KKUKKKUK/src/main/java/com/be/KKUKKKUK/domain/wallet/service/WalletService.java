@@ -11,10 +11,12 @@ import com.be.KKUKKKUK.domain.wallet.repository.WalletRepository;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.wallet.service<br>
@@ -27,8 +29,9 @@ import java.util.Objects;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@RequiredArgsConstructor
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class WalletService {
     private final WalletRepository walletRepository;
     private final WalletMapper walletMapper;
@@ -42,9 +45,9 @@ public class WalletService {
      */
     @Transactional
     public WalletInfoResponse registerWallet(Owner owner, WalletRegisterRequest request) throws ApiException {
+        log.info("register wallet : {}", request);
         // 1. 이미 지갑이 존재하는지 확인
-        Wallet existingWallet = getWalletByOwnerId(owner.getId());
-        if (!Objects.isNull(existingWallet)) throw new ApiException(ErrorCode.WALLET_ALREADY_EXIST);
+        if(getWalletOptionalByOwnerId(owner.getId()).isPresent()) throw new ApiException(ErrorCode.WALLET_ALREADY_EXIST);
 
         // 2. 지갑 생성
         Wallet wallet = request.toWalletEntity();
@@ -106,13 +109,23 @@ public class WalletService {
         return new WalletRecoverResponse(wallet.getPrivateKey());
     }
 
+
+    /**
+     * 보호자 ID로 보호자의 지갑을 조회합니다.
+     * @param ownerId 지갑 주인 ID
+     * @return 조회된 지갑 entity
+     */
+    private Optional<Wallet> getWalletOptionalByOwnerId(Integer ownerId) {
+        return walletRepository.findByOwnerId(ownerId);
+    }
+
     /**
      * 보호자 ID로 보호자의 지갑을 조회합니다.
      * @param ownerId 지갑 주인 ID
      * @return 조회된 지갑 entity
      */
     private Wallet getWalletByOwnerId(Integer ownerId) {
-        return walletRepository.findByOwnerId(ownerId)
+        return getWalletOptionalByOwnerId(ownerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.WALLET_NOT_FOUND));
     }
 
