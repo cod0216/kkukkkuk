@@ -1,6 +1,6 @@
 package com.be.KKUKKKUK.domain.doctor.repository;
 
-import com.be.KKUKKKUK.domain.doctor.dto.DoctorInfo;
+import com.be.KKUKKKUK.domain.doctor.dto.response.DoctorInfoResponse;
 import com.be.KKUKKKUK.domain.doctor.entity.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,5 +20,5 @@ import java.util.List;
  */
 public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
 
-    List<DoctorInfo> getDoctorsByHospitalId(Integer hospitalId);
+    List<DoctorInfoResponse> getDoctorsByHospitalId(Integer hospitalId);
 }

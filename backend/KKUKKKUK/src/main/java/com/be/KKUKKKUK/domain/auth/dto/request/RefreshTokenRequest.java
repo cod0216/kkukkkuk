@@ -19,8 +19,6 @@ import lombok.ToString;
  * 25.03.13          haelim           최초 생성<br>
  */
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @ToString
 public class RefreshTokenRequest {

@@ -21,13 +21,6 @@ import org.springframework.http.ResponseEntity;
 public final class ResponseUtility {
 
     /**
-     * 객체 생성을 방지하기 위한 private 생성자.
-     */
-    private ResponseUtility() {
-        throw new UnsupportedOperationException("Utility class");
-    }
-
-    /**
      * 요청이 성공했을 때 기본 메시지와 함께 200 OK 응답을 반환합니다.
      *
      * @param data 응답 데이터
@@ -72,5 +65,12 @@ public final class ResponseUtility {
      */
     public static ResponseEntity<ApiResponse<Object>> error(String message, HttpStatus status) {
         return ResponseEntity.status(status).body(new ApiResponse<>(StatusEnum.FAILURE, message, null));
+    }
+
+    /**
+     * 객체 생성을 방지하기 위한 private 생성자.
+     */
+    private ResponseUtility() {
+        throw new UnsupportedOperationException("Utility class");
     }
 }

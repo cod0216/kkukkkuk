@@ -22,7 +22,6 @@ import java.time.LocalDate;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@AllArgsConstructor
 @Getter
 @ToString
 public class OwnerLoginRequest {

@@ -1,14 +1,12 @@
 package com.be.KKUKKKUK.domain.auth.service;
 
-import com.be.KKUKKKUK.domain.auth.dto.JwtTokenPair;
+import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
-import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import com.be.KKUKKKUK.global.util.JwtUtility;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -43,12 +41,12 @@ public class TokenService {
      * @param type   관련 타입 (예: ADMIN, USER)
      * @return 생성된 JWT 토큰 페어 (액세스 토큰, 리프레시 토큰)
      */
-    public JwtTokenPair generateTokens(Integer userId, RelatedType type) {
+    public JwtTokenPairResponse generateTokens(Integer userId, RelatedType type) {
         String accessToken = jwtUtility.createAccessToken(userId, type);
         String refreshToken = jwtUtility.createRefreshToken(userId, type);
 
         saveRefreshToken(userId, type, refreshToken);
-        return new JwtTokenPair(accessToken, refreshToken);
+        return new JwtTokenPairResponse(accessToken, refreshToken);
     }
 
     /**
@@ -100,7 +98,7 @@ public class TokenService {
      * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
      * @throws ApiException 유효하지 않은 토큰이 제공된 경우 발생합니다.
      */
-    public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
+    public JwtTokenPairResponse refreshAccessToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
         if (!jwtUtility.validateToken(refreshToken)) {
@@ -116,7 +114,7 @@ public class TokenService {
         }
 
         String newAccessToken = jwtUtility.createAccessToken(userId, type);
-        return new RefreshTokenResponse(newAccessToken, refreshToken);
+        return new JwtTokenPairResponse(newAccessToken, refreshToken);
     }
 
     /**

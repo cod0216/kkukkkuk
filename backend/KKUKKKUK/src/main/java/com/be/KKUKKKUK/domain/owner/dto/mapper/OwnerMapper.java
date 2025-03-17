@@ -1,7 +1,7 @@
 package com.be.KKUKKKUK.domain.owner.dto.mapper;
 
 import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
-import com.be.KKUKKKUK.domain.owner.dto.OwnerInfo;
+import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import org.mapstruct.Mapper;
 
@@ -18,6 +18,6 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring")
 public interface OwnerMapper {
-    OwnerInfo ownerToOwnerInfo(Owner owner);
+    OwnerInfoResponse ownerToOwnerInfo(Owner owner);
     OwnerDetails ownerToOwnerDetails(Owner owner);
 }

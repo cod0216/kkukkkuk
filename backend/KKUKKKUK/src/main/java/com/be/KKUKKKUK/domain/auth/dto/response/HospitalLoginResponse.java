@@ -1,6 +1,5 @@
 package com.be.KKUKKKUK.domain.auth.dto.response;
 
-import com.be.KKUKKKUK.domain.auth.dto.JwtTokenPair;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +20,5 @@ import lombok.Data;
 @Data
 public class HospitalLoginResponse {
     private HospitalInfo hospital;
-    private JwtTokenPair tokens;
+    private JwtTokenPairResponse tokens;
 }

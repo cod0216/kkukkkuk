@@ -21,7 +21,6 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-@AllArgsConstructor
 public class HospitalSignupRequest {
     @NotBlank
     @Pattern(regexp = "^[a-z0-9_]{5,10}$", message = "계정은 5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.")

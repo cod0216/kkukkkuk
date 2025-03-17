@@ -6,8 +6,8 @@ import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
+import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
@@ -71,7 +71,7 @@ public class AuthService {
      * @param request 리프레시 토큰 요청 객체
      * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
      */
-    public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request){
+    public JwtTokenPairResponse refreshAccessToken(RefreshTokenRequest request){
         return tokenService.refreshAccessToken(request);
     }
 
