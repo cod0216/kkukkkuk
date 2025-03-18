@@ -19,6 +19,8 @@
     "@types/react-dom": "^19.0.4",
     "@types/uuid": "^10.0.0",
     "axios": "^1.8.1",
+    "crypto-js": "^4.2.0",
+    "ethers": "^6.13.5",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^2.16.105",
     "qrcode.react": "^4.2.0",
@@ -61,6 +63,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.11",
+    "@types/crypto-js": "^4.2.2",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5"
