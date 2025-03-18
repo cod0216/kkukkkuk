@@ -1,17 +1,17 @@
 package com.be.KKUKKKUK.domain.auth.service;
 
 import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
-import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
+import com.be.KKUKKKUK.global.service.RedisService;
 import com.be.KKUKKKUK.global.util.JwtUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.util.Objects;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.auth.service<br>
@@ -25,14 +25,14 @@ import java.util.concurrent.TimeUnit;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.14          haelim           토큰 생성, 삭제 시 type 정보 추가<br>
  * 25.03.15          haelim           예외처리 및 주석 추가 <br>
- *
+ * 25.03.15          haelim           RedisService 분리 <br>
  *
  */
 @Service
 @RequiredArgsConstructor
 public class TokenService {
-    private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtility jwtUtility;
+    private final RedisService redisService;
 
     /**
      * 주어진 사용자 ID와 관련 타입을 기반으로 새로운 액세스 토큰과 리프레시 토큰을 생성합니다.
@@ -50,7 +50,7 @@ public class TokenService {
         return new JwtTokenPairResponse(accessToken, refreshToken);
     }
 
-    /**
+     /**
      * 주어진 사용자 ID와 관련 타입에 해당하는 리프레시 토큰을 Redis 에서 삭제합니다.
      *
      * @param userId 사용자 ID
@@ -58,15 +58,12 @@ public class TokenService {
      */
     public void deleteRefreshToken(Integer userId, RelatedType type) {
         String tokenKey = getRefreshTokenKey(userId, type);
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(tokenKey))) {
-            redisTemplate.delete(tokenKey);
-        }
-        else throw new ApiException(ErrorCode.INVALID_TOKEN);
+        if (Objects.isNull(redisService.getValues(tokenKey))) throw new ApiException(ErrorCode.INVALID_TOKEN);
+        redisService.deleteValues(tokenKey);
     }
 
     /**
      * 리프레시 토큰을 Redis 에 저장합니다.
-     *
      * @param userId       사용자 ID
      * @param type         관련 타입
      * @param refreshToken 저장할 리프레시 토큰
@@ -75,11 +72,12 @@ public class TokenService {
     public void saveRefreshToken(Integer userId, RelatedType type, String refreshToken) {
         String key = getRefreshTokenKey(userId, type);
         try {
-            redisTemplate.opsForValue().set(key, refreshToken, 30, TimeUnit.DAYS);
+            redisService.setValues(key, refreshToken, Duration.ofDays(30));
         } catch (Exception e) {
             throw new ApiException(ErrorCode.TOKEN_STORAGE_FAILED);
         }
     }
+
 
     /**
      * 사용자 ID와 관련 타입을 기반으로 Redis 에서 저장된 리프레시 토큰을 가져옵니다.
@@ -89,7 +87,7 @@ public class TokenService {
      * @return 저장된 리프레시 토큰 (없으면 null 반환)
      */
     public String getRefreshToken(Integer userId, RelatedType type) {
-        return redisTemplate.opsForValue().get(getRefreshTokenKey(userId, type));
+        return redisService.getValues(getRefreshTokenKey(userId, type));
     }
 
     /**
@@ -100,7 +98,6 @@ public class TokenService {
      * @throws ApiException 유효하지 않은 토큰이 제공된 경우 발생합니다.
      */
     public JwtTokenPairResponse refreshAccessToken(HttpServletRequest request) {
-        // Authorization 헤더에서 Refresh Token 추출
         String refreshToken = resolveToken(request);
 
         if (!jwtUtility.validateToken(refreshToken)) {
@@ -119,9 +116,15 @@ public class TokenService {
         return new JwtTokenPairResponse(newAccessToken, refreshToken);
     }
 
+    /**
+     * 사용자 요청에서 Token 을 파싱합니다.
+     * @param request 사용자가 보낸 토큰 재발급 요청
+     * @return 사용자가 보낸 리프레시 토큰
+     * @throws ApiException 요청 헤더에 리프레시 토큰이 없는 경우 예외처리
+     */
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (!Objects.isNull(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         throw new ApiException(ErrorCode.NO_REFRESH_TOKEN);

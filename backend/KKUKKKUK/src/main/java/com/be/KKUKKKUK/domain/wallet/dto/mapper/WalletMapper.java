@@ -17,5 +17,5 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring")
 public interface WalletMapper {
-    WalletInfoResponse mapWalletToWalletInfo(Wallet wallet); //TODO 메서드 명 mapWalletToWalletInfo 로 하는건 어떨까요?
+    WalletInfoResponse mapWalletToWalletInfo(Wallet wallet);
 }

@@ -14,13 +14,13 @@ import com.be.KKUKKKUK.domain.hospital.repository.HospitalRepository;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.hospital.service<br>
@@ -34,17 +34,16 @@ import java.util.Objects;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.15          haelim           비밀번호 encoding, 주석 추가<br>
  * 25.03.16          haelim           병원 소속 수의사 관련 메소드 추가<br>
- * 25.03.17          haelim           수의사 라이센스 삭제<br>
+ * 25.03.18          haelim           수의사 라이센스 삭제, 이메일 추가 <br>
  *
  */
 
-@RequiredArgsConstructor
-@Slf4j
 @Service
+@RequiredArgsConstructor
 public class HospitalService {
     private final HospitalRepository hospitalRepository;
     private final HospitalMapper hospitalMapper;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     /**
      *
@@ -181,7 +180,7 @@ public class HospitalService {
     @Transactional(readOnly = true)
     public Hospital findHospitalByAccount(String account) {
         return hospitalRepository.findByAccount(account)
-                .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 
     /**
@@ -224,6 +223,24 @@ public class HospitalService {
         hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         hospital.setDoctorName(request.getDoctorName());
         hospital.setDid(request.getDid());
+    }
+
+    /**
+     * 해당 이메일로 가입한 동물병원 회원이 있는지 확인합니다.
+     * @param email 확인할 이메일 주소
+     * @return 사용 가능 여부( 사용 가능하면 TRUE, 중복이면 FALSE )
+     */
+    public Boolean checkEmailAvailable(String email) {
+        return findHospitalByEmailOptional(email).isEmpty();
+    }
+
+    /**
+     * email 로 동물 병원 회원을 조회합니다.
+     * @param email 확인할 email
+     * @return email로 조회한 hospital entity
+     */
+    public Optional<Hospital> findHospitalByEmailOptional(String email) {
+        return hospitalRepository.findByEmail(email);
     }
 }
 

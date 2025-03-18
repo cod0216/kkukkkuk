@@ -1,9 +1,6 @@
 package com.be.KKUKKKUK.domain.auth.service;
 
-import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
+import com.be.KKUKKKUK.domain.auth.dto.request.*;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
@@ -27,6 +24,7 @@ import org.springframework.stereotype.Service;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.18          haelim           이메일 인증 api 추가<br>
  */
 @Service
 @RequiredArgsConstructor
@@ -93,5 +91,23 @@ public class AuthService {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    /**
+     * 회원가입 시, 이메일 인증을 위해 인증 코드를 발송합니다.
+     * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
+     * @param email 인증할 이메일
+     */
+    public void sendEmailAuthCode(EmailSendRequest request){
+        hospitalComplexService.sendEmailAuthCode(request);
+    }
+
+    /**
+     * 회원가입 시 이메일 인증을 위해 발송했던 인증 코드를 확인합니다.
+     * 사용자에게 이메일로 전송한 인증코드와 사용자가 입력한 코드를 비교해서 인증 성공 여부를 반환합니다.
+     * @param request 이메일 인증 요청
+     */
+    public void checkEmailCodeValid(EmailVerificationRequest request) {
+        hospitalComplexService.checkEmailCodeValid(request.getEmail(), request.getCode());
     }
 }

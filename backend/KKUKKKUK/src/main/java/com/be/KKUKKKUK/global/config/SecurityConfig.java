@@ -51,6 +51,8 @@ public class SecurityConfig {
             "/",
             "/error",
             "/api/auths/refresh",
+            "/api/auths/emails/send",
+            "/api/auths/emails/verify",
             "/api/auths/owners/kakao/login",
             "/api/auths/hospitals/signup",
             "/api/auths/hospitals/login",

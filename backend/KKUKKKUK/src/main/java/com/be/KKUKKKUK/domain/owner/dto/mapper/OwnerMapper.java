@@ -19,6 +19,8 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface OwnerMapper {
     OwnerInfoResponse mapToOwnerInfo(Owner owner);
+
     OwnerDetails mapToOwnerDetails(Owner owner);
+
     OwnerInfoResponse mapToOwnerInfoResponse(Owner owner);
 }
