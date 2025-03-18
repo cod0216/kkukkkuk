@@ -84,7 +84,7 @@ public class HospitalController {
      * @param request 수정할 동물병원의 정보 요정
      * @return 수정된 동물병원의 정보 결과
      */
-    @PutMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<?> updateHospitalInfoMine(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
             @Validated @RequestBody HospitalUpdateRequest request) {

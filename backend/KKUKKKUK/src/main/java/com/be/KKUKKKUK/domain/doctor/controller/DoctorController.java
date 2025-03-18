@@ -35,7 +35,7 @@ public class DoctorController {
     @GetMapping("/{doctorId}")
     public ResponseEntity<?> getDoctorById(@AuthenticationPrincipal HospitalDetails hospitalDetails, @PathVariable Integer doctorId) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
-        return ResponseUtility.success("수의사 정보가 성공적으로 업데이트되었습니다.", doctorService.getDoctorInfoById(hospitalId, doctorId));
+        return ResponseUtility.success("수의사 정보가 성공적으로 조회되었습니다.", doctorService.getDoctorInfoById(hospitalId, doctorId));
     }
 
     /**

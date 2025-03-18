@@ -36,7 +36,7 @@ public enum ErrorCode {
     HOSPITAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
 
     DOCTOR_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
-    DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사 정보를 수정할 권한이 없습니다."),
+    DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사 정보에 대한 권한이 없습니다."),
 
     WALLET_NOT_FOUND(HttpStatus.BAD_REQUEST, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
     WALLET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "WALLET-002", "지갑에 대한 권한이 없습니다."),
