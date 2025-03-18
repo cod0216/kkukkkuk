@@ -6,6 +6,7 @@ import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.domain.auth.service.AuthService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +54,14 @@ public class AuthController {
      * 리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.
      */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+
         return ResponseUtility.success("액세스 토큰 재발급이 완료되었습니다.", authService.refreshAccessToken(request));
     }
 
-
+    /**
+     * 공통 로그아웃
+     */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails userDetails){
         return ResponseUtility.success("로그아웃이 성공적으로 처리되었습니다.", authService.logout(userDetails));

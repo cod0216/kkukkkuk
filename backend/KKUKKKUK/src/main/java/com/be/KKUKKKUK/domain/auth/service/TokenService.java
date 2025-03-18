@@ -6,6 +6,7 @@ import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import com.be.KKUKKKUK.global.util.JwtUtility;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -98,8 +99,9 @@ public class TokenService {
      * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
      * @throws ApiException 유효하지 않은 토큰이 제공된 경우 발생합니다.
      */
-    public JwtTokenPairResponse refreshAccessToken(RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
+    public JwtTokenPairResponse refreshAccessToken(HttpServletRequest request) {
+        // Authorization 헤더에서 Refresh Token 추출
+        String refreshToken = resolveToken(request);
 
         if (!jwtUtility.validateToken(refreshToken)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
@@ -115,6 +117,14 @@ public class TokenService {
 
         String newAccessToken = jwtUtility.createAccessToken(userId, type);
         return new JwtTokenPairResponse(newAccessToken, refreshToken);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        throw new ApiException(ErrorCode.NO_REFRESH_TOKEN);
     }
 
     /**

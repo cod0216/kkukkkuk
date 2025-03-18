@@ -12,6 +12,7 @@ import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,7 @@ public class AuthService {
      * @param request 리프레시 토큰 요청 객체
      * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
      */
-    public JwtTokenPairResponse refreshAccessToken(RefreshTokenRequest request){
+    public JwtTokenPairResponse refreshAccessToken(HttpServletRequest request){
         return tokenService.refreshAccessToken(request);
     }
 

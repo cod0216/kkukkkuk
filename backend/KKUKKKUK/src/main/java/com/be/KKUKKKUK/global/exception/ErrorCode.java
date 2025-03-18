@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
  * -----------------------------------------------------------<br>
  * 25.03.10          Fiat_lux           최초생성<br>
  * 25.03.14          haelim             AUTH 관련 Error 작성
+ * 25.03.17          haelim             의사, 지갑 관련 Error 작성
+ * 25.03.18          haelim             라이센스 관련 Error 삭제
  */
 @Getter
 @AllArgsConstructor
@@ -31,8 +33,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-006", "유효하지 않은 토큰입니다."),
     TOKEN_STORAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-007", "토큰 저장 중 오류가 발생했습니다."),
     ACCOUNT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "AUTH-008", "등록할 수 없는 계정입니다."),
-    LICENSE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "AUTH-009", "사용 불가능한 라이센스입니다."),
-
+    NO_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-009", "리프레시 토큰이 필요합니다."),
+    
     HOSPITAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
 
     DOCTOR_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),

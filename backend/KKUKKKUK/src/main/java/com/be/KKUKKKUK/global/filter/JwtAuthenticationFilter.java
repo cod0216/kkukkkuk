@@ -63,8 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auths/hospitals/signup",
             "/api/auths/hospitals/login",
             "/api/hospitals/authorization-number/**",
+            "/api/hospitals/name/**",
             "/api/hospitals/account/**",
-            "/api/hospitals/license/**",
     };
 
 

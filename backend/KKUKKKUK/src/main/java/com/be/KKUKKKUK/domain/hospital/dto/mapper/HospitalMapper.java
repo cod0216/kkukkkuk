@@ -3,10 +3,12 @@ package com.be.KKUKKKUK.domain.hospital.dto.mapper;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
-import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalAuthorizationResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalDetailInfoResponse;
+import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalMapInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import org.mapstruct.Mapper;
+
+import java.util.List;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.hospital.dto.mapper<br>
@@ -23,7 +25,9 @@ import org.mapstruct.Mapper;
 public interface HospitalMapper {
     HospitalInfoResponse mapToHospitalInfo(Hospital hospital);
 
-    HospitalAuthorizationResponse mapToHospitalAuthorizationRequest(Hospital hospital);
+    HospitalMapInfoResponse mapToHospitalMapInfoResponse(Hospital hospital);
+
+    List<HospitalMapInfoResponse> mapToHospitalMapInfoList(List<Hospital> hospitalList);
 
     HospitalSignupResponse mapToSignupResponse(Hospital hospital);
 

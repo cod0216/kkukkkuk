@@ -2,11 +2,9 @@ package com.be.KKUKKKUK.domain.hospital.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-@AllArgsConstructor
+@Getter
 public class PasswordUpdateRequest {
 
     @NotEmpty
