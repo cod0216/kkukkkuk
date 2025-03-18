@@ -19,10 +19,9 @@ import java.util.Collections;
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
- * 25.03.13          haerim           최초생성<br>
+ * 25.03.13          haelim           최초생성<br>
  * <br>
  */
-@Getter //TODO 필요할까요?
 public class HospitalDetails implements UserDetails {
     private final Hospital hospital;
 

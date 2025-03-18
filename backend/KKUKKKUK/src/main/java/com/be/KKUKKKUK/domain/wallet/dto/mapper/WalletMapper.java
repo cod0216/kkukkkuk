@@ -1,10 +1,8 @@
 package com.be.KKUKKKUK.domain.wallet.dto.mapper;
 
-import com.be.KKUKKKUK.domain.wallet.dto.WalletInfo;
+import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import org.mapstruct.Mapper;
-
-import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.wallet.dto.mapper<br>
@@ -19,5 +17,5 @@ import java.util.Optional;
  */
 @Mapper(componentModel = "spring")
 public interface WalletMapper {
-    WalletInfo walletToWalletInfo(Wallet wallet); //TODO 메서드 명 mapWalletToWalletInfo 로 하는건 어떨까요?
+    WalletInfoResponse mapWalletToWalletInfo(Wallet wallet); //TODO 메서드 명 mapWalletToWalletInfo 로 하는건 어떨까요?
 }

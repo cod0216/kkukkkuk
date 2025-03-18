@@ -6,11 +6,11 @@ import lombok.Data;
 
 
 /**
- * packageName    : com.be.KKUKKKUK.domain.auth.dto.response<br>
- * fileName       : RefreshTokenResponse.java<br>
+ * packageName    : com.be.KKUKKKUK.domain.auth.dto<br>
+ * fileName       : JwtTokenPair.java<br>
  * author         : haelim<br>
  * date           : 2025-03-13<br>
- * description    : 액세스 토큰 재발급을 위한 response DTO 클래스입니다.<br>
+ * description    : JWT 이중 토큰 관련 요청을 처리하는 DTO 클래스입니다.<br>
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
@@ -18,7 +18,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class RefreshTokenResponse {
+public class JwtTokenPairResponse {
     @JsonProperty("access_token")
     private String accessToken;
 

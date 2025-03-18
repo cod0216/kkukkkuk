@@ -1,4 +1,4 @@
-package com.be.KKUKKKUK.domain.wallet.dto;
+package com.be.KKUKKKUK.domain.wallet.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,9 +14,9 @@ import lombok.Data;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@AllArgsConstructor
 @Data
-public class WalletInfo {
+@AllArgsConstructor
+public class WalletInfoResponse {
     private Integer id;
     private String did;
     private String address;

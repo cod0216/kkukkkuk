@@ -17,5 +17,5 @@ import java.util.Optional;
  * <br>
  */
 public interface WalletRepository extends JpaRepository<Wallet, Integer> {
-    Optional<Wallet> findWalletByOwnerId(Integer ownerId); // 네이밍 컨벤션 수정
+    Optional<Wallet> findByOwnerId(Integer ownerId); // 네이밍 컨벤션 수정
 }

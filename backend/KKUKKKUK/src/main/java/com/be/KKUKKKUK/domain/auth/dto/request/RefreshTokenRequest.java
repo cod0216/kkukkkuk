@@ -2,9 +2,7 @@ package com.be.KKUKKKUK.domain.auth.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -19,8 +17,6 @@ import lombok.ToString;
  * 25.03.13          haelim           최초 생성<br>
  */
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @ToString
 public class RefreshTokenRequest {

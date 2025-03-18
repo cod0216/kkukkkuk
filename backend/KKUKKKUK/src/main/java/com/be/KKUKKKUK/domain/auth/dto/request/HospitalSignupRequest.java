@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -21,7 +20,6 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-@AllArgsConstructor
 public class HospitalSignupRequest {
     @NotBlank
     @Pattern(regexp = "^[a-z0-9_]{5,10}$", message = "계정은 5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.")

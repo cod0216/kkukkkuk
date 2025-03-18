@@ -14,8 +14,8 @@ import lombok.Data;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초생성<br>
  */
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class HospitalAuthorizationResponse {
     private Integer id;
     private String name;

@@ -6,14 +6,13 @@ import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
+import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.RefreshTokenResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
-import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
-import com.be.KKUKKKUK.domain.owner.service.OwnerService;
+import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
+import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +27,11 @@ import org.springframework.stereotype.Service;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class AuthService {
-    private final HospitalService hospitalService;
-    private final OwnerService ownerService;
+    private final HospitalComplexService hospitalComplexService;
+    private final OwnerComplexService ownerComplexService;
     private final TokenService tokenService;
 
     /**
@@ -42,7 +41,7 @@ public class AuthService {
      * @return 보호자 로그인 응답 객체
      */
     public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
-        return ownerService.loginOrSignup(request);
+        return ownerComplexService.loginOrSignup(request);
     }
 
     /**
@@ -52,7 +51,7 @@ public class AuthService {
      * @return 동물병원 로그인 응답 객체
      */
     public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
-        return hospitalService.login(request);
+        return hospitalComplexService.login(request);
     }
 
     /**
@@ -62,7 +61,7 @@ public class AuthService {
      * @return 동물병원 회원가입 응답 객체
      */
     public HospitalSignupResponse hospitalSignup(HospitalSignupRequest request) {
-        return hospitalService.signup(request);
+        return hospitalComplexService.signup(request);
     }
 
 
@@ -72,7 +71,7 @@ public class AuthService {
      * @param request 리프레시 토큰 요청 객체
      * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
      */
-    public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request){
+    public JwtTokenPairResponse refreshAccessToken(RefreshTokenRequest request){
         return tokenService.refreshAccessToken(request);
     }
 

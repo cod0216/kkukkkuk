@@ -1,12 +1,9 @@
 package com.be.KKUKKKUK.domain.auth.dto.response;
 
-import com.be.KKUKKKUK.domain.auth.dto.JwtTokenPair;
-import com.be.KKUKKKUK.domain.owner.dto.OwnerInfo;
-import com.be.KKUKKKUK.domain.wallet.dto.WalletInfo;
+import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
+import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.auth.dto.response<br>
@@ -19,10 +16,10 @@ import java.util.Optional;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class OwnerLoginResponse {
-    private OwnerInfo owner;
-    private JwtTokenPair tokens; //TODO 변수 명을 이것만 복수로 하신 이유가 있을까요?
-    private WalletInfo wallet;
+    private OwnerInfoResponse owner;
+    private JwtTokenPairResponse tokens; //TODO 변수 명을 이것만 복수로 하신 이유가 있을까요?
+    private WalletInfoResponse wallet;
 }
