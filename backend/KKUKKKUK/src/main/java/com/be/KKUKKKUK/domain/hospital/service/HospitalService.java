@@ -146,7 +146,6 @@ public class HospitalService {
         Hospital hospital = findHospitalById(id);
 
         if (!Objects.isNull(request.getDid())) hospital.setDid(request.getDid());
-        if (!Objects.isNull(request.getPassword())) hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         if (!Objects.isNull(request.getName())) hospital.setName(request.getName());
         if (!Objects.isNull(request.getPhoneNumber())) hospital.setPhoneNumber(request.getPhoneNumber());
 
