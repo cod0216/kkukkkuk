@@ -65,7 +65,7 @@ public class HospitalService {
         hospital.setFlagCertified(Boolean.TRUE);
 
         // 4. Response 반환
-        return hospitalMapper.mapToSignupResponse(hospitalRepository.save(hospital));
+        return hospitalMapper.mapToSignupResponse(saveHospital(hospital));
     }
 
     /**
@@ -128,8 +128,9 @@ public class HospitalService {
         if (!Objects.isNull(request.getDid())) hospital.setDid(request.getDid());
         if (!Objects.isNull(request.getName())) hospital.setName(request.getName());
         if (!Objects.isNull(request.getPhoneNumber())) hospital.setPhoneNumber(request.getPhoneNumber());
+        if (!Objects.isNull(request.getPassword())) hospital.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        return hospitalMapper.mapToHospitalInfo(hospitalRepository.save(hospital));
+        return hospitalMapper.mapToHospitalInfo(saveHospital(hospital));
     }
 
     /**
@@ -197,6 +198,40 @@ public class HospitalService {
 
 
 
+
+
+
+
+    /**
+     * 해당 이메일로 가입한 동물병원 회원이 있는지 확인합니다.
+     * @param email 확인할 이메일 주소
+     * @return 사용 가능 여부( 사용 가능하면 TRUE, 중복이면 FALSE )
+     */
+    @Transactional(readOnly = true)
+    public Boolean checkEmailAvailable(String email) {
+        return findHospitalByEmailOptional(email).isEmpty();
+    }
+
+    /**
+     * email 로 동물 병원 회원을 조회합니다.
+     * @param email 확인할 email
+     * @return email로 조회한 hospital entity
+     */
+    @Transactional(readOnly = true)
+    public Optional<Hospital> findHospitalByEmailOptional(String email) {
+        return hospitalRepository.findByEmail(email);
+    }
+
+    /**
+     * hospital entity 를 데이터베이스에 저장합니다.
+     * @param hospital 저장할 entity
+     * @return 저장된 entity
+     */
+    @Transactional
+    public Hospital saveHospital(Hospital hospital){
+        return hospitalRepository.save(hospital);
+    }
+
     /**
      * 회원가입 요청의 유효성을 검사합니다.
      * 동물병원 회원이 이미 등록되었는지, 사용 가능한 계정인지, 사용 가능한 라이센스인지 검증합니다.
@@ -223,24 +258,6 @@ public class HospitalService {
         hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         hospital.setDoctorName(request.getDoctorName());
         hospital.setDid(request.getDid());
-    }
-
-    /**
-     * 해당 이메일로 가입한 동물병원 회원이 있는지 확인합니다.
-     * @param email 확인할 이메일 주소
-     * @return 사용 가능 여부( 사용 가능하면 TRUE, 중복이면 FALSE )
-     */
-    public Boolean checkEmailAvailable(String email) {
-        return findHospitalByEmailOptional(email).isEmpty();
-    }
-
-    /**
-     * email 로 동물 병원 회원을 조회합니다.
-     * @param email 확인할 email
-     * @return email로 조회한 hospital entity
-     */
-    public Optional<Hospital> findHospitalByEmailOptional(String email) {
-        return hospitalRepository.findByEmail(email);
     }
 }
 

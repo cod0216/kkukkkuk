@@ -71,6 +71,6 @@ public final class ResponseUtility {
      * 객체 생성을 방지하기 위한 private 생성자.
      */
     private ResponseUtility() {
-        throw new UnsupportedOperationException("Utility class");
+        throw new UnsupportedOperationException("Utility Class");
     }
 }

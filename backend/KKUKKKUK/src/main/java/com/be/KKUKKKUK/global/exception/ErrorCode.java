@@ -48,7 +48,8 @@ public enum ErrorCode {
     OWNER_NOT_ALLOWED(HttpStatus.FORBIDDEN, "OWNER-002", "해당 사용자에 대한 권한이 없습니다."),
 
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL-001", "이메일을 전송할 수 없습니다."),
-    EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용중인 이메일입니다.")
+    EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용중인 이메일입니다."),
+    EMAIL_NOT_MATCH(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
     ;
 
 

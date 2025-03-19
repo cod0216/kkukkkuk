@@ -68,9 +68,9 @@ public class AuthController {
      * 회원가입을 위한 이메일 인증을 위해 인증 번호를 발송합니다.
      */
     @PostMapping("/emails/send")
-    public ResponseEntity<?> sendEmailAuthCode(@RequestBody @Valid EmailSendRequest request) {
+    public ResponseEntity<?> sendEmailAuthCodeForEmail(@RequestBody @Valid EmailSendRequest request) {
         authService.sendEmailAuthCode(request);
-        return ResponseUtility.success("이메일이 성공적으로 전송되었습니다.",null);
+        return ResponseUtility.success("이메일 인증을 위한 코드가 발송되었습니다.",null);
     }
 
     /**
@@ -80,5 +80,14 @@ public class AuthController {
     public ResponseEntity<?> verifyEmail(@RequestBody @Valid EmailVerificationRequest request) {
         authService.checkEmailCodeValid(request);
         return ResponseUtility.success("이메일 인증이 성공적으로 완료되었습니다.", null);
+    }
+
+    /**
+     * 비밀번호를 초기화합니다.
+     */
+    @PostMapping("/passwords/reset")
+    public ResponseEntity<?> sendEmailAuthCodeForPassword(@RequestBody @Valid PasswordResetRequest request) {
+        authService.resetPassword(request);
+        return ResponseUtility.success("비밀번호가 이메일로 발송되었습니다.",null);
     }
 }

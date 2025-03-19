@@ -96,7 +96,7 @@ public class AuthService {
     /**
      * 회원가입 시, 이메일 인증을 위해 인증 코드를 발송합니다.
      * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
-     * @param email 인증할 이메일
+     * @param request 인증할 이메일
      */
     public void sendEmailAuthCode(EmailSendRequest request){
         hospitalComplexService.sendEmailAuthCode(request);
@@ -109,5 +109,13 @@ public class AuthService {
      */
     public void checkEmailCodeValid(EmailVerificationRequest request) {
         hospitalComplexService.checkEmailCodeValid(request.getEmail(), request.getCode());
+    }
+
+    /**
+     * 비밀번호를 초기화하고 이메일로 발급받습니다.
+     * @param request 비밀번호 초기화 요청
+     */
+    public void resetPassword(PasswordResetRequest request) {
+        hospitalComplexService.resetPassword(request);
     }
 }

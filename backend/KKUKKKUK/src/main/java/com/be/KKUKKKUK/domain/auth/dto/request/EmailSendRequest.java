@@ -11,7 +11,7 @@ import lombok.ToString;
  * fileName       : EmailSendRequest.java<br>
  * author         : haelim<br>
  * date           : 2025-03-18<br>
- * description    : 인증을 위한 이메일 전송 요청을 위한 request DTO 클래스입니다.<br>
+ * description    : 인증을 위한 이메일 전송 request DTO 클래스입니다.<br>
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
