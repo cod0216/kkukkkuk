@@ -3,8 +3,11 @@ package com.be.KKUKKKUK.domain.hospital.controller;
 import com.be.KKUKKKUK.domain.doctor.dto.request.DoctorRegisterRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
+import com.be.KKUKKKUK.domain.hospital.dto.request.RegisterTreatmentRequest;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
+import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
+import com.be.KKUKKKUK.domain.treatment.TreatStatus;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -25,10 +28,11 @@ import org.springframework.web.bind.annotation.*;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.20          haelim           진료 기록 관련 api 추가 <br>
  */
 @RestController
-@RequestMapping("/api/hospitals")
 @RequiredArgsConstructor
+@RequestMapping("/api/hospitals")
 public class HospitalController {
     private final HospitalComplexService hospitalComplexService;
     private final HospitalService hospitalService;
@@ -146,4 +150,43 @@ public class HospitalController {
     {
         return ResponseUtility.success( "조회된 동물병원 목록입니다.", hospitalService.getAllHospital(xAxis, yAxis, radius));
     }
+
+    /**
+     * TODO : 보호자 회원이 특정 병원에 진료 기록을 등록합니다. ???? 스마트 컨트랙트 ?? ?
+     *
+     * @param ownerDetails 인증된 보호자 회원 계정 정보
+     * @param hospitalId 진료 요청하는 병원 ID
+     * @param petId
+     * @param request
+     * @return
+     */
+    @PostMapping("/{hospitalId}/treatments/{petId}")
+    public ResponseEntity<?> registerTreatmentOnHospital(
+            @AuthenticationPrincipal OwnerDetails ownerDetails,
+            @PathVariable Integer hospitalId,
+            @PathVariable Integer petId,
+            @RequestBody RegisterTreatmentRequest request
+            ){
+        return ResponseUtility.success("진료 등록에 성공했습니다.", hospitalComplexService.registerTreatment(ownerDetails, hospitalId, petId, request));
+    }
+
+    /**
+     * 동물병원 회원이 본인의 진료 기록을 조회하기 위한 api 입니다.
+     * 만료 기록 조회 여부, 진료 상태(진료전, 진료중, 진료후), 조회할 pet ID 로 필터링할 수 있습니다.
+     * @param hospitalDetails 인증된 병원 계정 정보
+     * @param expired 만료 기록 볼지 말지 여부
+     * @return 조회된 기록 목록
+     */
+    @GetMapping("/me/treatments")
+    public ResponseEntity<?> getTreatments(
+            @AuthenticationPrincipal HospitalDetails hospitalDetails,
+            @RequestParam(required = false) Boolean expired,
+            @RequestParam(required = false) TreatStatus status,
+            @RequestParam(required = false) Integer petId) {
+
+        return ResponseUtility.success("진료 기록 조회에 성공했습니다.",
+                hospitalComplexService.getTreatmentMine(hospitalDetails, expired, status, petId));
+    }
+
+
 }

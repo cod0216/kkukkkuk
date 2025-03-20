@@ -11,8 +11,16 @@ import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.doctor.dto.request.DoctorRegisterRequest;
 import com.be.KKUKKKUK.domain.doctor.dto.response.DoctorInfoResponse;
 import com.be.KKUKKKUK.domain.doctor.service.DoctorService;
+import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
+import com.be.KKUKKKUK.domain.hospital.dto.request.RegisterTreatmentRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
+import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
+import com.be.KKUKKKUK.domain.pet.entity.Pet;
+import com.be.KKUKKKUK.domain.pet.service.PetService;
+import com.be.KKUKKKUK.domain.treatment.TreatStatus;
+import com.be.KKUKKKUK.domain.treatment.dto.response.TreatmentResponse;
+import com.be.KKUKKKUK.domain.treatment.service.TreatmentService;
 import com.be.KKUKKKUK.global.service.EmailService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
@@ -20,7 +28,6 @@ import com.be.KKUKKKUK.global.exception.ErrorCode;
 import com.be.KKUKKKUK.global.service.RedisService;
 import com.be.KKUKKKUK.global.util.RandomCodeUtility;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,9 +50,11 @@ import java.util.*;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.17          haelim           Service Layer 계층화 <br>
  * 25.03.18          haelim           이메일 인증 관련 api 추가 <br>
+ * 25.03.19          haelim           진료기록 관련 api 추가 <br>
  *
  */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class HospitalComplexService {
     /** 이메일 인증코드 Redis 접두어 **/
@@ -61,6 +70,8 @@ public class HospitalComplexService {
     private final EmailService mailService;
     private final RedisService redisService;
     private final PasswordEncoder passwordEncoder;
+    private final PetService petService;
+    private final TreatmentService treatmentService;
 
     @Value("${spring.mail.auth-code-expiration-millis}")
     private Long authCodeExpirationMillis;
@@ -206,5 +217,45 @@ public class HospitalComplexService {
         // 5. 메일로 임시 비밀번호 발송
         mailService.sendPasswordResetEmail(email, newPassword);
     }
+
+    /**
+     * 특정 동물병원에 새로운 진료를 등록합니다.
+     * @param ownerDetails 진료를 요청한 보호자(Owner) ID
+     * @param hospitalId 진료 요청할 동물병원 ID
+     * @param petId 진료 요청할 Pet ID
+     * @param request 새로운 진료 요청 DTO
+     * @return 등록된 진료 정보
+     */
+    public TreatmentResponse registerTreatment(OwnerDetails ownerDetails, Integer hospitalId, Integer petId, RegisterTreatmentRequest request) {
+        // 1. 진료 등록할 병원 찾기
+        Hospital hospital = hospitalService.findHospitalById(hospitalId);
+
+        // 2. 진료 등록할 반려동물 찾기
+        Pet pet = petService.findPetById(petId);
+
+        // 3. 진료 등록할 권한 체크 (요청 보낸 사람이 반려동물의 주인인지 확인)
+        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
+        if(!Objects.equals(ownerId, pet.getWallet().getOwner().getId())) throw new ApiException(ErrorCode.PET_NOT_ALLOW);
+
+        return treatmentService.registerTreatment(hospital, pet, request);
+    }
+
+
+    /**
+     * 현재 로그인한 동물병원의 진료 기록을 조회합니다.
+     * 쿼리 스트링 값에 따라 데이터를 필터링하고, pet ID 를 기준으로 그룹화해서 조회합니다.
+     * @param hospitalDetails 인증된 병원 회원
+     * @param flagExpired 만료된 기록 조회 여부
+     * @return 조회된 진료 기록
+     */
+    public Map<Integer, List<TreatmentResponse>> getTreatmentMine(
+            HospitalDetails hospitalDetails, Boolean flagExpired, TreatStatus status, Integer petId) {
+        Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
+        return treatmentService.getFilteredTreatmentByHospitalId(hospitalId, flagExpired, status, petId);
+    }
+
+
+
+
 
 }

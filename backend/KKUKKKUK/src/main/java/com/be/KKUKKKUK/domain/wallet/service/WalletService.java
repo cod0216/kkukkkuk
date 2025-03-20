@@ -11,7 +11,6 @@ import com.be.KKUKKKUK.domain.wallet.repository.WalletRepository;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +27,10 @@ import java.util.Optional;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.20          haelim           지갑에 대한 CRUD api OwnerController -> WalletController 변경 <br>
  */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class WalletService {
     private final WalletRepository walletRepository;
@@ -122,10 +123,13 @@ public class WalletService {
      * @param ownerId 지갑 주인 ID
      * @return 조회된 지갑 entity
      */
-    private Wallet getWalletByOwnerId(Integer ownerId) {
+    @Transactional(readOnly = true)
+    public Wallet getWalletByOwnerId(Integer ownerId) {
         return getWalletOptionalByOwnerId(ownerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.WALLET_NOT_FOUND));
     }
+
+
 
 
 //    /**
