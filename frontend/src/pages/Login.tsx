@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
   login,
-  LoginRequest,
   validateAccount,
   validatePassword,
   refreshToken,
 } from "../services/authService";
+import { LoginRequest } from "@/interfaces/index";
+
 import { setCredentials } from "../redux/slices/authSlice";
 import { RootState } from "../redux/store";
 
@@ -48,6 +49,7 @@ const Login: React.FC = () => {
           const result = await refreshToken(refreshTokenValue);
           if (result.status === "SUCCESS" && result.data) {
             const hospitalData = JSON.parse(savedHospital);
+
             // API가 access_token만 반환하는 경우, refresh_token은 기존 쿠키 값을 사용
             dispatch(
               setCredentials({

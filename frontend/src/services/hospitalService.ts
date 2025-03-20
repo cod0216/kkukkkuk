@@ -12,11 +12,14 @@ import {
   DeleteHospitalResponse,
   Doctor,
   FetchDoctorsResponse,
+} from "@/interfaces/index";
+
+import {
   AddDoctorResponse,
   DoctorDetailResponse,
   UpdateDoctorResponse,
   DeleteDoctorResponse,
-} from "@/interfaces/index";
+} from "@/interfaces/doctor";
 
 // 병원 정보 조회
 export const fetchHospitalInfo = async (

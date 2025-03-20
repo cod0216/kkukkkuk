@@ -20,10 +20,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   updateHospitalInfo,
-  UpdateHospitalRequest,
   fetchHospitalMe,
   deleteHospitalAccount,
 } from "../services/hospitalService";
+
+import { UpdateHospitalRequest } from "@/interfaces/index";
+
 import { toast } from "react-toastify";
 import DoctorManagement from "../components/hospital/DoctorManagement";
 import WithdrawalModal from "../components/hospital/WithdrawalModal";
@@ -101,7 +103,7 @@ const HospitalSettings: React.FC = () => {
           };
 
           dispatch(setHospitalInfo(hospitalData));
-        } else if (response.status === "error") {
+        } else if (response.status === "FAILURE") {
           toast.error(
             response.message || "병원 정보를 가져오는데 실패했습니다."
           );
@@ -177,7 +179,7 @@ const HospitalSettings: React.FC = () => {
       // API 호출하여 병원 정보 업데이트
       const result = await updateHospitalInfo(updateData);
 
-      if (result.status === "success" && result.data) {
+      if (result.status === "SUCCESS" && result.data) {
         // Redux 상태 업데이트
         const updatedHospital: HospitalData = {
           ...hospital,
@@ -217,7 +219,7 @@ const HospitalSettings: React.FC = () => {
     try {
       const response = await deleteHospitalAccount();
 
-      if (response.status === "success") {
+      if (response.status === "SUCCESS") {
         toast.success(response.message || "회원 탈퇴가 완료되었습니다.");
 
         // Redux 상태 초기화 (로그아웃)

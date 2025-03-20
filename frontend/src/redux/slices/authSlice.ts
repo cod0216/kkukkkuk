@@ -12,7 +12,7 @@ export interface Hospital {
   id?: string | number;
   name: string;
   did: string;
-  address: string;
+  address?: string;
   phone?: string;
   phone_number?: string;
   email?: string;
@@ -23,7 +23,7 @@ export interface Hospital {
   x_axis?: number;
   y_axis?: number;
   public_key?: string | null;
-  doctors: Doctor[];
+  doctors?: Doctor[];
 }
 
 export interface User {

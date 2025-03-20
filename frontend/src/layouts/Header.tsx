@@ -49,7 +49,7 @@ const Header: React.FC = () => {
 
             dispatch(setHospitalInfo(hospitalData));
           } else if (
-            response.status === "error" &&
+            response.status === "FAILURE" &&
             response.message?.includes("token")
           ) {
             // 토큰 오류인 경우 로그아웃 처리

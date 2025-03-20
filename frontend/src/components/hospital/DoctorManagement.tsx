@@ -12,7 +12,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchDoctors,
-  Doctor as ApiDoctor,
   addDoctor,
   fetchDoctorDetail,
   updateDoctor,
@@ -22,6 +21,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../redux/store";
 import { selectLoggedInHospital } from "../../redux/slices/authSlice";
+import { Doctor as ApiDoctor } from "@/interfaces/index";
 
 // 컴포넌트에서 사용할 의사 정보 인터페이스
 export interface Doctor {
@@ -57,7 +57,7 @@ const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
 
         const response = await fetchDoctorDetail(doctorId);
 
-        if (response.status === "success" && response.data) {
+        if (response.status === "SUCCESS" && response.data) {
           setDoctor(response.data);
         } else {
           setError(response.message || "의사 정보를 가져오는데 실패했습니다.");
@@ -382,7 +382,7 @@ const DoctorManagement: React.FC = () => {
         setIsLoading(true);
         const response = await fetchDoctors();
 
-        if (response.status === "success" && response.data) {
+        if (response.status === "SUCCESS" && response.data) {
           // API에서 가져온 의사 목록을 컴포넌트에 맞게 변환
           const formattedDoctors = response.data.map((doctor: ApiDoctor) => ({
             id: doctor.id,
@@ -392,7 +392,7 @@ const DoctorManagement: React.FC = () => {
           }));
 
           setDoctors(formattedDoctors);
-        } else if (response.status === "error") {
+        } else if (response.status === "FAILURE") {
           toast.error(
             response.message || "의사 목록을 가져오는데 실패했습니다."
           );
@@ -438,7 +438,7 @@ const DoctorManagement: React.FC = () => {
       // API 호출하여 의사 추가
       const response = await addDoctor(newDoctor.name, hospital.id);
 
-      if (response.status === "success" && response.data) {
+      if (response.status === "SUCCESS" && response.data) {
         // API 응답으로 받은 의사 정보를 목록에 추가
         const newDoctorInfo: Doctor = {
           id: response.data.id,
@@ -497,7 +497,7 @@ const DoctorManagement: React.FC = () => {
     try {
       const response = await updateDoctor(id, name);
 
-      if (response.status === "success" && response.data) {
+      if (response.status === "SUCCESS" && response.data) {
         // 성공 시 해당 의사 정보 업데이트
         setDoctors((prev) =>
           prev.map((doctor) =>
@@ -532,7 +532,7 @@ const DoctorManagement: React.FC = () => {
     try {
       const response = await deleteDoctor(id);
 
-      if (response.status === "success") {
+      if (response.status === "SUCCESS") {
         // 성공 시 해당 의사 목록에서 제거
         setDoctors((prev) => prev.filter((doctor) => doctor.id !== id));
         toast.success(

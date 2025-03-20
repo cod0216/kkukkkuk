@@ -4,6 +4,12 @@ export interface Doctor {
   name: string;
 }
 
+export interface DoctorRegister {
+  id: string;
+  name: string;
+  licenseNumber: string;
+}
+
 // 의사 목록 API 응답 인터페이스
 export interface FetchDoctorsResponse {
   status: "SUCCESS" | "FAILURE";
