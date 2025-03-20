@@ -1,5 +1,7 @@
 package com.be.KKUKKKUK.domain.wallet.service;
 
+import com.be.KKUKKKUK.domain.breed.entity.Breed;
+import com.be.KKUKKKUK.domain.breed.service.BreedService;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
@@ -35,7 +37,7 @@ public class WalletComplexService {
     private final WalletService walletService;
     private final PetService petService;
     private final OwnerService ownerService;
-//    private final BreedService breedService;
+    private final BreedService breedService;
 
     /**
      * 보호자의 지갑을 신규로 생성합니다.
@@ -47,15 +49,6 @@ public class WalletComplexService {
     public WalletInfoResponse registerWallet(Integer ownerId, WalletRegisterRequest request) {
         Owner owner = ownerService.getOwnerById(ownerId);
         return walletService.registerWallet(owner, request);
-    }
-
-    /**
-     * 보호자의 지갑을 삭제합니다.
-     * @param ownerId 삭제 요청한 보호자 ID
-     */
-    @Transactional
-    public void deleteWallet(Integer ownerId) {
-        walletService.deleteWalletByOwnerId(ownerId);
     }
 
     /**
@@ -71,8 +64,8 @@ public class WalletComplexService {
         Wallet wallet = walletService.getWalletByOwnerId(ownerId);
         pet.setWallet(wallet);
 
-        // Breed breed = breadService.getBreadById(request.getBreadId());
-        // pet.setBreed(bread);
+        Breed breed = breedService.getBreedById(request.getBreedId());
+        pet.setBreed(breed);
 
         return petService.savePetInfo(pet);
     }

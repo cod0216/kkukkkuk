@@ -81,7 +81,7 @@ public class WalletController {
             @AuthenticationPrincipal OwnerDetails owner
     ) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
-        walletComplexService.deleteWallet(ownerId);
+        walletService.deleteWalletByOwnerId(ownerId);
         return ResponseUtility.success("지갑 정보가 정상적으로 삭제되었습니다.", null);
     }
 
