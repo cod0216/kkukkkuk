@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/models/wallet/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/models/wallet/wallet_registration_response.dart';
+import 'package:kkuk_kkuk/repositories/wallet_repository.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,12 +15,14 @@ class WalletService {
   // TODO: 보안 라이브러리 적용
   // TODO: 트랜잭션 서명 구현
   // TODO: 에러 처리 개선
+  final WalletRepository _walletRepository;
   final FlutterSecureStorage _secureStorage;
   static const String _privateKeyKey = 'eth_private_key';
   static const String _addressKey = 'eth_address';
   static const String _publicKeyKey = 'eth_public_key';
 
-  WalletService() : _secureStorage = const FlutterSecureStorage();
+  WalletService(this._walletRepository)
+    : _secureStorage = const FlutterSecureStorage();
 
   /// 새 지갑 생성
   Future<Map<String, String>> createWallet() async {
@@ -128,7 +133,7 @@ class WalletService {
         'encrypted': encrypted.base64,
       });
 
-      return combined;
+      return combined.toString();
     } catch (e) {
       throw Exception('개인키 암호화에 실패했습니다: $e');
     }
@@ -179,9 +184,31 @@ class WalletService {
       throw Exception('지갑 존재 여부 확인에 실패했습니다: $e');
     }
   }
+
+  /// 지갑을 서버에 등록
+  Future<WalletRegistrationResponse> registerWalletToServer({
+    required String did,
+    required String address,
+    required String encryptedPrivateKey,
+    required String publicKey,
+  }) async {
+    try {
+      final request = WalletRegistrationRequest(
+        did: did,
+        address: address,
+        privateKey: encryptedPrivateKey,
+        publicKey: publicKey,
+      );
+
+      return await _walletRepository.registerWallet(request);
+    } catch (e) {
+      throw Exception('지갑 등록에 실패했습니다: $e');
+    }
+  }
 }
 
 /// 지갑 서비스 프로바이더
 final walletServiceProvider = Provider<WalletService>((ref) {
-  return WalletService();
+  final walletRepository = ref.read(walletRepositoryProvider);
+  return WalletService(walletRepository);
 });

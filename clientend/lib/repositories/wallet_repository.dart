@@ -13,13 +13,14 @@ class WalletRepository {
     WalletRegistrationRequest request,
   ) async {
     try {
+      print(request);
       final response = await _apiClient.post(
-        '/api/wallets',
+        '/api/wallets/me',
         data: request.toJson(),
       );
-
       return WalletRegistrationResponse.fromJson(response.data);
-    } on DioException {
+    } on DioException catch (e) {
+      print(e);
       rethrow;
     }
   }

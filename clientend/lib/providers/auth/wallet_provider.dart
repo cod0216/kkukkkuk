@@ -17,17 +17,23 @@ enum WalletStatus {
 
 /// 지갑 상태 관리 클래스
 class WalletState {
-  final WalletStatus status; // 현재 지갑 설정 단계
-  final String? walletAddress; // 지갑 주소
-  final String? privateKey; // 개인키
-  final String? firstPin; // 처음 입력한 PIN
-  final String? currentPin; // 확인용 PIN
-  final String? error; // 오류 메시지
+  final WalletStatus status;
+  final String? walletAddress;
+  final String? privateKey;
+  final String? publicKey;
+  final String? did;
+  final int? walletId;
+  final String? firstPin;
+  final String? currentPin;
+  final String? error;
 
   WalletState({
     this.status = WalletStatus.initial,
     this.walletAddress,
     this.privateKey,
+    this.publicKey,
+    this.did,
+    this.walletId,
     this.firstPin = '',
     this.currentPin = '',
     this.error,
@@ -41,11 +47,17 @@ class WalletState {
     String? firstPin,
     String? currentPin,
     String? error,
+    String? publicKey,
+    String? did,
+    int? walletId,
   }) {
     return WalletState(
       status: status ?? this.status,
       walletAddress: walletAddress ?? this.walletAddress,
       privateKey: privateKey ?? this.privateKey,
+      publicKey: publicKey ?? this.publicKey,
+      did: did ?? this.did,
+      walletId: walletId ?? this.walletId,
       firstPin: firstPin ?? this.firstPin,
       currentPin: currentPin ?? this.currentPin,
       error: error ?? this.error,
@@ -72,6 +84,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
         status: WalletStatus.settingPin,
         walletAddress: walletData['address'],
         privateKey: walletData['privateKey'],
+        publicKey: walletData['publicKey'],
+        did: walletData['did'],
       );
     } catch (e) {
       state = state.copyWith(
@@ -82,6 +96,52 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
+  /// PIN 확인 및 지갑 등록 처리
+  Future<void> confirmPin(String pin) async {
+    if (state.firstPin != pin) {
+      state = state.copyWith(
+        status: WalletStatus.error,
+        error: 'PIN이 일치하지 않습니다.',
+      );
+      return;
+    }
+
+    try {
+      state = state.copyWith(status: WalletStatus.encrypting);
+
+      // 개인키 암호화
+      final encryptedPrivateKey = await _walletService.encryptPrivateKey(
+        state.privateKey!,
+        pin,
+      );
+
+      state = state.copyWith(status: WalletStatus.saving);
+
+      // 서버에 지갑 등록
+      final response = await _walletService.registerWalletToServer(
+        did: state.did!,
+        address: state.walletAddress!,
+        encryptedPrivateKey: encryptedPrivateKey,
+        publicKey: state.publicKey!,
+      );
+
+      state = state.copyWith(
+        status: WalletStatus.completed,
+        walletId: response.data.id,
+      );
+
+      // 인증 완료 처리
+      ref.read(authCoordinatorProvider.notifier).completeAuth();
+    } catch (e) {
+      state = state.copyWith(
+        status: WalletStatus.error,
+        error: '지갑 등록에 실패했습니다.',
+      );
+    }
+  }
+
+  // confirmPin 메서드 제거
+
   /// PIN 번호 입력 처리
   void addPinDigit(String digit) {
     if (state.status == WalletStatus.settingPin) {
@@ -91,7 +151,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
           error: null,
         );
         if ((state.firstPin?.length ?? 0) == 6) {
-          state = state.copyWith(status: WalletStatus.confirmingPin);
+          state = state.copyWith(
+            status: WalletStatus.confirmingPin,
+            currentPin: '', // 두 번째 PIN 입력 시작 시 초기화
+          );
         }
       }
     } else if (state.status == WalletStatus.confirmingPin) {
@@ -107,57 +170,50 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
-  /// PIN 번호 삭제 처리
-  void deletePinDigit() {
-    if (state.status == WalletStatus.settingPin &&
-        (state.firstPin?.isNotEmpty ?? false)) {
-      state = state.copyWith(
-        firstPin: state.firstPin!.substring(0, state.firstPin!.length - 1),
-      );
-    } else if (state.status == WalletStatus.confirmingPin &&
-        (state.currentPin?.isNotEmpty ?? false)) {
-      state = state.copyWith(
-        currentPin: state.currentPin!.substring(
-          0,
-          state.currentPin!.length - 1,
-        ),
-      );
-    }
-  }
-
   /// PIN 검증 및 지갑 설정 완료 처리
   Future<void> _validatePinAndCompleteWallet() async {
-    if (state.firstPin == state.currentPin) {
-      try {
-        state = state.copyWith(status: WalletStatus.encrypting);
-
-        // PIN으로 개인키 암호화
-        final encryptedPrivateKey = await _walletService.encryptPrivateKey(
-          state.privateKey!,
-          state.firstPin!,
-        );
-
-        state = state.copyWith(status: WalletStatus.saving);
-
-        // 암호화된 지갑 정보 저장
-        await _walletService.saveEncryptedWallet(
-          state.walletAddress!,
-          encryptedPrivateKey,
-        );
-
-        state = state.copyWith(status: WalletStatus.completed);
-        ref.read(authCoordinatorProvider.notifier).completeAuth();
-      } catch (e) {
-        state = state.copyWith(
-          status: WalletStatus.error,
-          error: '지갑 저장에 실패했습니다.',
-        );
-      }
-    } else {
+    if (state.firstPin != state.currentPin) {
       state = state.copyWith(
         status: WalletStatus.settingPin,
         currentPin: '',
+        firstPin: '', // 첫 번째 PIN도 초기화
         error: 'PIN이 일치하지 않습니다.',
+      );
+      return;
+    }
+
+    try {
+      state = state.copyWith(status: WalletStatus.encrypting);
+
+      final encryptedPrivateKey = await _walletService.encryptPrivateKey(
+        state.privateKey!,
+        state.firstPin!,
+      );
+
+      state = state.copyWith(status: WalletStatus.saving);
+
+      final response = await _walletService.registerWalletToServer(
+        did: state.did!,
+        address: state.walletAddress!,
+        encryptedPrivateKey: encryptedPrivateKey,
+        publicKey: state.publicKey!,
+      );
+
+      await _walletService.saveEncryptedWallet(
+        state.walletAddress!,
+        encryptedPrivateKey,
+      );
+
+      state = state.copyWith(
+        status: WalletStatus.completed,
+        walletId: response.data.id,
+      );
+
+      ref.read(authCoordinatorProvider.notifier).completeAuth();
+    } catch (e) {
+      state = state.copyWith(
+        status: WalletStatus.error,
+        error: '지갑 등록에 실패했습니다.',
       );
     }
   }
@@ -165,6 +221,28 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 상태 초기화
   void reset() {
     state = WalletState();
+  }
+
+  /// PIN 번호 삭제 처리
+  void deletePinDigit() {
+    if (state.status == WalletStatus.settingPin) {
+      if (state.firstPin?.isNotEmpty ?? false) {
+        state = state.copyWith(
+          firstPin: state.firstPin!.substring(0, state.firstPin!.length - 1),
+          error: null,
+        );
+      }
+    } else if (state.status == WalletStatus.confirmingPin) {
+      if (state.currentPin?.isNotEmpty ?? false) {
+        state = state.copyWith(
+          currentPin: state.currentPin!.substring(
+            0,
+            state.currentPin!.length - 1,
+          ),
+          error: null,
+        );
+      }
+    }
   }
 }
 

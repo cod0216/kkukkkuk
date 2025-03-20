@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
+import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
 import 'package:kkuk_kkuk/services/auth_service.dart';
 import 'package:kkuk_kkuk/services/wallet_service.dart';
 
@@ -46,8 +47,11 @@ class LoginNotifier extends StateNotifier<LoginState> {
       final hasWallet = response.data.wallet != null;
 
       if (hasWallet) {
+        // 지갑이 이미 있는 경우
         ref.read(authCoordinatorProvider.notifier).completeAuth();
       } else {
+        // 지갑이 없는 경우 지갑 설정 화면으로 이동
+        ref.read(walletProvider.notifier).reset(); // 지갑 상태 초기화
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
     } catch (e) {
