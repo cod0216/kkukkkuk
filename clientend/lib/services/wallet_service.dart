@@ -28,14 +28,22 @@ class WalletService {
       final privateKeyHex = bytesToHex(credentials.privateKey);
       final address = credentials.address.hexEip55;
 
-      // 저장장
+      // DID 생성
+      final did = generateDid(address);
+
+      // 저장
       await _secureStorage.write(key: _privateKeyKey, value: privateKeyHex);
       await _secureStorage.write(key: _addressKey, value: address);
 
-      return {'privateKey': privateKeyHex, 'address': address};
+      return {'privateKey': privateKeyHex, 'address': address, 'did': did};
     } catch (e) {
       throw Exception('지갑 생성에 실패했습니다: $e');
     }
+  }
+
+  /// 지갑 주소로부터 DID 생성
+  String generateDid(String address) {
+    return 'did:guardian:$address';
   }
 
   /// 서버에서 지갑 정보 조회
