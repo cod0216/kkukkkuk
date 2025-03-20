@@ -1,5 +1,6 @@
 package com.be.KKUKKKUK.global.filter;
 
+import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalDetailService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerDetailService;
 import com.be.KKUKKKUK.global.api.StatusEnum;
@@ -43,13 +44,14 @@ import java.util.Objects;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 2025-03-13          haelim          최초생성<br>
+ * 2025-03-20          haelim          액세스 토큰 블랙리스트 추가<br>
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
-
+    private final TokenService tokenService;
     private final JwtUtility jwtUtility;
     private final HospitalDetailService hospitalDetailService;
     private final OwnerDetailService ownerDetailService;
@@ -91,6 +93,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = authHeader.substring(7);
         if (jwtUtility.validateToken(accessToken)) {
+            // 액세스 토큰이 유효하면 블랙리스트 검증
+            if (checkTokenBlacklisted(accessToken)) {
+                writeErrorResponse(response, ErrorCode.INVALID_TOKEN);  // 블랙리스트에 있으면 오류 응답
+                return;
+            }
+
             processValidAccessToken(accessToken);
         } else {
             SecurityContextHolder.clearContext(); // 인증 실패 시 보안 컨텍스트 초기화
@@ -99,9 +107,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+
         filterChain.doFilter(request, response);
     }
 
+    // 블랙리스트 확인 메서드
+    private boolean checkTokenBlacklisted(String accessToken) {
+        return tokenService.checkBlacklisted(accessToken);  // 블랙리스트 확인 로직
+    }
 
     protected void processValidAccessToken(String accessToken) {
         RelatedType type = jwtUtility.getUserType(accessToken);
@@ -109,7 +122,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         UserDetails userDetails;
         if (type.equals(RelatedType.OWNER)) {
-            userDetails = ownerDetailService.loadUserByUsername(userId.toString()); //TODO Integer UserId 를 String 으로 캐스팅하고 다시 저 메서드에서는 Integer로 캐스팅하는데 이부분 확인해주세요
+            userDetails = ownerDetailService.loadUserByUsername(userId.toString());
         } else if (type.equals(RelatedType.HOSPITAL)) {
             userDetails = hospitalDetailService.loadUserByUsername(userId.toString());
         } else {

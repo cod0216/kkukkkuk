@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.18          haelim           이메일 인증 api 추가<br>
+ * 25.03.20          haelim           로그아웃시 엑세스 토큰 블랙리스트에 추가<br>
  */
 @Service
 @RequiredArgsConstructor
@@ -79,18 +80,13 @@ public class AuthService {
      * 사용자 정보에서 사용자의 type (동물병원, 보호자)을 구분하여 요청을 처리합니다.
      *
      * @param userDetails 현재 인증된 사용자 정보
-     * @return 로그아웃 성공 여부 (항상 true 반환)
      */
-    public boolean logout(UserDetails userDetails) {
-        try {
-            int userId = Integer.parseInt(userDetails.getUsername());
-            RelatedType type = (userDetails instanceof HospitalDetails) ? RelatedType.HOSPITAL : RelatedType.OWNER;
-            tokenService.deleteRefreshToken(userId, type);
+    public void logout(UserDetails userDetails, HttpServletRequest request) {
+        int userId = Integer.parseInt(userDetails.getUsername());
+        RelatedType type = (userDetails instanceof HospitalDetails) ? RelatedType.HOSPITAL : RelatedType.OWNER;
 
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        tokenService.deleteRefreshToken(userId, type);
+        tokenService.blacklistAccessToken(request);
     }
 
     /**
