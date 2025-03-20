@@ -29,7 +29,6 @@ import java.util.Optional;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WalletService {
@@ -45,7 +44,6 @@ public class WalletService {
      */
     @Transactional
     public WalletInfoResponse registerWallet(Owner owner, WalletRegisterRequest request) throws ApiException {
-        log.info("register wallet : {}", request);
         // 1. 이미 지갑이 존재하는지 확인
         if(getWalletOptionalByOwnerId(owner.getId()).isPresent()) throw new ApiException(ErrorCode.WALLET_ALREADY_EXIST);
 

@@ -1,9 +1,6 @@
 package com.be.KKUKKKUK.domain.auth.service;
 
-import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.RefreshTokenRequest;
+import com.be.KKUKKKUK.domain.auth.dto.request.*;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
@@ -12,6 +9,7 @@ import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,7 @@ import org.springframework.stereotype.Service;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.18          haelim           이메일 인증 api 추가<br>
  */
 @Service
 @RequiredArgsConstructor
@@ -71,7 +70,7 @@ public class AuthService {
      * @param request 리프레시 토큰 요청 객체
      * @return 새로운 액세스 토큰과 기존 리프레시 토큰을 포함하는 응답 객체
      */
-    public JwtTokenPairResponse refreshAccessToken(RefreshTokenRequest request){
+    public JwtTokenPairResponse refreshAccessToken(HttpServletRequest request){
         return tokenService.refreshAccessToken(request);
     }
 
@@ -92,5 +91,31 @@ public class AuthService {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    /**
+     * 회원가입 시, 이메일 인증을 위해 인증 코드를 발송합니다.
+     * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
+     * @param request 인증할 이메일
+     */
+    public void sendEmailAuthCode(EmailSendRequest request){
+        hospitalComplexService.sendEmailAuthCode(request);
+    }
+
+    /**
+     * 회원가입 시 이메일 인증을 위해 발송했던 인증 코드를 확인합니다.
+     * 사용자에게 이메일로 전송한 인증코드와 사용자가 입력한 코드를 비교해서 인증 성공 여부를 반환합니다.
+     * @param request 이메일 인증 요청
+     */
+    public void checkEmailCodeValid(EmailVerificationRequest request) {
+        hospitalComplexService.checkEmailCodeValid(request.getEmail(), request.getCode());
+    }
+
+    /**
+     * 비밀번호를 초기화하고 이메일로 발급받습니다.
+     * @param request 비밀번호 초기화 요청
+     */
+    public void resetPassword(PasswordResetRequest request) {
+        hospitalComplexService.resetPassword(request);
     }
 }

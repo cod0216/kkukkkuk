@@ -19,5 +19,6 @@ import java.util.Optional;
  */
 public interface OwnerRepository extends JpaRepository<Owner, Integer> {
     Optional<Owner> findOwnerByProviderId(String providerId);
+
     Optional<Owner> findOwnerById(Integer ownerId);
 }

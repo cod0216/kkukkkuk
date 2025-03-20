@@ -46,6 +46,17 @@ public class HospitalController {
     }
 
     /**
+     * 병원 이름으로 동물병원을 조회합니다.
+     * @param name 조회할 동물병원 이름
+     * @return 조회된 병원 정보
+     */
+    @GetMapping("/name/{name}")
+    public ResponseEntity<?> getHospitalsByName(
+            @PathVariable String name) {
+        return ResponseUtility.success("이름으로 조회한 동물병원 정보입니다.", hospitalService.getHospitalListByName(name));
+    }
+
+    /**
      * 동물병원 계정 사용 가능 여부를 조회합니다.
      * @param account 조회할 계정
      * @return 사용 가능 여부 true / false
@@ -54,17 +65,6 @@ public class HospitalController {
     public ResponseEntity<?> checkAccountAvailable(@PathVariable String account) {
         Boolean flagAvailable = hospitalService.checkAccountAvailable(account);
         return ResponseUtility.success( flagAvailable ? "사용 가능한 계정입니다." : "사용할 수 없는 계정입니다.", flagAvailable);
-    }
-
-    /**
-     * 특정 수의사 라이센스 사용 가능 여부를 조회합니다.
-     * @param licenseNumber 조회할 라이센스 번호
-     * @return 사용 가능 여부 true / false
-     */
-    @GetMapping("/license/{licenseNumber}")
-    public ResponseEntity<?> checkLicenseAvailable(@PathVariable String licenseNumber) {
-        Boolean flagAvailable = hospitalService.checkLicenseAvailable(licenseNumber);
-        return ResponseUtility.success( flagAvailable ? "사용 가능한 라이센스입니다." : "사용할 수 없는 라이센스입니다.", flagAvailable);
     }
 
     /**

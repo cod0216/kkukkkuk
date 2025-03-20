@@ -51,12 +51,15 @@ public class SecurityConfig {
             "/",
             "/error",
             "/api/auths/refresh",
+            "/api/auths/emails/send",
+            "/api/auths/emails/verify",
+            "/api/auths/passwords/reset",
             "/api/auths/owners/kakao/login",
             "/api/auths/hospitals/signup",
             "/api/auths/hospitals/login",
             "/api/hospitals/authorization-number/**",
             "/api/hospitals/account/**",
-            "/api/hospitals/license/**",
+            "/api/hospitals/name/**",
 
     };
 
@@ -98,8 +101,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 허용할 도메인 지정
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://localhost:3001")); // 허용할 도메인 지정
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 

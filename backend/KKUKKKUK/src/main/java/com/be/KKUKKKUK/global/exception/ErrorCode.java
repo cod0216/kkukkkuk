@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
  * -----------------------------------------------------------<br>
  * 25.03.10          Fiat_lux           최초생성<br>
  * 25.03.14          haelim             AUTH 관련 Error 작성
+ * 25.03.17          haelim             의사, 지갑 관련 Error 작성
+ * 25.03.18          haelim             라이센스 관련 Error 삭제, 이메일 관련 Error 작성
  */
 @Getter
 @AllArgsConstructor
@@ -26,26 +28,28 @@ public enum ErrorCode {
 
     ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH-002", "입력하신 계정 정보가 존재하지 않습니다."),
     PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "AUTH-003", "비밀번호가 올바르지 않습니다. 다시 확인해주세요."),
-    HOSPITAL_DUPLICATED(HttpStatus.BAD_REQUEST, "AUTH-004", "이미 존재하는 계정입니다."),
+    HOSPITAL_DUPLICATED(HttpStatus.CONFLICT, "AUTH-004", "이미 존재하는 계정입니다."),
     NO_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-005", "액세스 토큰이 필요합니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-006", "유효하지 않은 토큰입니다."),
     TOKEN_STORAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-007", "토큰 저장 중 오류가 발생했습니다."),
     ACCOUNT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "AUTH-008", "등록할 수 없는 계정입니다."),
-    LICENSE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "AUTH-009", "사용 불가능한 라이센스입니다."),
-
+    NO_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-009", "리프레시 토큰이 필요합니다."),
+    AUTH_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH-010", "이미 만료된 코드입니다."),
+    AUTH_CODE_NOT_MATCH(HttpStatus.UNAUTHORIZED, "AUTH-011", "인증 코드가 일치하지 않습니다."),
     HOSPITAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
 
     DOCTOR_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
     DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사 정보에 대한 권한이 없습니다."),
 
     WALLET_NOT_FOUND(HttpStatus.BAD_REQUEST, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
-    WALLET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "WALLET-002", "지갑에 대한 권한이 없습니다."),
-    WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-003", "지갑이 이미 존재합니다."),
+    WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "지갑이 이미 존재합니다."),
 
     OWNER_NOT_FOUND(HttpStatus.BAD_REQUEST, "OWNER-001", "보호자 정보를 찾을 수 없습니다."),
     OWNER_NOT_ALLOWED(HttpStatus.FORBIDDEN, "OWNER-002", "해당 사용자에 대한 권한이 없습니다."),
 
-
+    UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL-001", "이메일을 전송할 수 없습니다."),
+    EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용중인 이메일입니다."),
+    EMAIL_NOT_MATCH(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
     ;
 
 

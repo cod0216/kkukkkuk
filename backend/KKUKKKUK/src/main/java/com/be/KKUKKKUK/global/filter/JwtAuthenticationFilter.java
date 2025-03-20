@@ -59,12 +59,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/",
             "/error",
             "/api/auths/refresh",
+            "/api/auths/emails/send",
+            "/api/auths/emails/verify",
+            "/api/auths/passwords/reset",
             "/api/auths/owners/kakao/login",
             "/api/auths/hospitals/signup",
             "/api/auths/hospitals/login",
             "/api/hospitals/authorization-number/**",
+            "/api/hospitals/name/**",
             "/api/hospitals/account/**",
-            "/api/hospitals/license/**",
     };
 
 

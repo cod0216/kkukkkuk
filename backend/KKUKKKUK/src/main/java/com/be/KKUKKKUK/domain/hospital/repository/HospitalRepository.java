@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.domain.hospital.repository;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,8 +19,8 @@ import java.util.Optional;
  * <br>
  */
 public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
-    Optional<Hospital> findHospitalByAccount(String account);
     Optional<Hospital> findHospitalByAuthorizationNumber(String authorizationNumber);
+    List<Hospital> findHospitalListByNameContaining(String name);
     Optional<Hospital> findByAccount(String account);
-    Optional<Hospital> findByLicenseNumber(String licenseNumber);
+    Optional<Hospital> findByEmail(String email);
 }

@@ -1,7 +1,9 @@
 package com.be.KKUKKKUK.domain.hospital.service;
 
+import com.be.KKUKKKUK.domain.auth.dto.request.EmailSendRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
+import com.be.KKUKKKUK.domain.auth.dto.request.PasswordResetRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
@@ -11,34 +13,57 @@ import com.be.KKUKKKUK.domain.doctor.dto.response.DoctorInfoResponse;
 import com.be.KKUKKKUK.domain.doctor.service.DoctorService;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
+import com.be.KKUKKKUK.global.service.EmailService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
+import com.be.KKUKKKUK.global.service.RedisService;
+import com.be.KKUKKKUK.global.util.RandomCodeUtility;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.Duration;
+import java.util.*;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.hospital.service<br>
  * fileName       : HospitalComplexService.java<br>
  * author         : haelim<br>
  * date           : 2025-03-13<br>
- * description    : Hospital entity 에 대한 상위 레벨의 service 클래스입니다.<br>
+ * description    : Hospital entity 에 대한 상위 레벨의 Service 클래스입니다.<br>
  *                  HospitalService, TokenService, DoctorService 등 저수준 Service 클래스를 묶어서
  *                  복잡한 비즈니스 로직을 처리합니다.
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.17          haelim           Service Layer 계층화 <br>
+ * 25.03.18          haelim           이메일 인증 관련 api 추가 <br>
  *
  */
 @Service
 @RequiredArgsConstructor
 public class HospitalComplexService {
+    /** 이메일 인증코드 Redis 접두어 **/
+    private static final String EMAIL_AUTH_CODE_PREFIX = "EMAIL_AUTH_CODE:";
+    /** 이메일 인증코드 길이 **/
+    private static final Integer EMAIL_AUTH_CODE_LENGTH = 6;
+    /** 재발급 비밀번호 길이 **/
+    private static final Integer PASSWORD_LENGTH = 20 ;
+
     private final HospitalService hospitalService;
     private final TokenService tokenService;
     private final DoctorService doctorService;
+    private final EmailService mailService;
+    private final RedisService redisService;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${spring.mail.auth-code-expiration-millis}")
+    private Long authCodeExpirationMillis;
 
     /**
      * 동물병원 로그인 기능.
@@ -49,11 +74,11 @@ public class HospitalComplexService {
      */
     @Transactional
     public HospitalLoginResponse login(HospitalLoginRequest request) {
-        // 1. Hospital 관련 요청은 hospitalService 에게 넘김
-        // 계정을 찾지 못하거나, 비밀번호 불일치는 모두 hospitalService 가 처리
+        // 1. Hospital 관련 요청은 hospitalService 에게 넘깁니다
+        // 계정을 찾지 못하거나, 비밀번호 불일치는 모두 hospitalService 가 처리합니다.
         HospitalInfoResponse hospitalInfo = hospitalService.tryLogin(request);
 
-        // 2. Token 관련 요청은 tokenService 에게 넘김
+        // 2. Token 관련 요청은 tokenService 에게 넘깁니다.
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(hospitalInfo.getId(), RelatedType.HOSPITAL);
 
         return new HospitalLoginResponse(hospitalInfo, tokenPair);
@@ -67,13 +92,13 @@ public class HospitalComplexService {
      */
     @Transactional
     public HospitalSignupResponse signup(HospitalSignupRequest request) {
-        // 1. 동물병원 조회
+        // 1. ID 로 동물병원을 조회합니다.
         Hospital hospital = hospitalService.findHospitalById(request.getId());
 
-        // 2. 동물병원 관련 요청은 hospitalService 에게 넘김
+        // 2. 동물병원 관련 요청은 hospitalService 에게 넘깁니다.
         HospitalSignupResponse signupResponse = hospitalService.trySignUp(hospital, request);
 
-        // 3. 의사 관련 요청은 doctorService 에게 넘김
+        // 3. 의사 관련 요청은 doctorService 에게 넘깁니다.
         DoctorRegisterRequest doctorRegisterRequest = new DoctorRegisterRequest(request.getDoctorName());
         doctorService.registerDoctor(hospital, doctorRegisterRequest);
 
@@ -102,6 +127,84 @@ public class HospitalComplexService {
      */
     public List<DoctorInfoResponse> getAllDoctorsOnHospital(Integer hospitalId) {
         return doctorService.getDoctorsByHospitalId(hospitalId);
+    }
+
+
+    /**
+     * 회원가입 시, 이메일 인증을 위해 인증 코드를 발송합니다.
+     * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
+     * 인증 코드는 Redis 에 저장됩니다. ( key = "EMAIL_AUTH_CODE:" + Email / value = authCode )
+     * @param request 이메일 전송 요청
+     * @throws ApiException 이미 해당 이메일로 가입할 계정이 있는 경우 예외처리
+     */
+    @Transactional
+    public void sendEmailAuthCode(EmailSendRequest request) {
+        String toEmail = request.getEmail();
+        // 1. 이메일 중복체크
+        if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(toEmail))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
+
+        // 2. 인증코드 생성
+        String authCode = RandomCodeUtility.generateCode(EMAIL_AUTH_CODE_LENGTH);
+
+        // 3. 인증 코드 발송
+        mailService.sendVerificationEmail(toEmail, authCode);
+
+        // 4. 인증 번호 Redis에 저장
+        redisService.setValues(EMAIL_AUTH_CODE_PREFIX + toEmail,
+                authCode, Duration.ofMillis(authCodeExpirationMillis));
+    }
+
+    /**
+     * 회원가입 시 이메일 인증을 위해 발송했던 인증 코드를 확인합니다.
+     * 사용자에게 이메일로 전송한 인증코드와 사용자가 입력한 코드를 비교해서 인증 성공 여부를 반환합니다.
+     * @param email 인증할 이메일
+     * @param code 사용자가 입력한 인증코드
+     * @throws ApiException 이미 해당 이메일로 가입한 계정이 있는 경우 예외처리
+     * @throws ApiException 인증 코드가 만료된 경우 예외처리
+     * @throws ApiException 인증 코드가 일치하지 않는 경우 예외처리
+     */
+    @Transactional(readOnly = true)
+    public void checkEmailCodeValid(String email, String code) {
+        // 1. 이메일이 유효한지 체크, 중복이면 가입 불가하기 때문에 예외처리
+        if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(email))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
+
+        // 2. Redis 에 저장된 인증 코드 조회
+        String redisAuthCode = redisService.getValues(EMAIL_AUTH_CODE_PREFIX + email);
+        if (Objects.isNull(redisAuthCode)) throw new ApiException(ErrorCode.AUTH_CODE_EXPIRED);
+
+        // 3. 사용자가 입력한 인증 코드와 저장된 인증 코드 비교
+        if (!redisAuthCode.equals(code)) throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCH);
+
+        // 4. 인증 완료한 인증코드 삭제
+        redisService.deleteValues(EMAIL_AUTH_CODE_PREFIX + email);
+    }
+
+
+    /**
+     * 비밀번호 재발급 시, 이메일 인증을 위해 인증 코드를 발송합니다.
+     * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
+     * 인증 코드는 Redis 에 저장됩니다. ( key = "PASSWORD_AUTH_CODE:" + Email / value = authCode )
+     * @param request 비밀번호 초기화 요청
+     * @throws ApiException 계정과 이메일 정보가 일치하지 않는 경우 예외처리
+     */
+    @Transactional
+    public void resetPassword(PasswordResetRequest request) {
+        final String email = request.getEmail();
+        // 1. 계정 정보로 병원 entity 찾기
+        Hospital hospital = hospitalService.findHospitalByAccount(request.getAccount());
+
+        // 2. 이메일 정보가 일치하지 않는 경우 예외처리
+        if(!hospital.getEmail().equals(email)) throw new ApiException(ErrorCode.EMAIL_NOT_MATCH);
+
+        // 3. 신규 비밀번호 생성
+        String newPassword = RandomCodeUtility.generatePassword(PASSWORD_LENGTH);
+
+        // 4. 신규 비밀번호 저장
+        hospital.setPassword(passwordEncoder.encode(newPassword));
+        hospitalService.saveHospital(hospital);
+
+        // 5. 메일로 임시 비밀번호 발송
+        mailService.sendPasswordResetEmail(email, newPassword);
     }
 
 }
