@@ -33,21 +33,17 @@ export const login = async (
     if (!validateAccount(data.account)) {
       return {
         status: "FAILURE",
-        name: "INVALID_ACCOUNT_FORMAT",
-        code: "AUTH-001",
         message: "계정명은 5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.",
-        http_code: 400,
+        data: null,
       };
     }
 
     if (!validatePassword(data.password)) {
       return {
         status: "FAILURE",
-        name: "INVALID_PASSWORD_FORMAT",
-        code: "AUTH-001",
         message:
           "비밀번호는 6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.",
-        http_code: 400,
+        data: null,
       };
     }
 

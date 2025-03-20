@@ -9,17 +9,20 @@ import {
   selectLoading,
   selectError,
 } from "../redux/slices/authSlice";
-import DoctorRegistration, {
-  Doctor,
-} from "../components/auth/DoctorRegistration";
+import DoctorRegistration from "../components/auth/DoctorRegistration";
+
+import { DoctorRegister } from "@/interfaces/doctor";
 import {
   fetchHospitalInfo,
   registerHospital,
-  HospitalSignupRequest,
   checkAccountAvailability,
   checkLicenseAvailability,
-  HospitalAuthorizationResponse,
 } from "../services/hospitalService";
+
+import {
+  HospitalSignupRequest,
+  HospitalAuthorizationResponse,
+} from "@/interfaces/index";
 
 interface HospitalFormData {
   hospitalName: string;
@@ -57,7 +60,7 @@ const HospitalRegister: React.FC = () => {
     email: "",
   });
 
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<DoctorRegister[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [licenseFound, setLicenseFound] = useState(false);
   const [isCheckingAccount, setIsCheckingAccount] = useState(false);
