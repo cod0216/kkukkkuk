@@ -1,12 +1,18 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../services/authService';
-import { logout as logoutAction, setHospitalInfo } from '../redux/slices/authSlice';
-import { selectCurrentUser, selectLoggedInHospital } from '../redux/slices/authSlice';
-import { RootState } from '../redux/store';
-import { fetchHospitalMe } from '../services/hospitalService';
-import { toast } from 'react-toastify';
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../services/authService";
+import {
+  logout as logoutAction,
+  setHospitalInfo,
+} from "../redux/slices/authSlice";
+import {
+  selectCurrentUser,
+  selectLoggedInHospital,
+} from "../redux/slices/authSlice";
+import { RootState } from "../redux/store";
+import { fetchHospitalMe } from "../services/hospitalService";
+import { toast } from "react-toastify";
 
 const Header: React.FC = () => {
   const user = useSelector(selectCurrentUser);
@@ -22,8 +28,8 @@ const Header: React.FC = () => {
       if (isLoggedIn && !hospital) {
         try {
           const response = await fetchHospitalMe();
-          
-          if (response.status === 'SUCCESS' && response.data) {
+
+          if (response.status === "SUCCESS" && response.data) {
             // 병원 정보 받아서 Redux에 저장
             const hospitalData = {
               id: response.data.id,
@@ -38,46 +44,49 @@ const Header: React.FC = () => {
               x_axis: response.data.x_axis,
               y_axis: response.data.y_axis,
               public_key: response.data.public_key,
-              doctors: [] // 빈 배열로 초기화
+              doctors: [], // 빈 배열로 초기화
             };
-            
+
             dispatch(setHospitalInfo(hospitalData));
-          } else if (response.status === 'error' && response.message?.includes('token')) {
+          } else if (
+            response.status === "error" &&
+            response.message?.includes("token")
+          ) {
             // 토큰 오류인 경우 로그아웃 처리
             dispatch(logoutAction());
-            navigate('/login');
+            navigate("/login");
           }
         } catch (error) {
-          console.error('병원 정보 조회 오류:', error);
+          console.error("병원 정보 조회 오류:", error);
         }
       }
     };
-    
+
     fetchHospitalData();
   }, [isLoggedIn, hospital, dispatch, navigate]);
 
   const handleLogout = async () => {
     try {
       const response = await logout();
-      
+
       // 서버 응답에 관계없이 로컬 로그아웃 처리
       dispatch(logoutAction());
-      
+
       // 로그아웃 결과 메시지 표시
-      if (response.status === 'success') {
-        console.log('로그아웃 성공:', response.message);
+      if (response.status === "success") {
+        console.log("로그아웃 성공:", response.message);
       } else {
-        console.warn('로그아웃 문제 발생:', response.message);
+        console.warn("로그아웃 문제 발생:", response.message);
       }
-      
+
       // 로그인 페이지로 리다이렉트
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
-      
+      console.error("로그아웃 중 오류 발생:", error);
+
       // 오류가 발생해도 로컬에서는 로그아웃 처리
       dispatch(logoutAction());
-      navigate('/login');
+      navigate("/login");
     }
   };
 
@@ -85,32 +94,47 @@ const Header: React.FC = () => {
     <header className="bg-white shadow dark:bg-gray-800">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
-          <Link to={isLoggedIn ? '/dashboard' : '/'} className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+          <Link
+            to={isLoggedIn ? "/dashboard" : "/"}
+            className="text-2xl font-bold text-indigo-600 dark:text-indigo-400"
+          >
             KKuK KKuK
           </Link>
           {isLoggedIn && (
             <nav className="ml-8 hidden md:flex">
-              <Link to="/dashboard" className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
+              <Link
+                to="/dashboard"
+                className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+              >
                 대시보드
               </Link>
-              <Link to="/pets" className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
+              <Link
+                to="/pets"
+                className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+              >
                 반려동물 관리
               </Link>
-              <Link to="/qr-print" className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
+              <Link
+                to="/qr-print"
+                className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+              >
                 QR 코드
               </Link>
-              <Link to="/hospital-settings" className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
+              <Link
+                to="/hospital-settings"
+                className="px-3 py-2 text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+              >
                 병원 설정
               </Link>
             </nav>
           )}
         </div>
-        
+
         <div className="flex items-center">
           {isLoggedIn && (user || hospital) ? (
             <div className="flex items-center">
               <span className="mr-4 text-sm text-gray-700 dark:text-gray-300 hidden md:inline">
-                {hospital?.name || user?.hospitalName || '동물병원'}
+                {hospital?.name || user?.hospitalName || "동물병원"}
               </span>
               <button
                 onClick={handleLogout}
@@ -141,4 +165,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header; 
+export default Header;

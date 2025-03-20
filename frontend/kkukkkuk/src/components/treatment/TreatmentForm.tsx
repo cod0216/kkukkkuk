@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface TreatmentFormProps {
   petId: string;
@@ -6,34 +6,41 @@ interface TreatmentFormProps {
 
 const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
   const [formData, setFormData] = useState({
-    symptoms: '',
-    diagnosis: '',
-    treatment: '',
-    prescription: '',
-    notes: ''
+    symptoms: "",
+    diagnosis: "",
+    treatment: "",
+    prescription: "",
+    notes: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('진료 정보 제출:', formData, '반려동물 ID:', petId);
+    console.log("진료 정보 제출:", formData, "반려동물 ID:", petId);
     // 여기에 실제 데이터 제출 로직 구현
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 dark:bg-gray-800">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">진료 입력</h2>
-      
+      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+        진료 입력
+      </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="symptoms" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="symptoms"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             증상
           </label>
           <textarea
@@ -42,13 +49,16 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
             value={formData.symptoms}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="반려동물의 증상을 입력하세요"
           ></textarea>
         </div>
-        
+
         <div>
-          <label htmlFor="diagnosis" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="diagnosis"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             진단
           </label>
           <textarea
@@ -57,13 +67,16 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
             value={formData.diagnosis}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="진단 내용을 입력하세요"
           ></textarea>
         </div>
-        
+
         <div>
-          <label htmlFor="treatment" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="treatment"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             치료
           </label>
           <textarea
@@ -72,13 +85,16 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
             value={formData.treatment}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="치료 내용을 입력하세요"
           ></textarea>
         </div>
-        
+
         <div>
-          <label htmlFor="prescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="prescription"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             처방
           </label>
           <textarea
@@ -87,13 +103,16 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
             value={formData.prescription}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="처방 내용을 입력하세요"
           ></textarea>
         </div>
-        
+
         <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="notes"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             비고
           </label>
           <textarea
@@ -102,11 +121,11 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
             value={formData.notes}
             onChange={handleChange}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="추가 메모 사항"
           ></textarea>
         </div>
-        
+
         <div className="flex justify-end">
           <button
             type="submit"
@@ -120,4 +139,4 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ petId }) => {
   );
 };
 
-export default TreatmentForm; 
+export default TreatmentForm;
