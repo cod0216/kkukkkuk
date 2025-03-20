@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/services/auth_service.dart';
 import 'package:kkuk_kkuk/services/wallet_service.dart';
@@ -7,14 +8,19 @@ import 'package:kkuk_kkuk/services/wallet_service.dart';
 class LoginState {
   final bool isLoading; // 로딩 상태
   final String? error; // 에러 메시지
+  final KakaoAuthResponse? authResponse;
 
-  LoginState({this.isLoading = false, this.error});
+  LoginState({this.isLoading = false, this.error, this.authResponse});
 
-  /// 상태 복사 메서드
-  LoginState copyWith({bool? isLoading, String? error}) {
+  LoginState copyWith({
+    bool? isLoading,
+    String? error,
+    KakaoAuthResponse? authResponse,
+  }) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
+      authResponse: authResponse ?? this.authResponse,
     );
   }
 }
@@ -30,33 +36,34 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
   /// 카카오 로그인 처리
   Future<void> signInWithKakao() async {
-    state = state.copyWith(isLoading: true, error: null);
-
     try {
-      // 카카오 로그인 시도
-      final success = await _authService.signInWithKakao();
+      state = state.copyWith(isLoading: true, error: null);
 
-      if (!success) {
-        state = state.copyWith(isLoading: false, error: '카카오 로그인에 실패했습니다.');
-        ref.read(authCoordinatorProvider.notifier).handleError();
-        return;
-      }
+      final response = await _authService.signInWithKakao();
+      state = state.copyWith(authResponse: response, isLoading: false);
 
       // 지갑 존재 여부 확인
-      final hasWallet = await _walletService.checkWalletExists();
+      final hasWallet = response.data.wallet != null;
+
       if (hasWallet) {
         ref.read(authCoordinatorProvider.notifier).completeAuth();
       } else {
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
-
-      state = state.copyWith(isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '로그인에 실패했습니다. 다시 시도해주세요.',
-      );
-      ref.read(authCoordinatorProvider.notifier).handleError();
+      state = state.copyWith(isLoading: false, error: '로그인 실패: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+      await _authService.logout();
+      state = LoginState();
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: '로그아웃 실패: $e');
+      rethrow;
     }
   }
 
