@@ -4,8 +4,6 @@ import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
 import com.be.KKUKKKUK.domain.owner.dto.request.OwnerUpdateRequest;
 import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
-import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
-import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,24 +30,24 @@ public class OwnerController {
 
     /**
      * 현재 로그인된 보호자 회원의 상세 정보를 반환합니다.
-     * @param owner 인증된 보호자 계정 정보
+     * @param ownerDetails 인증된 보호자 계정 정보
      * @return 보호자 회원의 상세 정보
      */
     @GetMapping("/me")
-    public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal OwnerDetails owner) {
-        Integer ownerId = Integer.parseInt(owner.getUsername());
+    public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails) {
+        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("현재 로그인한 계정의 프로필 정보입니다.", ownerComplexService.getOwnerInfoWithWallet(ownerId));
     }
 
     /**
      * 현재 로그인된 보호자 회원의 정보를 수정합니다.
-     * @param owner 인증된 보호자 계정 정보
+     * @param ownerDetails 인증된 보호자 계정 정보
      * @param request 정보 업데이트 요청
      * @return 변경된 보호자 회원의 상세 정보
      */
     @PatchMapping("/me")
-    public ResponseEntity<?> updateMyInfo(@AuthenticationPrincipal OwnerDetails owner, @RequestBody OwnerUpdateRequest request) {
-        Integer ownerId = Integer.parseInt(owner.getUsername());
+    public ResponseEntity<?> updateMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails, @RequestBody OwnerUpdateRequest request) {
+        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("계정 정보가 성공적으로 업데이트되었습니다.", ownerService.updateOwnerInfo(ownerId, request));
     }
 

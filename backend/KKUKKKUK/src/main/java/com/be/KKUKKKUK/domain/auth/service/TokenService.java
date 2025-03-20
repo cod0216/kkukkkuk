@@ -38,8 +38,8 @@ public class TokenService {
     private final JwtUtility jwtUtility;
     private final RedisService redisService;
 
-    @Value("${jwt.token-validity}")
-    private long tokenValidity;
+    @Value("${jwt.refresh-token-validity}")
+    private long refreshTokenValidity;
 
     private final String BLACKLIST_PREFIX = "BLACKLIST:";
 
@@ -80,7 +80,7 @@ public class TokenService {
     public void saveRefreshToken(Integer userId, RelatedType type, String refreshToken) {
         String key = getRefreshTokenKey(userId, type);
         try {
-            redisService.setValues(key, refreshToken, Duration.ofDays(tokenValidity));
+            redisService.setValues(key, refreshToken, Duration.ofMillis(refreshTokenValidity));
         } catch (Exception e) {
             throw new ApiException(ErrorCode.TOKEN_STORAGE_FAILED);
         }
@@ -157,7 +157,7 @@ public class TokenService {
      */
     public boolean checkBlacklisted(String accessToken) {
         String key = BLACKLIST_PREFIX + accessToken;
-        return Objects.isNull(redisService.getValues(key));
+        return !Objects.isNull(redisService.getValues(key));
     }
 
 

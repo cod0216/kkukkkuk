@@ -1,5 +1,6 @@
 package com.be.KKUKKKUK.global.config;
 
+import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalDetailService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerDetailService;
 import com.be.KKUKKKUK.global.filter.JwtAuthenticationFilter;
@@ -42,6 +43,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final TokenService tokenService;
     private final JwtUtility jwtUtility;
     private final HospitalDetailService hospitalDetailService;
     private final OwnerDetailService ownerDetailService;
@@ -71,7 +73,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtUtility, hospitalDetailService, ownerDetailService);
+        return new JwtAuthenticationFilter(tokenService, jwtUtility, hospitalDetailService, ownerDetailService);
     }
 
     @Bean
