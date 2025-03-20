@@ -15,6 +15,7 @@ class WalletService {
   final FlutterSecureStorage _secureStorage;
   static const String _privateKeyKey = 'eth_private_key';
   static const String _addressKey = 'eth_address';
+  static const String _publicKeyKey = 'eth_public_key';
 
   WalletService() : _secureStorage = const FlutterSecureStorage();
 
@@ -30,16 +31,38 @@ class WalletService {
       final privateKeyHex = bytesToHex(credentials.privateKey);
       final address = credentials.address.hexEip55;
 
+      // 공개키 생성
+      final publicKey = await generatePublicKey(credentials);
+
       // DID 생성
       final did = generateDid(address);
 
       // 저장
       await _secureStorage.write(key: _privateKeyKey, value: privateKeyHex);
       await _secureStorage.write(key: _addressKey, value: address);
+      await _secureStorage.write(key: _publicKeyKey, value: publicKey);
 
-      return {'privateKey': privateKeyHex, 'address': address, 'did': did};
+      return {
+        'privateKey': privateKeyHex,
+        'address': address,
+        'did': did,
+        'publicKey': publicKey,
+      };
     } catch (e) {
       throw Exception('지갑 생성에 실패했습니다: $e');
+    }
+  }
+
+  /// 개인키로부터 공개키 생성
+  Future<String> generatePublicKey(EthPrivateKey credentials) async {
+    try {
+      // SECP256K1 곡선의 공개키 포인트 계산
+      final publicKeyBytes = credentials.encodedPublicKey;
+
+      // 공개키를 16진수 문자열로 변환 (0x 접두사 추가)
+      return '0x${bytesToHex(publicKeyBytes)}';
+    } catch (e) {
+      throw Exception('공개키 생성에 실패했습니다: $e');
     }
   }
 
