@@ -4,52 +4,53 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:kkuk_kkuk/models/auth/kakao_auth_request.dart';
 import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
 import 'package:kkuk_kkuk/repositories/auth_repository.dart';
+import 'package:kkuk_kkuk/services/kakao_service.dart';
 
 class AuthService {
   final AuthRepository _authRepository;
+  final KakaoService _kakaoService;
 
-  AuthService(this._authRepository);
+  AuthService(this._authRepository, this._kakaoService);
 
-  Future<KakaoAuthResponse> signInWithKakao() async {
+  /// 서버 로그인/회원가입
+  Future<KakaoAuthResponse> authenticateWithServer(User kakaoUser) async {
     try {
-      // 카카오톡 설치 여부 확인
-      final installed = await isKakaoTalkInstalled();
-      if (installed) {
-        await UserApi.instance.loginWithKakaoTalk();
-      } else {
-        await UserApi.instance.loginWithKakaoAccount();
-      }
-
-      User user = await UserApi.instance.me();
-
-      // TODO: 사용자 정보 및 토큰 저장 로직 추가
       final request = KakaoAuthRequest(
-        name: user.kakaoAccount?.name ?? '',
-        email: user.kakaoAccount?.email ?? '',
-        birthyear: user.kakaoAccount?.birthyear ?? '',
-        birthday: user.kakaoAccount?.birthday ?? '',
-        gender: user.kakaoAccount?.gender?.toString().toLowerCase() ?? 'female',
-        providerId: user.id.toString(),
+        name: kakaoUser.kakaoAccount?.name ?? '',
+        email: kakaoUser.kakaoAccount?.email ?? '',
+        birthyear: kakaoUser.kakaoAccount?.birthyear ?? '',
+        birthday: kakaoUser.kakaoAccount?.birthday ?? '',
+        gender: kakaoUser.kakaoAccount?.gender?.toString().toLowerCase() ?? '',
+        providerId: kakaoUser.id.toString(),
       );
 
-      try {
-        final response = await _authRepository.signInWithKakao(request);
-        return response;
-      } catch (serverError) {
-        print('서버 에러: $serverError');
-        rethrow;
-      }
+      return await _authRepository.signInWithKakao(request);
     } catch (error) {
-      print('카카오 로그인 실패: $error');
-      throw Exception('카카오 로그인 실패: $error');
+      print('서버 인증 실패: $error');
+      throw Exception('서버 인증 실패: $error');
+    }
+  }
+
+  /// 통합 로그인 프로세스
+  Future<KakaoAuthResponse> signInWithKakao() async {
+    try {
+      // 카카오 인증
+      final kakaoUser = await _kakaoService.authenticate();
+
+      // 서버 인증
+      return await authenticateWithServer(kakaoUser);
+    } catch (error) {
+      print('로그인 프로세스 실패: $error');
+      throw Exception('로그인 프로세스 실패: $error');
     }
   }
 
   Future<bool> logout() async {
-    // TODO: 로컬 저장소의 인증 정보 삭제
-    // TODO: 서버에 로그아웃 요청 전송
     try {
-      await UserApi.instance.logout();
+      // 카카오 로그아웃
+      await _kakaoService.logout();
+
+      // 서버 로그아웃
       return await _authRepository.logout();
     } catch (e) {
       print('로그아웃 실패: $e');
@@ -69,5 +70,6 @@ class AuthService {
 
 final authServiceProvider = Provider<AuthService>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
-  return AuthService(authRepository);
+  final kakaoService = ref.watch(kakaoServiceProvider);
+  return AuthService(authRepository, kakaoService);
 });

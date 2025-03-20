@@ -20,13 +20,13 @@ class AuthRepository {
 
       return KakaoAuthResponse.fromJson(response.data);
     } on DioException catch (e) {
-      print('카카오 로그인 API 에러: ${e.message}');
+      print('로그인 API 에러: ${e.message}');
       if (e.response != null) {
         print('에러 응답: ${e.response!.data}');
       }
       rethrow;
     } catch (e) {
-      print('카카오 로그인 중 예상치 못한 에러: $e');
+      print('로그인 중 예상치 못한 에러: $e');
       rethrow;
     }
   }
