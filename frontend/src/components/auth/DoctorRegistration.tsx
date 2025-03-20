@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import { toast } from "react-toastify";
-import { verifyDoctor } from "../../services/hospitalService";
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-// 의사 정보 인터페이스
 export interface Doctor {
   id: string;
   name: string;
   licenseNumber: string;
-  isVerified: boolean;
 }
 
 interface DoctorRegistrationProps {
@@ -15,181 +13,159 @@ interface DoctorRegistrationProps {
   setDoctors: React.Dispatch<React.SetStateAction<Doctor[]>>;
 }
 
-const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({
-  doctors,
-  setDoctors,
-}) => {
-  const [doctorName, setDoctorName] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [isVerifying, setIsVerifying] = useState(false);
+const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoctors }) => {
+  const [doctorName, setDoctorName] = useState('');
+  const [doctorLicense, setDoctorLicense] = useState('');
+  const [error, setError] = useState('');
 
-  // 의사 추가 함수
-  const addDoctor = async () => {
+  // 의사 정보 추가
+  const addDoctor = () => {
     // 유효성 검사
     if (!doctorName.trim()) {
-      toast.error("의사 이름을 입력해주세요.");
+      setError('의사 이름을 입력해주세요.');
       return;
     }
-
-    if (!licenseNumber.trim()) {
-      toast.error("면허번호를 입력해주세요.");
+    
+    if (!doctorLicense.trim()) {
+      setError('의사 면허번호를 입력해주세요.');
       return;
     }
-
-    // 중복 검사
-    if (doctors.some((doctor) => doctor.licenseNumber === licenseNumber)) {
-      toast.error("이미 추가된 면허번호입니다.");
+    
+    // 면허번호 중복 확인
+    if (doctors.some(doc => doc.licenseNumber === doctorLicense)) {
+      setError('이미 등록된 면허번호입니다.');
       return;
     }
-
-    try {
-      setIsVerifying(true);
-
-      // 면허 인증 API 호출
-      const result = await verifyDoctor({ name: doctorName, licenseNumber });
-
-      if (result.success && result.data.isVerified) {
-        // 새 의사 추가
-        const newDoctor: Doctor = {
-          id: Date.now().toString(),
-          name: doctorName,
-          licenseNumber: licenseNumber,
-          isVerified: true,
-        };
-
-        setDoctors([...doctors, newDoctor]);
-        setDoctorName("");
-        setLicenseNumber("");
-        toast.success("의사 정보가 추가되었습니다.");
-      } else {
-        toast.error("의사 인증에 실패했습니다. 정확한 정보를 입력해주세요.");
-      }
-    } catch (error) {
-      toast.error("의사 정보 추가 중 오류가 발생했습니다.");
-      console.error("의사 추가 오류:", error);
-    } finally {
-      setIsVerifying(false);
-    }
+    
+    // 의사 정보 추가
+    const newDoctor: Doctor = {
+      id: Date.now().toString(),
+      name: doctorName,
+      licenseNumber: doctorLicense
+    };
+    
+    setDoctors([...doctors, newDoctor]);
+    
+    // 입력 필드 초기화
+    setDoctorName('');
+    setDoctorLicense('');
+    setError('');
   };
 
-  // 의사 삭제 함수
+  // 의사 정보 삭제
   const removeDoctor = (id: string) => {
-    setDoctors(doctors.filter((doctor) => doctor.id !== id));
-    toast.info("의사 정보가 삭제되었습니다.");
+    setDoctors(doctors.filter(doc => doc.id !== id));
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-        의사 등록
-      </h3>
-
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4 dark:bg-blue-900/20 dark:border-blue-800">
-        <p className="text-sm text-blue-700 dark:text-blue-400">
-          최소 1명 이상의 의사를 등록해야 합니다. 각 의사의 이름과 면허번호를
-          입력하세요.
+    <div>
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">의사 정보 등록</h3>
+      
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          병원에 소속된 의사 정보를 등록해주세요. 최소 1명 이상의 의사 정보가 필요합니다.
         </p>
       </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="md:col-span-1">
-          <label
-            htmlFor="doctorName"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            의사 이름
+      
+      {/* 입력 폼 */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
+        <div className="md:col-span-2">
+          <label htmlFor="doctorName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            의사 이름 *
           </label>
           <input
             id="doctorName"
             type="text"
             value={doctorName}
             onChange={(e) => setDoctorName(e.target.value)}
-            placeholder="이름"
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            placeholder="의사 이름"
           />
         </div>
-
+        
         <div className="md:col-span-2">
-          <label
-            htmlFor="licenseNumber"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            면허번호
+          <label htmlFor="doctorLicense" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            의사 면허번호 *
           </label>
           <input
-            id="licenseNumber"
+            id="doctorLicense"
             type="text"
-            value={licenseNumber}
-            onChange={(e) => setLicenseNumber(e.target.value)}
-            placeholder="수의사 면허번호"
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            value={doctorLicense}
+            onChange={(e) => setDoctorLicense(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            placeholder="의사 면허번호"
           />
         </div>
-
+        
         <div className="md:col-span-1 flex items-end">
           <button
             type="button"
             onClick={addDoctor}
-            disabled={isVerifying}
-            className="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
+            className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
-            {isVerifying ? (
-              <span className="flex flex-row items-center justify-center whitespace-nowrap">
-                <span className="animate-pulse">⏳</span>
-                <span className="ml-2">확인중</span>
-              </span>
-            ) : (
-              <span className="flex flex-row items-center justify-center whitespace-nowrap">
-                <span className="mr-2">➕</span>
-                추가
-              </span>
-            )}
+            <FontAwesomeIcon icon={faPlus} className="mr-2" />
+            추가
           </button>
         </div>
       </div>
-
-      <div className="mt-6">
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          등록된 의사 목록
-        </h4>
-        {doctors.length === 0 ? (
-          <div className="text-sm text-gray-500 dark:text-gray-400 p-4 border border-dashed border-gray-300 dark:border-gray-600 rounded-md">
-            등록된 의사가 없습니다. 최소 1명 이상의 의사를 등록해주세요.
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {doctors.map((doctor) => (
-              <div
-                key={doctor.id}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md"
-              >
-                <div>
-                  <div className="flex items-center">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {doctor.name}
-                    </span>
-                    <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 rounded-full flex items-center">
-                      <span className="mr-1">✓</span> 인증됨
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    면허번호: {doctor.licenseNumber}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeDoctor(doctor.id)}
-                  className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
-                >
-                  <span className="text-xl">×</span>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+      
+      {/* 에러 메시지 */}
+      {error && (
+        <div className="mb-4 p-2 bg-red-100 text-red-700 text-sm rounded-md dark:bg-red-900 dark:text-red-100">
+          {error}
+        </div>
+      )}
+      
+      {/* 등록된 의사 목록 */}
+      <div className="border rounded-md overflow-hidden dark:border-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                의사 이름
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                면허번호
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                작업
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+            {doctors.length > 0 ? (
+              doctors.map((doctor) => (
+                <tr key={doctor.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                    {doctor.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                    {doctor.licenseNumber}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      type="button"
+                      onClick={() => removeDoctor(doctor.id)}
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="mr-1" />
+                      삭제
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  등록된 의사가 없습니다. 최소 1명 이상의 의사를 등록해주세요.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-export default DoctorRegistration;
+export default DoctorRegistration; 

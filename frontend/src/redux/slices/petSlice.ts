@@ -1,201 +1,214 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { store } from '../store';
 import { RootState } from '../store';
-import { selectDevModeEnabled } from './devModeSlice';
 
-export interface BlockchainInfo {
-  transactionId: string;
-  timestamp: string;
-  blockNumber: number;
-  dataHash: string;
-}
-
+// 반려동물 데이터 인터페이스
 export interface Pet {
   id: string;
-  guardianId: string;
   name: string;
-  species: string;
   breed: string;
-  gender: string;
-  birthDate: string;
-  description: string;
-  medicalRecords: string[]; // 진료기록 ID 목록
-  blockchainData?: BlockchainInfo; // 블록체인 데이터 추가
+  guardianId: string;
+  guardianName: string;
+  registeredDate: string;
+  expiryDate: string;
+  treatmentStatus: TreatmentStatus;
+  gender?: string;
+  flagNeutering?: boolean;
+  age?: string;
+  did?: string;
+  blockchainData?: {
+    hash: string;
+    timestamp: string;
+  };
 }
 
-export interface PetState {
+// 진료 상태 타입
+export type TreatmentStatus = 'waiting' | 'inProgress' | 'completed';
+
+// 정렬 필드 타입
+export type SortField = 'name' | 'registeredDate' | 'expiryDate' | 'treatmentStatus' | 'custom';
+export type SortOrder = 'asc' | 'desc';
+
+// 슬라이스 상태 인터페이스
+interface PetState {
   pets: Pet[];
   selectedPet: Pet | null;
   loading: boolean;
   error: string | null;
-  blockchainLoading: boolean;
-  blockchainError: string | null;
-  blockchainData: { [key: string]: BlockchainInfo };
+  sortField: SortField;
+  sortOrder: SortOrder;
+  hideCompleted: boolean;
+  customOrder: string[];
 }
 
-// 기본 초기 상태 정의
+// 초기 상태
 const initialState: PetState = {
-  pets: [
-    // 아래는 '호태'의 정보
-    {
-      id: 'pet-1',
-      guardianId: 'owner-1',
-      name: '호태',
-      species: '개',
-      breed: '시츄',
-      gender: '수컷',
-      birthDate: '2019-05-15',
-      description: '활발하고 장난기 많은 시츄입니다.',
-      medicalRecords: ['treatment-5'] // 진료기록 연결
-    },
-    // 아래는 '메리'의 정보
-    {
-      id: 'pet-2',
-      guardianId: 'owner-1',
-      name: '메리',
-      species: '개',
-      breed: '말티즈',
-      gender: '암컷',
-      birthDate: '2020-03-10',
-      description: '온순하고 사람을 잘 따르는 말티즈입니다.',
-      medicalRecords: ['treatment-1', 'treatment-3'] // 진료기록 연결
-    },
-    // 아래는 '초코'의 정보
-    {
-      id: 'pet-3',
-      guardianId: 'owner-1',
-      name: '초코',
-      species: '고양이',
-      breed: '러시안 블루',
-      gender: '암컷',
-      birthDate: '2021-01-20',
-      description: '조용하고 독립적인 러시안 블루입니다.',
-      medicalRecords: ['treatment-2'] // 진료기록 연결
-    },
-    // 아래는 '바둑이'의 정보
-    {
-      id: 'pet-4',
-      guardianId: 'owner-2',
-      name: '바둑이',
-      species: '개',
-      breed: '진돗개',
-      gender: '수컷', 
-      birthDate: '2018-09-05',
-      description: '충성심이 강하고 활발한 진돗개입니다.',
-      medicalRecords: ['treatment-4'] // 진료기록 연결
-    }
-  ],
-  selectedPet: null, // 초기값은 null로 설정
+  pets: [],
+  selectedPet: null,
   loading: false,
   error: null,
-  blockchainLoading: false,
-  blockchainError: null,
-  blockchainData: {}
+  sortField: 'treatmentStatus',
+  sortOrder: 'asc',
+  hideCompleted: false,
+  customOrder: []
 };
 
-// localStorage에서 이전에 선택된 반려동물 ID 확인
-const savedPetId = localStorage.getItem('selectedPetId');
-if (savedPetId) {
-  const foundPet = initialState.pets.find(pet => pet.id === savedPetId);
-  if (foundPet) {
-    initialState.selectedPet = foundPet;
-  }
-}
+// 더미 데이터 생성 함수 (개발용)
+export const createDummyPets = (): Pet[] => {
+  const currentDate = new Date();
+  const tomorrow = new Date(currentDate);
+  tomorrow.setDate(currentDate.getDate() + 1);
+  
+  const nextWeek = new Date(currentDate);
+  nextWeek.setDate(currentDate.getDate() + 7);
+  
+  const nextMonth = new Date(currentDate);
+  nextMonth.setMonth(currentDate.getMonth() + 1);
+  
+  return [
+    {
+      id: '1',
+      name: '멍멍이',
+      breed: '리트리버',
+      guardianId: '1',
+      guardianName: '김철수',
+      registeredDate: currentDate.toISOString(),
+      expiryDate: nextMonth.toISOString(),
+      treatmentStatus: 'waiting',
+      blockchainData: {
+        hash: '0x123456789abcdef',
+        timestamp: currentDate.toISOString()
+      }
+    },
+    {
+      id: '2',
+      name: '야옹이',
+      breed: '코리안 숏헤어',
+      guardianId: '2',
+      guardianName: '이영희',
+      registeredDate: new Date(currentDate.getTime() - 86400000 * 2).toISOString(),
+      expiryDate: tomorrow.toISOString(),
+      treatmentStatus: 'inProgress'
+    },
+    {
+      id: '3',
+      name: '토토',
+      breed: '말티즈',
+      guardianId: '3',
+      guardianName: '박지민',
+      registeredDate: new Date(currentDate.getTime() - 86400000 * 5).toISOString(),
+      expiryDate: nextWeek.toISOString(),
+      treatmentStatus: 'completed',
+      blockchainData: {
+        hash: '0xabcdef123456789',
+        timestamp: new Date(currentDate.getTime() - 86400000).toISOString()
+      }
+    }
+  ];
+};
 
+// 슬라이스 생성
 const petSlice = createSlice({
   name: 'pet',
   initialState,
   reducers: {
+    // 반려동물 목록 페치 시작
     fetchPetsStart: (state) => {
       state.loading = true;
       state.error = null;
     },
+    // 반려동물 목록 페치 성공
     fetchPetsSuccess: (state, action: PayloadAction<Pet[]>) => {
       state.pets = action.payload;
       state.loading = false;
+      state.error = null;
     },
+    // 반려동물 목록 페치 실패
     fetchPetsFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
+    // 반려동물 선택
     selectPet: (state, action: PayloadAction<string>) => {
-      const petId = action.payload;
-      const pet = state.pets.find(p => p.id === petId);
-      state.selectedPet = pet || null;
-      
-      // localStorage에 선택된 반려동물 ID 저장
+      const pet = state.pets.find(p => p.id === action.payload);
       if (pet) {
-        localStorage.setItem('selectedPetId', pet.id);
+        state.selectedPet = pet;
       }
     },
+    // 반려동물 선택 해제
     clearSelectedPet: (state) => {
       state.selectedPet = null;
-      localStorage.removeItem('selectedPetId');
     },
-    fetchBlockchainDataStart: (state) => {
-      state.blockchainLoading = true;
-      state.blockchainError = null;
+    // 진료 상태 업데이트
+    updateTreatmentStatus: (state, action: PayloadAction<{ petId: string, status: TreatmentStatus }>) => {
+      const { petId, status } = action.payload;
+      const petIndex = state.pets.findIndex(p => p.id === petId);
+      
+      if (petIndex !== -1) {
+        state.pets[petIndex].treatmentStatus = status;
+        
+        // 선택된 반려동물의 상태도 업데이트
+        if (state.selectedPet && state.selectedPet.id === petId) {
+          state.selectedPet.treatmentStatus = status;
+        }
+      }
     },
-    fetchBlockchainDataSuccess: (state, action: PayloadAction<{ petId: string, blockchainData: BlockchainInfo }>) => {
-      state.blockchainLoading = false;
-      const { petId, blockchainData } = action.payload;
-      // 블록체인 데이터 저장
-      state.blockchainData[petId] = blockchainData;
+    // 정렬 필드 설정
+    setSortField: (state, action: PayloadAction<SortField>) => {
+      if (state.sortField === action.payload) {
+        // 같은 필드를 다시 클릭하면 정렬 순서 변경
+        state.sortOrder = state.sortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.sortField = action.payload;
+        // 기본 정렬 순서 설정 (대부분의 경우 오름차순)
+        state.sortOrder = 'asc';
+      }
     },
-    fetchBlockchainDataFailure: (state, action: PayloadAction<string>) => {
-      state.blockchainLoading = false;
-      state.blockchainError = action.payload;
+    // 정렬 순서 설정
+    setSortOrder: (state, action: PayloadAction<SortOrder>) => {
+      state.sortOrder = action.payload;
     },
-  },
+    // 완료된 진료 숨김 토글
+    toggleHideCompleted: (state) => {
+      state.hideCompleted = !state.hideCompleted;
+    },
+    // 커스텀 정렬 순서 설정
+    setCustomOrder: (state, action: PayloadAction<string[]>) => {
+      state.customOrder = action.payload;
+      state.sortField = 'custom';
+    },
+    // 특정 보호자의 반려동물 목록 로드 (해당 API가 준비되어 있을 때 사용)
+    fetchPetsByGuardian: (state, action: PayloadAction<string>) => {
+      // 해당 액션은 페이로드만 처리하고, API 호출은 별도의 미들웨어에서 처리
+      // 현재는 로딩 상태로 변경만 수행
+      state.loading = true;
+    }
+  }
 });
 
+// 액션 생성자 내보내기
 export const {
   fetchPetsStart,
   fetchPetsSuccess,
   fetchPetsFailure,
   selectPet,
   clearSelectedPet,
-  fetchBlockchainDataStart,
-  fetchBlockchainDataSuccess,
-  fetchBlockchainDataFailure,
+  updateTreatmentStatus,
+  setSortField,
+  setSortOrder,
+  toggleHideCompleted,
+  setCustomOrder,
+  fetchPetsByGuardian
 } = petSlice.actions;
 
-// 보호자 ID로 반려동물 목록을 필터링하는 함수
-export const fetchPetsByGuardian = (guardianId: string) => (dispatch: any, getState: any) => {
-  dispatch(fetchPetsStart());
-  try {
-    // 현재 상태
-    const state = getState();
-    const devModeEnabled = selectDevModeEnabled(state);
-    
-    // 개발 모드 여부에 관계없이 모든 반려동물 목록 가져오기
-    const allPets = state.pet.pets;
-    
-    // 보호자 ID로 필터링
-    const filteredPets = allPets.filter(pet => pet.guardianId === guardianId);
-    
-    // 필터링된 결과만 반영하고 기존 목록은 유지 (개발 모드에서도 상태가 초기화되지 않도록)
-    if (filteredPets.length > 0) {
-      dispatch(fetchPetsSuccess(filteredPets));
-      
-      // 현재 선택된 반려동물이 필터링된 목록에 없으면 첫 번째 반려동물 선택
-      const currentSelectedPet = state.pet.selectedPet;
-      if (!currentSelectedPet || !filteredPets.some(pet => pet.id === currentSelectedPet.id)) {
-        dispatch(selectPet(filteredPets[0].id));
-      }
-    } else {
-      // 필터링된 결과가 없을 경우 빈 배열로 설정하지만 오류는 발생시키지 않음
-      dispatch(fetchPetsSuccess([]));
-      dispatch(clearSelectedPet());
-    }
-  } catch (error) {
-    dispatch(fetchPetsFailure(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'));
-  }
-};
+// 선택자 내보내기
+export const selectPets = (state: RootState) => state.pet.pets;
+export const selectSelectedPet = (state: RootState) => state.pet.selectedPet;
+export const selectPetLoading = (state: RootState) => state.pet.loading;
+export const selectPetError = (state: RootState) => state.pet.error;
+export const selectPetSortField = (state: RootState) => state.pet.sortField;
+export const selectPetSortOrder = (state: RootState) => state.pet.sortOrder;
+export const selectHideCompleted = (state: RootState) => state.pet.hideCompleted;
+export const selectCustomOrder = (state: RootState) => state.pet.customOrder;
 
-export const selectSelectedPet = (state: RootState) => {
-  const selectedPetId = state.pet.selectedPet?.id || "";
-  return state.pet.pets.find((pet: Pet) => pet.id === selectedPetId) || null;
-};
-
+// 리듀서 내보내기
 export default petSlice.reducer; 
