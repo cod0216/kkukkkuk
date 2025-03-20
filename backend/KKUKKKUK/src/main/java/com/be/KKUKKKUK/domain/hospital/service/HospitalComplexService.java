@@ -18,7 +18,7 @@ import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
-import com.be.KKUKKKUK.domain.treatment.TreatStatus;
+import com.be.KKUKKKUK.domain.treatment.TreatState;
 import com.be.KKUKKKUK.domain.treatment.dto.response.TreatmentResponse;
 import com.be.KKUKKKUK.domain.treatment.service.TreatmentService;
 import com.be.KKUKKKUK.global.service.EmailService;
@@ -248,10 +248,10 @@ public class HospitalComplexService {
      * @param flagExpired 만료된 기록 조회 여부
      * @return 조회된 진료 기록
      */
-    public Map<Integer, List<TreatmentResponse>> getTreatmentMine(
-            HospitalDetails hospitalDetails, Boolean flagExpired, TreatStatus status, Integer petId) {
+    public List<TreatmentResponse> getTreatmentMine(
+            HospitalDetails hospitalDetails, Boolean flagExpired, TreatState state, Integer petId) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
-        return treatmentService.getFilteredTreatmentByHospitalId(hospitalId, flagExpired, status, petId);
+        return treatmentService.getFilteredTreatmentByHospitalId(hospitalId, flagExpired, state, petId);
     }
 
 

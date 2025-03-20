@@ -7,7 +7,7 @@ import com.be.KKUKKKUK.domain.hospital.dto.request.RegisterTreatmentRequest;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
-import com.be.KKUKKKUK.domain.treatment.TreatStatus;
+import com.be.KKUKKKUK.domain.treatment.TreatState;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -181,11 +181,11 @@ public class HospitalController {
     public ResponseEntity<?> getTreatments(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
             @RequestParam(required = false) Boolean expired,
-            @RequestParam(required = false) TreatStatus status,
+            @RequestParam(required = false) TreatState state,
             @RequestParam(required = false) Integer petId) {
 
         return ResponseUtility.success("진료 기록 조회에 성공했습니다.",
-                hospitalComplexService.getTreatmentMine(hospitalDetails, expired, status, petId));
+                hospitalComplexService.getTreatmentMine(hospitalDetails, expired, state, petId));
     }
 
 

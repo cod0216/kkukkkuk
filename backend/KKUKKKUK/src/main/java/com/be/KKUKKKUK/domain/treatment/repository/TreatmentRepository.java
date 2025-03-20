@@ -1,6 +1,6 @@
 package com.be.KKUKKKUK.domain.treatment.repository;
 
-import com.be.KKUKKKUK.domain.treatment.TreatStatus;
+import com.be.KKUKKKUK.domain.treatment.TreatState;
 import com.be.KKUKKKUK.domain.treatment.entity.Treatment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -9,29 +9,29 @@ import java.util.List;
 
 public interface TreatmentRepository extends JpaRepository<Treatment, Integer> {
 
-    List<Treatment> findTreatmentByHospitalIdAndExpireDateAfter(Integer hospitalId, LocalDate now);
+    List<Treatment> findByHospitalIdAndExpireDateAfter(Integer hospitalId, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndExpireDateBefore(Integer hospitalId, LocalDate now);
+    List<Treatment> findByHospitalIdAndExpireDateBefore(Integer hospitalId, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndStatusAndExpireDateAfter(Integer hospitalId, TreatStatus status, LocalDate now);
+    List<Treatment> findByHospitalIdAndStateAndExpireDateAfter(Integer hospitalId, TreatState status, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndStatusAndPetIdAndExpireDateAfter(Integer hospitalId, TreatStatus status, Integer petId, LocalDate now);
+    List<Treatment> findByHospitalIdAndStateAndPetIdAndExpireDateAfter(Integer hospitalId, TreatState status, Integer petId, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndPetIdAndExpireDateAfter(Integer hospitalId, Integer petId, LocalDate now);
+    List<Treatment> findByHospitalIdAndPetIdAndExpireDateAfter(Integer hospitalId, Integer petId, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndPetIdAndExpireDateBefore(Integer hospitalId, Integer petId, LocalDate now);
+    List<Treatment> findByHospitalIdAndPetIdAndExpireDateBefore(Integer hospitalId, Integer petId, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndStatusAndPetIdAndExpireDateBefore(Integer hospitalId, TreatStatus status, Integer petId, LocalDate now);
+    List<Treatment> findByHospitalIdAndStateAndPetIdAndExpireDateBefore(Integer hospitalId, TreatState status, Integer petId, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalIdAndStatusAndExpireDateBefore(Integer hospitalId, TreatStatus status, LocalDate now);
+    List<Treatment> findByHospitalIdAndStateAndExpireDateBefore(Integer hospitalId, TreatState status, LocalDate now);
 
-    List<Treatment> findTreatmentByHospitalId(Integer hospitalId);
+    List<Treatment> findTByHospitalId(Integer hospitalId);
 
-    List<Treatment> findTreatmentByHospitalIdAndStatus(Integer hospitalId, TreatStatus status);
+    List<Treatment> findByHospitalIdAndState(Integer hospitalId, TreatState status);
 
-    List<Treatment> findTreatmentByHospitalIdAndPetId(Integer hospitalId, Integer petId);
+    List<Treatment> findByHospitalIdAndPetId(Integer hospitalId, Integer petId);
 
-    List<Treatment> findTreatmentByHospitalIdAndStatusAndPetId(Integer hospitalId, TreatStatus status, Integer petId);
+    List<Treatment> findByHospitalIdAndStateAndPetId(Integer hospitalId, TreatState status, Integer petId);
 
 }
 

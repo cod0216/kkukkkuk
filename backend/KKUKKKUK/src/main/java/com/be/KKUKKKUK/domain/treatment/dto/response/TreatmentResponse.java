@@ -1,6 +1,6 @@
 package com.be.KKUKKKUK.domain.treatment.dto.response;
 
-import com.be.KKUKKKUK.domain.treatment.TreatStatus;
+import com.be.KKUKKKUK.domain.treatment.TreatState;
 import com.be.KKUKKKUK.global.enumeration.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class TreatmentResponse {
-    private TreatStatus status;
+    private TreatState state;
 
     private Integer id;
 

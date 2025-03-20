@@ -2,7 +2,7 @@ package com.be.KKUKKKUK.domain.treatment.entity;
 
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
-import com.be.KKUKKKUK.domain.treatment.TreatStatus;
+import com.be.KKUKKKUK.domain.treatment.TreatState;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -35,7 +35,7 @@ public class Treatment {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TreatStatus status;
+    private TreatState state;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
