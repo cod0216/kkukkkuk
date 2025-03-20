@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:encrypt/encrypt.dart';
+import 'dart:convert';
 
 /// 블록체인 지갑 관련 서비스
 class WalletService {
@@ -89,9 +91,21 @@ class WalletService {
   /// PIN으로 개인키 암호화
   Future<String> encryptPrivateKey(String privateKey, String pin) async {
     try {
-      // TODO: 실제 암호화 라이브러리를 사용한 구현
-      await Future.delayed(const Duration(milliseconds: 500));
-      return "encrypted_${privateKey}_with_${pin}";
+      // PIN을 32바이트 키로 확장
+      final key = Key.fromUtf8(pin.padRight(32, '0'));
+      final iv = IV.fromLength(16);
+      final encrypter = Encrypter(AES(key));
+
+      // 개인키 암호화
+      final encrypted = encrypter.encrypt(privateKey, iv: iv);
+
+      // IV와 암호문을 함께 base64로 인코딩
+      final combined = json.encode({
+        'iv': base64.encode(iv.bytes),
+        'encrypted': encrypted.base64,
+      });
+
+      return combined;
     } catch (e) {
       throw Exception('개인키 암호화에 실패했습니다: $e');
     }
@@ -103,14 +117,16 @@ class WalletService {
     String pin,
   ) async {
     try {
-      // TODO: 실제 복호화 라이브러리를 사용한 구현
-      await Future.delayed(const Duration(milliseconds: 500));
+      final Map<String, dynamic> parts = json.decode(encryptedPrivateKey);
 
-      if (pin == '000000') {
-        return null;
-      }
+      // PIN을 32바이트 키로 확장
+      final key = Key.fromUtf8(pin.padRight(32, '0'));
+      final iv = IV.fromBase64(parts['iv']);
+      final encrypter = Encrypter(AES(key));
 
-      return "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+      // 복호화
+      final decrypted = encrypter.decrypt64(parts['encrypted'], iv: iv);
+      return decrypted;
     } catch (e) {
       throw Exception('개인키 복호화에 실패했습니다: $e');
     }
