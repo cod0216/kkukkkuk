@@ -10,6 +10,17 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * packageName    : com.be.KKUKKKUK.domain.treatment.entity<br>
+ * fileName       : Treatment.java<br>
+ * author         : haelim<br>
+ * date           : 2025-03-19<br>
+ * description    : treatment entity class 입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.03.19          haelim           최초생성<br>
+ */
 @Entity
 @Table(name = "treatment")
 @Getter

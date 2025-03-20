@@ -156,9 +156,9 @@ public class HospitalController {
      *
      * @param ownerDetails 인증된 보호자 회원 계정 정보
      * @param hospitalId 진료 요청하는 병원 ID
-     * @param petId
-     * @param request
-     * @return
+     * @param petId 대상 petId
+     * @param request 진료 추가 요청
+     * @return 등록된 진료 정보
      */
     @PostMapping("/{hospitalId}/treatments/{petId}")
     public ResponseEntity<?> registerTreatmentOnHospital(

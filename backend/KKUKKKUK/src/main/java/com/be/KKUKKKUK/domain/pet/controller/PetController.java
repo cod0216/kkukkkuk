@@ -28,6 +28,12 @@ public class PetController {
     private final PetComplexService petComplexService;
     private final PetService petService;
 
+    /**
+     * 반려동물 정보를 반려동물의 ID 로 조회합니다.
+     * @param ownerDetails 인증된 보호자 계정
+     * @param petId 조회할 반려동물 ID
+     * @return 조회된 반려동물 정보
+     */
     @GetMapping("/{petId}")
     public ResponseEntity<?> getPetInfoByPetId(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
@@ -35,6 +41,13 @@ public class PetController {
         return ResponseUtility.success("반려동물 조회에 성공했습니다.", petService.getPetInfoByPetId(ownerDetails, petId));
     }
 
+    /**
+     * 반려동물 정보를 수정합니다.
+     * @param ownerDetails 인증된 보호자 계정
+     * @param petId 수정할 반려동물 ID
+     * @param request 반려동물 정보 수정 요청
+     * @return 수정된 반려동물 정보
+     */
     @PatchMapping("/{petId}")
     public ResponseEntity<?> updatePet(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
@@ -44,13 +57,19 @@ public class PetController {
         return ResponseUtility.success("반려동물 정보 수정에 성공했습니다.", petComplexService.updatePet(ownerDetails, petId, request));
     }
 
+    /**
+     * 반려동물을 지갑에서 삭제합니다.
+     * 실제 데이터베이스에서 삭제하는 것이 아닌, 지갑과의 관계를 끊습니다.
+     * @param ownerDetails 인증된 보호자 계정
+     * @param petId 수정할 반려동물 ID
+     */
     @DeleteMapping("/{petId}")
     public ResponseEntity<?> deletePet(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
             @PathVariable Integer petId
     ){
         petComplexService.deletePetFromWallet(ownerDetails, petId);
-        return ResponseUtility.success("반려동물 삭제에 성공했습니다.");
+        return ResponseUtility.success("반려동물 삭제에 성공했습니다.", null);
     }
 
 }
