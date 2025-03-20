@@ -12,5 +12,5 @@ package com.be.KKUKKKUK.domain.treatment;
  * 25.03.19          haelim           최초생성<br>
  */
 public enum TreatState {
-    BEFORE, ONGOING, COMPLETED;
+    WAITING, IN_PROGRESS, COMPLETED;
 }
