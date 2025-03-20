@@ -39,23 +39,23 @@ public class TreatmentService {
      * 특정 반려돔물에 대해 진료 기록을 조회합니다.
      * @param hospitalId 대상이 되는 동물병원 ID
      * @param expired 만료된 기록 필터링 여부, TRUE -> 만료된 기록만, FALSE -> 만료되지 않은 기록만, null -> 필터링하지 않음
-     * @param status 기록 상태, 진료전 / 진료중 / 진료완료, null -> 필터링하지 않음
+     * @param state 기록 상태, 진료전 / 진료중 / 진료완료, null -> 필터링하지 않음
      * @param petId 필터링할 반려동물(pet) ID, null -> 필터링하지 않음
      * @return 조회된 기록 목록
      */
     @Transactional(readOnly = true)
     public List<TreatmentResponse> getFilteredTreatmentByHospitalId(
-            Integer hospitalId, Boolean expired, TreatState status, Integer petId) {
+            Integer hospitalId, Boolean expired, TreatState state, Integer petId) {
 
         LocalDate now = LocalDate.now();
         List<Treatment> treatments;
 
         if (Boolean.TRUE.equals(expired)) {
             // 만료된 기록만 조회
-            if (status != null && petId != null) {
-                treatments = treatmentRepository.findByHospitalIdAndStateAndPetIdAndExpireDateBefore(hospitalId, status, petId, now);
-            } else if (status != null) {
-                treatments = treatmentRepository.findByHospitalIdAndStateAndExpireDateBefore(hospitalId, status, now);
+            if (state != null && petId != null) {
+                treatments = treatmentRepository.findByHospitalIdAndStateAndPetIdAndExpireDateBefore(hospitalId, state, petId, now);
+            } else if (state != null) {
+                treatments = treatmentRepository.findByHospitalIdAndStateAndExpireDateBefore(hospitalId, state, now);
             } else if (petId != null) {
                 treatments = treatmentRepository.findByHospitalIdAndPetIdAndExpireDateBefore(hospitalId, petId, now);
             } else {
@@ -63,10 +63,10 @@ public class TreatmentService {
             }
         } else if (Boolean.FALSE.equals(expired)) {
             // 만료되지 않은 기록만 조회
-            if (status != null && petId != null) {
-                treatments = treatmentRepository.findByHospitalIdAndStateAndPetIdAndExpireDateAfter(hospitalId, status, petId, now);
-            } else if (status != null) {
-                treatments = treatmentRepository.findByHospitalIdAndStateAndExpireDateAfter(hospitalId, status, now);
+            if (state != null && petId != null) {
+                treatments = treatmentRepository.findByHospitalIdAndStateAndPetIdAndExpireDateAfter(hospitalId, state, petId, now);
+            } else if (state != null) {
+                treatments = treatmentRepository.findByHospitalIdAndStateAndExpireDateAfter(hospitalId, state, now);
             } else if (petId != null) {
                 treatments = treatmentRepository.findByHospitalIdAndPetIdAndExpireDateAfter(hospitalId, petId, now);
             } else {
@@ -74,10 +74,10 @@ public class TreatmentService {
             }
         } else {
             // 만료 여부 필터링 없이 조회
-            if (status != null && petId != null) {
-                treatments = treatmentRepository.findByHospitalIdAndStateAndPetId(hospitalId, status, petId);
-            } else if (status != null) {
-                treatments = treatmentRepository.findByHospitalIdAndState(hospitalId, status);
+            if (state != null && petId != null) {
+                treatments = treatmentRepository.findByHospitalIdAndStateAndPetId(hospitalId, state, petId);
+            } else if (state != null) {
+                treatments = treatmentRepository.findByHospitalIdAndState(hospitalId, state);
             } else if (petId != null) {
                 treatments = treatmentRepository.findByHospitalIdAndPetId(hospitalId, petId);
             } else {

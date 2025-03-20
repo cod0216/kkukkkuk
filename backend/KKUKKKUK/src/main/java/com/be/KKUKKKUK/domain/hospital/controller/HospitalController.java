@@ -180,7 +180,7 @@ public class HospitalController {
     @GetMapping("/me/treatments")
     public ResponseEntity<?> getTreatments(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
-            @RequestParam(required = false) Boolean expired,
+            @RequestParam(required = false, defaultValue = "false") Boolean expired,
             @RequestParam(required = false) TreatState state,
             @RequestParam(required = false) Integer petId) {
 
