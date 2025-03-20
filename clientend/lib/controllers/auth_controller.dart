@@ -11,7 +11,7 @@ class AuthController {
 
   /// 인증 초기화
   Future<void> initializeAuth() async {
-    ref.read(authCoordinatorProvider.notifier).moveToLogin();
+    ref.read(authCoordinatorProvider.notifier).reset();
   }
 
   /// 로그인 처리

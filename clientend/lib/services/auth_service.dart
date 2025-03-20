@@ -1,38 +1,75 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:kkuk_kkuk/models/auth/kakao_auth_request.dart';
+import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
+import 'package:kkuk_kkuk/repositories/auth_repository.dart';
+import 'package:kkuk_kkuk/services/kakao_service.dart';
 
 class AuthService {
-  Future<bool> signInWithKakao() async {
-    // TODO: 카카오 SDK 연동 구현
-    // TODO: 카카오 로그인 후 서버 인증 처리
-    // TODO: 사용자 정보 및 토큰 저장 로직 추가
-    await Future.delayed(const Duration(seconds: 2));
-    return true;
+  final AuthRepository _authRepository;
+  final KakaoService _kakaoService;
+
+  AuthService(this._authRepository, this._kakaoService);
+
+  /// 서버 로그인/회원가입
+  Future<KakaoAuthResponse> authenticateWithServer(User kakaoUser) async {
+    try {
+      final request = KakaoAuthRequest(
+        name: kakaoUser.kakaoAccount?.name ?? '',
+        email: kakaoUser.kakaoAccount?.email ?? '',
+        birthyear: kakaoUser.kakaoAccount?.birthyear ?? '',
+        birthday: kakaoUser.kakaoAccount?.birthday ?? '',
+        gender: kakaoUser.kakaoAccount?.gender?.toString().toLowerCase() ?? '',
+        providerId: kakaoUser.id.toString(),
+      );
+
+      return await _authRepository.signInWithKakao(request);
+    } catch (error) {
+      print('서버 인증 실패: $error');
+      throw Exception('서버 인증 실패: $error');
+    }
+  }
+
+  /// 통합 로그인 프로세스
+  Future<KakaoAuthResponse> signInWithKakao() async {
+    try {
+      // 카카오 인증
+      final kakaoUser = await _kakaoService.authenticate();
+
+      // 서버 인증
+      return await authenticateWithServer(kakaoUser);
+    } catch (error) {
+      print('로그인 프로세스 실패: $error');
+      throw Exception('로그인 프로세스 실패: $error');
+    }
   }
 
   Future<bool> logout() async {
-    // TODO: 로컬 저장소의 인증 정보 삭제
-    // TODO: 서버에 로그아웃 요청 전송
-    // TODO: 소셜 로그인 연동 해제 처리
-    await Future.delayed(const Duration(seconds: 2));
-    return true;
+    try {
+      // 카카오 로그아웃
+      await _kakaoService.logout();
+
+      // 서버 로그아웃
+      return await _authRepository.logout();
+    } catch (e) {
+      print('로그아웃 실패: $e');
+      throw Exception('로그아웃 실패: $e');
+    }
   }
 
   Future<bool> isLoggedIn() async {
-    // TODO: 로컬 저장소의 토큰 유효성 검사
-    // TODO: 필요시 서버에 토큰 검증 요청
-    await Future.delayed(const Duration(seconds: 1));
-    return true;
-  }
-
-  Future<bool> refreshToken() async {
-    // TODO: 리프레시 토큰을 사용하여 새 액세스 토큰 요청
-    // TODO: 토큰 만료 시간 검증 로직 추가
-    // TODO: 갱신된 토큰 저장 처리
-    await Future.delayed(const Duration(seconds: 2));
-    return true;
+    try {
+      return await _authRepository.isLoggedIn();
+    } catch (e) {
+      print('로그인 상태 확인 실패: $e');
+      return false;
+    }
   }
 }
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService();
+  final authRepository = ref.watch(authRepositoryProvider);
+  final kakaoService = ref.watch(kakaoServiceProvider);
+  return AuthService(authRepository, kakaoService);
 });

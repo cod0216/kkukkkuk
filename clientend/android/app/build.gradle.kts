@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -8,7 +10,8 @@ plugins {
 android {
     namespace = "com.ssafy.kkuk_kkuk"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    //ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -28,6 +31,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // kakao app key 설정
+        val properties = gradleLocalProperties(rootProject.projectDir, providers)
+        manifestPlaceholders["KAKAO_APP_KEY"] = properties.getProperty("kakao.app.key", "")
     }
 
     buildTypes {

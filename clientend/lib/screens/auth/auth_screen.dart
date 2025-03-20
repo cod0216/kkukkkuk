@@ -73,8 +73,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   /// 현재 인증 단계에 따른 화면 구성
   Widget _buildCurrentStep(AuthStep step, AuthController controller) {
     switch (step) {
-      case AuthStep.initial:
-        return const LoadingIndicator();
       case AuthStep.login:
         return LoginView(controller: controller);
       case AuthStep.walletSetup:
