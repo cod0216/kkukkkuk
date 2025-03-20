@@ -43,6 +43,7 @@ dependencies:
   kakao_flutter_sdk_user: ^1.9.7+3
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
