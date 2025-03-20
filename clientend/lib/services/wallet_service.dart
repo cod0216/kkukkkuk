@@ -1,24 +1,38 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:web3dart/crypto.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// 블록체인 지갑 관련 서비스
 class WalletService {
   // TODO: 실제 블록체인 네트워크 연동
   // TODO: 보안 라이브러리 적용
-  // TODO: 키 저장소 구현
   // TODO: 트랜잭션 서명 구현
   // TODO: 에러 처리 개선
+  final FlutterSecureStorage _secureStorage;
+  static const String _privateKeyKey = 'eth_private_key';
+  static const String _addressKey = 'eth_address';
+
+  WalletService() : _secureStorage = const FlutterSecureStorage();
 
   /// 새 지갑 생성
   Future<Map<String, String>> createWallet() async {
     try {
-      // TODO: 실제 지갑 생성 구현
-      await Future.delayed(const Duration(seconds: 1));
+      // 개인키 생성
+      final rng = Random.secure();
+      final privateKeyBytes = List<int>.generate(32, (i) => rng.nextInt(256));
+      final credentials = EthPrivateKey.fromHex(bytesToHex(privateKeyBytes));
 
-      return {
-        'privateKey':
-            '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-        'address': '0x123...abc',
-      };
+      // 개인키와 주소 추출
+      final privateKeyHex = bytesToHex(credentials.privateKey);
+      final address = credentials.address.hexEip55;
+
+      // 저장장
+      await _secureStorage.write(key: _privateKeyKey, value: privateKeyHex);
+      await _secureStorage.write(key: _addressKey, value: address);
+
+      return {'privateKey': privateKeyHex, 'address': address};
     } catch (e) {
       throw Exception('지갑 생성에 실패했습니다: $e');
     }
