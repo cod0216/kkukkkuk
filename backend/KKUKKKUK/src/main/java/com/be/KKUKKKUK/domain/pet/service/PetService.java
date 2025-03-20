@@ -56,7 +56,7 @@ public class PetService {
      */
     @Transactional(readOnly = true)
     public List<PetInfoResponse> findPetInfoListByWalletId(Integer walletId) {
-        return petMapper.mapToPetInfoList(this.findPetsByWalletId(walletId));
+        return petMapper.mapToPetInfoList(findPetsByWalletId(walletId));
     }
 
     /**
@@ -116,6 +116,9 @@ public class PetService {
      */
     private void checkOwnerAuthority(OwnerDetails ownerDetails, Pet pet){
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
+        if(Objects.isNull(pet.getWallet())) {
+            throw new ApiException(ErrorCode.PET_NOT_FOUND);
+        }
         if(Objects.equals(ownerId, pet.getWallet().getOwner().getId()))
             throw new ApiException(ErrorCode.PET_NOT_ALLOW);
     }

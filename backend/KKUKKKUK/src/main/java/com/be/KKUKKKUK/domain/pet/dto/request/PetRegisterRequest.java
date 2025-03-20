@@ -6,11 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
 /**
- * packageName    :  com.be.KKUKKKUK.domain.owner.dto.request<br>
+ * packageName    :  com.be.KKUKKKUK.domain.pet.dto.request<br>
  * fileName       :  PetRegisterRequest.java<br>
  * author         :  haelim<br>
  * date           :  2025-03-19<br>
@@ -21,20 +22,18 @@ import java.time.LocalDate;
  * 25.03.19          haelim           최초생성<br>
  */
 @Getter
+@ToString
 public class PetRegisterRequest {
-    @NotBlank
-    private Integer id;
-
     @NotBlank
     private String did;
 
     @NotBlank
     private String name;
 
-    @NotBlank
+    @NotNull
     private Gender gender;
 
-    @NotBlank
+    @NotNull
     @JsonProperty("flag_neutering")
     private Boolean flagNeutering;
 
@@ -42,7 +41,7 @@ public class PetRegisterRequest {
     private LocalDate birth;
 
     @NotNull
-    @JsonProperty("bread_id")
+    @JsonProperty("breed_id")
     private Integer breedId;
 
     public Pet toPetEntity() {

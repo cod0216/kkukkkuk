@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 /**
- * packageName    :  com.be.KKUKKKUK.domain.owner.dto.request<br>
+ * packageName    :  com.be.KKUKKKUK.domain.pet.dto.request<br>
  * fileName       :  PetRegisterRequest.java<br>
  * author         :  haelim<br>
  * date           :  2025-03-19<br>
@@ -30,6 +30,6 @@ public class PetUpdateRequest {
 
     private LocalDate birth;
 
-    @JsonProperty("bread_id")
+    @JsonProperty("breed_id")
     private Integer breedId;
 }

@@ -7,11 +7,11 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 /**
- * packageName    : com.be.KKUKKKUK.domain.wallet.dto.mapper<br>
+ * packageName    : com.be.KKUKKKUK.domain.pet.dto.mapper<br>
  * fileName       : PetMapper.java<br>
  * author         : haelim<br>
  * date           : 2025-03-19<br>
- * description    :  Pet entity 의 Map struct 클래스입니다.<br>
+ * description    : Pet entity 의 Map struct 클래스입니다.<br>
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>

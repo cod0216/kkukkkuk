@@ -11,12 +11,12 @@ import java.time.LocalDate;
  * packageName    : com.be.KKUKKKUK.domain.pet.dto<br>
  * fileName       : PetInfoResponse.java<br>
  * author         : haelim<br>
- * date           : 2025-03-13<br>
+ * date           : 2025-03-19<br>
  * description    : Pet 엔터티의 요약 정보를 조회하는 DTO 클래스입니다.<br>
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
- * 25.03.13          haelim           최초 생성<br>
+ * 25.03.19          haelim           최초 생성<br>
  */
 @Data
 @RequiredArgsConstructor
@@ -34,6 +34,6 @@ public class PetInfoResponse {
 
     private LocalDate birth;
 
-    @JsonProperty("bread_id")
+    @JsonProperty("breed_id")
     private Integer breedId;
 }

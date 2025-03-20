@@ -19,6 +19,7 @@ import java.time.LocalDate;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          Fiat_lux           최초생성<br>
+ * 25.03.14          haelim             중성화 여부(flagNeutering) 컬럼명 추가 <br>
  */
 @Entity
 @Table(name = "pet")
@@ -44,14 +45,14 @@ public class Pet {
     @Column(nullable = false)
     private LocalDate birth;
 
-    @Column(nullable = false)
+    @Column(name = "flag_neutering", nullable = false)
     private Boolean flagNeutering;
 
     @Column
     private String did;
 
     @ManyToOne
-    @JoinColumn(name = "wallet_id", nullable = false)
+    @JoinColumn(name = "wallet_id")
     private Wallet wallet;
 
     @ManyToOne
