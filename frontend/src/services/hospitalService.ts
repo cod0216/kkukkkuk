@@ -1,113 +1,306 @@
-import api from "../api/interceptors";
+import axios from "axios";
+import apiClient from "./api";
+import {
+  ApiResponse,
+  HospitalAuthorizationResponse,
+  HospitalSignupRequest,
+  UpdateHospitalRequest,
+  UpdateHospitalResponse,
+  AccountCheckResponse,
+  LicenseCheckResponse,
+  HospitalInfoResponse,
+  DeleteHospitalResponse,
+  Doctor,
+  FetchDoctorsResponse,
+  AddDoctorResponse,
+  DoctorDetailResponse,
+  UpdateDoctorResponse,
+  DeleteDoctorResponse,
+} from "@/interfaces/index";
 
-// 인허가 번호로 병원 정보 조회하는 함수
-export const fetchHospitalInfo = async (licenseNumber: string) => {
+// 병원 정보 조회
+export const fetchHospitalInfo = async (
+  authorizationNumber: string
+): Promise<ApiResponse<HospitalAuthorizationResponse>> => {
   try {
-    // 실제 API 연동 시 아래 코드 사용
-    // const response = await axios.get(`${API_URL}/hospitals/license/${licenseNumber}`);
-    // return response.data;
+    const response = await apiClient.get(
+      `/api/hospitals/authorization-number/${authorizationNumber}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
 
-    // 테스트용 모의 응답 (실제 구현 시 대체 필요)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    if (!licenseNumber.trim()) {
-      throw new Error("인허가 번호를 입력해주세요.");
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiResponse<HospitalAuthorizationResponse>;
     }
 
-    // 예시 데이터 반환 (병원 id 포함)
     return {
-      success: true,
-      data: {
-        id: 2,
-        hospitalName: `${licenseNumber.slice(0, 3)}동물병원`,
-        address: "서울시 강남구 테헤란로 123",
-        phoneNumber: "02-123-4567",
-        licenseNumber: licenseNumber,
-      },
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
     };
-  } catch (error) {
-    console.error("병원 정보 조회 오류:", error);
-    throw error;
   }
 };
 
-// HospitalSignupRequest DTO에 맞는 인터페이스
-export interface HospitalSignupRequestPayload {
-  account: string;
-  password: string;
-  id: number;
-  did: string;
-  license_number: string;
-  doctor_name: string;
-}
-
-// 병원 회원가입 함수
+// 병원 등록
 export const registerHospital = async (
-  hospitalData: HospitalSignupRequestPayload
-) => {
+  data: HospitalSignupRequest
+): Promise<ApiResponse> => {
   try {
-    // 실제 API 연동 시 아래 코드 사용
-    // const response = await axios.post(`${API_URL}/hospitals/register`, hospitalData);
-    // return response.data;
+    const response = await apiClient.post(`/auth/hospitals/signup`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
 
-    // 테스트용 모의 응답 (실제 구현 시 대체 필요)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // 필수 필드 검증
-    const requiredFields: Array<keyof HospitalSignupRequestPayload> = [
-      "account",
-      "password",
-      "id",
-      "did",
-      "license_number",
-      "doctor_name",
-    ];
-    for (const field of requiredFields) {
-      if (!hospitalData[field]) {
-        throw new Error(`${field} 필드는 필수입니다.`);
-      }
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiResponse;
     }
 
-    // DID는 실제 백엔드에서 처리하더라도 모의 응답에서는 그대로 사용합니다.
     return {
-      success: true,
-      message: "병원 계정이 성공적으로 등록되었습니다.",
-      data: {
-        id: hospitalData.id,
-        hospitalName: hospitalData.account, // 실제 병원 이름 등으로 대체 가능
-        did: hospitalData.did,
-        createdAt: new Date().toISOString(),
-      },
+      status: "FAILURE",
+      message: "알 수 없는 오류가 발생했습니다.",
     };
-  } catch (error) {
-    console.error("병원 등록 오류:", error);
-    throw error;
   }
 };
 
-// 의사 인증 함수
-export const verifyDoctor = async (doctorInfo: {
-  name: string;
-  licenseNumber: string;
-}) => {
+// 병원 정보 수정
+export const updateHospitalInfo = async (
+  updateData: UpdateHospitalRequest
+): Promise<UpdateHospitalResponse> => {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await apiClient.put("/api/hospitals/me", updateData);
+    return response.data;
+  } catch (error) {
+    console.error(error);
 
-    if (!doctorInfo.name || !doctorInfo.licenseNumber) {
-      throw new Error("의사 이름과 면허번호는 필수입니다.");
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as UpdateHospitalResponse;
     }
 
     return {
-      success: true,
-      message: "의사 인증이 완료되었습니다.",
-      data: {
-        isVerified: true,
-        name: doctorInfo.name,
-        licenseNumber: doctorInfo.licenseNumber,
-      },
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
     };
+  }
+};
+
+// 계정 중복 확인
+export const checkAccountAvailability = async (
+  account: string
+): Promise<AccountCheckResponse> => {
+  try {
+    if (!account || account.trim() === "") {
+      return {
+        status: "FAILURE",
+        message: "이메일은 필수 입력사항입니다.",
+        data: null,
+      };
+    }
+
+    const response = await apiClient.get(`/api/hospitals/account/${account}`);
+    return response.data;
   } catch (error) {
-    console.error("의사 인증 오류:", error);
-    throw error;
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as AccountCheckResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
+  }
+};
+
+// 라이센스 중복 확인
+export const checkLicenseAvailability = async (
+  licenseNumber: string
+): Promise<LicenseCheckResponse> => {
+  try {
+    if (!licenseNumber || licenseNumber.trim() === "") {
+      return {
+        status: "FAILURE",
+        message: "라이센스 번호는 필수 입력사항입니다.",
+        data: false,
+      };
+    }
+
+    const response = await apiClient.get(
+      `/api/hospitals/license/${licenseNumber}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as LicenseCheckResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: false,
+    };
+  }
+};
+
+// 병원 정보 조회 (내 정보)
+export const fetchHospitalMe = async (): Promise<HospitalInfoResponse> => {
+  try {
+    const response = await apiClient.get("/api/hospitals/me");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as HospitalInfoResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
+  }
+};
+
+// 병원 회원 탈퇴
+export const deleteHospitalAccount =
+  async (): Promise<DeleteHospitalResponse> => {
+    try {
+      const response = await apiClient.delete("/api/hospitals/me");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+
+      if (axios.isAxiosError(error) && error.response) {
+        return error.response.data as DeleteHospitalResponse;
+      }
+
+      return {
+        status: "FAILURE",
+        message: "서버 내부 오류가 발생했습니다.",
+        data: null,
+      };
+    }
+  };
+
+// 병원 소속 의사 목록 조회
+export const fetchDoctors = async (): Promise<FetchDoctorsResponse> => {
+  try {
+    const response = await apiClient.get("/api/hospitals/me/doctors");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as FetchDoctorsResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
+  }
+};
+
+// 의사 추가
+export const addDoctor = async (
+  doctorName: string,
+  hospitalId: string | number
+): Promise<AddDoctorResponse> => {
+  try {
+    const response = await apiClient.post(
+      "/api/hospitals/me/doctors",
+      { name: doctorName },
+      {
+        headers: {
+          hospitalId: hospitalId.toString(),
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as AddDoctorResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
+  }
+};
+
+// 특정 의사 정보 조회
+export const fetchDoctorDetail = async (
+  doctorId: string | number
+): Promise<DoctorDetailResponse> => {
+  try {
+    const response = await apiClient.get(`/api/doctors/${doctorId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as DoctorDetailResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
+  }
+};
+
+// 의사 정보 수정
+export const updateDoctor = async (
+  doctorId: string | number,
+  name: string
+): Promise<UpdateDoctorResponse> => {
+  try {
+    const response = await apiClient.put(`/api/doctors/${doctorId}`, { name });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as UpdateDoctorResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
+  }
+};
+
+// 의사 삭제
+export const deleteDoctor = async (
+  doctorId: string | number
+): Promise<DeleteDoctorResponse> => {
+  try {
+    const response = await apiClient.delete(`/api/doctors/${doctorId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as DeleteDoctorResponse;
+    }
+
+    return {
+      status: "FAILURE",
+      message: "서버 내부 오류가 발생했습니다.",
+      data: null,
+    };
   }
 };
