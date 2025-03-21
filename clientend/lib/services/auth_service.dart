@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:kkuk_kkuk/models/auth/kakao_auth_request.dart';
-import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
+import 'package:kkuk_kkuk/models/auth/authenticate_request.dart';
+import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/repositories/auth_repository.dart';
-import 'package:kkuk_kkuk/services/kakao_service.dart';
+import 'package:kkuk_kkuk/services/oauth_service.dart';
 
 class AuthService {
   final AuthRepository _authRepository;
-  final KakaoService _kakaoService;
+  final OAuthService _oAuthService;
 
-  AuthService(this._authRepository, this._kakaoService);
+  AuthService(this._authRepository, this._oAuthService);
 
-  /// 서버 로그인/회원가입
-  Future<KakaoAuthResponse> authenticateWithServer(User kakaoUser) async {
+  /// 카카오를 이용한 로그인/회원가입
+  Future<AuthenticateResponse> authenticateWithKakao(User kakaoUser) async {
     try {
-      final request = KakaoAuthRequest(
+      final request = AuthenticateRequest(
         name: kakaoUser.kakaoAccount?.name ?? '',
         email: kakaoUser.kakaoAccount?.email ?? '',
         birthyear: kakaoUser.kakaoAccount?.birthyear ?? '',
@@ -24,46 +24,37 @@ class AuthService {
         providerId: kakaoUser.id.toString(),
       );
 
-      return await _authRepository.signInWithKakao(request);
+      return await _authRepository.authenticateAPI(request);
     } catch (error) {
-      print('서버 인증 실패: $error');
-      throw Exception('서버 인증 실패: $error');
+      print('authenticateWithKakao Error: $error');
+      rethrow;
     }
   }
 
   /// 통합 로그인 프로세스
-  Future<KakaoAuthResponse> signInWithKakao() async {
+  Future<AuthenticateResponse> login() async {
     try {
       // 카카오 인증
-      final kakaoUser = await _kakaoService.authenticate();
+      final kakaoUser = await _oAuthService.kakaoOAuth();
 
       // 서버 인증
-      return await authenticateWithServer(kakaoUser);
+      return await authenticateWithKakao(kakaoUser);
     } catch (error) {
-      print('로그인 프로세스 실패: $error');
-      throw Exception('로그인 프로세스 실패: $error');
+      print('login Error: $error');
+      rethrow;
     }
   }
 
   Future<bool> logout() async {
     try {
       // 카카오 로그아웃
-      await _kakaoService.logout();
+      await _oAuthService.kakaoLogout();
 
       // 서버 로그아웃
       return await _authRepository.logout();
     } catch (e) {
-      print('로그아웃 실패: $e');
-      throw Exception('로그아웃 실패: $e');
-    }
-  }
-
-  Future<bool> isLoggedIn() async {
-    try {
-      return await _authRepository.isLoggedIn();
-    } catch (e) {
-      print('로그인 상태 확인 실패: $e');
-      return false;
+      print('logout Error: $e');
+      rethrow;
     }
   }
 }

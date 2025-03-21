@@ -200,7 +200,7 @@ class WalletService {
         publicKey: publicKey,
       );
 
-      return await _walletRepository.registerWallet(request);
+      return await _walletRepository.registerWalletAPI(request);
     } catch (e) {
       throw Exception('지갑 등록에 실패했습니다: $e');
     }

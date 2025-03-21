@@ -4,7 +4,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'kakao_auth_response.dart';
+part of 'authenticate_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,22 +14,22 @@ part of 'kakao_auth_response.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$KakaoAuthResponse {
+mixin _$AuthenticateResponse {
 
- String get status; String get message; KakaoAuthData get data;
-/// Create a copy of KakaoAuthResponse
+ String get status; String get message; AuthenticateData get data;
+/// Create a copy of AuthenticateResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$KakaoAuthResponseCopyWith<KakaoAuthResponse> get copyWith => _$KakaoAuthResponseCopyWithImpl<KakaoAuthResponse>(this as KakaoAuthResponse, _$identity);
+$AuthenticateResponseCopyWith<AuthenticateResponse> get copyWith => _$AuthenticateResponseCopyWithImpl<AuthenticateResponse>(this as AuthenticateResponse, _$identity);
 
-  /// Serializes this KakaoAuthResponse to a JSON map.
+  /// Serializes this AuthenticateResponse to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KakaoAuthResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthenticateResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -38,49 +38,49 @@ int get hashCode => Object.hash(runtimeType,status,message,data);
 
 @override
 String toString() {
-  return 'KakaoAuthResponse(status: $status, message: $message, data: $data)';
+  return 'AuthenticateResponse(status: $status, message: $message, data: $data)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $KakaoAuthResponseCopyWith<$Res>  {
-  factory $KakaoAuthResponseCopyWith(KakaoAuthResponse value, $Res Function(KakaoAuthResponse) _then) = _$KakaoAuthResponseCopyWithImpl;
+abstract mixin class $AuthenticateResponseCopyWith<$Res>  {
+  factory $AuthenticateResponseCopyWith(AuthenticateResponse value, $Res Function(AuthenticateResponse) _then) = _$AuthenticateResponseCopyWithImpl;
 @useResult
 $Res call({
- String status, String message, KakaoAuthData data
+ String status, String message, AuthenticateData data
 });
 
 
-$KakaoAuthDataCopyWith<$Res> get data;
+$AuthenticateDataCopyWith<$Res> get data;
 
 }
 /// @nodoc
-class _$KakaoAuthResponseCopyWithImpl<$Res>
-    implements $KakaoAuthResponseCopyWith<$Res> {
-  _$KakaoAuthResponseCopyWithImpl(this._self, this._then);
+class _$AuthenticateResponseCopyWithImpl<$Res>
+    implements $AuthenticateResponseCopyWith<$Res> {
+  _$AuthenticateResponseCopyWithImpl(this._self, this._then);
 
-  final KakaoAuthResponse _self;
-  final $Res Function(KakaoAuthResponse) _then;
+  final AuthenticateResponse _self;
+  final $Res Function(AuthenticateResponse) _then;
 
-/// Create a copy of KakaoAuthResponse
+/// Create a copy of AuthenticateResponse
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? message = null,Object? data = null,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as KakaoAuthData,
+as AuthenticateData,
   ));
 }
-/// Create a copy of KakaoAuthResponse
+/// Create a copy of AuthenticateResponse
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$KakaoAuthDataCopyWith<$Res> get data {
+$AuthenticateDataCopyWith<$Res> get data {
   
-  return $KakaoAuthDataCopyWith<$Res>(_self.data, (value) {
+  return $AuthenticateDataCopyWith<$Res>(_self.data, (value) {
     return _then(_self.copyWith(data: value));
   });
 }
@@ -90,28 +90,28 @@ $KakaoAuthDataCopyWith<$Res> get data {
 /// @nodoc
 @JsonSerializable()
 
-class _KakaoAuthResponse implements KakaoAuthResponse {
-  const _KakaoAuthResponse({required this.status, required this.message, required this.data});
-  factory _KakaoAuthResponse.fromJson(Map<String, dynamic> json) => _$KakaoAuthResponseFromJson(json);
+class _AuthenticateResponse implements AuthenticateResponse {
+  const _AuthenticateResponse({required this.status, required this.message, required this.data});
+  factory _AuthenticateResponse.fromJson(Map<String, dynamic> json) => _$AuthenticateResponseFromJson(json);
 
 @override final  String status;
 @override final  String message;
-@override final  KakaoAuthData data;
+@override final  AuthenticateData data;
 
-/// Create a copy of KakaoAuthResponse
+/// Create a copy of AuthenticateResponse
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$KakaoAuthResponseCopyWith<_KakaoAuthResponse> get copyWith => __$KakaoAuthResponseCopyWithImpl<_KakaoAuthResponse>(this, _$identity);
+_$AuthenticateResponseCopyWith<_AuthenticateResponse> get copyWith => __$AuthenticateResponseCopyWithImpl<_AuthenticateResponse>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$KakaoAuthResponseToJson(this, );
+  return _$AuthenticateResponseToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KakaoAuthResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthenticateResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -120,50 +120,50 @@ int get hashCode => Object.hash(runtimeType,status,message,data);
 
 @override
 String toString() {
-  return 'KakaoAuthResponse(status: $status, message: $message, data: $data)';
+  return 'AuthenticateResponse(status: $status, message: $message, data: $data)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$KakaoAuthResponseCopyWith<$Res> implements $KakaoAuthResponseCopyWith<$Res> {
-  factory _$KakaoAuthResponseCopyWith(_KakaoAuthResponse value, $Res Function(_KakaoAuthResponse) _then) = __$KakaoAuthResponseCopyWithImpl;
+abstract mixin class _$AuthenticateResponseCopyWith<$Res> implements $AuthenticateResponseCopyWith<$Res> {
+  factory _$AuthenticateResponseCopyWith(_AuthenticateResponse value, $Res Function(_AuthenticateResponse) _then) = __$AuthenticateResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String status, String message, KakaoAuthData data
+ String status, String message, AuthenticateData data
 });
 
 
-@override $KakaoAuthDataCopyWith<$Res> get data;
+@override $AuthenticateDataCopyWith<$Res> get data;
 
 }
 /// @nodoc
-class __$KakaoAuthResponseCopyWithImpl<$Res>
-    implements _$KakaoAuthResponseCopyWith<$Res> {
-  __$KakaoAuthResponseCopyWithImpl(this._self, this._then);
+class __$AuthenticateResponseCopyWithImpl<$Res>
+    implements _$AuthenticateResponseCopyWith<$Res> {
+  __$AuthenticateResponseCopyWithImpl(this._self, this._then);
 
-  final _KakaoAuthResponse _self;
-  final $Res Function(_KakaoAuthResponse) _then;
+  final _AuthenticateResponse _self;
+  final $Res Function(_AuthenticateResponse) _then;
 
-/// Create a copy of KakaoAuthResponse
+/// Create a copy of AuthenticateResponse
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? message = null,Object? data = null,}) {
-  return _then(_KakaoAuthResponse(
+  return _then(_AuthenticateResponse(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as KakaoAuthData,
+as AuthenticateData,
   ));
 }
 
-/// Create a copy of KakaoAuthResponse
+/// Create a copy of AuthenticateResponse
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$KakaoAuthDataCopyWith<$Res> get data {
+$AuthenticateDataCopyWith<$Res> get data {
   
-  return $KakaoAuthDataCopyWith<$Res>(_self.data, (value) {
+  return $AuthenticateDataCopyWith<$Res>(_self.data, (value) {
     return _then(_self.copyWith(data: value));
   });
 }
@@ -171,22 +171,22 @@ $KakaoAuthDataCopyWith<$Res> get data {
 
 
 /// @nodoc
-mixin _$KakaoAuthData {
+mixin _$AuthenticateData {
 
  OwnerInfo get owner; TokenInfo get tokens; WalletInfo? get wallet;
-/// Create a copy of KakaoAuthData
+/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$KakaoAuthDataCopyWith<KakaoAuthData> get copyWith => _$KakaoAuthDataCopyWithImpl<KakaoAuthData>(this as KakaoAuthData, _$identity);
+$AuthenticateDataCopyWith<AuthenticateData> get copyWith => _$AuthenticateDataCopyWithImpl<AuthenticateData>(this as AuthenticateData, _$identity);
 
-  /// Serializes this KakaoAuthData to a JSON map.
+  /// Serializes this AuthenticateData to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KakaoAuthData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.wallet, wallet) || other.wallet == wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthenticateData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.wallet, wallet) || other.wallet == wallet));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -195,15 +195,15 @@ int get hashCode => Object.hash(runtimeType,owner,tokens,wallet);
 
 @override
 String toString() {
-  return 'KakaoAuthData(owner: $owner, tokens: $tokens, wallet: $wallet)';
+  return 'AuthenticateData(owner: $owner, tokens: $tokens, wallet: $wallet)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $KakaoAuthDataCopyWith<$Res>  {
-  factory $KakaoAuthDataCopyWith(KakaoAuthData value, $Res Function(KakaoAuthData) _then) = _$KakaoAuthDataCopyWithImpl;
+abstract mixin class $AuthenticateDataCopyWith<$Res>  {
+  factory $AuthenticateDataCopyWith(AuthenticateData value, $Res Function(AuthenticateData) _then) = _$AuthenticateDataCopyWithImpl;
 @useResult
 $Res call({
  OwnerInfo owner, TokenInfo tokens, WalletInfo? wallet
@@ -214,14 +214,14 @@ $OwnerInfoCopyWith<$Res> get owner;$TokenInfoCopyWith<$Res> get tokens;$WalletIn
 
 }
 /// @nodoc
-class _$KakaoAuthDataCopyWithImpl<$Res>
-    implements $KakaoAuthDataCopyWith<$Res> {
-  _$KakaoAuthDataCopyWithImpl(this._self, this._then);
+class _$AuthenticateDataCopyWithImpl<$Res>
+    implements $AuthenticateDataCopyWith<$Res> {
+  _$AuthenticateDataCopyWithImpl(this._self, this._then);
 
-  final KakaoAuthData _self;
-  final $Res Function(KakaoAuthData) _then;
+  final AuthenticateData _self;
+  final $Res Function(AuthenticateData) _then;
 
-/// Create a copy of KakaoAuthData
+/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? owner = null,Object? tokens = null,Object? wallet = freezed,}) {
   return _then(_self.copyWith(
@@ -231,7 +231,7 @@ as TokenInfo,wallet: freezed == wallet ? _self.wallet : wallet // ignore: cast_n
 as WalletInfo?,
   ));
 }
-/// Create a copy of KakaoAuthData
+/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -240,7 +240,7 @@ $OwnerInfoCopyWith<$Res> get owner {
   return $OwnerInfoCopyWith<$Res>(_self.owner, (value) {
     return _then(_self.copyWith(owner: value));
   });
-}/// Create a copy of KakaoAuthData
+}/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -249,7 +249,7 @@ $TokenInfoCopyWith<$Res> get tokens {
   return $TokenInfoCopyWith<$Res>(_self.tokens, (value) {
     return _then(_self.copyWith(tokens: value));
   });
-}/// Create a copy of KakaoAuthData
+}/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -268,28 +268,28 @@ $WalletInfoCopyWith<$Res>? get wallet {
 /// @nodoc
 @JsonSerializable()
 
-class _KakaoAuthData implements KakaoAuthData {
-  const _KakaoAuthData({required this.owner, required this.tokens, this.wallet});
-  factory _KakaoAuthData.fromJson(Map<String, dynamic> json) => _$KakaoAuthDataFromJson(json);
+class _AuthenticateData implements AuthenticateData {
+  const _AuthenticateData({required this.owner, required this.tokens, this.wallet});
+  factory _AuthenticateData.fromJson(Map<String, dynamic> json) => _$AuthenticateDataFromJson(json);
 
 @override final  OwnerInfo owner;
 @override final  TokenInfo tokens;
 @override final  WalletInfo? wallet;
 
-/// Create a copy of KakaoAuthData
+/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$KakaoAuthDataCopyWith<_KakaoAuthData> get copyWith => __$KakaoAuthDataCopyWithImpl<_KakaoAuthData>(this, _$identity);
+_$AuthenticateDataCopyWith<_AuthenticateData> get copyWith => __$AuthenticateDataCopyWithImpl<_AuthenticateData>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$KakaoAuthDataToJson(this, );
+  return _$AuthenticateDataToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KakaoAuthData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.wallet, wallet) || other.wallet == wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthenticateData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.wallet, wallet) || other.wallet == wallet));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -298,15 +298,15 @@ int get hashCode => Object.hash(runtimeType,owner,tokens,wallet);
 
 @override
 String toString() {
-  return 'KakaoAuthData(owner: $owner, tokens: $tokens, wallet: $wallet)';
+  return 'AuthenticateData(owner: $owner, tokens: $tokens, wallet: $wallet)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$KakaoAuthDataCopyWith<$Res> implements $KakaoAuthDataCopyWith<$Res> {
-  factory _$KakaoAuthDataCopyWith(_KakaoAuthData value, $Res Function(_KakaoAuthData) _then) = __$KakaoAuthDataCopyWithImpl;
+abstract mixin class _$AuthenticateDataCopyWith<$Res> implements $AuthenticateDataCopyWith<$Res> {
+  factory _$AuthenticateDataCopyWith(_AuthenticateData value, $Res Function(_AuthenticateData) _then) = __$AuthenticateDataCopyWithImpl;
 @override @useResult
 $Res call({
  OwnerInfo owner, TokenInfo tokens, WalletInfo? wallet
@@ -317,17 +317,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$KakaoAuthDataCopyWithImpl<$Res>
-    implements _$KakaoAuthDataCopyWith<$Res> {
-  __$KakaoAuthDataCopyWithImpl(this._self, this._then);
+class __$AuthenticateDataCopyWithImpl<$Res>
+    implements _$AuthenticateDataCopyWith<$Res> {
+  __$AuthenticateDataCopyWithImpl(this._self, this._then);
 
-  final _KakaoAuthData _self;
-  final $Res Function(_KakaoAuthData) _then;
+  final _AuthenticateData _self;
+  final $Res Function(_AuthenticateData) _then;
 
-/// Create a copy of KakaoAuthData
+/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? owner = null,Object? tokens = null,Object? wallet = freezed,}) {
-  return _then(_KakaoAuthData(
+  return _then(_AuthenticateData(
 owner: null == owner ? _self.owner : owner // ignore: cast_nullable_to_non_nullable
 as OwnerInfo,tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
 as TokenInfo,wallet: freezed == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
@@ -335,7 +335,7 @@ as WalletInfo?,
   ));
 }
 
-/// Create a copy of KakaoAuthData
+/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -344,7 +344,7 @@ $OwnerInfoCopyWith<$Res> get owner {
   return $OwnerInfoCopyWith<$Res>(_self.owner, (value) {
     return _then(_self.copyWith(owner: value));
   });
-}/// Create a copy of KakaoAuthData
+}/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -353,7 +353,7 @@ $TokenInfoCopyWith<$Res> get tokens {
   return $TokenInfoCopyWith<$Res>(_self.tokens, (value) {
     return _then(_self.copyWith(tokens: value));
   });
-}/// Create a copy of KakaoAuthData
+}/// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')

@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'kakao_auth_request.dart';
+part of 'authenticate_request.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_KakaoAuthRequest _$KakaoAuthRequestFromJson(Map<String, dynamic> json) =>
-    _KakaoAuthRequest(
+_AuthenticateRequest _$AuthenticateRequestFromJson(Map<String, dynamic> json) =>
+    _AuthenticateRequest(
       name: json['name'] as String,
       email: json['email'] as String,
       birthyear: json['birthyear'] as String,
@@ -16,12 +16,13 @@ _KakaoAuthRequest _$KakaoAuthRequestFromJson(Map<String, dynamic> json) =>
       providerId: json['provider_id'] as String,
     );
 
-Map<String, dynamic> _$KakaoAuthRequestToJson(_KakaoAuthRequest instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'email': instance.email,
-      'birthyear': instance.birthyear,
-      'birthday': instance.birthday,
-      'gender': instance.gender,
-      'provider_id': instance.providerId,
-    };
+Map<String, dynamic> _$AuthenticateRequestToJson(
+  _AuthenticateRequest instance,
+) => <String, dynamic>{
+  'name': instance.name,
+  'email': instance.email,
+  'birthyear': instance.birthyear,
+  'birthday': instance.birthday,
+  'gender': instance.gender,
+  'provider_id': instance.providerId,
+};

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/wallet/wallet_registration_request.dart';
 import '../models/wallet/wallet_registration_response.dart';
@@ -9,18 +8,17 @@ class WalletRepository {
 
   WalletRepository(this._apiClient);
 
-  Future<WalletRegistrationResponse> registerWallet(
+  Future<WalletRegistrationResponse> registerWalletAPI(
     WalletRegistrationRequest request,
   ) async {
     try {
-      print(request);
       final response = await _apiClient.post(
-        '/api/wallets/me',
+        '/api/owners/me/wallets',
         data: request.toJson(),
       );
       return WalletRegistrationResponse.fromJson(response.data);
-    } on DioException catch (e) {
-      print(e);
+    } catch (e) {
+      print('registerWallet Error: $e');
       rethrow;
     }
   }

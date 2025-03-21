@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/models/auth/kakao_auth_request.dart';
-import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
+import 'package:kkuk_kkuk/models/auth/authenticate_request.dart';
+import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/services/api_client.dart';
 import 'package:kkuk_kkuk/services/token_manager.dart';
 
@@ -12,15 +11,17 @@ class AuthRepository {
 
   AuthRepository(this._apiClient, this._tokenManager);
 
-  /// 카카오 로그인 API 호출
-  Future<KakaoAuthResponse> signInWithKakao(KakaoAuthRequest request) async {
+  /// 서버 인증증 API 호출
+  Future<AuthenticateResponse> authenticateAPI(
+    AuthenticateRequest request,
+  ) async {
     try {
       final response = await _apiClient.post(
         '/api/auths/owners/kakao/login',
         data: request.toJson(),
       );
 
-      final authResponse = KakaoAuthResponse.fromJson(response.data);
+      final authResponse = AuthenticateResponse.fromJson(response.data);
 
       // 토큰 저장
       await _tokenManager.saveAccessToken(authResponse.data.tokens.accessToken);
@@ -29,14 +30,8 @@ class AuthRepository {
       );
 
       return authResponse;
-    } on DioException catch (e) {
-      print('로그인 API 에러: ${e.message}');
-      if (e.response != null) {
-        print('에러 응답: ${e.response!.data}');
-      }
-      rethrow;
     } catch (e) {
-      print('로그인 중 예상치 못한 에러: $e');
+      print('authenticate Error: $e');
       rethrow;
     }
   }

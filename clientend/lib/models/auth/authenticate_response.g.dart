@@ -1,27 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'kakao_auth_response.dart';
+part of 'authenticate_response.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_KakaoAuthResponse _$KakaoAuthResponseFromJson(Map<String, dynamic> json) =>
-    _KakaoAuthResponse(
-      status: json['status'] as String,
-      message: json['message'] as String,
-      data: KakaoAuthData.fromJson(json['data'] as Map<String, dynamic>),
-    );
+_AuthenticateResponse _$AuthenticateResponseFromJson(
+  Map<String, dynamic> json,
+) => _AuthenticateResponse(
+  status: json['status'] as String,
+  message: json['message'] as String,
+  data: AuthenticateData.fromJson(json['data'] as Map<String, dynamic>),
+);
 
-Map<String, dynamic> _$KakaoAuthResponseToJson(_KakaoAuthResponse instance) =>
-    <String, dynamic>{
-      'status': instance.status,
-      'message': instance.message,
-      'data': instance.data,
-    };
+Map<String, dynamic> _$AuthenticateResponseToJson(
+  _AuthenticateResponse instance,
+) => <String, dynamic>{
+  'status': instance.status,
+  'message': instance.message,
+  'data': instance.data,
+};
 
-_KakaoAuthData _$KakaoAuthDataFromJson(Map<String, dynamic> json) =>
-    _KakaoAuthData(
+_AuthenticateData _$AuthenticateDataFromJson(Map<String, dynamic> json) =>
+    _AuthenticateData(
       owner: OwnerInfo.fromJson(json['owner'] as Map<String, dynamic>),
       tokens: TokenInfo.fromJson(json['tokens'] as Map<String, dynamic>),
       wallet:
@@ -30,7 +32,7 @@ _KakaoAuthData _$KakaoAuthDataFromJson(Map<String, dynamic> json) =>
               : WalletInfo.fromJson(json['wallet'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$KakaoAuthDataToJson(_KakaoAuthData instance) =>
+Map<String, dynamic> _$AuthenticateDataToJson(_AuthenticateData instance) =>
     <String, dynamic>{
       'owner': instance.owner,
       'tokens': instance.tokens,

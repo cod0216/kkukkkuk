@@ -1,30 +1,30 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'kakao_auth_response.freezed.dart';
-part 'kakao_auth_response.g.dart';
+part 'authenticate_response.freezed.dart';
+part 'authenticate_response.g.dart';
 
 @freezed
-abstract class KakaoAuthResponse with _$KakaoAuthResponse {
-  const factory KakaoAuthResponse({
+abstract class AuthenticateResponse with _$AuthenticateResponse {
+  const factory AuthenticateResponse({
     required String status,
     required String message,
-    required KakaoAuthData data,
-  }) = _KakaoAuthResponse;
+    required AuthenticateData data,
+  }) = _AuthenticateResponse;
 
-  factory KakaoAuthResponse.fromJson(Map<String, dynamic> json) =>
-      _$KakaoAuthResponseFromJson(json);
+  factory AuthenticateResponse.fromJson(Map<String, dynamic> json) =>
+      _$AuthenticateResponseFromJson(json);
 }
 
 @freezed
-abstract class KakaoAuthData with _$KakaoAuthData {
-  const factory KakaoAuthData({
+abstract class AuthenticateData with _$AuthenticateData {
+  const factory AuthenticateData({
     required OwnerInfo owner,
     required TokenInfo tokens,
     WalletInfo? wallet,
-  }) = _KakaoAuthData;
+  }) = _AuthenticateData;
 
-  factory KakaoAuthData.fromJson(Map<String, dynamic> json) =>
-      _$KakaoAuthDataFromJson(json);
+  factory AuthenticateData.fromJson(Map<String, dynamic> json) =>
+      _$AuthenticateDataFromJson(json);
 }
 
 @freezed

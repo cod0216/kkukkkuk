@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/models/auth/kakao_auth_response.dart';
+import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
 import 'package:kkuk_kkuk/services/auth_service.dart';
@@ -9,14 +9,14 @@ import 'package:kkuk_kkuk/services/wallet_service.dart';
 class LoginState {
   final bool isLoading; // 로딩 상태
   final String? error; // 에러 메시지
-  final KakaoAuthResponse? authResponse;
+  final AuthenticateResponse? authResponse;
 
   LoginState({this.isLoading = false, this.error, this.authResponse});
 
   LoginState copyWith({
     bool? isLoading,
     String? error,
-    KakaoAuthResponse? authResponse,
+    AuthenticateResponse? authResponse,
   }) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
@@ -40,7 +40,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final response = await _authService.signInWithKakao();
+      final response = await _authService.login();
       state = state.copyWith(authResponse: response, isLoading: false);
 
       // 지갑 존재 여부 확인
