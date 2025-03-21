@@ -52,7 +52,6 @@ public class WalletComplexService {
     }
 
     /**
-     * TODO : breed 처리
      * 로그인한 사용자 계정에 반려동물을 신규로 등록합니다.
      * @param ownerId 로그인한 사용자 ID
      * @param request 반려동물 신규 등록 요청

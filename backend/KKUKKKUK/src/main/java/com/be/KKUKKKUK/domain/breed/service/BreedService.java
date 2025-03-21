@@ -44,4 +44,10 @@ public class BreedService {
 
         return breedMapper.mapBreedListToBreedResponseList(breedList);
     }
+
+    public Breed getBreedById(Integer breedId) {
+        return breedRepository.findById(breedId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BREED_NOT_FOUND)
+        );
+    }
 }
