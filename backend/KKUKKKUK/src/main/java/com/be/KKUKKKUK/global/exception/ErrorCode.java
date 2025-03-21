@@ -18,13 +18,16 @@ import org.springframework.http.HttpStatus;
  * 25.03.17          haelim             의사, 지갑 관련 Error 작성
  * 25.03.18          haelim             라이센스 관련 Error 삭제, 이메일 관련 Error 작성
  * 25.03.19          haelim             반려동물 관련 Error 작성
+ * 25.03.20          haelim             COMMON-003, COMMON-004 작성, Endpoint 관련 Error 작성
  */
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON-001", "유효성 검증에 실패했습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-002", "서버에서 처리할 수 없습니다."),
-
+    NO_ENDPOINT(HttpStatus.NOT_FOUND, "COMMON-003", "존재하지 않는 엔드포인트입니다."),
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "COMMON-004", "허용되지 않는 메소드입니다."),
+    
     OWNER_REGISTRATION_FAILED(HttpStatus.BAD_REQUEST, "AUTH-001", "사용자 정보 업데이트에 실패했습니다."),
 
     ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH-002", "입력하신 계정 정보가 존재하지 않습니다."),

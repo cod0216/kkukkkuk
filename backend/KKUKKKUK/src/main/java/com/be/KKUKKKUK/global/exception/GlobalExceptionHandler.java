@@ -4,9 +4,12 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 
 /**
  * packageName    : com.be.KKUKKKUK.global.exception<br>
@@ -22,7 +25,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-
 
     /**
      * 비즈니스 예외를 처리합니다.
@@ -94,4 +96,15 @@ public class GlobalExceptionHandler {
         return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseEntity> handleNoResourceFoundException(NoResourceFoundException e) {
+        String errorMessages = String.format("[%s] 에 해당하는 엔드포인트를 찾을 수 없습니다.", e.getResourcePath());
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.NO_ENDPOINT, errorMessages);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponseEntity> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        String errorMessages = String.format("[%s] 는 허용되지 않는 메소드입니다.", e.getMethod());
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.METHOD_NOT_ALLOWED, errorMessages);
+    }
 }
