@@ -32,6 +32,21 @@ public class WalletController {
     private final WalletService walletService;
 
     /**
+     * 현재 로그인된 사용자의 지갑 정보를 등록합니다.
+     * @param owner 인증된 보호자 계정 정보
+     * @param request 지갑 등록 요청
+     * @return 등록 완료된 지갑의 정보
+     */
+    @PostMapping
+    public ResponseEntity<?> registerMyWallet(
+            @AuthenticationPrincipal OwnerDetails owner,
+            @RequestBody WalletRegisterRequest request
+    ) {
+        Integer ownerId = Integer.parseInt(owner.getUsername());
+        return ResponseUtility.success("지갑이 성공적으로 등록되었습니다.", walletComplexService.registerWallet(ownerId, request));
+    }
+
+    /**
      * 현재 로그인된 보호자 회원의 지갑 정보를 조회합니다.
      * @param owner 인증된 보호자 계정 정보
      * @return 현재 로그인된 회원의 지갑 정보
@@ -42,20 +57,6 @@ public class WalletController {
         return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 정보입니다.", walletService.getWalletInfoByOwnerId(ownerId));
     }
 
-    /**
-     * 현재 로그인된 사용자의 지갑 정보를 요청합니다.
-     * @param owner 인증된 보호자 계정 정보
-     * @param request 지갑 등록 요청
-     * @return 등록 완료된 지갑의 정보
-     */
-    @PostMapping("/me")
-    public ResponseEntity<?> registerMyWallet(
-            @AuthenticationPrincipal OwnerDetails owner,
-            @RequestBody WalletRegisterRequest request
-    ) {
-        Integer ownerId = Integer.parseInt(owner.getUsername());
-        return ResponseUtility.success("지갑이 성공적으로 등록되었습니다.", walletComplexService.registerWallet(ownerId, request));
-    }
 
     /**
      * 현재 로그인된 사용자의 지갑 정보를 수정합니다.
