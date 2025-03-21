@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
  * 25.03.14          haelim             AUTH 관련 Error 작성
  * 25.03.17          haelim             의사, 지갑 관련 Error 작성
  * 25.03.18          haelim             라이센스 관련 Error 삭제, 이메일 관련 Error 작성
+ * 25.03.21          Fiat_lux            Breed 관련 Error 작성
  */
 @Getter
 @AllArgsConstructor
@@ -50,7 +51,8 @@ public enum ErrorCode {
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL-001", "이메일을 전송할 수 없습니다."),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용중인 이메일입니다."),
     EMAIL_NOT_MATCH(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
-    ;
+
+    BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다.");
 
 
     private final HttpStatus httpStatus;
