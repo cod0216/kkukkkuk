@@ -60,6 +60,7 @@ public class SecurityConfig {
             "/api/hospitals/authorization-number/**",
             "/api/hospitals/account/**",
             "/api/hospitals/name/**",
+            "/api/breeds/**"
 
     };
 
@@ -84,7 +85,7 @@ public class SecurityConfig {
                 )
                 // CSRF 보호 비활성화
                 .csrf(CsrfConfigurer::disable)
-                .cors(cors-> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // 폼 로그인 및 기본 HTTP 인증 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(HttpBasicConfigurer::disable)
