@@ -89,6 +89,16 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('요청[${options.method}] => PATH: ${options.path}');
+
+          // JWT 토큰 로깅 (있는 경우)
+          final authHeader = options.headers['Authorization'];
+          if (authHeader != null && authHeader.startsWith('Bearer ')) {
+            final token = authHeader.substring(7); // 'Bearer ' 이후 부분
+            final maskedToken =
+                '${token.substring(0, 10)}...${token.substring(token.length - 10)}';
+            print('Token: $maskedToken');
+          }
+
           return handler.next(options);
         },
         onResponse: (response, handler) {
@@ -101,6 +111,16 @@ class ApiClient {
           print(
             '에러[${e.response?.statusCode}] => PATH: ${e.requestOptions.path}',
           );
+
+          // 에러 발생 시 토큰 정보 로깅
+          final authHeader = e.requestOptions.headers['Authorization'];
+          if (authHeader != null && authHeader.startsWith('Bearer ')) {
+            final token = authHeader.substring(7);
+            final maskedToken =
+                '${token.substring(0, 10)}...${token.substring(token.length - 10)}';
+            print('Failed Token: $maskedToken');
+          }
+
           return handler.next(e);
         },
       ),
