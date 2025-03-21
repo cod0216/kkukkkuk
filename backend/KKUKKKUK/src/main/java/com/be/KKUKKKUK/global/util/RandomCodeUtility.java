@@ -22,7 +22,7 @@ public final class RandomCodeUtility {
     private static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
     private static final String DIGITS = "0123456789";
-    private static final String SPECIALS = "!@#$%^&*";
+    private static final String SPECIALS = "!@#$%^&";
     private static final String ALL_CHARS = UPPERCASE + LOWERCASE + DIGITS + SPECIALS;
     private static final SecureRandom RANDOM;
 

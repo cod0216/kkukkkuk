@@ -28,7 +28,7 @@ public class EmailService {
     // 이메일 전송을 위한 JavaMailSender 의존성 주입
     private final JavaMailSender emailSender;
 
-    // 서비스 이름을 정의
+    // 서비스 이름 정의
     private final String SERVICE_NAME = "KKUKKKUK";
 
     // 비밀번호 재설정 이메일 관련 제목, 내용 설정

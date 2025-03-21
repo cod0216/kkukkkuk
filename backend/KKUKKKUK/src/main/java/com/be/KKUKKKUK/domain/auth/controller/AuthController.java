@@ -60,8 +60,9 @@ public class AuthController {
      * 공통 로그아웃 api
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails userDetails){
-        return ResponseUtility.success("로그아웃이 성공적으로 처리되었습니다.", authService.logout(userDetails));
+    public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request) {
+        authService.logout(userDetails, request);
+        return ResponseUtility.success("로그아웃이 성공적으로 처리되었습니다.", null);
     }
 
     /**

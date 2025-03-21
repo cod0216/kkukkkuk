@@ -1,16 +1,16 @@
 package com.be.KKUKKKUK.global.util;
 
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
+import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Base64;
@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
  * -----------------------------------------------------------<br>
  * 2025-03-13          haelim          최초생성<br>
  * 2025-03-16          haelim          하드코딩 수정<br>
+ * 2025-03-20          haelim          토큰의 남은 시간 확인 메서드 (getRemainingExpiration) 추가 <br>
  */
 
 @Component
@@ -59,7 +60,6 @@ public class JwtUtility {
 
     /**
      * 사용자 ID와 타입을 기반으로 Access Token을 생성합니다.
-     *
      * @param userId 사용자 ID
      * @param relatedType 사용자 타입
      * @return 생성된 Access Token
@@ -70,7 +70,6 @@ public class JwtUtility {
 
     /**
      * 사용자 ID와 타입을 기반으로 Refresh Token을 생성합니다.
-     *
      * @param userId 사용자 ID
      * @param relatedType 사용자 타입
      * @return 생성된 Refresh Token
@@ -81,7 +80,6 @@ public class JwtUtility {
 
     /**
      * JWT 토큰을 생성합니다.
-     *
      * @param userId 사용자 ID
      * @param relatedType 사용자 타입
      * @param validity 토큰 유효시간
@@ -102,7 +100,6 @@ public class JwtUtility {
 
     /**
      * JWT 토큰에서 사용자 ID를 추출합니다.
-     *
      * @param token JWT 토큰
      * @return 사용자 ID
      */
@@ -112,7 +109,6 @@ public class JwtUtility {
 
     /**
      * JWT 토큰에서 사용자 타입(RelatedType)을 추출합니다.
-     *
      * @param token JWT 토큰
      * @return 사용자 타입(RelatedType)
      */
@@ -122,7 +118,6 @@ public class JwtUtility {
 
     /**
      * JWT 토큰의 유효성을 검증합니다.
-     *
      * @param token JWT 토큰
      * @return 유효한 경우 true, 그렇지 않으면 false
      */
@@ -136,8 +131,25 @@ public class JwtUtility {
     }
 
     /**
+     * 주어진 토큰의 남은 만료 시간을 반환합니다.
+     * @param token 검사할 JWT 토큰
+     * @return 남은 만료 시간 (밀리초 단위)
+     * @throws ApiException 유효하지 않은 토큰인 경우 예외 발생
+     */
+    public long getRemainingExpiration(String token) {
+        Claims claims = parseClaims(token);
+        Date expiration = claims.getExpiration();
+        long remainingTime = expiration.getTime() - System.currentTimeMillis();
+
+        if (remainingTime < 0) {
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
+        }
+
+        return remainingTime;
+    }
+
+    /**
      * JWT 토큰에서 특정 클레임을 가져옵니다.
-     *
      * @param token JWT 토큰
      * @param claimKey 클레임 키
      * @param clazz 반환할 타입
@@ -153,7 +165,6 @@ public class JwtUtility {
 
     /**
      * JWT 토큰에서 클레임(Claims)을 파싱합니다.
-     *
      * @param token JWT 토큰
      * @return 클레임 객체
      */
