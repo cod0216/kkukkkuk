@@ -172,17 +172,20 @@ public class HospitalController {
 
     /**
      * 동물병원 회원이 본인의 진료 기록을 조회하기 위한 api 입니다.
-     * 만료 기록 조회 여부, 진료 상태(진료전, 진료중, 진료후), 조회할 pet ID 로 필터링할 수 있습니다.
+     * 만료 기록 조회 여부, 진료 상태(진료전, 진료중, 진료후), 조회할 반려동물 ID 로 필터링할 수 있습니다.
+     *
      * @param hospitalDetails 인증된 병원 계정 정보
-     * @param expired 만료 기록 볼지 말지 여부
-     * @return 조회된 기록 목록
+     * @param expired 만료 기록 조회 여부
+     * @param state 필터링할 진료 상태 (WAITING 진료대기중, IN_PROGRESS 진료중, COMPLETED)
+     * @param petId 필터링할 반려동물 ID
+     * @return 조회된 진료 기록 내역
      */
     @GetMapping("/me/treatments")
     public ResponseEntity<?> getTreatments(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
             @RequestParam(required = false, defaultValue = "false") Boolean expired,
             @RequestParam(required = false) TreatState state,
-            @RequestParam(required = false) Integer petId) {
+            @RequestParam(name = "pet_id", required = false) Integer petId) {
 
         return ResponseUtility.success("진료 기록 조회에 성공했습니다.",
                 hospitalComplexService.getTreatmentMine(hospitalDetails, expired, state, petId));
