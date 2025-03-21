@@ -1,76 +1,80 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-
-export interface Doctor {
-  id: string;
-  name: string;
-  licenseNumber: string;
-}
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { DoctorRegister } from "@/interfaces/doctor";
 
 interface DoctorRegistrationProps {
-  doctors: Doctor[];
-  setDoctors: React.Dispatch<React.SetStateAction<Doctor[]>>;
+  doctors: DoctorRegister[];
+  setDoctors: React.Dispatch<React.SetStateAction<DoctorRegister[]>>;
 }
 
-const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoctors }) => {
-  const [doctorName, setDoctorName] = useState('');
-  const [doctorLicense, setDoctorLicense] = useState('');
-  const [error, setError] = useState('');
+const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({
+  doctors,
+  setDoctors,
+}) => {
+  const [doctorName, setDoctorName] = useState("");
+  const [doctorLicense, setDoctorLicense] = useState("");
+  const [error, setError] = useState("");
 
   // 의사 정보 추가
   const addDoctor = () => {
     // 유효성 검사
     if (!doctorName.trim()) {
-      setError('의사 이름을 입력해주세요.');
+      setError("의사 이름을 입력해주세요.");
       return;
     }
-    
+
     if (!doctorLicense.trim()) {
-      setError('의사 면허번호를 입력해주세요.');
+      setError("의사 면허번호를 입력해주세요.");
       return;
     }
-    
+
     // 면허번호 중복 확인
-    if (doctors.some(doc => doc.licenseNumber === doctorLicense)) {
-      setError('이미 등록된 면허번호입니다.');
+    if (doctors.some((doc) => doc.licenseNumber === doctorLicense)) {
+      setError("이미 등록된 면허번호입니다.");
       return;
     }
-    
+
     // 의사 정보 추가
-    const newDoctor: Doctor = {
+    const newDoctor: DoctorRegister = {
       id: Date.now().toString(),
       name: doctorName,
-      licenseNumber: doctorLicense
+      licenseNumber: doctorLicense,
     };
-    
+
     setDoctors([...doctors, newDoctor]);
-    
+
     // 입력 필드 초기화
-    setDoctorName('');
-    setDoctorLicense('');
-    setError('');
+    setDoctorName("");
+    setDoctorLicense("");
+    setError("");
   };
 
   // 의사 정보 삭제
   const removeDoctor = (id: string) => {
-    setDoctors(doctors.filter(doc => doc.id !== id));
+    setDoctors(doctors.filter((doc) => doc.id !== id));
   };
 
   return (
     <div>
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">의사 정보 등록</h3>
-      
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+        의사 정보 등록
+      </h3>
+
       <div className="mb-4">
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-          병원에 소속된 의사 정보를 등록해주세요. 최소 1명 이상의 의사 정보가 필요합니다.
+          병원에 소속된 의사 정보를 등록해주세요. 최소 1명 이상의 의사 정보가
+          필요합니다.
         </p>
       </div>
-      
+
       {/* 입력 폼 */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
         <div className="md:col-span-2">
-          <label htmlFor="doctorName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="doctorName"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             의사 이름 *
           </label>
           <input
@@ -82,9 +86,12 @@ const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoc
             placeholder="의사 이름"
           />
         </div>
-        
+
         <div className="md:col-span-2">
-          <label htmlFor="doctorLicense" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="doctorLicense"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             의사 면허번호 *
           </label>
           <input
@@ -96,7 +103,7 @@ const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoc
             placeholder="의사 면허번호"
           />
         </div>
-        
+
         <div className="md:col-span-1 flex items-end">
           <button
             type="button"
@@ -108,14 +115,14 @@ const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoc
           </button>
         </div>
       </div>
-      
+
       {/* 에러 메시지 */}
       {error && (
         <div className="mb-4 p-2 bg-red-100 text-red-700 text-sm rounded-md dark:bg-red-900 dark:text-red-100">
           {error}
         </div>
       )}
-      
+
       {/* 등록된 의사 목록 */}
       <div className="border rounded-md overflow-hidden dark:border-gray-700">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -156,7 +163,10 @@ const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoc
               ))
             ) : (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                <td
+                  colSpan={3}
+                  className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
+                >
                   등록된 의사가 없습니다. 최소 1명 이상의 의사를 등록해주세요.
                 </td>
               </tr>
@@ -168,4 +178,4 @@ const DoctorRegistration: React.FC<DoctorRegistrationProps> = ({ doctors, setDoc
   );
 };
 
-export default DoctorRegistration; 
+export default DoctorRegistration;
