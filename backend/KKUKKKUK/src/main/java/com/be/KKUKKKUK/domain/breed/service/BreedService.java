@@ -22,7 +22,8 @@ import java.util.Objects;
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
- * 25.03.21          Fiat_lux            최초생성<br>
+ * 25.03.21          Fiat_lux           최초생성<br>
+ * 25.03.21          haelim             getBreedById 메소드 추가<br>
  */
 @Service
 @RequiredArgsConstructor
