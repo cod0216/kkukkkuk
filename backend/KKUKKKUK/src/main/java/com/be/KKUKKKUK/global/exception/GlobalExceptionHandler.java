@@ -96,12 +96,22 @@ public class GlobalExceptionHandler {
         return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
     }
 
+    /**
+     * 클라이언트의 요청에 해당하는 엔드포인트(endpoint)가 없을 때 발생하는 예외를 처리합니다.
+     * @param e 처리할 엔드포인트 관련 예외
+     * @return 엔드포인트 예외에 대한 HTTP 응답 엔터티
+     */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponseEntity> handleNoResourceFoundException(NoResourceFoundException e) {
         String errorMessages = String.format("[%s] 에 해당하는 엔드포인트를 찾을 수 없습니다.", e.getResourcePath());
         return ErrorResponseEntity.toResponseEntity(ErrorCode.NO_ENDPOINT, errorMessages);
     }
 
+    /**
+     * 클라이언트의 요청에 해당하는 엔드포인트(endpoint)가 있지만, 메서드(method)를 지원하지 않을 때 예외를 처리합니다.
+     * @param e 처리할 메서드 예외
+     * @return 메서드 예외에 대한 HTTP 응답 엔터티
+     */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponseEntity> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         String errorMessages = String.format("[%s] 는 허용되지 않는 메소드입니다.", e.getMethod());
