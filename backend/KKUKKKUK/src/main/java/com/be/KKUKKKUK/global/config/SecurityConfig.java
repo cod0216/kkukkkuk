@@ -52,6 +52,10 @@ public class SecurityConfig {
     public static final String[] allowUrls = {
             "/",
             "/error",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
             "/api/auths/refresh",
             "/api/auths/emails/send",
             "/api/auths/emails/verify",

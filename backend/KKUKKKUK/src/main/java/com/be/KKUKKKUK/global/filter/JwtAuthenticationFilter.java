@@ -60,6 +60,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String[] AllowUrls = new String[]{
             "/",
             "/error",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
             "/api/auths/refresh",
             "/api/auths/emails/send",
             "/api/auths/emails/verify",
