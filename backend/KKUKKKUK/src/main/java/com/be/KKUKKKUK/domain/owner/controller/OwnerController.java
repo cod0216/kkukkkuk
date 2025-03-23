@@ -5,6 +5,7 @@ import com.be.KKUKKKUK.domain.owner.dto.request.OwnerUpdateRequest;
 import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.17          haelim           최초 생성<br>
+ * 25.03.22          haelim           swagger 작성<br>
  */
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ public class OwnerController {
      * @param ownerDetails 인증된 보호자 계정 정보
      * @return 보호자 회원의 상세 정보
      */
+    @Operation(summary = "프로필 조회", description = "현재 로그인한 계정의 프로필 정보를 조회합니다.")
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails) {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
@@ -45,6 +48,7 @@ public class OwnerController {
      * @param request 정보 업데이트 요청
      * @return 변경된 보호자 회원의 상세 정보
      */
+    @Operation(summary = "프로필 수정", description = "현재 로그인한 계정의 프로필 정보를 수정합니다.")
     @PatchMapping("/me")
     public ResponseEntity<?> updateMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails, @RequestBody OwnerUpdateRequest request) {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
