@@ -2,6 +2,9 @@ package com.be.KKUKKKUK.domain.wallet.dto.request;
 
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,22 +20,26 @@ import java.time.LocalDateTime;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.17          haelim           최초생성<br>
+ * 25.03.24          haelim           swagger, JsonNaming 설정<br>
  */
 @Getter
 @ToString
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class WalletRegisterRequest {
+    @Schema(description = "지갑의 암호화된 개인키", example = "exampleprivatekey")
     @NotBlank
-    @JsonProperty("private_key")
     private String privateKey;
 
     @NotBlank
-    @JsonProperty("public_key")
+    @Schema(description = "지갑의 공개키", example = "examplepublickey")
     private String publicKey;
 
     @NotBlank
+    @Schema(description = "지갑 주소", example = "examplewalletaddress")
     private String address;
 
     @NotBlank
+    @Schema(description = "지갑 주소", example = "examplewalletdid")
     private String did;
 
     public Wallet toWalletEntity() {
