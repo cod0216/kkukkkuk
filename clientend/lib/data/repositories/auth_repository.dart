@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/data/api/api_client.dart';
 import 'package:kkuk_kkuk/models/auth/authenticate_request.dart';
 import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
-import 'package:kkuk_kkuk/services/api_client.dart';
 import 'package:kkuk_kkuk/services/token_manager.dart';
 
 /// 인증 관련 API 요청을 처리하는 저장소
@@ -31,7 +31,7 @@ class AuthRepository {
 
       return authResponse;
     } catch (e) {
-      print('authenticate Error: $e');
+      print('authenticateAPI Error: $e');
       rethrow;
     }
   }
@@ -39,8 +39,9 @@ class AuthRepository {
   /// 로그인 상태 확인
   Future<bool> isLoggedIn() async {
     try {
-      // TODO: 토큰 유효성 검사 구현
-      return false;
+      // 저장된 토큰 확인
+      final accessToken = await _tokenManager.getAccessToken();
+      return accessToken != null && accessToken.isNotEmpty;
     } catch (e) {
       print('로그인 상태 확인 실패: $e');
       return false;
@@ -64,6 +65,10 @@ class AuthRepository {
   /// 토큰 갱신
   Future<bool> refreshToken() async {
     try {
+      final refreshToken = await _tokenManager.getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
+        return false;
+      }
       // TODO: 토큰 갱신 API 구현
       return false;
     } catch (e) {

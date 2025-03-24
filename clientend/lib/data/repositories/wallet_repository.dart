@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/wallet/wallet_registration_request.dart';
-import '../models/wallet/wallet_registration_response.dart';
-import '../services/api_client.dart';
+import 'package:kkuk_kkuk/data/api/api_client.dart';
+import 'package:kkuk_kkuk/models/wallet/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/models/wallet/wallet_registration_response.dart';
 
 class WalletRepository {
   final ApiClient _apiClient;
@@ -16,9 +16,12 @@ class WalletRepository {
         '/api/owners/me/wallets',
         data: request.toJson(),
       );
-      return WalletRegistrationResponse.fromJson(response.data);
+
+      final walletResponse = WalletRegistrationResponse.fromJson(response.data);
+
+      return walletResponse;
     } catch (e) {
-      print('registerWallet Error: $e');
+      print('registerWalletAPI Error: $e');
       rethrow;
     }
   }

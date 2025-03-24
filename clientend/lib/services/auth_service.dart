@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:kkuk_kkuk/data/repositories/auth_repository.dart';
 import 'package:kkuk_kkuk/models/auth/authenticate_request.dart';
 import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
-import 'package:kkuk_kkuk/repositories/auth_repository.dart';
 import 'package:kkuk_kkuk/services/oauth_service.dart';
 
 class AuthService {
