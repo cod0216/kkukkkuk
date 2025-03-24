@@ -3,6 +3,9 @@ package com.be.KKUKKKUK.domain.pet.dto.request;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
 import com.be.KKUKKKUK.global.enumeration.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -20,28 +23,34 @@ import java.time.LocalDate;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.19          haelim           최초생성<br>
+ * 25.03.24          haelim           swagger, JsonNaming 설정<br>
  */
 @Getter
 @ToString
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PetRegisterRequest {
+    @Schema(description = "반려동물 DID", example = "pet:0x9c8030a7b5e83919F83aa5aF82294FB4E1b816c4")
     @NotBlank
     private String did;
 
+    @Schema(description = "반려동물 이름", example = "권깡통")
     @NotBlank
     private String name;
 
+    @Schema(description = "반려동물 성별(MAIL, FEMAIL)", example = "MALE")
     @NotNull
     private Gender gender;
 
+    @Schema(description = "중성화 여부", example = "true")
     @NotNull
-    @JsonProperty("flag_neutering")
     private Boolean flagNeutering;
 
+    @Schema(description = "반려동물 생년월일 (YYYY-MM-DD)", example = "2023-01-01")
     @NotNull
     private LocalDate birth;
 
+    @Schema(description = "반려동물 품종의 식별 ID", example = "5")
     @NotNull
-    @JsonProperty("breed_id")
     private Integer breedId;
 
     public Pet toPetEntity() {

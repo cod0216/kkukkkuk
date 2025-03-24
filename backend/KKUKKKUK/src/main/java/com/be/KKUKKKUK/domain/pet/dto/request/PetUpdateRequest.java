@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.pet.dto.request;
 
 import com.be.KKUKKKUK.global.enumeration.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -16,20 +17,25 @@ import java.time.LocalDate;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.19          haelim           최초생성<br>
+ * 25.03.24          haelim           swagger, JsonNaming 설정<br>
  */
 @Getter
 public class PetUpdateRequest {
+    @Schema(description = "반려동물 DID", example = "pet:0x9c8030a7b5e83919F83aa5aF82294FB4E1b816c4")
     private String did;
 
+    @Schema(description = "반려동물 이름", example = "권깡통")
     private String name;
 
+    @Schema(description = "반려동물 성별(MAIL, FEMAIL)", example = "MALE")
     private Gender gender;
 
-    @JsonProperty("flag_neutering")
+    @Schema(description = "중성화 여부", example = "true")
     private Boolean flagNeutering;
 
+    @Schema(description = "반려동물 생년월일 (YYYY-MM-DD)", example = "2023-01-01")
     private LocalDate birth;
 
-    @JsonProperty("breed_id")
+    @Schema(description = "반려동물 품종의 식별 ID", example = "5")
     private Integer breedId;
 }
