@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
                 description = "꾹꾹 API 서버입니다."
         ),
         servers = {
-                @Server(url = "http://localhost:8080", description = "KKUK KKUK"),
+                @Server(url = "https://kukkkukk.duckdns.org", description = "KKUK KKUK"),
         }
 )
 public class SwaggerConfig {
@@ -33,8 +33,10 @@ public class SwaggerConfig {
 
     private SecurityScheme apiKey() {
         return new SecurityScheme()
-                .type(SecurityScheme.Type.APIKEY)
-                .in(SecurityScheme.In.HEADER)
-                .name("Authorization");
+                .type(SecurityScheme.Type.APIKEY) // API Key 방식 사용
+                .in(SecurityScheme.In.HEADER) // Header에 전달
+                .name("Authorization") // 'Authorization' 헤더에 토큰을 담아 전달
+                .scheme("bearer")
+                .bearerFormat("JWT"); // JWT 형식 명시
     }
 }
