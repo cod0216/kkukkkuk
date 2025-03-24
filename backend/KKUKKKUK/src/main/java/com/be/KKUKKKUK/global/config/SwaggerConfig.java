@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
         ),
         servers = {
                 @Server(url = "https://kukkkukk.duckdns.org", description = "KKUK KKUK"),
+                @Server(url = "http://localhost:8080", description = "KKUK KKUK TEST"),
         }
 )
 public class SwaggerConfig {

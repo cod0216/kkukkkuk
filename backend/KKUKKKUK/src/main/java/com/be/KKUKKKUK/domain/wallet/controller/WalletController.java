@@ -10,6 +10,7 @@ import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.20          haelim           최초 생성, 지갑 CRUD, 지갑에 대한 반려동물 등록, 조회 api <br>
  * 25.03.22          haelim           swagger 작성 <br>
  */
+@Tag(name = "디지털 지갑 API", description = "지갑 정보를 등록, 조회, 수정, 삭제, 복구, 지갑에 반려동물을 추가 / 조회할 수 있는 API입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/wallets")

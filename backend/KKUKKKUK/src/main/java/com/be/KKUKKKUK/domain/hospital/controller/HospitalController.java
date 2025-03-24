@@ -12,6 +12,7 @@ import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.20          haelim           진료 기록 관련 api 추가 <br>
  * 25.03.22          haelim           swagger 작성 <br>
  */
+@Tag(name = "병원 API", description = "병원 정보 관리, 병원 소속 수의사, 병원의 진료 기록 등을 관리하는 API입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/hospitals")

@@ -29,7 +29,7 @@ import java.time.LocalDate;
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PetRegisterRequest {
-    @Schema(description = "반려동물 DID", example = "pet:0x9c8030a7b5e83919F83aa5aF82294FB4E1b816c4")
+    @Schema(description = "반려동물 DID", example = "pet:0xtestpetdid")
     @NotBlank
     private String did;
 
@@ -37,7 +37,7 @@ public class PetRegisterRequest {
     @NotBlank
     private String name;
 
-    @Schema(description = "반려동물 성별(MAIL, FEMAIL)", example = "MALE")
+    @Schema(description = "반려동물 성별(MALE, FEMALE)", example = "MALE")
     @NotNull
     private Gender gender;
 

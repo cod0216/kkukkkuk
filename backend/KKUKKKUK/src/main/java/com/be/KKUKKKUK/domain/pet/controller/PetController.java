@@ -6,6 +6,7 @@ import com.be.KKUKKKUK.domain.pet.service.PetComplexService;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.19          haelim           최초 생성, 반려동물 조회, 수정, 삭제 api 작성<br>
  * 25.03.22          haelim           swagger 작성<br>
  */
+@Tag(name = "반려동물 API", description = "반려동물 정보를 조회, 수정, 삭제할 수 있는 API입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pets")

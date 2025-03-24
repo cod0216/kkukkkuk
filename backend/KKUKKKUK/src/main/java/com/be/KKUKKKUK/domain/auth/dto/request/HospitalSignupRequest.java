@@ -41,7 +41,7 @@ public class HospitalSignupRequest {
     @NotNull
     private Integer id;
 
-    @Schema(description = "동물병원 DID", example = "hospital:0x9c8030a7b5e83919F83aa5aF82294FB4E1b816c4")
+    @Schema(description = "동물병원 DID", example = "hospital:0xexemplehospitaldid")
     @NotBlank
     private String did;
 

@@ -21,13 +21,13 @@ import java.time.LocalDate;
  */
 @Getter
 public class PetUpdateRequest {
-    @Schema(description = "반려동물 DID", example = "pet:0x9c8030a7b5e83919F83aa5aF82294FB4E1b816c4")
+    @Schema(description = "반려동물 DID", example = "pet:0xtestpetdid")
     private String did;
 
     @Schema(description = "반려동물 이름", example = "권깡통")
     private String name;
 
-    @Schema(description = "반려동물 성별(MAIL, FEMAIL)", example = "MALE")
+    @Schema(description = "반려동물 성별(MALE, FEMALE)", example = "MALE")
     private Gender gender;
 
     @Schema(description = "중성화 여부", example = "true")
