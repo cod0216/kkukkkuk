@@ -1,46 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/api/api_client.dart';
-import 'package:kkuk_kkuk/models/auth/authenticate_request.dart';
-import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
-import 'package:kkuk_kkuk/services/token_manager.dart';
+import 'package:kkuk_kkuk/data/repositories/token_repository.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/token_repository_interface.dart';
+import 'package:kkuk_kkuk/data/dtos/auth/authenticate_request.dart';
+import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 
-/// 인증 관련 API 요청을 처리하는 저장소
-class AuthRepository {
+class AuthRepository implements IAuthRepository {
   final ApiClient _apiClient;
-  final TokenManager _tokenManager;
+  final ITokenRepository _tokenRepository;
 
-  AuthRepository(this._apiClient, this._tokenManager);
+  AuthRepository(this._apiClient, this._tokenRepository);
 
-  /// 서버 인증증 API 호출
-  Future<AuthenticateResponse> authenticateAPI(
-    AuthenticateRequest request,
-  ) async {
-    try {
-      final response = await _apiClient.post(
-        '/api/auths/owners/kakao/login',
-        data: request.toJson(),
-      );
-
-      final authResponse = AuthenticateResponse.fromJson(response.data);
-
-      // 토큰 저장
-      await _tokenManager.saveAccessToken(authResponse.data.tokens.accessToken);
-      await _tokenManager.saveRefreshToken(
-        authResponse.data.tokens.refreshToken,
-      );
-
-      return authResponse;
-    } catch (e) {
-      print('authenticateAPI Error: $e');
-      rethrow;
-    }
+  @override
+  Future<void> authenticate(String accessToken, String refreshToken) async {
+    await _tokenRepository.saveAccessToken(accessToken);
+    await _tokenRepository.saveRefreshToken(refreshToken);
   }
 
-  /// 로그인 상태 확인
+  @override
   Future<bool> isLoggedIn() async {
     try {
-      // 저장된 토큰 확인
-      final accessToken = await _tokenManager.getAccessToken();
+      final accessToken = await _tokenRepository.getAccessToken();
       return accessToken != null && accessToken.isNotEmpty;
     } catch (e) {
       print('로그인 상태 확인 실패: $e');
@@ -48,13 +29,10 @@ class AuthRepository {
     }
   }
 
-  /// 로그아웃
+  @override
   Future<bool> logout() async {
     try {
-      // TODO: 로그아웃 API 구현
-
-      // 로컬 토큰 삭제
-      await _tokenManager.clearTokens();
+      await _tokenRepository.clearTokens();
       return true;
     } catch (e) {
       print('로그아웃 실패: $e');
@@ -62,10 +40,10 @@ class AuthRepository {
     }
   }
 
-  /// 토큰 갱신
+  @override
   Future<bool> refreshToken() async {
     try {
-      final refreshToken = await _tokenManager.getRefreshToken();
+      final refreshToken = await _tokenRepository.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) {
         return false;
       }
@@ -76,10 +54,36 @@ class AuthRepository {
       return false;
     }
   }
+
+  // Repository 전용 메서드
+  @override
+  Future<AuthenticateResponse> authenticateWithKakao(
+    AuthenticateRequest request,
+  ) async {
+    try {
+      final response = await _apiClient.post(
+        '/api/auths/owners/kakao/login',
+        data: request.toJson(),
+      );
+
+      final authResponse = AuthenticateResponse.fromJson(response.data);
+
+      // Use the authenticate method
+      await authenticate(
+        authResponse.data.tokens.accessToken,
+        authResponse.data.tokens.refreshToken,
+      );
+
+      return authResponse;
+    } catch (e) {
+      print('Authentication failed: $e');
+      rethrow;
+    }
+  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
-  final tokenManager = ref.watch(tokenManagerProvider);
-  return AuthRepository(apiClient, tokenManager);
+  final tokenRepository = ref.watch(tokenRepositoryProvider);
+  return AuthRepository(apiClient, tokenRepository);
 });

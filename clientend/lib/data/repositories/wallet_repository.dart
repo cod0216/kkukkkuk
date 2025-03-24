@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/api/api_client.dart';
-import 'package:kkuk_kkuk/models/wallet/wallet_registration_request.dart';
-import 'package:kkuk_kkuk/models/wallet/wallet_registration_response.dart';
+import 'package:kkuk_kkuk/domain/models/wallet/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/domain/models/wallet/wallet_registration_response.dart';
+
 
 class WalletRepository {
   final ApiClient _apiClient;

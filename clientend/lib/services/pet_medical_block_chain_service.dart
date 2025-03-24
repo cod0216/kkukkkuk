@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/models/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
 
 // 임시 진료 기록 데이터
 final Map<int, List<PetMedicalRecord>> _dummyRecords = {

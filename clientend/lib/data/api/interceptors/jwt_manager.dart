@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/services/token_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/data/repositories/token_repository.dart';
+import 'package:kkuk_kkuk/domain/repositories/token_repository_interface.dart';
 
 class JwtManager extends Interceptor {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final TokenManager tokenManager;
+  final ITokenRepository tokenRepository;
 
-  JwtManager(this.tokenManager);
+  JwtManager(this.tokenRepository);
 
   @override
   void onRequest(
@@ -15,7 +14,7 @@ class JwtManager extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     // 저장된 토큰 가져오기
-    final token = await _storage.read(key: 'jwt_token');
+    final token = await tokenRepository.getAccessToken();
 
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -29,7 +28,9 @@ class JwtManager extends Interceptor {
     // 응답에서 새 토큰이 있으면 저장
     if (response.headers.map.containsKey('x-auth-token')) {
       final newToken = response.headers.value('x-auth-token');
-      _saveToken(newToken ?? '');
+      if (newToken != null) {
+        tokenRepository.saveAccessToken(newToken);
+      }
     }
 
     return handler.next(response);
@@ -40,18 +41,18 @@ class JwtManager extends Interceptor {
     // 401 에러 시 토큰 리프레시 로직
     if (err.response?.statusCode == 401) {
       try {
-        final refreshToken = await _storage.read(key: 'refresh_token');
+        final refreshToken = await tokenRepository.getRefreshToken();
         if (refreshToken != null) {
           // 토큰 리프레시 요청
           final dio = Dio();
           final response = await dio.post(
-            'https://your-api-base-url.com/api/refresh-token',
+            'https://kukkkukk.duckdns.org/api/refresh-token',
             data: {'refresh_token': refreshToken},
           );
 
           if (response.statusCode == 200) {
-            final newToken = response.data['token'];
-            await _saveToken(newToken);
+            final newToken = response.data['access_token'];
+            await tokenRepository.saveAccessToken(newToken);
 
             // 원래 요청 재시도
             final options = err.requestOptions;
@@ -62,21 +63,15 @@ class JwtManager extends Interceptor {
           }
         }
       } catch (e) {
-        // 리프레시 실패 시 로그아웃 처리
-        await _storage.deleteAll();
-        // TODO: 로그아웃 처리 로직 추가
+        print('토큰 갱신 실패: $e');
       }
     }
 
     return handler.next(err);
   }
-
-  Future<void> _saveToken(String token) async {
-    await _storage.write(key: 'jwt_token', value: token);
-  }
 }
 
 final jwtInterceptorProvider = Provider<JwtManager>((ref) {
-  final tokenManager = ref.watch(tokenManagerProvider);
-  return JwtManager(tokenManager);
+  final tokenRepository = ref.watch(tokenRepositoryProvider);
+  return JwtManager(tokenRepository);
 });

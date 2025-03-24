@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:kkuk_kkuk/domain/repositories/oauth_repository_interface.dart';
 
-class OAuthService {
-  /// 카카오 SDK를 통한 인증
-  Future<User> kakaoOAuth() async {
+class OAuthRepository implements IOAuthRepository {
+  @override
+  Future<User> kakaoLogin() async {
     try {
       final installed = await isKakaoTalkInstalled();
       if (installed) {
@@ -11,25 +12,22 @@ class OAuthService {
       } else {
         await UserApi.instance.loginWithKakaoAccount();
       }
-
       return await UserApi.instance.me();
     } catch (error) {
-      print('kakaoOAuth Error: $error');
-      rethrow;
+      throw Exception('Failed to login with Kakao: $error');
     }
   }
 
-  /// 카카오 로그아웃
+  @override
   Future<void> kakaoLogout() async {
     try {
       await UserApi.instance.logout();
     } catch (error) {
-      print('kakaoLogout: $error');
-      rethrow;
+      throw Exception('Failed to logout from Kakao: $error');
     }
   }
 }
 
-final kakaoServiceProvider = Provider<OAuthService>((ref) {
-  return OAuthService();
+final oAuthRepositoryProvider = Provider<IOAuthRepository>((ref) {
+  return OAuthRepository();
 });

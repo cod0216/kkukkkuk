@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/models/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
 import 'package:kkuk_kkuk/services/pet_medical_block_chain_service.dart';
 
 /// 반려동물 진료 기록 상태 관리 클래스

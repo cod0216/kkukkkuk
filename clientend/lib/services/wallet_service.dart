@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/repositories/wallet_repository.dart';
-import 'package:kkuk_kkuk/models/wallet/wallet_registration_request.dart';
-import 'package:kkuk_kkuk/models/wallet/wallet_registration_response.dart';
+import 'package:kkuk_kkuk/domain/models/wallet/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/domain/models/wallet/wallet_registration_response.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

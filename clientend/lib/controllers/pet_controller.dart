@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/providers/main/pet_provider.dart';
-import 'package:kkuk_kkuk/models/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 
 /// 반려동물 관련 작업을 처리하는 컨트롤러
 class PetController {

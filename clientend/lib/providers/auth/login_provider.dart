@@ -1,14 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/models/auth/authenticate_response.dart';
+import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
+import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
-import 'package:kkuk_kkuk/services/auth_service.dart';
-import 'package:kkuk_kkuk/services/wallet_service.dart';
 
 /// 로그인 상태를 관리하는 클래스
 class LoginState {
-  final bool isLoading; // 로딩 상태
-  final String? error; // 에러 메시지
+  final bool isLoading;
+  final String? error;
   final AuthenticateResponse? authResponse;
 
   LoginState({this.isLoading = false, this.error, this.authResponse});
@@ -29,29 +28,24 @@ class LoginState {
 /// 로그인 상태 관리 노티파이어
 class LoginNotifier extends StateNotifier<LoginState> {
   final Ref ref;
-  final AuthService _authService;
-  final WalletService _walletService;
 
-  LoginNotifier(this.ref, this._authService, this._walletService)
-    : super(LoginState());
+  LoginNotifier(this.ref) : super(LoginState());
 
-  /// 카카오 로그인 처리
   Future<void> signInWithKakao() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final response = await _authService.login();
+      final loginUseCase = ref.read(loginWithKakaoUseCaseProvider);
+      final response = await loginUseCase.execute();
+      
       state = state.copyWith(authResponse: response, isLoading: false);
 
-      // 지갑 존재 여부 확인
       final hasWallet = response.data.wallet != null;
 
       if (hasWallet) {
-        // 지갑이 이미 있는 경우
         ref.read(authCoordinatorProvider.notifier).completeAuth();
       } else {
-        // 지갑이 없는 경우 지갑 설정 화면으로 이동
-        ref.read(walletProvider.notifier).reset(); // 지갑 상태 초기화
+        ref.read(walletProvider.notifier).reset();
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
     } catch (e) {
@@ -63,15 +57,21 @@ class LoginNotifier extends StateNotifier<LoginState> {
   Future<void> logout() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
-      await _authService.logout();
-      state = LoginState();
+      
+      final logoutUseCase = ref.read(logoutUseCaseProvider);
+      final success = await logoutUseCase.execute();
+      
+      if (success) {
+        state = LoginState();
+      } else {
+        throw Exception('Logout failed');
+      }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: '로그아웃 실패: $e');
       rethrow;
     }
   }
 
-  /// 상태 초기화
   void reset() {
     state = LoginState();
   }
@@ -79,7 +79,5 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
 /// 로그인 프로바이더
 final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  final walletService = ref.watch(walletServiceProvider);
-  return LoginNotifier(ref, authService, walletService);
+  return LoginNotifier(ref);
 });

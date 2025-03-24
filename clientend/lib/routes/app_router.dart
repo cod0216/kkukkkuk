@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/models/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
 import 'package:kkuk_kkuk/screens/main/main_screen.dart';
 import 'package:kkuk_kkuk/screens/main/views/pets_view.dart';
