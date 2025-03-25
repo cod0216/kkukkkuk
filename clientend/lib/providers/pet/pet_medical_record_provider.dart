@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
-import 'package:kkuk_kkuk/domain/services/pet_medical_block_chain_service.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_by_date_range_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/pet_medical_record_usecase_providers.dart';
 
 /// 진료 기록 조회 상태 관리 클래스
 class MedicalRecordQueryState {
@@ -39,9 +41,13 @@ class MedicalRecordQueryState {
 /// 진료 기록 조회 상태 관리 노티파이어
 class MedicalRecordQueryNotifier
     extends StateNotifier<MedicalRecordQueryState> {
-  final PetMedicalBlockChainService _service;
+  final GetMedicalRecordsUseCase _getMedicalRecordsUseCase;
+  final GetMedicalRecordsByDateRangeUseCase _getMedicalRecordsByDateRangeUseCase;
 
-  MedicalRecordQueryNotifier(this._service) : super(MedicalRecordQueryState());
+  MedicalRecordQueryNotifier(
+    this._getMedicalRecordsUseCase,
+    this._getMedicalRecordsByDateRangeUseCase,
+  ) : super(MedicalRecordQueryState());
 
   /// 전체 진료 기록 조회
   Future<void> getMedicalRecords(int petId) async {
@@ -51,7 +57,7 @@ class MedicalRecordQueryNotifier
       // TODO: 블록체인 데이터 캐싱 구현
       // TODO: 페이지네이션 구현
       // TODO: 데이터 정렬 로직 구현
-      final records = await _service.getMedicalRecords(petId);
+      final records = await _getMedicalRecordsUseCase.execute(petId);
       state = state.copyWith(
         records: records,
         isLoading: false,
@@ -77,7 +83,7 @@ class MedicalRecordQueryNotifier
       // TODO: 날짜 범위 유효성 검사 추가
       // TODO: 날짜 기준 정렬 로직 구현
       // TODO: 기간별 데이터 캐싱 구현
-      final records = await _service.getMedicalRecordsByDateRange(
+      final records = await _getMedicalRecordsByDateRangeUseCase.execute(
         petId,
         startDate,
         endDate,
@@ -108,6 +114,11 @@ final medicalRecordQueryProvider =
     StateNotifierProvider<MedicalRecordQueryNotifier, MedicalRecordQueryState>((
       ref,
     ) {
-      final service = ref.watch(petMedicalRecordServiceProvider);
-      return MedicalRecordQueryNotifier(service);
+      final getMedicalRecordsUseCase = ref.watch(getMedicalRecordsUseCaseProvider);
+      final getMedicalRecordsByDateRangeUseCase = ref.watch(getMedicalRecordsByDateRangeUseCaseProvider);
+      
+      return MedicalRecordQueryNotifier(
+        getMedicalRecordsUseCase,
+        getMedicalRecordsByDateRangeUseCase,
+      );
     });

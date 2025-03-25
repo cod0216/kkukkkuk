@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet_medical_record_repository_interface.dart';
 
 // 임시 진료 기록 데이터
 final Map<int, List<PetMedicalRecord>> _dummyRecords = {
@@ -79,9 +80,8 @@ final Map<int, List<PetMedicalRecord>> _dummyRecords = {
   ],
 };
 
-/// 반려동물 진료 기록 블록체인 서비스
-class PetMedicalBlockChainService {
-  /// 반려동물의 진료 기록 목록 조회
+class PetMedicalRecordRepository implements IPetMedicalRecordRepository {
+  @override
   Future<List<PetMedicalRecord>> getMedicalRecords(int petId) async {
     try {
       // TODO: 블록체인에서 진료 기록 데이터 가져오기
@@ -93,7 +93,7 @@ class PetMedicalBlockChainService {
     }
   }
 
-  /// 새로운 진료 기록 추가
+  @override
   Future<bool> addMedicalRecord(int petId, PetMedicalRecord record) async {
     try {
       // TODO: 블록체인에 새로운 진료 기록 추가
@@ -105,7 +105,7 @@ class PetMedicalBlockChainService {
     }
   }
 
-  /// 특정 기간 동안의 진료 기록 조회
+  @override
   Future<List<PetMedicalRecord>> getMedicalRecordsByDateRange(
     int petId,
     DateTime startDate,
@@ -125,7 +125,7 @@ class PetMedicalBlockChainService {
     }
   }
 
-  /// 진료 기록 검증
+  @override
   Future<bool> verifyMedicalRecord(int petId, String recordHash) async {
     try {
       // TODO: 블록체인에서 진료 기록 해시값 검증
@@ -137,7 +137,7 @@ class PetMedicalBlockChainService {
     }
   }
 
-  /// 진료 기록 접근 권한 확인
+  @override
   Future<bool> checkAccessPermission(int petId, String userAddress) async {
     try {
       // TODO: 블록체인에서 사용자의 진료 기록 접근 권한 확인
@@ -149,7 +149,7 @@ class PetMedicalBlockChainService {
     }
   }
 
-  /// 진료 기록 공유 권한 부여
+  @override
   Future<bool> grantAccessPermission(
     int petId,
     String targetAddress,
@@ -166,8 +166,6 @@ class PetMedicalBlockChainService {
   }
 }
 
-final petMedicalRecordServiceProvider = Provider<PetMedicalBlockChainService>((
-  ref,
-) {
-  return PetMedicalBlockChainService();
+final petMedicalRecordRepositoryProvider = Provider<PetMedicalRecordRepository>((ref) {
+  return PetMedicalRecordRepository();
 });
