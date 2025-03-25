@@ -1,148 +1,28 @@
-import axios from "axios";
-import apiClient from "./api";
-import {
-  ApiResponse,
-  LoginRequest,
-  LoginResponse,
-  RefreshTokenResponse,
-  RefreshTokenRequest,
-} from "@/interfaces/index";
+import { LoginRequest, LoginResponse } from "@/interfaces";
+import { clearAccessToken } from "@/redux/store";
+import { request } from "@/services/apiRequest";
+import { ApiResponse } from "@/types";
 
-const ACCESSTOKEN = "access_token";
-const REFRESHTOKEN = "refresh_token";
+const DOMAIN_URL = "/api/auths";
 
-// 계정명 유효성 검사 함수 (5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용)
-export const validateAccount = (account: string): boolean => {
-  const accountRegex = /^[a-z0-9_]{5,10}$/;
-  return accountRegex.test(account);
-};
-
-// 비밀번호 유효성 검사 함수 (6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합)
-export const validatePassword = (password: string): boolean => {
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&])[A-Za-z\d!@#$%^&]{6,20}$/;
-  return passwordRegex.test(password);
-};
-
-// 로그인 API
+/**
+ * login API
+ */
 export const login = async (
   data: LoginRequest
 ): Promise<ApiResponse<LoginResponse>> => {
-  try {
-    // 유효성 검사
-    if (!validateAccount(data.account)) {
-      return {
-        status: "FAILURE",
-        message: "계정명은 5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.",
-        data: null,
-      };
-    }
-
-    if (!validatePassword(data.password)) {
-      return {
-        status: "FAILURE",
-        message:
-          "비밀번호는 6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.",
-        data: null,
-      };
-    }
-
-    const response = await apiClient.post(`/api/auths/hospitals/login`, data);
-    return response.data;
-  } catch (error) {
-    console.error("로그인 오류:", error);
-
-    // 에러 객체가 AxiosError이고 응답이 있을 경우 API 오류 응답 반환
-    if (axios.isAxiosError(error) && error.response) {
-      return error.response.data as ApiResponse;
-    }
-
-    // 기타 오류
-    return {
-      status: "FAILURE",
-      message: "알 수 없는 오류가 발생했습니다.",
-      data: null,
-    };
-  }
+  const response = await request.post<LoginResponse>(
+    `${DOMAIN_URL}/hospitals/login`,
+    data
+  );
+  return response;
 };
 
-// 로그아웃 응답 인터페이스
-export interface LogoutResponse {
-  status: string;
-  message: string;
-  data: null;
-}
-
-// 로그아웃 API
-export const logout = async (): Promise<LogoutResponse> => {
-  try {
-    // API 요청 (apiClient에서 토큰 자동으로 추가)
-    const response = await apiClient.post<LogoutResponse>(
-      `/api/auths/logout`,
-      {}
-    );
-
-    // 로컬 스토리지에서 인증 데이터 제거
-    sessionStorage.removeItem(ACCESSTOKEN);
-    document.cookie =
-      "REFRESHTOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    localStorage.removeItem("hospital");
-
-    return response.data;
-  } catch (error) {
-    console.error("로그아웃 오류:", error);
-
-    // 로컬 스토리지에서 인증 데이터 제거 (에러가 발생하더라도 클라이언트 측에서는 로그아웃 처리)
-    sessionStorage.removeItem(ACCESSTOKEN);
-    document.cookie =
-      "REFRESHTOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    localStorage.removeItem("hospital");
-
-    // 에러 응답 반환
-    if (axios.isAxiosError(error) && error.response?.data) {
-      return error.response.data as LogoutResponse;
-    }
-
-    return {
-      status: "error",
-      message: "로그아웃 중 오류가 발생했습니다.",
-      data: null,
-    };
-  }
-};
-
-// 토큰 재발급 API
-export const refreshToken = async (
-  refreshTokenValue: string
-): Promise<RefreshTokenResponse> => {
-  try {
-    const data: RefreshTokenRequest = {
-      refresh_token: refreshTokenValue,
-    };
-
-    const response = await axios.post(`/api/auths/refresh`, data);
-
-    // 로그인 성공
-    if (response.data.status === "SUCCESS" && response.data.data) {
-      sessionStorage.setItem(ACCESSTOKEN, response.data.data.access_token); // AT를 세션에 저장
-      document.cookie = `${REFRESHTOKEN}=${response.data.data.refresh_token}; Path=/; Secure; SameSite=Strict;`;
-      // RT는 쿠키에 저장
-    }
-
-    return response.data;
-  } catch (error) {
-    console.error("토큰 재발급 오류:", error);
-
-    // 에러 객체가 AxiosError이고 응답이 있을 경우 API 오류 응답 반환
-    if (axios.isAxiosError(error) && error.response) {
-      return error.response.data as RefreshTokenResponse;
-    }
-
-    // 기타 오류
-    return {
-      status: "FAILURE",
-      message: "알 수 없는 오류가 발생했습니다.",
-      data: null,
-    };
-  }
+/**
+ * logout API
+ */
+export const logout = async (): Promise<void> => {
+  await request.post(`${DOMAIN_URL}/logout`);
+  clearAccessToken();
+  // ToDo 리프레쉬 토큰
 };

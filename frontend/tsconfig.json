@@ -1,22 +1,13 @@
 {
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "target": "ES2020",
-    "lib": ["DOM", "ES2020"],
-    "baseUrl": ".",
+    "baseUrl": ".", // 절대 경로의 기준을 프로젝트 루트로 설정
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@/*": ["src/*"]
-    },
-    "types": ["node", "react"],
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "skipLibCheck": true,
-    "noEmit": true,
-    "typeRoots": ["./node_modules/@types", "./custom_typings"]
-  },
-  "include": ["src", "**/*.ts", "**/*.tsx"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+      "@/*": ["src/*"] // '@'를 'src' 폴더로 매핑
+    }
+  }
 }
