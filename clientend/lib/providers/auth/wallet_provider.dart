@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/domain/usecases/wallet/wallet_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
-import 'package:kkuk_kkuk/services/wallet_service.dart';
 
 /// 지갑 생성 및 설정 단계
 enum WalletStatus {
@@ -68,17 +68,17 @@ class WalletState {
 /// 지갑 상태 관리 노티파이어
 class WalletNotifier extends StateNotifier<WalletState> {
   final Ref ref;
-  final WalletService _walletService;
 
-  WalletNotifier(this.ref, this._walletService) : super(WalletState());
+  WalletNotifier(this.ref) : super(WalletState());
 
   /// 새 지갑 생성
   Future<void> createWallet() async {
     state = state.copyWith(status: WalletStatus.generating, error: null);
 
     try {
-      // 지갑 서비스를 통한 새 지갑 생성
-      final walletData = await _walletService.createWallet();
+      // UseCase를 통한 새 지갑 생성
+      final generateWalletUseCase = ref.read(generateWalletUseCaseProvider);
+      final walletData = await generateWalletUseCase.execute();
 
       state = state.copyWith(
         status: WalletStatus.settingPin,
@@ -110,7 +110,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
       state = state.copyWith(status: WalletStatus.encrypting);
 
       // 개인키 암호화
-      final encryptedPrivateKey = await _walletService.encryptPrivateKey(
+      final encryptPrivateKeyUseCase = ref.read(
+        encryptPrivateKeyUseCaseProvider,
+      );
+      final encryptedPrivateKey = await encryptPrivateKeyUseCase.execute(
         state.privateKey!,
         pin,
       );
@@ -118,7 +121,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
       state = state.copyWith(status: WalletStatus.saving);
 
       // 서버에 지갑 등록
-      final response = await _walletService.registerWalletToServer(
+      final registerWalletUseCase = ref.read(registerWalletUseCaseProvider);
+      final response = await registerWalletUseCase.execute(
         did: state.did!,
         address: state.walletAddress!,
         encryptedPrivateKey: encryptedPrivateKey,
@@ -140,7 +144,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
-  // confirmPin 메서드 제거
+  /// 상태 초기화
+  void reset() {
+    state = WalletState();
+  }
 
   /// PIN 번호 입력 처리
   void addPinDigit(String digit) {
@@ -150,12 +157,6 @@ class WalletNotifier extends StateNotifier<WalletState> {
           firstPin: (state.firstPin ?? '') + digit,
           error: null,
         );
-        if ((state.firstPin?.length ?? 0) == 6) {
-          state = state.copyWith(
-            status: WalletStatus.confirmingPin,
-            currentPin: '', // 두 번째 PIN 입력 시작 시 초기화
-          );
-        }
       }
     } else if (state.status == WalletStatus.confirmingPin) {
       if ((state.currentPin?.length ?? 0) < 6) {
@@ -163,64 +164,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
           currentPin: (state.currentPin ?? '') + digit,
           error: null,
         );
-        if ((state.currentPin?.length ?? 0) == 6) {
-          _validatePinAndCompleteWallet();
-        }
       }
     }
-  }
-
-  /// PIN 검증 및 지갑 설정 완료 처리
-  Future<void> _validatePinAndCompleteWallet() async {
-    if (state.firstPin != state.currentPin) {
-      state = state.copyWith(
-        status: WalletStatus.settingPin,
-        currentPin: '',
-        firstPin: '', // 첫 번째 PIN도 초기화
-        error: 'PIN이 일치하지 않습니다.',
-      );
-      return;
-    }
-
-    try {
-      state = state.copyWith(status: WalletStatus.encrypting);
-
-      final encryptedPrivateKey = await _walletService.encryptPrivateKey(
-        state.privateKey!,
-        state.firstPin!,
-      );
-
-      state = state.copyWith(status: WalletStatus.saving);
-
-      final response = await _walletService.registerWalletToServer(
-        did: state.did!,
-        address: state.walletAddress!,
-        encryptedPrivateKey: encryptedPrivateKey,
-        publicKey: state.publicKey!,
-      );
-
-      await _walletService.saveEncryptedWallet(
-        state.walletAddress!,
-        encryptedPrivateKey,
-      );
-
-      state = state.copyWith(
-        status: WalletStatus.completed,
-        walletId: response.data.id,
-      );
-
-      ref.read(authCoordinatorProvider.notifier).completeAuth();
-    } catch (e) {
-      state = state.copyWith(
-        status: WalletStatus.error,
-        error: '지갑 등록에 실패했습니다.',
-      );
-    }
-  }
-
-  /// 상태 초기화
-  void reset() {
-    state = WalletState();
   }
 
   /// PIN 번호 삭제 처리
@@ -250,6 +195,5 @@ class WalletNotifier extends StateNotifier<WalletState> {
 final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
   ref,
 ) {
-  final walletService = ref.watch(walletServiceProvider);
-  return WalletNotifier(ref, walletService);
+  return WalletNotifier(ref);
 });

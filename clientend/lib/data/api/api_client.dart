@@ -48,9 +48,9 @@ class ApiClient {
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://kukkkukk.duckdns.org', // 실제 API URL로 변경
-      connectTimeout: const Duration(milliseconds: 5000),
-      receiveTimeout: const Duration(milliseconds: 3000),
+      baseUrl: 'https://kukkkukk.duckdns.org',
+      // connectTimeout: const Duration(milliseconds: 5000),
+      // receiveTimeout: const Duration(milliseconds: 3000),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

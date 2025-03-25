@@ -1,26 +1,29 @@
-import 'package:kkuk_kkuk/domain/entities/wallet.dart';
-import 'package:kkuk_kkuk/domain/repositories/wallet_repository_interface.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
+import 'package:kkuk_kkuk/data/repositories/wallet_repository.dart';
 
 class RegisterWalletUseCase {
-  final IWalletRepository _walletRepository;
+  final WalletRepository _walletRepository;
 
   RegisterWalletUseCase(this._walletRepository);
 
-  Future<Wallet> execute({
+  Future<WalletRegistrationResponse> execute({
     required String did,
     required String address,
     required String encryptedPrivateKey,
     required String publicKey,
   }) async {
     try {
-      return await _walletRepository.registerWallet(
+      final request = WalletRegistrationRequest(
         did: did,
         address: address,
-        encryptedPrivateKey: encryptedPrivateKey,
+        privateKey: encryptedPrivateKey,
         publicKey: publicKey,
       );
+
+      return await _walletRepository.registerWalletAPI(request);
     } catch (e) {
-      throw Exception('Failed to register wallet: $e');
+      throw Exception('지갑 등록에 실패했습니다: $e');
     }
   }
 }
