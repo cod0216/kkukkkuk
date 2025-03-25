@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/login_provider.dart';
-import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 
 /// 인증 관련 작업을 처리하는 컨트롤러
 class AuthController {
@@ -19,41 +19,25 @@ class AuthController {
     try {
       await ref.read(loginProvider.notifier).signInWithKakao();
     } catch (e) {
+      print('Login error in controller: $e');
       ref.read(authCoordinatorProvider.notifier).handleError();
     }
   }
 
-  /// 지갑 생성 처리
-  Future<void> handleWalletCreation() async {
-    try {
-      await ref.read(walletProvider.notifier).createWallet();
-    } catch (e) {
-      ref.read(authCoordinatorProvider.notifier).handleError();
-    }
+  /// 니모닉 지갑 생성 처리
+  void handleMnemonicGeneration() {
+    ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
   }
 
-  /// PIN 입력 처리
-  void handlePinDigit(String digit) {
-    try {
-      ref.read(walletProvider.notifier).addPinDigit(digit);
-    } catch (e) {
-      ref.read(authCoordinatorProvider.notifier).handleError();
-    }
-  }
-
-  /// PIN 삭제 처리
-  void handlePinDelete() {
-    try {
-      ref.read(walletProvider.notifier).deletePinDigit();
-    } catch (e) {
-      ref.read(authCoordinatorProvider.notifier).handleError();
-    }
+  /// 니모닉 확인 처리
+  Future<void> confirmMnemonic() async {
+    await ref.read(mnemonicWalletProvider.notifier).confirmMnemonic();
   }
 
   /// 인증 흐름 초기화
   void resetAuthFlow() {
     ref.read(loginProvider.notifier).reset();
-    ref.read(walletProvider.notifier).reset();
+    ref.read(mnemonicWalletProvider.notifier).reset();
     ref.read(authCoordinatorProvider.notifier).reset();
   }
 }
