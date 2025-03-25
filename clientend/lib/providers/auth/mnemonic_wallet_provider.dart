@@ -102,14 +102,22 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
   /// 니모닉 단어 선택
   void selectMnemonicWord(int index) {
     if (state.selectedWordIndices == null) return;
-
-    final updatedIndices = List<int>.from(state.selectedWordIndices!);
-    if (updatedIndices.contains(index)) {
-      updatedIndices.remove(index);
-    } else {
+    if (state.selectedWordIndices!.contains(index)) return; // Prevent selecting same word twice
+    
+    // Only allow selection if it's the next word in sequence
+    if (state.selectedWordIndices!.length < (state.mnemonicWords?.length ?? 0)) {
+      final updatedIndices = List<int>.from(state.selectedWordIndices!);
       updatedIndices.add(index);
+      state = state.copyWith(selectedWordIndices: updatedIndices);
     }
+  }
 
+  /// Remove the last selected word
+  void removeLastSelectedWord() {
+    if (state.selectedWordIndices == null || state.selectedWordIndices!.isEmpty) return;
+    
+    final updatedIndices = List<int>.from(state.selectedWordIndices!);
+    updatedIndices.removeLast();
     state = state.copyWith(selectedWordIndices: updatedIndices);
   }
 

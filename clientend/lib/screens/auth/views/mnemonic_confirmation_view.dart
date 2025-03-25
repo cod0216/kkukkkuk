@@ -11,6 +11,8 @@ class MnemonicConfirmationView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final walletState = ref.watch(mnemonicWalletProvider);
+    final selectedCount = walletState.selectedWordIndices?.length ?? 0;
+    final totalWords = walletState.mnemonicWords?.length ?? 0;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -24,14 +26,14 @@ class MnemonicConfirmationView extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
-          const Text(
-            '니모닉 단어를 올바른 순서대로 선택해주세요.',
+          Text(
+            '니모닉 단어를 순서대로 선택해주세요. ($selectedCount/$totalWords)',
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
-          // 선택된 단어 표시
+          // Selected words display
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -39,18 +41,29 @@ class MnemonicConfirmationView extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: Text(
-              walletState.selectedWordIndices
-                      ?.map((index) => walletState.mnemonicWords?[index] ?? '')
-                      .join(' ') ??
-                  '',
-              style: const TextStyle(fontSize: 16),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List.generate(
+                walletState.selectedWordIndices?.length ?? 0,
+                (index) => Chip(
+                  label: Text(
+                    '${index + 1}. ${walletState.mnemonicWords?[walletState.selectedWordIndices?[index] ?? 0] ?? ""}',
+                  ),
+                  onDeleted: () {
+                    // Remove the last selected word only
+                    if (index == (walletState.selectedWordIndices?.length ?? 0) - 1) {
+                      ref.read(mnemonicWalletProvider.notifier).removeLastSelectedWord();
+                    }
+                  },
+                ),
+              ),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // 니모닉 단어 선택 그리드
+          // Mnemonic word grid
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -61,19 +74,23 @@ class MnemonicConfirmationView extends ConsumerWidget {
               ),
               itemCount: walletState.mnemonicWords?.length ?? 0,
               itemBuilder: (context, index) {
-                final isSelected =
-                    walletState.selectedWordIndices?.contains(index) ?? false;
+                final isSelected = walletState.selectedWordIndices?.contains(index) ?? false;
+                final isNextInSequence = walletState.selectedWordIndices?.length == 
+                    walletState.mnemonicWords?.indexOf(walletState.mnemonicWords![index] ?? '');
 
                 return GestureDetector(
-                  onTap: () {
-                    ref
-                        .read(mnemonicWalletProvider.notifier)
-                        .selectMnemonicWord(index);
+                  onTap: isSelected ? null : () {
+                    ref.read(mnemonicWalletProvider.notifier).selectMnemonicWord(index);
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.grey.shade200,
+                      color: isSelected 
+                          ? Colors.blue 
+                          : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
+                      border: !isSelected && isNextInSequence
+                          ? Border.all(color: Colors.blue, width: 2)
+                          : null,
                     ),
                     alignment: Alignment.center,
                     child: Text(
