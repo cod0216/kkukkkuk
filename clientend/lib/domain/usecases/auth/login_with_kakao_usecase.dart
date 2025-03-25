@@ -13,6 +13,7 @@ class LoginWithKakaoUseCase {
     try {
       // 1. Kakao OAuth
       final kakaoUser = await _oAuthRepository.kakaoLogin();
+      print('Kakao login successful: ${kakaoUser.id}');
 
       // 2. Create request
       final request = AuthenticateRequest(
@@ -23,10 +24,14 @@ class LoginWithKakaoUseCase {
         gender: kakaoUser.kakaoAccount?.gender?.toString().toLowerCase() ?? '',
         providerId: kakaoUser.id.toString(),
       );
+      print('Auth request created: ${request.email}');
 
       // 3. Authenticate with backend
-      return await _authRepository.authenticateWithKakao(request);
+      final response = await _authRepository.authenticateWithKakao(request);
+      print('Backend authentication successful');
+      return response;
     } catch (e) {
+      print('Failed to login with Kakao: $e');
       throw Exception('Failed to login with Kakao: $e');
     }
   }
