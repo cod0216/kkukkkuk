@@ -1,14 +1,14 @@
 import React from 'react';
 import { FaPaw, FaStethoscope } from 'react-icons/fa';
-import { Pet , Gender, TreatmentState } from '@/interfaces';
+import { Treatment , Gender, TreatmentState } from '@/interfaces';
 
 interface TreatmentHeaderProps {
-  pet: Pet;
+  treatment?: Treatment;
   getStateBadgeColor: (state: TreatmentState) => string;
   toggleTreatmentForm: () => void;
 }
 
-const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({ pet, getStateBadgeColor, toggleTreatmentForm }) => {
+const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({ treatment, getStateBadgeColor, toggleTreatmentForm }) => {
   return (
     <div className="bg-white p-5 rounded-lg border mb-6 flex">
       <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center border border-gray-200">
@@ -19,10 +19,13 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({ pet, getStateBadgeCol
       <div className="flex-1 ml-6">
         <div className="flex justify-between">
           <div className="flex gap-3 items-center">
-            <div className="text-xl font-bold text-gray-800">{pet.name}</div>
-            <div className={`text-xs px-2 py-0.5 rounded-full ${getStateBadgeColor(pet.state)}`}>
-              {pet.state}
-            </div>
+            <div className="text-xl font-bold text-gray-800">{treatment?.name}</div>
+            {
+              treatment && (<div className={`text-xs px-2 py-0.5 rounded-full ${getStateBadgeColor(treatment.state)}`}>
+              {treatment?.state}
+            </div>)
+              
+            }
           </div>
           <div className="flex gap-2 h-8">
             <button 
@@ -34,16 +37,16 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({ pet, getStateBadgeCol
           </div>
         </div>
         <div className="text-gray-600 text-sm text-base mt-1">
-          {pet.breed}
+          {treatment?.breedName}
         </div>
         <div className="flex justify-between">
           <div className="text-gray-500 text-sm mt-1">
-            {pet.gender === Gender.MALE ? '수컷' : '암컷'}, 
-            {pet.flagNeutered ? '중성화 완료' : '중성화 안함'} / 
-            {pet.age}세 / {pet.weight}kg
+            {treatment?.gender === Gender.MALE ? '수컷' : '암컷'}, 
+            {treatment?.flagNeutering ? '중성화 완료' : '중성화 안함'} / 
+            {treatment?.age}세 
           </div>
           <div className="mt-2 text-sm font-medium text-gray-600">
-            보호자: {pet.owner} · {pet.phone}
+            {/* 보호자: {treatment.owner} · {pet.phone} */}
           </div>
         </div>
       </div>

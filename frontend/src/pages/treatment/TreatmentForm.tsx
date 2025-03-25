@@ -1,9 +1,6 @@
 
 import React, { useState } from 'react';
-import { 
-  FaCamera, 
-  FaRegSave
-} from 'react-icons/fa';
+import {FaCamera, FaRegSave} from 'react-icons/fa';
 
 interface TreatmentFormProps {
   onSave: () => void;

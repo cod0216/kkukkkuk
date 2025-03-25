@@ -1,14 +1,12 @@
 import React from 'react';
-import { Treatment } from '@/interfaces';
-
-
+import { BlockChainTreatment } from '@/interfaces';
 
 interface TreatmentHistoryProps {
-  treatments: Treatment[]
+  treatments: BlockChainTreatment[]
 }
 
 
-const TreatmentHistory: React.FC<TreatmentHistoryProps> = ({treatments }) => {
+const TreatmentHistory: React.FC<TreatmentHistoryProps> = ({ treatments }) => {
   return (
     <div className="flex gap-5">
             <div className="flex-1">

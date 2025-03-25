@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import PetListItem from '@/pages/treatment/PetListItem';
-import { TreatmentState } from '@/interfaces/treatment';
-import { Pet } from '@/interfaces/pet';
+import { Treatment, TreatmentState } from '@/interfaces';
 
 interface SidebarProps {
-    pets: Pet[];
+    treatments: Treatment[];
     selectedPetIndex : number;
     setSelectedPetIndex: (index : number) => void
     getStateBadgeColor: (state: TreatmentState) => string;
@@ -14,7 +13,7 @@ interface SidebarProps {
 }
 
 const TreatmentSidebar: React.FC<SidebarProps> = ({
-    pets,
+    treatments,
     selectedPetIndex,
     setSelectedPetIndex,
     getStateBadgeColor,
@@ -100,10 +99,10 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
 
         {/* 동물 목록 List */}
         <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-280px)]">
-          {pets.map((pet, index) => (
+          {treatments.map((treatment, index) => (
             <PetListItem
-              key={pet.id}
-              pet={pet}
+              key={treatment.id}
+              treatment={treatment}
               isSelected={selectedPetIndex === index}
               onSelect={() => setSelectedPetIndex(index)}
               getStateColor={getStateColor}
