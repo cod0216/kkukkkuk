@@ -1,10 +1,14 @@
-// -----------------로그인 Interface-------------------
-
+/**
+ * Login Request Interface
+ */
 export interface LoginRequest {
   account: string;
   password: string;
 }
 
+/**
+ * Login Response Interface
+ */
 export interface LoginResponse {
   hospital: {
     id: number;
@@ -12,37 +16,27 @@ export interface LoginResponse {
     account: string;
     name: string;
   };
-  tokens: {
-    access_token: string;
-    refresh_token: string;
-  };
+  tokens: TokensResponse;
 }
 
-// 토큰 재발급 요청 및 응답 인터페이스
-export interface RefreshTokenRequest {
-  refresh_token: string;
-}
-
+/**
+ * Token Response Interface
+ */
 export interface TokensResponse {
   access_token: string;
   refresh_token: string;
 }
 
-export interface RefreshTokenResponse extends ApiResponse<TokensResponse> {
-  data?: TokensResponse;
+/**
+ * Token Reissue Response Interface
+ */
+export interface RefreshTokenRequest {
+  refresh_token: string;
 }
 
-// -----------------회원가입 Interface-------------------
-
-// 공통 API 응답 인터페이스
-export interface ApiResponse<T = any> {
-  status: "SUCCESS" | "FAILURE";
-  message: string;
-  data?: T;
+/**
+ * Auth State Interface
+ */
+export interface AuthState {
+  access_token: string | null;
 }
-
-// 계정 중복 확인 응답 인터페이스
-export interface AccountCheckResponse extends ApiResponse<boolean> {}
-
-// 라이센스 중복 확인 응답 인터페이스
-export interface LicenseCheckResponse extends ApiResponse<boolean> {}

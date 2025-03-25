@@ -1,18 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-
-@font-face {
-  font-family: "Pretendard";
-  src: url("./styles/fonts/PretendardVariable.ttf");
-}
-
-* {
-  font-family: "Pretendard";
-}
-
-/* :root {
+:root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -79,4 +65,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-} */
+}
