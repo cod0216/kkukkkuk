@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/pet_controller.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/providers/main/pet_provider.dart';
+import 'package:kkuk_kkuk/providers/pet/pet_provider.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/add_pet_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/add_circle_icon.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/pet_carousel.dart';

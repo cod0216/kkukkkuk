@@ -1,26 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/services/pet_service.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 
 /// 반려동물 등록 단계
 enum PetRegisterStep {
-  info, // 기본 정보 입력
-  image, // 이미지 업로드
-  completed, // 등록 완료
+  info, // 기본 정보 입력 단계
+  image, // 이미지 등록 단계
+  completed, // 등록 완료 단계
 }
 
 /// 반려동물 등록 상태 관리 클래스
 class PetRegisterState {
-  final PetRegisterStep currentStep; // 현재 등록 단계
-  final Pet? pet; // 등록할 반려동물 정보
-  final bool isLoading; // 로딩 상태
-  final String? error; // 에러 메시지
-
-  // TODO: 이미지 업로드 상태 추가
-  // TODO: 등록 진행률 상태 추가
-  // TODO: 입력값 유효성 검사 상태 추가
-  // TODO: 임시 저장 기능 추가
-  // TODO: 등록 히스토리 관리 추가
+  final PetRegisterStep currentStep;
+  final Pet? pet;
+  final bool isLoading;
+  final String? error;
 
   PetRegisterState({
     this.currentStep = PetRegisterStep.info,
@@ -29,7 +25,6 @@ class PetRegisterState {
     this.error,
   });
 
-  /// 상태 복사 메서드
   PetRegisterState copyWith({
     PetRegisterStep? currentStep,
     Pet? pet,
@@ -47,9 +42,11 @@ class PetRegisterState {
 
 /// 반려동물 등록 상태 관리 노티파이어
 class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
-  final PetService _petService;
+  final GetBreedsUseCase _getBreedsUseCase;
+  final RegisterPetUseCase _registerPetUseCase;
 
-  PetRegisterNotifier(this._petService) : super(PetRegisterState());
+  PetRegisterNotifier(this._getBreedsUseCase, this._registerPetUseCase)
+    : super(PetRegisterState());
 
   /// 반려동물 기본 정보 설정
   void setBasicInfo({
@@ -60,70 +57,106 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
     String? gender,
     bool? flagNeutering,
   }) {
-    final pet = Pet(
+    final currentPet =
+        state.pet ??
+        Pet(
+          name: '',
+          gender: '',
+          breedId: '',
+          breedName: '',
+          age: '',
+          species: '',
+        );
+
+    final updatedPet = currentPet.copyWith(
       name: name,
-      gender: gender ?? 'MALE',
-      breedId: '',
-      breedName: breed ?? '',
-      age: age != null ? '$age세' : '',
-      species: species ?? '',
-      flagNeutering: flagNeutering ?? false,
+      species: species,
+      breedId: breed,
+      breedName: breed,
+      age: age != null ? '$age세' : null,
+      gender: gender,
+      flagNeutering: flagNeutering,
     );
 
-    state = state.copyWith(pet: pet);
+    state = state.copyWith(pet: updatedPet);
   }
 
   /// 다음 등록 단계로 이동
   void moveToNextStep() {
-    switch (state.currentStep) {
+    final currentStep = state.currentStep;
+    PetRegisterStep nextStep;
+
+    switch (currentStep) {
       case PetRegisterStep.info:
-        state = state.copyWith(currentStep: PetRegisterStep.image);
+        nextStep = PetRegisterStep.image;
         break;
       case PetRegisterStep.image:
-        state = state.copyWith(currentStep: PetRegisterStep.completed);
+        nextStep = PetRegisterStep.completed;
         break;
       case PetRegisterStep.completed:
-        // 이미 마지막 단계
-        break;
+        return; // 마지막 단계
     }
+
+    state = state.copyWith(currentStep: nextStep);
   }
 
   /// 이전 등록 단계로 이동
   void moveToPreviousStep() {
-    switch (state.currentStep) {
+    final currentStep = state.currentStep;
+    PetRegisterStep previousStep;
+
+    switch (currentStep) {
       case PetRegisterStep.info:
-        // 이미 첫 단계
-        break;
+        return; // 첫 단계
       case PetRegisterStep.image:
-        state = state.copyWith(currentStep: PetRegisterStep.info);
+        previousStep = PetRegisterStep.info;
         break;
       case PetRegisterStep.completed:
-        state = state.copyWith(currentStep: PetRegisterStep.image);
+        previousStep = PetRegisterStep.image;
         break;
     }
+
+    state = state.copyWith(currentStep: previousStep);
   }
 
   /// 동물 종류 목록 조회
-  Future<List<String>> getSpecies() {
-    return _petService.getBreeds(null);
+  Future<List<String>> getSpecies() async {
+    // 임시 데이터 (실제로는 API 호출 필요)
+    return ['강아지', '고양이'];
   }
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(String species) {
-    return _petService.getBreeds(species);
+  Future<List<String>> getBreeds(String species) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final breeds = await _getBreedsUseCase.execute(species);
+      state = state.copyWith(isLoading: false);
+      return breeds;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: '품종 목록을 불러오는데 실패했습니다: ${e.toString()}',
+      );
+      return [];
+    }
   }
 
-  /// 반려동물 등록
+  /// 반려동물 등록 처리
   Future<void> registerPet() async {
-    if (state.pet == null) return;
+    if (state.pet == null) {
+      state = state.copyWith(error: '등록할 반려동물 정보가 없습니다.');
+      return;
+    }
 
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      await _petService.registerPet(state.pet!);
+      await _registerPetUseCase.execute(state.pet!);
       state = state.copyWith(
         isLoading: false,
         currentStep: PetRegisterStep.completed,
+        // pet: null, // 완료 화면에서 이름을 표시하기 위해 유지
       );
     } catch (e) {
       state = state.copyWith(
@@ -142,6 +175,8 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
 /// 반려동물 등록 프로바이더
 final petRegisterProvider =
     StateNotifierProvider<PetRegisterNotifier, PetRegisterState>((ref) {
-      final petService = ref.watch(petServiceProvider);
-      return PetRegisterNotifier(petService);
+      final getBreedsUseCase = ref.watch(getBreedsUseCaseProvider);
+      final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
+
+      return PetRegisterNotifier(getBreedsUseCase, registerPetUseCase);
     });
