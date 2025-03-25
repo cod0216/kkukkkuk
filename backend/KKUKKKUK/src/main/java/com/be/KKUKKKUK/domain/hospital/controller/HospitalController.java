@@ -9,6 +9,10 @@ import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
 import com.be.KKUKKKUK.domain.treatment.TreatState;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +33,9 @@ import org.springframework.web.bind.annotation.*;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.20          haelim           진료 기록 관련 api 추가 <br>
+ * 25.03.22          haelim           swagger 작성 <br>
  */
+@Tag(name = "병원 API", description = "병원 정보 관리, 병원 소속 수의사, 병원의 진료 기록 등을 관리하는 API입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/hospitals")
@@ -43,6 +49,10 @@ public class HospitalController {
      * @param authorizationNumber 조회할 인허가 번호
      * @return 조회된 병원 정보
      */
+    @Operation(summary = "인허가 번호로 병원 조회", description = "인허가 번호를 통해 병원 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/authorization-number/{authorizationNumber}")
     public ResponseEntity<?> getHospitalByAuthorizationNumber(
             @PathVariable String authorizationNumber) {
@@ -54,6 +64,10 @@ public class HospitalController {
      * @param name 조회할 동물병원 이름
      * @return 조회된 병원 정보
      */
+    @Operation(summary = "병원 이름으로 조회", description = "이름을 통해 병원 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/name/{name}")
     public ResponseEntity<?> getHospitalsByName(
             @PathVariable String name) {
@@ -65,6 +79,10 @@ public class HospitalController {
      * @param account 조회할 계정
      * @return 사용 가능 여부 true / false
      */
+    @Operation(summary = "계정 사용 가능 여부 확인", description = "해당 계정이 사용 가능한지 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/account/{account}")
     public ResponseEntity<?> checkAccountAvailable(@PathVariable String account) {
         Boolean flagAvailable = hospitalService.checkAccountAvailable(account);
@@ -76,6 +94,10 @@ public class HospitalController {
      * @param hospitalDetails 인증된 병원 계정 정보
      * @return 병원의 상세 정보
      */
+    @Operation(summary = "내 병원 정보 조회", description = "현재 로그인한 병원의 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/me")
     public ResponseEntity<?> getHospitalInfoMine(@AuthenticationPrincipal HospitalDetails hospitalDetails) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
@@ -88,6 +110,10 @@ public class HospitalController {
      * @param request 수정할 동물병원의 정보 요정
      * @return 수정된 동물병원의 정보 결과
      */
+    @Operation(summary = "내 병원 정보 수정", description = "현재 로그인한 병원의 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공")
+    })
     @PatchMapping("/me")
     public ResponseEntity<?> updateHospitalInfoMine(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
@@ -101,6 +127,10 @@ public class HospitalController {
      * @param hospitalDetails 인증된 병원 계정 정보
 -     * @return 성공 여부
      */
+    @Operation(summary = "병원에 수의사 등록", description = "현재 로그인한 병원에 새로운 수의사를 등록합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "등록 성공")
+    })
     @PostMapping("/me/doctors")
     public ResponseEntity<?> registerDoctorOnHospital(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,
@@ -116,6 +146,10 @@ public class HospitalController {
      * @param hospitalDetails 인증된 병원 계정 정보
      * @return 의사 목록
      */
+    @Operation(summary = "병원의 모든 수의사 조회", description = "현재 로그인한 병원에 등록된 수의사 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/me/doctors")
     public ResponseEntity<?> getAllDoctorsOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
@@ -160,7 +194,7 @@ public class HospitalController {
      * @param request 진료 추가 요청
      * @return 등록된 진료 정보
      */
-    @PostMapping("/{hospitalId}/treatments/{petId}")
+    //@PostMapping("/{hospitalId}/treatments/{petId}")
     public ResponseEntity<?> registerTreatmentOnHospital(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
             @PathVariable Integer hospitalId,
@@ -180,6 +214,10 @@ public class HospitalController {
      * @param petId 필터링할 반려동물 ID
      * @return 조회된 진료 기록 내역
      */
+    @Operation(summary = "병원의 진료 기록 조회", description = "현재 로그인한 병원의 진료 기록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/me/treatments")
     public ResponseEntity<?> getTreatments(
             @AuthenticationPrincipal HospitalDetails hospitalDetails,

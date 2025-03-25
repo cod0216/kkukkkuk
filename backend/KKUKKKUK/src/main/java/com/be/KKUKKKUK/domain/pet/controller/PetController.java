@@ -5,6 +5,8 @@ import com.be.KKUKKKUK.domain.pet.dto.request.PetUpdateRequest;
 import com.be.KKUKKKUK.domain.pet.service.PetComplexService;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +22,9 @@ import org.springframework.web.bind.annotation.*;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.19          haelim           최초 생성, 반려동물 조회, 수정, 삭제 api 작성<br>
+ * 25.03.22          haelim           swagger 작성<br>
  */
+@Tag(name = "반려동물 API", description = "반려동물 정보를 조회, 수정, 삭제할 수 있는 API입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pets")
@@ -34,6 +38,7 @@ public class PetController {
      * @param petId 조회할 반려동물 ID
      * @return 조회된 반려동물 정보
      */
+    @Operation(summary = "반려동물 조회", description = "반려동물 ID를 이용하여 정보를 조회합니다.")
     @GetMapping("/{petId}")
     public ResponseEntity<?> getPetInfoByPetId(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
@@ -48,6 +53,7 @@ public class PetController {
      * @param request 반려동물 정보 수정 요청
      * @return 수정된 반려동물 정보
      */
+    @Operation(summary = "반려동물 수정", description = "반려동물 정보를 수정합니다.")
     @PatchMapping("/{petId}")
     public ResponseEntity<?> updatePet(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
@@ -63,6 +69,7 @@ public class PetController {
      * @param ownerDetails 인증된 보호자 계정
      * @param petId 수정할 반려동물 ID
      */
+    @Operation(summary = "반려동물 삭제", description = "반려동물을 지갑에서 삭제합니다.")
     @DeleteMapping("/{petId}")
     public ResponseEntity<?> deletePet(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
