@@ -81,6 +81,7 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
       final generateKoreanMnemonicUseCase = ref.read(
         generateKoreanMnemonicUseCaseProvider,
       );
+
       final mnemonicWords = await generateKoreanMnemonicUseCase.execute(
         strength: 128,
       ); // 12단어
@@ -139,10 +140,21 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
       return;
     }
 
-    state = state.copyWith(status: MnemonicWalletStatus.creatingWallet);
+    try {
+      // 니모닉 안전하게 저장
+      final saveMnemonicUseCase = ref.read(saveMnemonicUseCaseProvider);
+      await saveMnemonicUseCase.execute(mnemonic);
 
-    // 지갑 생성 및 등록 진행
-    await createAndRegisterWallet(mnemonic);
+      state = state.copyWith(status: MnemonicWalletStatus.creatingWallet);
+
+      // 지갑 생성 및 등록 진행
+      await createAndRegisterWallet(mnemonic);
+    } catch (e) {
+      state = state.copyWith(
+        status: MnemonicWalletStatus.error,
+        error: '니모닉 저장에 실패했습니다: $e',
+      );
+    }
   }
 
   /// 지갑 생성 및 등록

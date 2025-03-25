@@ -4,10 +4,9 @@ class ValidateKoreanMnemonicUseCase {
   bool execute(String sentence) {
     try {
       Mnemonic.fromSentence(sentence, Language.korean);
-      print('Mnemonic is valid');
       return true;
     } catch (e) {
-      print('Mnemonic is invalid: $e');
+      print('ValidateKoreanMnemonicUseCase.execute: $e');
       return false;
     }
   }
