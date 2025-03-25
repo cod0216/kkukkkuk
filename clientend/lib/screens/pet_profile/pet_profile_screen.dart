@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/medical_record_query_controller.dart';
-import 'package:kkuk_kkuk/models/pet_model.dart';
-import 'package:kkuk_kkuk/providers/medical_record/medical_record_query_provider.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/providers/pet/pet_medical_record_provider.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/empty_medical_records.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_card.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/pet_profile_header.dart';

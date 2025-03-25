@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/models/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
 
 /// 최근 진료일 정보를 표시하는 위젯
 class LastTreatmentDate extends StatelessWidget {

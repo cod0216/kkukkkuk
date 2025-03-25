@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/providers/pet_register/pet_register_provider.dart';
+import 'package:kkuk_kkuk/providers/pet/pet_register_provider.dart';
 
 /// 반려동물 등록 프로세스를 관리하는 컨트롤러
 class PetRegisterController {

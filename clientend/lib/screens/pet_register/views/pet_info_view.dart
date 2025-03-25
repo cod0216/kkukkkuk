@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/pet_register_controller.dart';
-import 'package:kkuk_kkuk/providers/pet_register/pet_register_provider.dart';
+import 'package:kkuk_kkuk/providers/pet/pet_register_provider.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_dropdown_field.dart';
 import 'package:kkuk_kkuk/screens/pet_register/widgets/pet_gender_selector.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_text_field.dart';

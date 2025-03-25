@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/models/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_image.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_info.dart';
 

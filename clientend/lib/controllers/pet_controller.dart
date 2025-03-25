@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/providers/main/pet_provider.dart';
-import 'package:kkuk_kkuk/models/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/providers/pet/pet_provider.dart';
 
 /// 반려동물 관련 작업을 처리하는 컨트롤러
 class PetController {
@@ -53,41 +53,6 @@ class PetController {
           gender: gender,
           flagNeutering: flagNeutering,
         );
-  }
-
-  /// 현재 반려동물 정보 초기화
-  void resetCurrentPet() {
-    ref.read(petProvider.notifier).resetCurrentPet();
-  }
-
-  /// 동물 종류 목록 조회
-  Future<List<String>> getSpecies() {
-    return ref.read(petProvider.notifier).getSpecies();
-  }
-
-  /// 품종 목록 조회
-  Future<List<String>> getBreeds(String species) {
-    return ref.read(petProvider.notifier).getBreeds(species);
-  }
-
-  /// 반려동물 상태 조회
-  PetState getPetState() {
-    return ref.read(petProvider);
-  }
-
-  /// 반려동물 존재 여부 확인
-  bool hasPets() {
-    return ref.read(petProvider).pets.isNotEmpty;
-  }
-
-  /// 에러 메시지 조회
-  String? getErrorMessage() {
-    return ref.read(petProvider).error;
-  }
-
-  /// 로딩 상태 조회
-  bool isLoading() {
-    return ref.read(petProvider).isLoading;
   }
 }
 
