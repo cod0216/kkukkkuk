@@ -11,6 +11,22 @@ import {
 } from "@/utils/iDBUtil";
 import { ResponseStatus } from "@/types";
 
+/**
+ * @module Login
+ * @file Login.tsx
+ * @author eunchang
+ * @date 2025-03-26
+ * @description 로그인 페이지 모듈 입니다.
+ *
+ * 이 모듈은 로그인 폼을 보여주고 로그인을 수행합니다.
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        eunchang         최초 생성
+ */
+
+
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

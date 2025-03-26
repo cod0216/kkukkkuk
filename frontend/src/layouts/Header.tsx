@@ -12,6 +12,22 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ResponseStatus } from "@/types";
 
+/**
+ * @module Header
+ * @file Header.tsx
+ * @author eunchang
+ * @date 2025-03-26
+ * @description 상단에 헤더를 표시하는 모듈입니다.
+ *
+ * 이 모듈은 해더를 보여줍니다.
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        haelim           최초 생성
+ * 2025-03-26        eunchang         로그아웃 버튼 생성
+ */
+
 const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

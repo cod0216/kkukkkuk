@@ -4,6 +4,21 @@ import { findPassword } from "@/services/authService"; // 경로에 맞게 수�
 import { ResponseStatus } from "@/types";
 import { FormEvent } from "react";
 
+/**
+ * @module FindPw
+ * @file FindPw.tsx
+ * @author eunchang
+ * @date 2025-03-26
+ * @description 비밀번호 임시 발급 페이지 모듈 입니다.
+ *
+ * 이 모듈은 임시 비밀번호를 발급해주는 페이지 입니다.
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        eunchang         최초 생성
+ */
+
 const FindPw = () => {
   const [account, setAccount] = useState("");
   const [email, setEmail] = useState("");

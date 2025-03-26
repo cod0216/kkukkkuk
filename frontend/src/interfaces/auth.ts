@@ -1,6 +1,21 @@
 import { HospitalDetail } from "./hospital";
 
 /**
+ * @module auth
+ * @file auth.tsx
+ * @author eunchang
+ * @date 2025-03-26
+ * @description 계정에 관한 인터페이스를 정의하는 모듈입니다.
+ *
+ * 계정 관련 인터페이스들을 정의합니다.
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        eunchang         최초 생성
+ */
+
+/**
  * Login Request Interface
  */
 export interface LoginRequest {
