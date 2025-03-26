@@ -1,16 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaPaw } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { logout as logoutApi } from "@/services/authService";
-import { clearAccessToken } from "@/redux/store";
-import { removeRefreshToken } from "@/utils/iDBUtil";
+import { logout as logoutApi, refreshToken } from "@/services/authService";
+import { setAccessToken, clearAccessToken } from "@/redux/store";
+import {
+  getRefreshToken,
+  setRefreshtoken,
+  removeRefreshToken,
+} from "@/utils/iDBUtil";
 import { useNavigate } from "react-router-dom";
 
 const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const hospital = useSelector((state: RootState) => state.auth.hospital);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  const [refreshAttempted, setRefreshAttempted] = useState(false);
+
+  // 만약 accessToken이 없으면 IndexedDB에서 refreshToken을 꺼내서 재발급 시도
+  useEffect(() => {
+    const checkAndRefresh = async () => {
+      if (!accessToken && !refreshAttempted) {
+        const storedRefreshToken = await getRefreshToken();
+        if (storedRefreshToken) {
+          try {
+            const response = await refreshToken({
+              refreshToken: storedRefreshToken,
+            });
+            if (response.status === "SUCCESS" && response.data) {
+              // refreshToken API 응답 구조에 맞게 새 토큰을 구조 분해합니다.
+              const {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+              } = response.data;
+              dispatch(setAccessToken(newAccessToken));
+              // hospital 정보는 로그인 시 설정되었거나 별도 로직으로 처리 가능하므로 여기선 토큰만 업데이트
+              await setRefreshtoken(newRefreshToken);
+            } else {
+              dispatch(clearAccessToken());
+              await removeRefreshToken();
+              navigate("/");
+            }
+          } catch (error) {
+            console.error("헤더에서 토큰 재발급 실패", error);
+            dispatch(clearAccessToken());
+            await removeRefreshToken();
+            navigate("/");
+          } finally {
+            setRefreshAttempted(true);
+          }
+        } else {
+          dispatch(clearAccessToken());
+          navigate("/");
+        }
+      }
+    };
+
+    checkAndRefresh();
+  }, [accessToken, dispatch, navigate, refreshAttempted]);
 
   const handleLogout = async () => {
     try {

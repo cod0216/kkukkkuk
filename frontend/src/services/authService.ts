@@ -30,11 +30,15 @@ export const logout = async (): Promise<void> => {
 /**
  * 토큰 재발행 요청 API 입니다.
  */
-export const refreshToken = async (
-  refreshToken: RefreshTokenRequest
-): Promise<ApiResponse<LoginResponse>> => {
-  const response = await apiClient.post<ApiResponse<LoginResponse>>(
-    "/refresh",
+export const refreshToken = async ({
+  refreshToken,
+}: RefreshTokenRequest): Promise<
+  ApiResponse<{ accessToken: string; refreshToken: string }>
+> => {
+  const response = await apiClient.post<
+    ApiResponse<{ accessToken: string; refreshToken: string }>
+  >(
+    `${DOMAIN_URL}/refresh`,
     {},
     {
       headers: {

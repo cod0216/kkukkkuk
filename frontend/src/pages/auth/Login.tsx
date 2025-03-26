@@ -4,7 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "@/services/authService";
 import { setAccessToken, setHospital } from "@/redux/store";
-import { setRefreshtoken } from "@/utils/iDBUtil";
+import {
+  setRefreshtoken,
+  getRefreshToken,
+  removeRefreshToken,
+} from "@/utils/iDBUtil";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -31,6 +35,11 @@ const Login = () => {
         // accessToken은 redux RefreshToken은 indexedDB에 저장
         dispatch(setAccessToken(accessToken));
         dispatch(setHospital(hospital));
+
+        const existingRefreshToken = await getRefreshToken();
+        if (existingRefreshToken) {
+          await removeRefreshToken();
+        }
         await setRefreshtoken(refreshToken);
 
         navigate("/TreatmentMain");
@@ -65,7 +74,7 @@ const Login = () => {
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="계정"
+                placeholder="아이디"
               />
             </div>
             <div>
