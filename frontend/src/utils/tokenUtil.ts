@@ -6,5 +6,5 @@ import { store } from "@/redux/store";
  */
 export const getAccessToken = (): string | null => {
   const state = store.getState();
-  return state.auth.access_token;
+  return state.auth.accessToken;
 };

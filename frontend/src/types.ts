@@ -39,7 +39,7 @@ export interface ErrorResponse extends ApiResponse<null> {
  * Storage Key Eunm
  */
 export enum StorageKey {
-  ACCESS_TOKEN = "accesstoken",
+  ACCESSTOKEN = "accesstoken",
   REFRESHTOKEN = "refreshtoken",
   USER = "user",
   HOSPITAL = "hospital",

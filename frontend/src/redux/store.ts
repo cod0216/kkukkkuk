@@ -1,11 +1,12 @@
 import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AuthState } from "@/interfaces/index";
+import { AuthState, HospitalDetail } from "@/interfaces/index";
 
 /**
  * AccessToken Inital Status
  */
 const initialAuthState: AuthState = {
-  access_token: null,
+  accessToken: null,
+  hospital: null,
 };
 
 /**
@@ -16,16 +17,20 @@ const authSlice = createSlice({
   initialState: initialAuthState,
   reducers: {
     setAccessToken: (state, action: PayloadAction<string>) => {
-      state.access_token = action.payload;
+      state.accessToken = action.payload;
     },
 
     clearAccessToken: (state) => {
-      state.access_token = null;
+      state.accessToken = null;
+    },
+    setHospital: (state, action: PayloadAction<HospitalDetail>) => {
+      state.hospital = action.payload;
     },
   },
 });
 
-export const { setAccessToken, clearAccessToken } = authSlice.actions;
+export const { setAccessToken, clearAccessToken, setHospital } =
+  authSlice.actions;
 
 /**
  * store create and auth reducer registering

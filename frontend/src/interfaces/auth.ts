@@ -1,3 +1,5 @@
+import { HospitalDetail } from "./hospital";
+
 /**
  * Login Request Interface
  */
@@ -39,4 +41,5 @@ export interface RefreshTokenRequest {
  */
 export interface AuthState {
   accessToken: string | null;
+  hospital: HospitalDetail | null;
 }

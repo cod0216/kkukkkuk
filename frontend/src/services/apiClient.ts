@@ -1,7 +1,9 @@
 import axios, { AxiosError } from "axios";
 import { getAccessToken } from "@/utils/tokenUtil";
+import { convertKeysToCamelCase } from "@/utils/upper";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL;
+// const API_BASE_URL = "http://localhost:8080";
 
 /**
  * API Client instance
@@ -29,7 +31,16 @@ apiClient.interceptors.request.use(
 /**
  * Reseponse Interceptor
  */
+apiClient.interceptors.response.use(
+  (response) => {
+    if (response.data) {
+      response.data = convertKeysToCamelCase(response.data);
+    }
+    return response;
+  },
+  (error: AxiosError) => Promise.reject(error)
+);
 
-// 토큰 재발급 로직 구현 -> IndexedDB 완료 후 구현
+// TODO: 토큰 재발급 로직 구현 -> IndexedDB 완료 후 구현
 
 export default apiClient;

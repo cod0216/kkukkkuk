@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { FaPaw } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { login } from "@/services/authService"
-import { setAccessToken } from '@/redux/store';
-import { setRefreshtoken } from '@/utils/iDBUtil';
+import React, { useState } from "react";
+import { FaPaw } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "@/services/authService";
+import { setAccessToken, setHospital } from "@/redux/store";
+import { setRefreshtoken } from "@/utils/iDBUtil";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -25,10 +25,12 @@ const Login = () => {
       if (response.status === "SUCCESS" && response.data) {
         const {
           tokens: { accessToken, refreshToken },
+          hospital,
         } = response.data;
 
         // accessToken은 redux RefreshToken은 indexedDB에 저장
         dispatch(setAccessToken(accessToken));
+        dispatch(setHospital(hospital));
         await setRefreshtoken(refreshToken);
 
         navigate("/TreatmentMain");
@@ -40,7 +42,6 @@ const Login = () => {
     }
     setLoading(false);
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -89,7 +90,10 @@ const Login = () => {
                 type="checkbox"
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
                 로그인 상태 유지
               </label>
             </div>
@@ -104,13 +108,22 @@ const Login = () => {
             </button>
           </div>
           <div className="text-center flex justify-center space-x-4">
-          <Link to="/find-id" className="font-medium text-gray-500 hover:text-indigo-500">
+            <Link
+              to="/find-id"
+              className="font-medium text-gray-500 hover:text-indigo-500"
+            >
               아이디 찾기
             </Link>
-            <Link to="/find-password" className="font-medium text-gray-500 hover:text-indigo-500">
+            <Link
+              to="/find-password"
+              className="font-medium text-gray-500 hover:text-indigo-500"
+            >
               비밀번호 찾기
             </Link>
-            <Link to="/register" className="font-medium text-gray-500 hover:text-indigo-500">
+            <Link
+              to="/register"
+              className="font-medium text-gray-500 hover:text-indigo-500"
+            >
               병원 계정 등록
             </Link>
           </div>
