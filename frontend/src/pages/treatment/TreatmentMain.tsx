@@ -14,8 +14,10 @@ const TreatmentMain: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response: ApiResponse<TreatmentResponse> = await getTreatments({ expired: false });
-      if(response.status === ResponseStatus.SUCCESS && response.data ){
+      const response: ApiResponse<TreatmentResponse> = await getTreatments({ expired: false, petId : "", state : ""});
+      console.log("response : ", response);
+      
+      if(response.status === ResponseStatus.SUCCESS && response.data?.treatments){
         setTreatments(response.data.treatments);
       }
     };
@@ -55,7 +57,7 @@ const TreatmentMain: React.FC = () => {
   };
 
   const handleSaveTreatment = () => {
-    // 저장 로직 추가 가능
+    // 저장 로직 추가
   };
 
   return (
@@ -80,8 +82,7 @@ const TreatmentMain: React.FC = () => {
         {isFormVisible ? (
             <TreatmentForm onSave={handleSaveTreatment} />
         ) : (
-              <></>
-              // <TreatmentHistory treatments={treatments[selectedPetIndex].treatments} />
+              <TreatmentHistory/>
         )}
       
       </div>
