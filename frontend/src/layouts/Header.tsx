@@ -10,6 +10,7 @@ import {
   removeRefreshToken,
 } from "@/utils/iDBUtil";
 import { useNavigate } from "react-router-dom";
+import { ResponseStatus } from "@/types";
 
 const Header: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const Header: React.FC = () => {
             const response = await refreshToken({
               refreshToken: storedRefreshToken,
             });
-            if (response.status === "SUCCESS" && response.data) {
+            if (response.status === ResponseStatus.SUCCESS && response.data) {
               // refreshToken API 응답 구조에 맞게 새 토큰을 구조 분해합니다.
               const {
                 accessToken: newAccessToken,
@@ -77,7 +78,7 @@ const Header: React.FC = () => {
           <FaPaw className="text-primary-500 text-2xl mr-2" />
           <div className="text-xl font-bold text-primary-500">KKUK KKUK</div>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <div className="text-sm font-medium">
             {hospital ? hospital.name : "사용자"}
           </div>

@@ -9,6 +9,7 @@ import {
   getRefreshToken,
   removeRefreshToken,
 } from "@/utils/iDBUtil";
+import { ResponseStatus } from "@/types";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ const Login = () => {
 
     try {
       const response = await login({ account, password });
-      if (response.status === "SUCCESS" && response.data) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         const {
           tokens: { accessToken, refreshToken },
           hospital,
@@ -54,13 +55,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md text-center w-full space-y-8">
+      <div className="max-w-sm text-center w-full space-y-8">
         <div className="flex flex-col items-center">
           <div className="flex items-center text-2xl justify-center">
             <FaPaw className="text-primary-500 text-2xl mr-2" />
             <div className="text-3xl font-bold text-primary-500">KKUK KKUK</div>
           </div>
-          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
@@ -91,6 +91,7 @@ const Login = () => {
               />
             </div>
           </div>
+          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
@@ -119,19 +120,19 @@ const Login = () => {
           <div className="text-center flex justify-center space-x-4">
             <Link
               to="/find-id"
-              className="font-medium text-gray-500 hover:text-indigo-500"
+              className="font-medium text-sm text-gray-500 hover:text-indigo-500"
             >
               아이디 찾기
             </Link>
             <Link
               to="/find-password"
-              className="font-medium text-gray-500 hover:text-indigo-500"
+              className="font-medium text-sm text-gray-500 hover:text-indigo-500"
             >
               비밀번호 찾기
             </Link>
             <Link
               to="/register"
-              className="font-medium text-gray-500 hover:text-indigo-500"
+              className="font-medium text-sm text-gray-500 hover:text-indigo-500"
             >
               병원 계정 등록
             </Link>

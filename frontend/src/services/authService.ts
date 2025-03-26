@@ -48,3 +48,14 @@ export const refreshToken = async ({
   );
   return response.data;
 };
+
+export const findPassword = async (data: {
+  account: string;
+  email: string;
+}): Promise<ApiResponse<null>> => {
+  const response = await request.post<null>(
+    `${DOMAIN_URL}/passwords/reset`,
+    data
+  );
+  return response;
+};
