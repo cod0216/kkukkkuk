@@ -21,7 +21,7 @@ import lombok.ToString;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.24          haelim           swagger, JsonNaming 설정<br>
- * 25.03.26          haelim           email 추가 <br>
+ * 25.03.26          haelim           email 추가, did blank 삭제 <br>
  */
 @Getter
 @ToString
@@ -43,7 +43,7 @@ public class HospitalSignupRequest {
     private Integer id;
 
     @Schema(description = "동물병원 DID", example = "hospital:0xexemplehospitaldid")
-    @NotBlank
+//    @NotBlank
     private String did;
 
     @Schema(description = "의사 이름", example = "김닥터")
