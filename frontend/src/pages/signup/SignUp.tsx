@@ -9,6 +9,7 @@
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        sangmuk         회원가입 페이지 구현
+ * 2025-03-26        sangmuk         비밀번호 유효성 검사 추가
  */
 
 import { useState } from "react"
@@ -24,6 +25,11 @@ const CHECK_ACCOUNT_DUPLICATE_ENDPOINT = '/api/hospitals/account'
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
   return emailRegex.test(email)
+}
+
+const validatePassword = (password: string): boolean => {
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&])[A-Za-z\d!@#$%^&]{6,20}$/
+  return passwordRegex.test(password)
 }
 
 function SignUp() {
@@ -46,6 +52,8 @@ function SignUp() {
   const [emailVerificationError, setEmailVerificationError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
 
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setSignUpRequestForm(prevData => ({...prevData, [name]: value}))
@@ -61,6 +69,10 @@ function SignUp() {
     if (name === 'account') {
       setIsAccountAvailable(false)
       setAccountError(null)
+    }
+
+    if (name === 'password') {
+      setPasswordError(null)
     }
   }
   
@@ -149,6 +161,11 @@ function SignUp() {
       return false
     }
     
+    if (!validatePassword(signUpRequestForm.password)) {
+      setPasswordError('비밀번호는 6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.')
+      return false
+    }
+
     if (!validateEmail(signUpRequestForm.email)) {
       setEmailError('올바른 이메일 주소를 입력해주세요.')
       return false
@@ -235,6 +252,7 @@ function SignUp() {
             value={signUpRequestForm.password} 
             required 
           />
+          {passwordError && <p className="text-secondary-500 text-sm mt-1">{passwordError}</p>}
         </div>
 
         <div className="mb-2">
