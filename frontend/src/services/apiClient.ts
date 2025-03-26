@@ -15,10 +15,13 @@ const apiClient = axios.create({
 });
 
 /**
- * Request interceptor
+ * 요청 인터셉터
  */
 apiClient.interceptors.request.use(
   (config) => {
+    if (config.url && config.url.includes("/api/auths/refresh")) {
+      return config;
+    }
     const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -29,7 +32,7 @@ apiClient.interceptors.request.use(
 );
 
 /**
- * Reseponse Interceptor
+ * 응답 인터셉터
  */
 apiClient.interceptors.response.use(
   (response) => {
@@ -40,7 +43,5 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError) => Promise.reject(error)
 );
-
-// TODO: 토큰 재발급 로직 구현 -> IndexedDB 완료 후 구현
 
 export default apiClient;
