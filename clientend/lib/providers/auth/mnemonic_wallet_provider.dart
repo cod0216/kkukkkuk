@@ -6,6 +6,7 @@ import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/wallet_usecase_prov
 /// 니모닉 지갑 생성 및 설정 단계
 enum MnemonicWalletStatus {
   initial, // 초기 상태
+  walletChoice, // 지갑 생성/복구 선택
   generatingMnemonic, // 니모닉 생성 중
   mnemonicGenerated, // 니모닉 생성 완료
   mnemonicConfirmation, // 니모닉 확인 중
@@ -102,10 +103,12 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
   /// 니모닉 단어 선택
   void selectMnemonicWord(int index) {
     if (state.selectedWordIndices == null) return;
-    if (state.selectedWordIndices!.contains(index)) return; // Prevent selecting same word twice
-    
+    if (state.selectedWordIndices!.contains(index))
+      return; // Prevent selecting same word twice
+
     // Only allow selection if it's the next word in sequence
-    if (state.selectedWordIndices!.length < (state.mnemonicWords?.length ?? 0)) {
+    if (state.selectedWordIndices!.length <
+        (state.mnemonicWords?.length ?? 0)) {
       final updatedIndices = List<int>.from(state.selectedWordIndices!);
       updatedIndices.add(index);
       state = state.copyWith(selectedWordIndices: updatedIndices);
@@ -114,8 +117,9 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
 
   /// Remove the last selected word
   void removeLastSelectedWord() {
-    if (state.selectedWordIndices == null || state.selectedWordIndices!.isEmpty) return;
-    
+    if (state.selectedWordIndices == null || state.selectedWordIndices!.isEmpty)
+      return;
+
     final updatedIndices = List<int>.from(state.selectedWordIndices!);
     updatedIndices.removeLast();
     state = state.copyWith(selectedWordIndices: updatedIndices);

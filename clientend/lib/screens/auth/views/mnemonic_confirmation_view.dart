@@ -52,8 +52,11 @@ class MnemonicConfirmationView extends ConsumerWidget {
                   ),
                   onDeleted: () {
                     // Remove the last selected word only
-                    if (index == (walletState.selectedWordIndices?.length ?? 0) - 1) {
-                      ref.read(mnemonicWalletProvider.notifier).removeLastSelectedWord();
+                    if (index ==
+                        (walletState.selectedWordIndices?.length ?? 0) - 1) {
+                      ref
+                          .read(mnemonicWalletProvider.notifier)
+                          .removeLastSelectedWord();
                     }
                   },
                 ),
@@ -74,23 +77,31 @@ class MnemonicConfirmationView extends ConsumerWidget {
               ),
               itemCount: walletState.mnemonicWords?.length ?? 0,
               itemBuilder: (context, index) {
-                final isSelected = walletState.selectedWordIndices?.contains(index) ?? false;
-                final isNextInSequence = walletState.selectedWordIndices?.length == 
-                    walletState.mnemonicWords?.indexOf(walletState.mnemonicWords![index] ?? '');
+                final isSelected =
+                    walletState.selectedWordIndices?.contains(index) ?? false;
+                final isNextInSequence =
+                    walletState.selectedWordIndices?.length ==
+                    walletState.mnemonicWords?.indexOf(
+                      walletState.mnemonicWords![index],
+                    );
 
                 return GestureDetector(
-                  onTap: isSelected ? null : () {
-                    ref.read(mnemonicWalletProvider.notifier).selectMnemonicWord(index);
-                  },
+                  onTap:
+                      isSelected
+                          ? null
+                          : () {
+                            ref
+                                .read(mnemonicWalletProvider.notifier)
+                                .selectMnemonicWord(index);
+                          },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSelected 
-                          ? Colors.blue 
-                          : Colors.grey.shade200,
+                      color: isSelected ? Colors.blue : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
-                      border: !isSelected && isNextInSequence
-                          ? Border.all(color: Colors.blue, width: 2)
-                          : null,
+                      border:
+                          !isSelected && isNextInSequence
+                              ? Border.all(color: Colors.blue, width: 2)
+                              : null,
                     ),
                     alignment: Alignment.center,
                     child: Text(

@@ -24,6 +24,15 @@ class AuthController {
     }
   }
 
+  void handleNewWallet() {
+    ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
+  }
+
+  // TODO: Implement this method when adding wallet recovery
+  void handleWalletRecovery() {
+    // Will be implemented with wallet recovery feature
+  }
+
   /// 니모닉 지갑 생성 처리
   void handleMnemonicGeneration() {
     ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
