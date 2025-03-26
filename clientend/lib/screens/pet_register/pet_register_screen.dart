@@ -27,8 +27,9 @@ class _PetRegisterScreenState extends ConsumerState<PetRegisterScreen> {
 
   @override
   void dispose() {
-    // 화면 종료 시 상태 초기화
-    _controller.reset();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.reset();
+    });
     super.dispose();
   }
 
