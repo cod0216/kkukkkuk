@@ -19,6 +19,6 @@ export interface SignUpRequest {
   account: string
   password: string
   email: string
-  id: number
+  id: number | string
   doctorName: string
 }

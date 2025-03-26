@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import MainLayout from '@/layouts/MainLayout';
 import TreatmentMain from '@/pages/treatment/TreatmentMain';
+import SignUp from '@/pages/signup/SignUp';
 
 function App() {
   return (
@@ -9,7 +10,7 @@ function App() {
       <Route element={<MainLayout />}>
       <Route path="/" element={<TreatmentMain />} />
       <Route path="/treatment" element={<TreatmentMain />} />
-      
+      <Route path="/signup" element={<SignUp />} />
       </Route>
     </Routes>
   );
