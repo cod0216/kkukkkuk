@@ -8,10 +8,7 @@ class BlockchainService {
   static const String rpcUrl = 'https://rpc.ssafy-blockchain.com';
   static const String wsUrl = 'wss://ws.ssafy-blockchain.com';
   static const int chainId = 31221;
-  static const String didRegistryAddress =
-      '0xcA633ead33f46D3924F9918b2e0175fE1A9Ed3bA';
-  static const String sharingContractAddress =
-      '0xfe6aCF0A37532c3FE7e1B642c048Acf8983a7eDC';
+
   late final Web3Client _client;
   late final http.Client _httpClient;
   late final IOWebSocketChannel _webSocketChannel;

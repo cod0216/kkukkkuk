@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';
-import 'package:kkuk_kkuk/data/api/blockchain_service.dart';
+import 'package:kkuk_kkuk/domain/services/blockchain_service.dart';
 
 class PetRegistryContract {
   // SSAFY 블록체인에 배포된 동물 등록 컨트랙트 주소
   static const String contractAddress =
-      '0xcA633ead33f46D3924F9918b2e0175fE1A9Ed3bA';
+      '0xE3B7abcB7cdd4c483ee891757Bc827592b1B151b';
 
   final Web3Client _client;
   late final DeployedContract _contract;
