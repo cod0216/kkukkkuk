@@ -7,6 +7,7 @@ import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/mnemonic_generation_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/mnemonic_confirmation_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
@@ -73,6 +74,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       case AuthStep.walletSetup:
         title = '지갑 설정';
         break;
+      case AuthStep.networkConnection:
+        title = '네트워크 연결';
+        break;
       case AuthStep.completed:
         title = '인증 완료';
         break;
@@ -127,6 +131,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           case MnemonicWalletStatus.completed:
             return const LoadingIndicator();
         }
+
+      case AuthStep.networkConnection:
+        return NetworkConnectionView(controller: controller);
 
       case AuthStep.completed:
         return const LoadingIndicator();

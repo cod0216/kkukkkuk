@@ -43,7 +43,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       final hasWallet = response.data.wallet != null;
 
       if (hasWallet) {
-        ref.read(authCoordinatorProvider.notifier).completeAuth();
+        ref.read(authCoordinatorProvider.notifier).moveToNetworkConnection();
       } else {
         ref.read(mnemonicWalletProvider.notifier).reset();
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();

@@ -1,22 +1,20 @@
 import 'package:flutter/foundation.dart';
-import 'package:web3dart/web3dart.dart';
-import 'package:http/http.dart' as http;
-import 'package:web_socket_channel/io.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:kkuk_kkuk/domain/repositories/blockchain_repository_interface.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:web_socket_channel/io.dart';
 
-class BlockchainService {
+class BlockchainRepository implements IBlockchainRepository {
   static const String rpcUrl = 'https://rpc.ssafy-blockchain.com';
   static const String wsUrl = 'wss://ws.ssafy-blockchain.com';
   static const int chainId = 31221;
-  static const String didRegistryAddress =
-      '0xcA633ead33f46D3924F9918b2e0175fE1A9Ed3bA';
-  static const String sharingContractAddress =
-      '0xfe6aCF0A37532c3FE7e1B642c048Acf8983a7eDC';
+
   late final Web3Client _client;
   late final http.Client _httpClient;
   late final IOWebSocketChannel _webSocketChannel;
 
-  BlockchainService() {
+  BlockchainRepository() {
     _httpClient = http.Client();
     _webSocketChannel = IOWebSocketChannel.connect(wsUrl);
     _client = Web3Client(
@@ -26,8 +24,10 @@ class BlockchainService {
     );
   }
 
-  Web3Client get client => _client;
+  @override
+  Web3Client getClient() => _client;
 
+  @override
   Future<bool> isConnected() async {
     try {
       final clientVersion = await _client.getClientVersion();
@@ -39,11 +39,13 @@ class BlockchainService {
     }
   }
 
+  @override
   Future<EtherAmount> getBalance(String address) async {
     final ethAddress = EthereumAddress.fromHex(address);
     return await _client.getBalance(ethAddress);
   }
 
+  @override
   void dispose() {
     _client.dispose();
     _httpClient.close();
@@ -51,8 +53,8 @@ class BlockchainService {
   }
 }
 
-final blockchainServiceProvider = Provider<BlockchainService>((ref) {
-  final service = BlockchainService();
-  ref.onDispose(() => service.dispose());
-  return service;
+final blockchainRepositoryProvider = Provider<BlockchainRepository>((ref) {
+  final repository = BlockchainRepository();
+  ref.onDispose(() => repository.dispose());
+  return repository;
 });

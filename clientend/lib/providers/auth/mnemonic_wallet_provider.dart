@@ -204,8 +204,8 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
         walletId: registeredWallet.toJson()['id'] ?? 0,
       );
 
-      // 인증 완료 처리
-      ref.read(authCoordinatorProvider.notifier).completeAuth();
+      // 네트워크 연결 단계로 이동
+      ref.read(authCoordinatorProvider.notifier).moveToNetworkConnection();
     } catch (e) {
       state = state.copyWith(
         status: MnemonicWalletStatus.error,
