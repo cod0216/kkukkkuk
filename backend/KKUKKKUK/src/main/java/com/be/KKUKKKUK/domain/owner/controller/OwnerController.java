@@ -6,6 +6,8 @@ import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,10 @@ public class OwnerController {
      * @return 보호자 회원의 상세 정보
      */
     @Operation(summary = "프로필 조회", description = "현재 로그인한 계정의 프로필 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails) {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
@@ -51,6 +57,11 @@ public class OwnerController {
      * @return 변경된 보호자 회원의 상세 정보
      */
     @Operation(summary = "프로필 수정", description = "현재 로그인한 계정의 프로필 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     @PatchMapping("/me")
     public ResponseEntity<?> updateMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails, @RequestBody OwnerUpdateRequest request) {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
