@@ -7,6 +7,7 @@ import TreatmentHistory from "@/pages/treatment/TreatmentHistory";
 import { getTreatments } from "@/services/treatmentService";
 import { ApiResponse, ResponseStatus } from "@/types";
 
+
 const TreatmentMain: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [selectedPetIndex, setSelectedPetIndex] = useState(0);

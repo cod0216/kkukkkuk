@@ -1,8 +1,7 @@
 import React from 'react';
-import { BlockChainRecord } from '@/interfaces';
-
-
+import { BlockChainRecord} from '@/interfaces';
 const TreatmentHistory: React.FC = () => {
+
 
   const records: BlockChainRecord[] = [
     {
@@ -51,8 +50,15 @@ const TreatmentHistory: React.FC = () => {
       pictures: []
     }
   ];
+   
+  /** 병원 이름, TODO: 추후 Redux 연결 후 did 로 변경  */
+  const HOSPITAL_NAME = "서울 중앙 병원";  
+  const myRecords: BlockChainRecord[] = records.filter((record) => record.hospitalName === HOSPITAL_NAME);
+
   
-  
+
+
+
   return (
 
     
@@ -61,7 +67,7 @@ const TreatmentHistory: React.FC = () => {
               <h3 className="font-bold text-gray-800 m-1">우리 병원 기록</h3>
 
               <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-265px)]">
-              {records.map((record, idx) => (
+              {myRecords.map((record, idx) => (
                           <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow transition cursor-pointer">
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">

@@ -1,6 +1,9 @@
 
-import React, { useState } from 'react';
-import {FaCamera, FaRegSave} from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaCamera, FaRegSave} from 'react-icons/fa';
+import { Doctor } from '@/interfaces';
+import { getDoctors } from '@/services/doctorService';
+import { ApiResponse, ResponseStatus } from '@/types'
 
 interface TreatmentFormProps {
   onSave: () => void;
@@ -10,7 +13,24 @@ export const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave }) => {
   const [symptoms, setSymptoms] = useState('');
   const [prescriptionType, setPrescriptionType] = useState('');
   const [prescriptionDosage, setPrescriptionDosage] = useState('');
-
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+    
+  /**
+   * 의사 정보 조회 
+   */
+  useEffect(() => {
+    const fetchData = async () => {
+      const response: ApiResponse<Doctor[]> = await getDoctors();
+      console.log("Doctors : ", response);
+      if(response.status === ResponseStatus.SUCCESS && response.data){
+        setDoctors(response.data);
+      }
+    };
+    
+    fetchData();
+  }, []);
+  
+  
   return (
     <div className="flex-1 flex gap-5 bg-white p-4 rounded-lg border">
       <div className="flex flex-col flex-1">
@@ -25,8 +45,9 @@ export const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave }) => {
           </div>
           <div className="flex gap-2 h-8">
             <select className="px-2 py-1 border rounded-md text-xs font-medium text-primary-500 border-primary-500 text-nowrap w-20 justify-center">
-              <option value="의사1">김닥터</option>
-              <option value="의사2">권닥터</option>
+              {doctors.map((doctor, idx) => (
+                <option value={doctor.id}>{doctor.name}</option>
+              ))}
             </select>
             <button 
               onClick={onSave}
