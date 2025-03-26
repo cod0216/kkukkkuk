@@ -23,20 +23,20 @@ export interface LoginResponse {
  * Token Response Interface
  */
 export interface TokensResponse {
-  access_token: string;
-  refresh_token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 /**
  * Token Reissue Response Interface
  */
 export interface RefreshTokenRequest {
-  refresh_token: string;
+  refreshToken: string;
 }
 
 /**
  * Auth State Interface
  */
 export interface AuthState {
-  access_token: string | null;
+  accessToken: string | null;
 }
