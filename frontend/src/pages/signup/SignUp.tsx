@@ -13,8 +13,9 @@
  */
 
 import { useState } from "react"
-import { SignUpRequest } from "@/interfaces"
+import { SignUpRequest, HospitalBase } from "@/interfaces"
 import axios from "axios"
+import HospitalSearchModal from "./HospitalSearchModal"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
 const SIGNUP_ENDPOINT = '/api/auths/hospitals/signup'
@@ -53,6 +54,9 @@ function SignUp() {
   const [emailError, setEmailError] = useState<string | null>(null)
 
   const [passwordError, setPasswordError] = useState<string | null>(null)
+  
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [selectedHospital, setSelectedHospital] = useState<HospitalBase | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -73,6 +77,10 @@ function SignUp() {
 
     if (name === 'password') {
       setPasswordError(null)
+    }
+    
+    if (name === 'id' && selectedHospital) {
+      setSelectedHospital(null)
     }
   }
   
@@ -153,6 +161,22 @@ function SignUp() {
       setAccountError('아이디 중복 확인에 실패했습니다. 다시 시도해주세요.')
       setIsAccountAvailable(false)
     }
+  }
+
+  const handleHospitalSelect = (hospital: HospitalBase) => {
+    setSelectedHospital(hospital)
+    setSignUpRequestForm(prevData => ({
+      ...prevData,
+      id: hospital.id.toString()
+    }))
+  }
+
+  const openModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
   }
 
   const validateForm = (): boolean => {
@@ -309,16 +333,35 @@ function SignUp() {
         <div className="mb-2">
           <label htmlFor="id">병원 인허가 번호</label>
           <br />
-          <input 
-            type="text" 
-            name="id" 
-            id="id" 
-            className="w-full p-2 border rounded"
-            onChange={handleChange} 
-            value={signUpRequestForm.id} 
-            required 
-          />
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              name="id" 
+              id="id" 
+              className="flex-1 p-2 border rounded"
+              onChange={handleChange} 
+              value={signUpRequestForm.id} 
+              required
+              readOnly={!!selectedHospital}
+            />
+            <button 
+              type="button" 
+              onClick={openModal}
+              className="px-4 py-2 bg-primary-400 text-white rounded"
+            >
+              병원 검색
+            </button>
+          </div>
         </div>
+
+        {selectedHospital && (
+          <div className="mb-4 p-3 bg-gray-50 rounded border">
+            <h3 className="font-medium mb-1">선택된 병원 정보</h3>
+            <p><span className="font-medium">이름:</span> {selectedHospital.name}</p>
+            <p><span className="font-medium">주소:</span> {selectedHospital.address}</p>
+            <p><span className="font-medium">전화번호:</span> {selectedHospital.phone_number}</p>
+          </div>
+        )}
 
         <div className="mb-2">
           <label htmlFor="doctorName">수의사 이름</label>
@@ -344,6 +387,12 @@ function SignUp() {
         </button>
 
       </form>
+
+      <HospitalSearchModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onSelect={handleHospitalSelect}
+      />
     </div>
   )
 }
