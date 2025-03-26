@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/data/local/secure_storage.dart';
+import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/get_saved_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';

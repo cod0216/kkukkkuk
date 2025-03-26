@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/api/api_client.dart';
+import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
 import 'package:kkuk_kkuk/data/repositories/token_repository.dart';
 import 'package:kkuk_kkuk/domain/repositories/auth_repository_interface.dart';
 import 'package:kkuk_kkuk/domain/repositories/token_repository_interface.dart';
