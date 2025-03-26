@@ -29,9 +29,15 @@ class AuthController {
     ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
   }
 
-  // TODO: Implement this method when adding wallet recovery
+  /// 지갑 복구 화면으로 이동
   void handleWalletRecovery() {
-    // Will be implemented with wallet recovery feature
+    ref.read(mnemonicWalletProvider.notifier).reset();
+    ref.read(mnemonicWalletProvider.notifier).startWalletRecovery();
+  }
+
+  /// 니모닉으로 지갑 복구 처리
+  Future<void> recoverWallet(String mnemonic) async {
+    await ref.read(mnemonicWalletProvider.notifier).recoverWallet(mnemonic);
   }
 
   /// 니모닉 지갑 생성 처리

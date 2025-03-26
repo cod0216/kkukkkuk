@@ -7,6 +7,7 @@ import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/mnemonic_generation_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/mnemonic_confirmation_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/mnemonic_recovery_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
@@ -114,6 +115,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           case MnemonicWalletStatus.generatingMnemonic:
             // 니모닉 생성 화면
             return MnemonicGenerationView(controller: controller);
+
+          case MnemonicWalletStatus.recoveringWallet:
+            // 니모닉 복구 화면
+            return MnemonicRecoveryView(controller: controller);
 
           case MnemonicWalletStatus.mnemonicGenerated:
           case MnemonicWalletStatus.mnemonicConfirmation:

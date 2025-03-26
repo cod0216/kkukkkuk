@@ -37,9 +37,7 @@ class WalletChoiceView extends ConsumerWidget {
           const SizedBox(height: 16),
 
           OutlinedButton(
-            onPressed: () {
-              // TODO: 지갑 복구 화면으로 이동
-            },
+            onPressed: () => controller.handleWalletRecovery(),
             child: const Text('니모닉으로 지갑 복구'),
           ),
         ],

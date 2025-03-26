@@ -10,6 +10,7 @@ enum MnemonicWalletStatus {
   generatingMnemonic, // 니모닉 생성 중
   mnemonicGenerated, // 니모닉 생성 완료
   mnemonicConfirmation, // 니모닉 확인 중
+  recoveringWallet, // 지갑 복구 중
   creatingWallet, // 지갑 생성 중
   registeringWallet, // 지갑 등록 중
   completed, // 모든 과정 완료
@@ -219,6 +220,14 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
     state = MnemonicWalletState();
   }
 
+  /// 지갑 복구 화면으로 전환
+  void startWalletRecovery() {
+    state = state.copyWith(
+      status: MnemonicWalletStatus.recoveringWallet,
+      error: null,
+    );
+  }
+
   /// 니모닉 확인 단계로 진행
   void startMnemonicConfirmation() {
     if (state.status == MnemonicWalletStatus.mnemonicGenerated &&
@@ -227,6 +236,52 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
         status: MnemonicWalletStatus.mnemonicConfirmation,
         selectedWordIndices: [], // Reset selected indices
         error: null,
+      );
+    }
+  }
+
+  /// 니모닉으로 지갑 복구
+  Future<void> recoverWallet(String mnemonic) async {
+    if (mnemonic.isEmpty) {
+      state = state.copyWith(
+        status: MnemonicWalletStatus.error,
+        error: '니모닉을 입력해주세요.',
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      status: MnemonicWalletStatus.recoveringWallet,
+      error: null,
+    );
+
+    try {
+      // 니모닉 검증
+      final validateKoreanMnemonicUseCase = ref.read(
+        validateKoreanMnemonicUseCaseProvider,
+      );
+      final isValid = validateKoreanMnemonicUseCase.execute(mnemonic);
+
+      if (!isValid) {
+        state = state.copyWith(
+          status: MnemonicWalletStatus.error,
+          error: '유효하지 않은 니모닉입니다. 다시 확인해주세요.',
+        );
+        return;
+      }
+
+      // 니모닉 안전하게 저장
+      final saveMnemonicUseCase = ref.read(saveMnemonicUseCaseProvider);
+      await saveMnemonicUseCase.execute(mnemonic);
+
+      state = state.copyWith(status: MnemonicWalletStatus.creatingWallet);
+
+      // 지갑 생성 및 등록 진행
+      await createAndRegisterWallet(mnemonic);
+    } catch (e) {
+      state = state.copyWith(
+        status: MnemonicWalletStatus.error,
+        error: '지갑 복구에 실패했습니다: $e',
       );
     }
   }
