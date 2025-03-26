@@ -29,6 +29,14 @@ class PetRegistryContract {
   late final ContractFunction _petExists;
   late final ContractFunction _isPetDeleted;
   late final ContractFunction _hasAccess;
+  late final ContractFunction _addHospitalWithSharing;
+  late final ContractFunction _revokeSharingAgreement;
+  late final ContractFunction _getActivePetsByOwner;
+  late final ContractFunction _getAgreementDetails;
+  late final ContractFunction _getHospitalPets;
+  late final ContractFunction _getOwnedPetsCount;
+  late final ContractFunction _getPetHospitals;
+  late final ContractFunction _checkSharingPermission;
 
   PetRegistryContract(this._client);
 
@@ -63,6 +71,14 @@ class PetRegistryContract {
     _petExists = _contract.function('petExists');
     _isPetDeleted = _contract.function('isPetDeleted');
     _hasAccess = _contract.function('hasAccess');
+    _addHospitalWithSharing = _contract.function('addHospitalWithSharing');
+    _revokeSharingAgreement = _contract.function('revokeSharingAgreement');
+    _getActivePetsByOwner = _contract.function('getActivePetsByOwner');
+    _getAgreementDetails = _contract.function('getAgreementDetails');
+    _getHospitalPets = _contract.function('getHospitalPets');
+    _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
+    _getPetHospitals = _contract.function('getPetHospitals');
+    _checkSharingPermission = _contract.function('checkSharingPermission');
   }
 
   /// 반려동물 등록 (속성 포함)
@@ -235,6 +251,32 @@ class PetRegistryContract {
     );
   }
 
+  /// 병원 추가
+  Future<String> addHospitalWithSharing({
+    required Credentials credentials,
+    required String petAddress,
+    required String hospitalAddress,
+    required String scope,
+    required int sharingPeriod, // 공유 기간 (초 단위)
+  }) async {
+    final transaction = Transaction.callContract(
+      contract: _contract,
+      function: _addHospitalWithSharing,
+      parameters: [
+        EthereumAddress.fromHex(petAddress),
+        EthereumAddress.fromHex(hospitalAddress),
+        scope,
+        BigInt.from(sharingPeriod),
+      ],
+    );
+
+    return await _client.sendTransaction(
+      credentials,
+      transaction,
+      chainId: BlockchainService.chainId,
+    );
+  }
+
   /// 병원 제거
   Future<String> removeHospital({
     required Credentials credentials,
@@ -244,6 +286,28 @@ class PetRegistryContract {
     final transaction = Transaction.callContract(
       contract: _contract,
       function: _removeHospital,
+      parameters: [
+        EthereumAddress.fromHex(petAddress),
+        EthereumAddress.fromHex(hospitalAddress),
+      ],
+    );
+
+    return await _client.sendTransaction(
+      credentials,
+      transaction,
+      chainId: BlockchainService.chainId,
+    );
+  }
+
+  /// 공유 계약 취소
+  Future<String> revokeSharingAgreement({
+    required Credentials credentials,
+    required String petAddress,
+    required String hospitalAddress,
+  }) async {
+    final transaction = Transaction.callContract(
+      contract: _contract,
+      function: _revokeSharingAgreement,
       parameters: [
         EthereumAddress.fromHex(petAddress),
         EthereumAddress.fromHex(hospitalAddress),
@@ -389,6 +453,119 @@ class PetRegistryContract {
     );
 
     return result[0] as bool;
+  }
+
+  /// 공유 권한 확인
+  Future<bool> checkSharingPermission({
+    required String petAddress,
+    required String userAddress,
+  }) async {
+    final result = await _client.call(
+      contract: _contract,
+      function: _checkSharingPermission,
+      params: [
+        EthereumAddress.fromHex(petAddress),
+        EthereumAddress.fromHex(userAddress),
+      ],
+    );
+
+    return result[0] as bool;
+  }
+
+  /// 소유자의 활성화된 반려동물 목록 조회
+  Future<List<String>> getActivePetsByOwner(String ownerAddress) async {
+    final result = await _client.call(
+      contract: _contract,
+      function: _getActivePetsByOwner,
+      params: [EthereumAddress.fromHex(ownerAddress)],
+    );
+
+    if (result.isEmpty) {
+      return [];
+    }
+
+    return (result[0] as List)
+        .map((address) => address.toString())
+        .toList()
+        .cast<String>();
+  }
+
+  /// 공유 계약 상세 정보 조회
+  Future<Map<String, dynamic>> getAgreementDetails({
+    required String petAddress,
+    required String hospitalAddress,
+  }) async {
+    final result = await _client.call(
+      contract: _contract,
+      function: _getAgreementDetails,
+      params: [
+        EthereumAddress.fromHex(petAddress),
+        EthereumAddress.fromHex(hospitalAddress),
+      ],
+    );
+
+    if (result.isEmpty) {
+      throw Exception('공유 계약 정보를 찾을 수 없습니다.');
+    }
+
+    return {
+      'exists': result[0] as bool,
+      'scope': result[1] as String,
+      'createdAt': DateTime.fromMillisecondsSinceEpoch(
+        (result[2] as BigInt).toInt() * 1000,
+      ),
+      'expireDate': DateTime.fromMillisecondsSinceEpoch(
+        (result[3] as BigInt).toInt() * 1000,
+      ),
+      'notificationSent': result[4] as bool,
+    };
+  }
+
+  /// 병원의 반려동물 목록 조회
+  Future<List<String>> getHospitalPets(String hospitalAddress) async {
+    final result = await _client.call(
+      contract: _contract,
+      function: _getHospitalPets,
+      params: [EthereumAddress.fromHex(hospitalAddress)],
+    );
+
+    if (result.isEmpty) {
+      return [];
+    }
+
+    return (result[0] as List)
+        .map((address) => address.toString())
+        .toList()
+        .cast<String>();
+  }
+
+  /// 소유자의 반려동물 수 조회
+  Future<int> getOwnedPetsCount(String ownerAddress) async {
+    final result = await _client.call(
+      contract: _contract,
+      function: _getOwnedPetsCount,
+      params: [EthereumAddress.fromHex(ownerAddress)],
+    );
+
+    return (result[0] as BigInt).toInt();
+  }
+
+  /// 반려동물의 병원 목록 조회
+  Future<List<String>> getPetHospitals(String petAddress) async {
+    final result = await _client.call(
+      contract: _contract,
+      function: _getPetHospitals,
+      params: [EthereumAddress.fromHex(petAddress)],
+    );
+
+    if (result.isEmpty) {
+      return [];
+    }
+
+    return (result[0] as List)
+        .map((address) => address.toString())
+        .toList()
+        .cast<String>();
   }
 }
 
