@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/api/contracts/pet_registry_contract.dart';
+import 'package:kkuk_kkuk/data/datasource/contracts/pet_registry_contract.dart';
 import 'package:kkuk_kkuk/data/repositories/blockchain_repository.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/repositories/blockchain_repository_interface.dart';
@@ -52,12 +52,108 @@ class PetRepository implements IPetRepository {
       if (!isConnected) {
         throw Exception('블록체인에 연결되어 있지 않습니다.');
       }
-      // TODO: 이벤트 로그 대신 컨트랙트 함수를 사용하여 반려동물 목록 조회
-      return [];
+
+      // 계정 주소로 활성화된 반려동물 목록 조회
+      final petAddresses = await _petRegistryContract.getActivePetsByOwner(
+        account,
+      );
+      debugPrint('조회된 반려동물 주소 목록: $petAddresses');
+
+      if (petAddresses.isEmpty) {
+        return [];
+      }
+
+      // 각 반려동물의 상세 정보 조회
+      final List<Pet> pets = [];
+      for (final petAddress in petAddresses) {
+        try {
+          // 반려동물 기본 속성 조회
+          final attributes = await _petRegistryContract.getAllAttributes(
+            petAddress,
+          );
+
+          // 반려동물 삭제 여부 확인
+          final isDeleted = await _petRegistryContract.isPetDeleted(petAddress);
+          if (isDeleted) {
+            debugPrint('삭제된 반려동물 건너뛰기: $petAddress');
+            continue;
+          }
+
+          // 속성에서 필요한 정보 추출
+          final name = attributes['name']?['value'] as String? ?? '이름 없음';
+          final gender = attributes['gender']?['value'] as String? ?? '';
+          final breedName = attributes['breedName']?['value'] as String? ?? '';
+          final birthStr = attributes['birth']?['value'] as String? ?? '';
+          final flagNeuteringStr =
+              attributes['flagNeutering']?['value'] as String? ?? 'false';
+
+          // 출생일 파싱
+          DateTime? birth;
+          if (birthStr.isNotEmpty) {
+            try {
+              birth = DateTime.parse(birthStr);
+            } catch (e) {
+              debugPrint('출생일 파싱 오류: $e');
+            }
+          }
+
+          // 중성화 여부 파싱
+          bool flagNeutering = false;
+          if (flagNeuteringStr.toLowerCase() == 'true') {
+            flagNeutering = true;
+          }
+
+          // 나이 계산
+          String age = '알 수 없음';
+          if (birth != null) {
+            final now = DateTime.now();
+            final years = now.year - birth.year;
+            if (years > 0) {
+              age = '$years세';
+            } else {
+              final months =
+                  now.month - birth.month + (now.year - birth.year) * 12;
+              age = '$months개월';
+            }
+          }
+
+          // 반려동물 객체 생성
+          final pet = Pet(
+            did: 'did:pet:$petAddress',
+            name: name,
+            gender: gender,
+            breedName: breedName,
+            birth: birth,
+            flagNeutering: flagNeutering,
+            age: age,
+            // 이미지 URL은 별도 저장 필요
+            imageUrl: '',
+            // 종류는 품종명에서 유추 가능하나 정확한 정보는 별도 저장 필요
+            species: _determineSpeciesFromBreed(breedName),
+            breedId: '',
+          );
+
+          pets.add(pet);
+        } catch (e) {
+          debugPrint('반려동물 정보 조회 오류 (건너뛰기): $petAddress - $e');
+        }
+      }
+
+      return pets;
     } catch (e) {
       debugPrint('반려동물 목록 조회 오류: $e');
       throw Exception('Failed to get pet list: $e');
     }
+  }
+
+  /// 품종명으로 종류 유추
+  String _determineSpeciesFromBreed(String breedName) {
+    for (final entry in _breedsMap.entries) {
+      if (entry.value.contains(breedName)) {
+        return entry.key;
+      }
+    }
+    return '기타';
   }
 
   @override
