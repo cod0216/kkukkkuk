@@ -13,6 +13,7 @@ import lombok.Data;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.26          haelim           email 추가<br>
  */
 @Data
 @AllArgsConstructor
@@ -21,4 +22,5 @@ public class HospitalSignupResponse {
     private Integer id;
     private String did;
     private String name;
+    private String email;
 }

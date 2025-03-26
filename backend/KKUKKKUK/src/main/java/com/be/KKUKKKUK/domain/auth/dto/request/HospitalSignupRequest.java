@@ -1,9 +1,9 @@
 package com.be.KKUKKKUK.domain.auth.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +21,7 @@ import lombok.ToString;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.24          haelim           swagger, JsonNaming 설정<br>
+ * 25.03.26          haelim           email 추가 <br>
  */
 @Getter
 @ToString
@@ -48,4 +49,9 @@ public class HospitalSignupRequest {
     @Schema(description = "의사 이름", example = "김닥터")
     @NotBlank
     private String doctorName;
+
+    @Schema(description = "이메일 주소", example = "test@example.com")
+    @Email
+    @NotBlank(message = "이메일은 필수로 입력해주세요")
+    private String email;
 }

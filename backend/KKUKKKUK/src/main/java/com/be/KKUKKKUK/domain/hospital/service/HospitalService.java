@@ -35,7 +35,7 @@ import java.util.Optional;
  * 25.03.15          haelim           비밀번호 encoding, 주석 추가<br>
  * 25.03.16          haelim           병원 소속 수의사 관련 메소드 추가<br>
  * 25.03.18          haelim           수의사 라이센스 삭제, 이메일 추가 <br>
- *
+ * 25.03.26          haelim           회원가입시 이메일 추가 <br>
  */
 
 @Service
@@ -258,6 +258,7 @@ public class HospitalService {
         hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         hospital.setDoctorName(request.getDoctorName());
         hospital.setDid(request.getDid());
+        hospital.setEmail(request.getEmail());
     }
 }
 
