@@ -29,7 +29,7 @@ import TreatmentHistoryList from "@/pages/treatment/history/TreatmentHistoryList
 const TreatmentMain: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [selectedPetIndex, setSelectedPetIndex] = useState(0);
-  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(true);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedRecordIndex, setSelectedRecordIndex] = useState(0);
 
