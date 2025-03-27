@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/interceptors/error_handler.dart';
-import 'package:kkuk_kkuk/data/datasource/api/interceptors/jwt_manager.dart';
+import 'package:kkuk_kkuk/data/datasource/api/interceptors/token_interceptor.dart';
 import 'package:kkuk_kkuk/data/datasource/api/interceptors/logging_interceptor.dart';
 
 class ApiClient {
@@ -65,7 +65,7 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   final apiClient = ApiClient(dio);
 
   // 인터셉터 추가
-  final jwtInterceptor = ref.watch(jwtInterceptorProvider);
+  final jwtInterceptor = ref.watch(tokenInterceptorProvider);
   final errorHandler = ErrorHandler();
   final loggingInterceptor = LoggingInterceptor();
 

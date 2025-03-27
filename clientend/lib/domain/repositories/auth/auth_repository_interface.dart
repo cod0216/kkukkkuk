@@ -6,7 +6,6 @@ abstract class IAuthRepository {
   Future<void> authenticate(String accessToken, String refreshToken);
   Future<bool> isLoggedIn();
   Future<LogoutResponse> logout();
-  Future<bool> refreshToken();
   Future<AuthenticateResponse> authenticateWithKakao(
     AuthenticateRequest request,
   );

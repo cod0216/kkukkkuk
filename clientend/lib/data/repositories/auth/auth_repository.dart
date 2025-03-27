@@ -35,13 +35,13 @@ class AuthRepository implements IAuthRepository {
     try {
       // API 호출
       final response = await _apiClient.post('/api/auths/logout');
-      
+
       // 응답 파싱
       final logoutResponse = LogoutResponse.fromJson(response.data);
-      
+
       // 로컬 토큰 삭제
       await _tokenRepository.clearTokens();
-      
+
       return logoutResponse;
     } catch (e) {
       print('로그아웃 실패: $e');
@@ -49,22 +49,6 @@ class AuthRepository implements IAuthRepository {
     }
   }
 
-  @override
-  Future<bool> refreshToken() async {
-    try {
-      final refreshToken = await _tokenRepository.getRefreshToken();
-      if (refreshToken == null || refreshToken.isEmpty) {
-        return false;
-      }
-      // TODO: 토큰 갱신 API 구현
-      return false;
-    } catch (e) {
-      print('토큰 갱신 실패: $e');
-      return false;
-    }
-  }
-
-  // Repository 전용 메서드
   @override
   Future<AuthenticateResponse> authenticateWithKakao(
     AuthenticateRequest request,
