@@ -1,3 +1,4 @@
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_info_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
 
@@ -6,4 +7,7 @@ abstract class IWalletRepository {
   Future<WalletRegistrationResponse> registerWallet(
     WalletRegistrationRequest request,
   );
+  
+  /// 현재 로그인한 사용자의 지갑 정보 조회
+  Future<WalletInfoResponse> getWalletInfo();
 }
