@@ -80,6 +80,16 @@ function HospitalSearchModal({ isOpen, onClose, onSelect }: HospitalSearchModalP
     }
   }
 
+  /**
+   * 검색창에서 엔터키 입력 시 검색 실행
+   * @param {React.KeyboardEvent<HTMLInputElement>} e - 키보드 이벤트
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const handleSelectHospital = (hospital: HospitalBase) => {
     onSelect(hospital)
     onClose()
@@ -97,6 +107,7 @@ function HospitalSearchModal({ isOpen, onClose, onSelect }: HospitalSearchModalP
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="병원 이름을 입력하세요"
             className="flex-1 p-2 border rounded"
           />
