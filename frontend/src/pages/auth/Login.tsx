@@ -26,7 +26,6 @@ import { ResponseStatus } from "@/types";
  * 2025-03-26        eunchang         최초 생성
  */
 
-
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -49,7 +48,6 @@ const Login = () => {
           hospital,
         } = response.data;
 
-        // accessToken은 redux RefreshToken은 indexedDB에 저장
         dispatch(setAccessToken(accessToken));
         dispatch(setHospital(hospital));
 

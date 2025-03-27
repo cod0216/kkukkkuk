@@ -1,5 +1,20 @@
 /**
- * API status code SUCCESS or FAILURE
+ * @module types
+ * @file types.tsx
+ * @author eunchang
+ * @date 2025-03-26
+ * @description
+ *
+ *
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        eunchang         최초 생성
+ */
+
+/**
+ *
  */
 export enum ResponseStatus {
   SUCCESS = "SUCCESS",
@@ -7,7 +22,7 @@ export enum ResponseStatus {
 }
 
 /**
- * API RESPONSE HTTP CODE ENUM
+ *
  */
 export enum ResponseCode {
   OK = 200,
@@ -19,7 +34,7 @@ export enum ResponseCode {
 }
 
 /**
- * API DTO SUCCESS RESPONSE
+ *
  */
 export interface ApiResponse<T> {
   status: ResponseStatus;
@@ -28,7 +43,7 @@ export interface ApiResponse<T> {
 }
 
 /**
- * API DTO FAILURE RESPONSE
+ *
  */
 export interface ErrorResponse extends ApiResponse<null> {
   code?: string;
@@ -36,7 +51,7 @@ export interface ErrorResponse extends ApiResponse<null> {
 }
 
 /**
- * Storage Key Eunm
+ *
  */
 export enum StorageKey {
   ACCESSTOKEN = "accesstoken",

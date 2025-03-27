@@ -14,7 +14,7 @@
  */
 
 /**
- * Hospital Base Info interface
+ * 병원 기본 정보 interface
  */
 export interface HospitalBase {
   id: number;
@@ -27,7 +27,7 @@ export interface HospitalBase {
 }
 
 /**
- * Hospital Detail Info Interface
+ * 병원 상세 정보 Interface
  */
 export interface HospitalDetail extends HospitalBase {
   phone_number?: string;

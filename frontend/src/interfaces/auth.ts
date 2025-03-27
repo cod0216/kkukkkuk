@@ -16,7 +16,7 @@ import { HospitalDetail } from "./hospital";
  */
 
 /**
- * Login Request Interface
+ * Login 요청 Interface
  */
 export interface LoginRequest {
   account: string;
@@ -24,7 +24,7 @@ export interface LoginRequest {
 }
 
 /**
- * Login Response Interface
+ * Login 응답답 Interface
  */
 export interface LoginResponse {
   hospital: {
@@ -37,7 +37,7 @@ export interface LoginResponse {
 }
 
 /**
- * Token Response Interface
+ * Token 요청 Interface
  */
 export interface TokensResponse {
   accessToken: string;
@@ -45,7 +45,7 @@ export interface TokensResponse {
 }
 
 /**
- * Token Reissue Response Interface
+ * Token 재발행 Interface
  */
 export interface RefreshTokenRequest {
   refreshToken: string;
