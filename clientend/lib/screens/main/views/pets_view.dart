@@ -130,7 +130,7 @@ class _PetsScreenState extends ConsumerState<PetsView>
           ),
           QrScanCard(
             onTap: () {
-              // TODO: QR 스캔 페이지
+              context.pushNamed('qr_scanner');
             },
           ),
         ],
