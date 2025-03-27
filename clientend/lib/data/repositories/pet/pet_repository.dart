@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
+import 'package:kkuk_kkuk/data/dtos/pet/pet_list_response.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_registration_response.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
@@ -21,15 +22,50 @@ class PetRepository implements IPetRepository {
   @override
   Future<List<Pet>> getPetList(String account) async {
     try {
-      // TODO: 서버에서 반려동물 목록 조회 API 호출 로직 추가
-      await Future.delayed(const Duration(milliseconds: 100));
+      // API 호출
+      final response = await _apiClient.get('/api/wallets/me/pets');
 
-      // 임시 반려동물 목록 생성
+      // 응답 파싱
+      final petListResponse = PetListResponse.fromJson(response.data);
+
+      // Pet 엔티티 리스트로 변환
       final List<Pet> pets = [];
+
+      for (var petData in petListResponse.data) {
+        pets.add(
+          Pet(
+            id: petData.id,
+            did: petData.did,
+            name: petData.name,
+            gender: petData.gender,
+            flagNeutering: petData.flagNeutering,
+            breedId: petData.breedId.toString(),
+            breedName: petData.breedName,
+            birth:
+                petData.birth != null ? DateTime.parse(petData.birth!) : null,
+            age: petData.age ?? '알 수 없음',
+            imageUrl: petData.image,
+            species: _determineSpeciesFromBreed(petData.breedName),
+          ),
+        );
+      }
+
       return pets;
     } catch (e) {
+      print('반려동물 목록 조회 실패: $e');
       throw Exception('Failed to get pet list: $e');
     }
+  }
+
+  // 품종명에서 종류(강아지/고양이) 유추하는 헬퍼 메서드
+  String _determineSpeciesFromBreed(String breedName) {
+    if (breedName.toLowerCase().contains('고양이')) {
+      return '고양이';
+    } else if (breedName.toLowerCase().contains('강아지') ||
+        breedName.toLowerCase().contains('견')) {
+      return '강아지';
+    }
+    return '기타';
   }
 
   @override
