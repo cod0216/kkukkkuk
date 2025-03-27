@@ -57,7 +57,7 @@ const Login = () => {
         }
         await setRefreshtoken(refreshToken);
 
-        navigate("/TreatmentMain");
+        navigate("/treatment");
       } else {
         setError(response.message);
       }
