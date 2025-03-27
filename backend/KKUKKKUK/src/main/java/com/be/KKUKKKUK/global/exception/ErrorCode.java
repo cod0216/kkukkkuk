@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
  * 25.03.19          haelim             반려동물 관련 Error 작성
  * 25.03.20          haelim             COMMON-003, COMMON-004 작성, Endpoint 관련 Error 작성
  * 25.03.21          Fiat_lux           Breed 관련 Error 작성
+ * 25.03.27          haelim             인증 관련 Error 추가
  */
 @Getter
 @AllArgsConstructor
@@ -41,6 +42,8 @@ public enum ErrorCode {
     NO_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-009", "리프레시 토큰이 필요합니다."),
     AUTH_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH-010", "이미 만료된 코드입니다."),
     AUTH_CODE_NOT_MATCH(HttpStatus.UNAUTHORIZED, "AUTH-011", "인증 코드가 일치하지 않습니다."),
+    NO_USER_TYPE(HttpStatus.UNAUTHORIZED, "AUTH-012", "존재하지 않는 회원 유형입니다."),
+
     HOSPITAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
 
     DOCTOR_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),

@@ -21,6 +21,7 @@ import java.util.Collections;
  * 25.03.13          haerim           최초생성<br>
  * <br>
  */
+@Getter
 public class OwnerDetails implements UserDetails {
     private final Owner owner;
 

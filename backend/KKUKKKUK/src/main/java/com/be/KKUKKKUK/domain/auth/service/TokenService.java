@@ -29,6 +29,7 @@ import java.util.Objects;
  * 25.03.15          haelim           예외처리 및 주석 추가 <br>
  * 25.03.15          haelim           RedisService 분리 <br>
  * 25.03.20          haelim           액세스 토큰 블랙리스트 추가, 리프레시 토큰 한번만 사용하도록 수정 <br>
+ * 25.03.17          haelim           토큰에 이름 저장하도록 수정  <br>
  *
  */
 @Service
@@ -44,16 +45,17 @@ public class TokenService {
     private final String BLACKLIST_PREFIX = "BLACKLIST:";
 
     /**
-     * 주어진 사용자 ID와 관련 타입을 기반으로 새로운 액세스 토큰과 리프레시 토큰을 생성합니다.
+     * 주어진 사용자 id 와 name, 사용자 타입을 기반으로 새로운 액세스 토큰과 리프레시 토큰을 생성합니다.
      * 생성된 리프레시 토큰은 별도로 저장합니다.
      *
      * @param userId 사용자 ID
+     * @param userName 사용자 Name
      * @param type   관련 타입 (예: ADMIN, USER)
      * @return 생성된 JWT 토큰 페어 (액세스 토큰, 리프레시 토큰)
      */
-    public JwtTokenPairResponse generateTokens(Integer userId, RelatedType type) {
-        String accessToken = jwtUtility.createAccessToken(userId, type);
-        String refreshToken = jwtUtility.createRefreshToken(userId, type);
+    public JwtTokenPairResponse generateTokens(Integer userId, String userName, RelatedType type) {
+        String accessToken = jwtUtility.createAccessToken(userId, userName, type);
+        String refreshToken = jwtUtility.createRefreshToken(userId, userName, type);
 
         saveRefreshToken(userId, type, refreshToken);
         return new JwtTokenPairResponse(accessToken, refreshToken);
@@ -117,6 +119,7 @@ public class TokenService {
         // 3. 토큰에서 사용자 ID, 타입 (동물병원 회원, 보호자 회원) 확인
         RelatedType type = jwtUtility.getUserType(refreshToken);
         Integer userId = jwtUtility.getUserId(refreshToken);
+        String userName = jwtUtility.getUserName(refreshToken);
 
         // 4. 저장된 리프레시 토큰 비교
         String storedRefreshToken = getRefreshToken(userId, type);
@@ -128,8 +131,8 @@ public class TokenService {
         deleteRefreshToken(userId, type);
 
         // 6. 새로운 토큰 생성
-        String newAccessToken = jwtUtility.createAccessToken(userId, type);
-        String newRefreshToken = jwtUtility.createRefreshToken(userId, type);
+        String newAccessToken = jwtUtility.createAccessToken(userId, userName, type);
+        String newRefreshToken = jwtUtility.createRefreshToken(userId, userName, type);
         saveRefreshToken(userId, type, newRefreshToken);
 
         return new JwtTokenPairResponse(newAccessToken, newRefreshToken);

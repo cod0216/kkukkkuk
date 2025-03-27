@@ -1,10 +1,7 @@
 package com.be.KKUKKKUK.domain.auth.service;
 
 import com.be.KKUKKKUK.domain.auth.dto.request.*;
-import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
+import com.be.KKUKKKUK.domain.auth.dto.response.*;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
@@ -26,6 +23,7 @@ import org.springframework.stereotype.Service;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.18          haelim           이메일 인증 api 추가<br>
  * 25.03.20          haelim           로그아웃시 엑세스 토큰 블랙리스트에 추가<br>
+ * 25.03.27          haelim           계정 찾기 API 추가, JWT 토큰에 name 추가 <br>
  */
 @Service
 @RequiredArgsConstructor
@@ -113,5 +111,14 @@ public class AuthService {
      */
     public void resetPassword(PasswordResetRequest request) {
         hospitalComplexService.resetPassword(request);
+    }
+
+    /**
+     * 이메일로 사용자의 회원가입 계정을 찾습니다.
+     * @param request 이메일이 포함된 계정 찾기 요청
+     * @return 사용자의 계정 찾기 응답 객체
+     */
+    public AccountFindResponse findAccount(AccountFindRequest request) {
+        return hospitalComplexService.findAccount(request);
     }
 }

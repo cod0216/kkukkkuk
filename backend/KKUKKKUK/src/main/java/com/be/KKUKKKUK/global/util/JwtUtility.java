@@ -30,13 +30,15 @@ import java.nio.charset.StandardCharsets;
  * 2025-03-13          haelim          최초생성<br>
  * 2025-03-16          haelim          하드코딩 수정<br>
  * 2025-03-20          haelim          토큰의 남은 시간 확인 메서드 (getRemainingExpiration) 추가 <br>
+ * 2025-03-27          haelim          토큰에 사용자 이름 정보 추가 <br>
  */
 
 @Component
 public class JwtUtility {
 
-    private static final String CLAIM_USER_ID = "userId";
+    private static final String CLAIM_USER_ID = "id";
     private static final String CLAIM_TYPE = "type";
+    private static final String CLAIM_USER_NAME = "name";
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -64,8 +66,8 @@ public class JwtUtility {
      * @param relatedType 사용자 타입
      * @return 생성된 Access Token
      */
-    public String createAccessToken(Integer userId, RelatedType relatedType) {
-        return createToken(userId, relatedType, accessTokenValidity);
+    public String createAccessToken(Integer userId, String userName, RelatedType relatedType) {
+        return createToken(userId, userName, relatedType, accessTokenValidity);
     }
 
     /**
@@ -74,8 +76,8 @@ public class JwtUtility {
      * @param relatedType 사용자 타입
      * @return 생성된 Refresh Token
      */
-    public String createRefreshToken(Integer userId, RelatedType relatedType) {
-        return createToken(userId, relatedType, refreshTokenValidity);
+    public String createRefreshToken(Integer userId, String userName, RelatedType relatedType) {
+        return createToken(userId, userName, relatedType, refreshTokenValidity);
     }
 
     /**
@@ -85,12 +87,13 @@ public class JwtUtility {
      * @param validity 토큰 유효시간
      * @return 생성된 JWT 토큰
      */
-    private String createToken(Integer userId, RelatedType relatedType, long validity) {
+    private String createToken(Integer userId,  String userName, RelatedType relatedType, long validity) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + validity);
 
         return Jwts.builder()
                 .claim(CLAIM_USER_ID, userId)
+                .claim(CLAIM_USER_NAME, userName)
                 .claim(CLAIM_TYPE, relatedType.name())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
@@ -105,6 +108,15 @@ public class JwtUtility {
      */
     public Integer getUserId(String token) {
         return getClaim(token, CLAIM_USER_ID, Integer.class);
+    }
+
+    /**
+     * JWT 토큰에서 사용자 NAME 을 추출합니다.
+     * @param token JWT 토큰
+     * @return 사용자 NAME
+     */
+    public String getUserName(String token) {
+        return getClaim(token, CLAIM_USER_NAME, String.class);
     }
 
     /**
