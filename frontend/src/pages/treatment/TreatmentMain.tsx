@@ -3,7 +3,7 @@ import { Treatment, TreatmentState, TreatmentResponse } from "@/interfaces/treat
 import TreatmentHeader from "@/pages/treatment/TreatmentHeader";
 import TreatmentForm from "@/pages/treatment/TreatmentForm";
 import TreatmentSidebar from "@/pages/treatment/TreatmentSidebar";
-import TreatmentHistory from "@/pages/treatment/TreatmentHistory";
+// import TreatmentHistory from "@/pages/treatment/TreatmentHistory";
 import { getTreatments } from "@/services/treatmentService";
 import { ApiResponse, ResponseStatus } from "@/types";
 
