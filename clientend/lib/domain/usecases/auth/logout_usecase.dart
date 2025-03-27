@@ -9,10 +9,14 @@ class LogoutUseCase {
 
   Future<bool> execute() async {
     try {
+      // 카카오 로그아웃 먼저 실행
       await _oAuthRepository.kakaoLogout();
-      return await _authRepository.logout();
+
+      // 서버 로그아웃 실행
+      await _authRepository.logout();
+      return true;
     } catch (e) {
-      throw Exception('Failed to logout: $e');
+      throw Exception('로그아웃 실패: $e');
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:kkuk_kkuk/domain/repositories/auth/auth_repository_interface.dar
 import 'package:kkuk_kkuk/domain/repositories/auth/token_repository_interface.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_request.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
+import 'package:kkuk_kkuk/data/dtos/auth/logout_response.dart';
 
 class AuthRepository implements IAuthRepository {
   final ApiClient _apiClient;
@@ -30,13 +31,21 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<bool> logout() async {
+  Future<LogoutResponse> logout() async {
     try {
+      // API 호출
+      final response = await _apiClient.post('/api/auths/logout');
+      
+      // 응답 파싱
+      final logoutResponse = LogoutResponse.fromJson(response.data);
+      
+      // 로컬 토큰 삭제
       await _tokenRepository.clearTokens();
-      return true;
+      
+      return logoutResponse;
     } catch (e) {
       print('로그아웃 실패: $e');
-      return false;
+      rethrow;
     }
   }
 
