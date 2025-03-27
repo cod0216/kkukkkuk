@@ -17,6 +17,7 @@ import { useState } from "react"
 import { SignUpRequest, HospitalBase } from "@/interfaces"
 import axios from "axios"
 import HospitalSearchModal from "./HospitalSearchModal"
+import { FaPaw } from 'react-icons/fa';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
 const SIGNUP_ENDPOINT = '/api/auths/hospitals/signup'
@@ -321,7 +322,7 @@ function SignUp() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="my-4 text-4xl text-primary-500 text-center font-bold">KKUK KKUK</h1>
+      <h1 className="my-4 text-4xl text-primary-500 text-center font-bold flex items-center justify-center"><FaPaw className="mr-2" />KKUK KKUK</h1>
       <form onSubmit={handleSubmit} className="flex flex-col">
 
         <div className="mb-2">
