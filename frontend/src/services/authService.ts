@@ -88,3 +88,15 @@ export const findPassword = async (data: {
   );
   return response;
 };
+
+/**
+ * 아이디 찾기 API 호출을 수행합니다.
+ * @param email 인증할 이메일
+ */
+export const findId = async (email: string): Promise<ApiResponse<{ account: string }>> => {
+  const response = await request.post<{ account: string }>(
+    `${DOMAIN_URL}/accounts/find`,
+    { email }
+  );
+  return response;
+};

@@ -1,10 +1,12 @@
 import { useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import MainLayout from "@/layouts/MainLayout";
 import TreatmentMain from "@/pages/treatment/TreatmentMain";
 import SignUp from "@/pages/signup/SignUp";
 import Login from "@/pages/auth/Login";
 import FindPw from "@/pages/auth/FindPw";
+import FindId from "@/pages/auth/FindId";
+
 import { getRefreshToken } from "@/utils/iDBUtil";
 /**
  * @module App
@@ -24,25 +26,31 @@ import { getRefreshToken } from "@/utils/iDBUtil";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   /**
-   * refreshToken을 조회하여 로그인 상태를 관리합니다.
+   * refreshToken을 조회하고 허용된 사이트 외에는 로그인 페이지로 이동시킵니다.
    */
   useEffect(() => {
-    const checkRefreshToken = async () => {
-      const token = await getRefreshToken();
-      if (!token) {
-        navigate("/login");
-      }
-    };
-    checkRefreshToken();
-  }, [navigate]);
+   const checkRefreshToken = async () => {
+    const token = await getRefreshToken();
+    const publicPaths = ["login", "/sing-up", "/find-password", "/find-id"]
+    const currentPath = location.pathname;
+
+    if(!token && !publicPaths.includes(currentPath)) {
+      navigate("/login");
+    }
+   };
+   checkRefreshToken();
+  }, [navigate,location]);
 
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/find-password" element={<FindPw />} />
+      <Route path="/find-id" element={<FindId />}  />
       <Route path="/sign-up" element={<SignUp />} />
+      
       <Route element={<MainLayout />}>
         <Route path="/" element={<TreatmentMain />} />
         <Route path="/treatment" element={<TreatmentMain />} />
