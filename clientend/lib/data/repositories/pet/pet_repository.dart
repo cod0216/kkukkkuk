@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet_repository_interface.dart';
