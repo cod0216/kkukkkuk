@@ -22,12 +22,15 @@ import java.util.Collections;
  * 25.03.13          haelim           최초생성<br>
  * <br>
  */
+
+@Getter
 public class HospitalDetails implements UserDetails {
     private final Hospital hospital;
 
     public HospitalDetails(Hospital hospital) {
         this.hospital = hospital;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

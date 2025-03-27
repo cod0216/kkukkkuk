@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.18          haelim           이메일 인증 api 추가<br>
  * 25.03.20          haelim           로그아웃시 엑세스 토큰 블랙리스트에 추가<br>
- * 25.03.27          haelim           계정 찾기 API 추가 <br>
+ * 25.03.27          haelim           계정 찾기 API 추가, JWT 토큰에 name 추가 <br>
  */
 @Service
 @RequiredArgsConstructor

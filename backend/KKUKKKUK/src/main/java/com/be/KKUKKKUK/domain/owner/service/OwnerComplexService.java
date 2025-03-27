@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.17          haelim           OwnerService 와 계층화, 지갑 관련 CURD 메소드 추가<br>
  * 25.03.19          haelim           지갑 관련 CURD 메소드 WalletComplexService 로 이동 <br>
+ * 25.03.27          haelim           JWT 토큰에 이름 추가  <br>
  */
 
 @Service
@@ -66,7 +67,7 @@ public class OwnerComplexService {
         WalletInfoResponse wallet = walletService.getWalletInfoByOwnerId(ownerInfo.getId());
 
         // 3. JWT 토큰 발급
-        JwtTokenPairResponse tokenPair = tokenService.generateTokens(ownerInfo.getId(), RelatedType.OWNER);
+        JwtTokenPairResponse tokenPair = tokenService.generateTokens(ownerInfo.getId(), ownerInfo.getName(), RelatedType.OWNER);
 
         return new OwnerLoginResponse(ownerInfo, tokenPair, wallet);
     }

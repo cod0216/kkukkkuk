@@ -84,11 +84,10 @@ public class HospitalComplexService {
     @Transactional
     public HospitalLoginResponse login(HospitalLoginRequest request) {
         // 1. Hospital 관련 요청은 hospitalService 에게 넘깁니다
-        // 계정을 찾지 못하거나, 비밀번호 불일치는 모두 hospitalService 가 처리합니다.
         HospitalInfoResponse hospitalInfo = hospitalService.tryLogin(request);
 
         // 2. Token 관련 요청은 tokenService 에게 넘깁니다.
-        JwtTokenPairResponse tokenPair = tokenService.generateTokens(hospitalInfo.getId(), RelatedType.HOSPITAL);
+        JwtTokenPairResponse tokenPair = tokenService.generateTokens(hospitalInfo.getId(), hospitalInfo.getName(), RelatedType.HOSPITAL);
 
         return new HospitalLoginResponse(hospitalInfo, tokenPair);
     }
