@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/get_saved_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
+import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 등록 단계
 enum PetRegisterStep {
@@ -42,6 +46,14 @@ class PetRegisterState {
 
 /// 반려동물 등록 상태 관리 노티파이어
 class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
+  static const String _privateKeyKey = 'eth_private_key';
+  static const String _addressKey = 'eth_address';
+  static const String _publicKeyKey = 'eth_public_key';
+  static const String _mnemonicKey = 'eth_mnemonic';
+
+  final FlutterSecureStorage _secureStorage =
+      const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
+
   final GetBreedsUseCase _getBreedsUseCase;
   final RegisterPetUseCase _registerPetUseCase;
 
@@ -152,7 +164,12 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      await _registerPetUseCase.execute(state.pet!);
+      await _registerPetUseCase.execute(
+        EthPrivateKey.fromHex(
+          (await _secureStorage.read(key: _privateKeyKey)) ?? '',
+        ),
+        state.pet!,
+      );
       state = state.copyWith(
         isLoading: false,
         currentStep: PetRegisterStep.completed,

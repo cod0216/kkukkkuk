@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum AuthStep {
   login, // 로그인 단계
   walletSetup, // 지갑 설정 단계
+  networkConnection, // 네트워크 연결 단계
   completed, // 인증 완료
   error, // 오류 발생
 }
@@ -18,6 +19,11 @@ class AuthCoordinator extends StateNotifier<AuthStep> {
   /// 지갑 설정 화면으로 이동
   void moveToWalletSetup() {
     state = AuthStep.walletSetup;
+  }
+
+  /// 네트워크 연결 단계로 이동
+  void moveToNetworkConnection() {
+    state = AuthStep.networkConnection;
   }
 
   /// 인증 완료 처리

@@ -1,5 +1,20 @@
 /**
- * Hospital Base Info interface
+ * @module hospital
+ * @file hospital.ts
+ * @author eunchang
+ * @date 2025-03-26
+ * @description 병원 도메인 전용 인터페이스 모듈입니다.
+ *
+ * 동물병원 서비스 구현시 필요한 인터페이스들을 정의합니다.
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        eunchang         최초 생성
+ */
+
+/**
+ * 병원 기본 정보 interface
  */
 export interface HospitalBase {
   id: number;
@@ -12,7 +27,7 @@ export interface HospitalBase {
 }
 
 /**
- * Hospital Detail Info Interface
+ * 병원 상세 정보 Interface
  */
 export interface HospitalDetail extends HospitalBase {
   phone_number?: string;

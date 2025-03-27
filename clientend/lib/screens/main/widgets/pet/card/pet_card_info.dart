@@ -16,15 +16,18 @@ class PetCardInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+      height: 75,
+      width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
         children: [
           PetCardTitle(text: name),
-          const SizedBox(height: 4),
-          PetCardSubtitle(text: age),
           const SizedBox(height: 2),
+          PetCardSubtitle(text: age),
+          const SizedBox(height: 1),
           PetCardSubtitle(text: breed, color: Colors.grey.shade600),
         ],
       ),
@@ -41,7 +44,7 @@ class PetCardTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -58,7 +61,9 @@ class PetCardSubtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(fontSize: 14, color: color ?? Colors.grey.shade700),
+      style: TextStyle(fontSize: 12, color: color ?? Colors.grey.shade700),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

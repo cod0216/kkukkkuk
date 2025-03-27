@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/update_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/delete_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
+import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 상태 관리 클래스
 class PetState {
@@ -37,6 +40,13 @@ class PetState {
 
 /// 반려동물 상태 관리 노티파이어
 class PetNotifier extends StateNotifier<PetState> {
+  static const String _privateKeyKey = 'eth_private_key';
+  static const String _addressKey = 'eth_address';
+  static const String _publicKeyKey = 'eth_public_key';
+  static const String _mnemonicKey = 'eth_mnemonic';
+
+  final FlutterSecureStorage _secureStorage =
+      const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
   final GetPetListUseCase _getPetListUseCase;
   final RegisterPetUseCase _registerPetUseCase;
   final UpdatePetUseCase _updatePetUseCase;
@@ -54,11 +64,10 @@ class PetNotifier extends StateNotifier<PetState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final pets = await _getPetListUseCase.execute();
-      state = state.copyWith(
-        pets: pets,
-        isLoading: false,
+      final pets = await _getPetListUseCase.execute(
+        (await _secureStorage.read(key: _addressKey)) ?? '',
       );
+      state = state.copyWith(pets: pets, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -70,17 +79,20 @@ class PetNotifier extends StateNotifier<PetState> {
   /// 반려동물 등록
   Future<void> registerPet() async {
     if (state.currentPet == null) {
-      state = state.copyWith(
-        error: '등록할 반려동물 정보가 없습니다.',
-      );
+      state = state.copyWith(error: '등록할 반려동물 정보가 없습니다.');
       return;
     }
 
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final registeredPet = await _registerPetUseCase.execute(state.currentPet!);
-      
+      final registeredPet = await _registerPetUseCase.execute(
+        EthPrivateKey.fromHex(
+          (await _secureStorage.read(key: _privateKeyKey)) ?? '',
+        ),
+        state.currentPet!,
+      );
+
       final updatedPets = [...state.pets, registeredPet];
       state = state.copyWith(
         pets: updatedPets,
@@ -100,16 +112,21 @@ class PetNotifier extends StateNotifier<PetState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final updatedPet = await _updatePetUseCase.execute(pet);
-      
-      final updatedPets = state.pets.map((p) {
-        return p.id == updatedPet.id ? updatedPet : p;
-      }).toList();
-      
-      state = state.copyWith(
-        pets: updatedPets,
-        isLoading: false,
+      final updatedPet = await _updatePetUseCase.execute(
+        EthPrivateKey.fromHex(
+          (await _secureStorage.read(key: _privateKeyKey)) ?? '',
+        ),
+        pet,
       );
+
+      final updatedPets =
+          state.pets.map((p) {
+            return p;
+            // TODO: 반려동물 정보 수정 로직 구현
+            // return p.id == updatedPet.id ? updatedPet : p;
+          }).toList();
+
+      state = state.copyWith(pets: updatedPets, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -123,19 +140,19 @@ class PetNotifier extends StateNotifier<PetState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final success = await _deletePetUseCase.execute(petId);
-      
+      final success = await _deletePetUseCase.execute(
+        EthPrivateKey.fromHex(
+          (await _secureStorage.read(key: _privateKeyKey)) ?? '',
+        ),
+        petId,
+      );
+
       if (success) {
-        final updatedPets = state.pets.where((p) => p.id != petId).toList();
-        state = state.copyWith(
-          pets: updatedPets,
-          isLoading: false,
-        );
+        // TODO: 반려동물 삭제 로직 구현
+        //final updatedPets = state.pets.where((p) => p.id != petId).toList();
+        state = state.copyWith(isLoading: false);
       } else {
-        state = state.copyWith(
-          isLoading: false,
-          error: '반려동물 삭제에 실패했습니다.',
-        );
+        state = state.copyWith(isLoading: false, error: '반려동물 삭제에 실패했습니다.');
       }
     } catch (e) {
       state = state.copyWith(
@@ -154,14 +171,17 @@ class PetNotifier extends StateNotifier<PetState> {
     String? gender,
     bool? flagNeutering,
   }) {
-    final currentPet = state.currentPet ?? Pet(
-      name: '',
-      gender: '',
-      breedId: '',
-      breedName: '',
-      age: '',
-      species: '',
-    );
+    final currentPet =
+        state.currentPet ??
+        Pet(
+          name: '',
+          gender: '',
+          breedId: '',
+          breedName: '',
+          age: '',
+          species: '',
+          flagNeutering: true,
+        );
 
     final updatedPet = currentPet.copyWith(
       name: name,
@@ -183,7 +203,7 @@ final petProvider = StateNotifierProvider<PetNotifier, PetState>((ref) {
   final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
   final updatePetUseCase = ref.watch(updatePetUseCaseProvider);
   final deletePetUseCase = ref.watch(deletePetUseCaseProvider);
-  
+
   return PetNotifier(
     getPetListUseCase,
     registerPetUseCase,

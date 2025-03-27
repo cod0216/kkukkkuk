@@ -16,15 +16,31 @@ class PetsView extends ConsumerStatefulWidget {
   ConsumerState<PetsView> createState() => _PetsScreenState();
 }
 
-class _PetsScreenState extends ConsumerState<PetsView> {
+class _PetsScreenState extends ConsumerState<PetsView>
+    with AutomaticKeepAliveClientMixin {
   late final PetController _controller;
 
   void _navigateToPetRegister() {
-    context.push('/pet-register');
+    context.push('/pet-register').then((_) {
+      // 펫 등록 화면에서 돌아왔을 때
+      print('PetsScreen: _navigateToPetRegister');
+      _refreshPetList();
+    });
   }
 
   void _onPetTap(BuildContext context, Pet pet) {
-    context.push('/pet-detail', extra: pet);
+    context.push('/pet-detail', extra: pet).then((_) {
+      // 펫 상세 화면에서 돌아왔을 때
+      print('PetsScreen: _onPetTap');
+      _refreshPetList();
+    });
+  }
+
+  void _refreshPetList() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('PetsScreen: _refreshPetList');
+      _controller.getPetList();
+    });
   }
 
   @override
@@ -32,17 +48,55 @@ class _PetsScreenState extends ConsumerState<PetsView> {
     super.initState();
     _controller = ref.read(petControllerProvider);
     // 반려동물 목록 가져오기
-    Future.microtask(() => _controller.getPetList());
+    _refreshPetList();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 다른 화면에서 돌아올 때
+    print('PetsScreen: didChangeDependencies');
+    _refreshPetList();
+  }
+
+  @override
+  bool get wantKeepAlive => true; // 탭 전환 시 상태 유지
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // AutomaticKeepAliveClientMixin 사용 시 필요
     final petState = ref.watch(petProvider);
     final pets = petState.pets;
 
     return SafeArea(
       child: Column(
         children: [
+          // 새로고침 버튼 추가
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    _controller.getPetList();
+                    // 새로고침 피드백
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('반려동물 목록을 새로고침했습니다.'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  tooltip: '새로고침',
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child:
                 petState.isLoading
