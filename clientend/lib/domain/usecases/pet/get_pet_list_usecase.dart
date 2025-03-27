@@ -6,9 +6,9 @@ class GetPetListUseCase {
 
   GetPetListUseCase(this._repository);
 
-  Future<List<Pet>> execute() async {
+  Future<List<Pet>> execute(String address) async {
     try {
-      return await _repository.getPetList();
+      return await _repository.getPetList(address);
     } catch (e) {
       throw Exception('반려동물 목록을 불러오는데 실패했습니다: $e');
     }

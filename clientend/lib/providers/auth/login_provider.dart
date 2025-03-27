@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
-import 'package:kkuk_kkuk/providers/auth/wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 
 /// 로그인 상태를 관리하는 클래스
 class LoginState {
@@ -37,15 +37,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
       final loginUseCase = ref.read(loginWithKakaoUseCaseProvider);
       final response = await loginUseCase.execute();
-      
+
       state = state.copyWith(authResponse: response, isLoading: false);
 
       final hasWallet = response.data.wallet != null;
 
       if (hasWallet) {
-        ref.read(authCoordinatorProvider.notifier).completeAuth();
+        ref.read(authCoordinatorProvider.notifier).moveToNetworkConnection();
       } else {
-        ref.read(walletProvider.notifier).reset();
+        ref.read(mnemonicWalletProvider.notifier).reset();
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
     } catch (e) {
@@ -57,10 +57,10 @@ class LoginNotifier extends StateNotifier<LoginState> {
   Future<void> logout() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
-      
+
       final logoutUseCase = ref.read(logoutUseCaseProvider);
       final success = await logoutUseCase.execute();
-      
+
       if (success) {
         state = LoginState();
       } else {

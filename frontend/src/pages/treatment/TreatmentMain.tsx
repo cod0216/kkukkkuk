@@ -9,7 +9,6 @@ import { Treatment, TreatmentState, TreatmentResponse, Doctor, BlockChainRecord 
 import { getDoctors } from '@/services/doctorService';
 import TreatmentHistoryList from "@/pages/treatment/history/TreatmentHistoryList";
 
-
 /**
  * @module TreatmentMain
  * @file TreatmentMain.tsx
@@ -35,7 +34,7 @@ const TreatmentMain: React.FC = () => {
   const [selectedRecordIndex, setSelectedRecordIndex] = useState(0);
 
   /**
-   * Sample blockchain records for demonstration purposes.
+   * 샘플 데이터 
    * @type {BlockChainRecord[]}
    */
   const records: BlockChainRecord[] = [
@@ -68,7 +67,7 @@ const TreatmentMain: React.FC = () => {
   ];
 
   /**
-   * Fetches the list of doctors from the API and updates state.
+   * 병원에 등록된 의사를 조회합니다. 
    */
   useEffect(() => {
     const fetchData = async () => {
@@ -81,11 +80,11 @@ const TreatmentMain: React.FC = () => {
   }, []);
 
   /**
-   * Fetches available treatments from the API and updates state.
+   * 진료중인 동물 목록을 조회합니다. 
    */
   useEffect(() => {
     const fetchData = async () => {
-      const response: ApiResponse<TreatmentResponse> = await getTreatments({ expired: true, petId: "", state: "" });
+      const response: ApiResponse<TreatmentResponse> = await getTreatments({ expired: "", petId: "", state: "" });
       if (response.status === ResponseStatus.SUCCESS && response.data?.treatments) {
         setTreatments(response.data.treatments);
       }
@@ -94,9 +93,9 @@ const TreatmentMain: React.FC = () => {
   }, []);
 
   /**
-   * Returns the appropriate badge color for a given treatment state.
-   * @param {TreatmentState} state - The state of the treatment.
-   * @returns {string} The corresponding badge color class.
+   * 동물 상태에 따라 화면에 보여줄 스타일을 반환합니다.
+   * @param {TreatmentState} state - 진료 상태 enum
+   * @returns {string} 진료 상태에 따른 tailwind class
    */
   const getStateBadgeColor = (state: TreatmentState): string => {
     switch (state) {

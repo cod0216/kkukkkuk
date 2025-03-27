@@ -3,7 +3,25 @@ import { ApiResponse, ResponseStatus, ErrorResponse } from "@/types";
 import { AxiosError } from "axios";
 
 /**
- * Extract Error Object
+ * @module apiRequest
+ * @file apiRequest.tsx
+ * @author eunchang
+ * @date 2025-03-26
+ * @description Axios 기반의 API 요청 기능을 제공하는 모듈입니다.
+ *
+ * 이 모듈은 GET, POST, PUT, DELETE 요청을 수행합니다.
+ *
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        eunchang         최초 생성
+ */
+
+/**
+ * AxiosError 객체로부터 에러 메시지를 추출합니다.
+ *
+ * @param error - AxiosError 객체
+ * @returns 에러 메시지 문자열
  */
 export const extractErrorMessage = (error: AxiosError): string => {
   if (error.response?.data && (error.response.data as ErrorResponse).message) {
@@ -16,6 +34,9 @@ export const extractErrorMessage = (error: AxiosError): string => {
   return "알 수 없는 오류가 발생했습니다.";
 };
 
+/**
+ * API 요청을 수행하는 객체입니다.
+ */
 export const request = {
   /**
    * GET Request

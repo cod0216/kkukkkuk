@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/api/interceptors/error_handler.dart';
-import 'package:kkuk_kkuk/data/api/interceptors/jwt_manager.dart';
-import 'package:kkuk_kkuk/data/api/interceptors/logging_interceptor.dart';
+import 'package:kkuk_kkuk/data/datasource/api/interceptors/error_handler.dart';
+import 'package:kkuk_kkuk/data/datasource/api/interceptors/jwt_manager.dart';
+import 'package:kkuk_kkuk/data/datasource/api/interceptors/logging_interceptor.dart';
 
 class ApiClient {
   final Dio _dio;

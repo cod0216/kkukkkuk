@@ -3,8 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
+import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
-import 'package:kkuk_kkuk/screens/auth/views/wallet_setup_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/mnemonic_generation_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/mnemonic_confirmation_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/mnemonic_recovery_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
 
@@ -40,6 +45,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     final authStep = ref.watch(authCoordinatorProvider);
     final controller = ref.watch(authControllerProvider);
+    final mnemonicState = ref.watch(mnemonicWalletProvider);
 
     // 인증 완료시 홈 화면으로 이동
     if (authStep == AuthStep.completed) {
@@ -48,19 +54,39 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
 
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(authStep),
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: _buildCurrentStep(authStep, controller),
+          child: _buildCurrentStep(authStep, controller, mnemonicState),
         ),
       ),
     );
   }
 
   /// 앱바 구성
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(title: const Text('auth screen app bar'));
+  PreferredSizeWidget _buildAppBar(AuthStep step) {
+    String title;
+
+    switch (step) {
+      case AuthStep.login:
+        title = '로그인';
+        break;
+      case AuthStep.walletSetup:
+        title = '지갑 설정';
+        break;
+      case AuthStep.networkConnection:
+        title = '네트워크 연결';
+        break;
+      case AuthStep.completed:
+        title = '인증 완료';
+        break;
+      case AuthStep.error:
+        title = '오류';
+        break;
+    }
+
+    return AppBar(title: Text(title));
   }
 
   /// 홈 화면 이동 처리
@@ -71,14 +97,52 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   /// 현재 인증 단계에 따른 화면 구성
-  Widget _buildCurrentStep(AuthStep step, AuthController controller) {
+  Widget _buildCurrentStep(
+    AuthStep step,
+    AuthController controller,
+    MnemonicWalletState mnemonicState,
+  ) {
     switch (step) {
       case AuthStep.login:
         return LoginView(controller: controller);
+
       case AuthStep.walletSetup:
-        return WalletSetupView(controller: controller);
+        // 니모닉 지갑 상태에 따라 적절한 화면 표시
+        switch (mnemonicState.status) {
+          case MnemonicWalletStatus.initial:
+          case MnemonicWalletStatus.walletChoice:
+            return WalletChoiceView(controller: controller);
+          case MnemonicWalletStatus.generatingMnemonic:
+            // 니모닉 생성 화면
+            return MnemonicGenerationView(controller: controller);
+
+          case MnemonicWalletStatus.recoveringWallet:
+            // 니모닉 복구 화면
+            return MnemonicRecoveryView(controller: controller);
+
+          case MnemonicWalletStatus.mnemonicGenerated:
+          case MnemonicWalletStatus.mnemonicConfirmation:
+          case MnemonicWalletStatus.creatingWallet:
+          case MnemonicWalletStatus.registeringWallet:
+            // 니모닉 확인 화면
+            return MnemonicConfirmationView(controller: controller);
+
+          case MnemonicWalletStatus.error:
+            return ErrorView(
+              message: mnemonicState.error ?? '지갑 생성 중 오류가 발생했습니다.',
+              onRetry: () => controller.handleMnemonicGeneration(),
+            );
+
+          case MnemonicWalletStatus.completed:
+            return const LoadingIndicator();
+        }
+
+      case AuthStep.networkConnection:
+        return NetworkConnectionView(controller: controller);
+
       case AuthStep.completed:
         return const LoadingIndicator();
+
       case AuthStep.error:
         return ErrorView(
           message: '오류가 발생했습니다.',

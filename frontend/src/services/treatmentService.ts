@@ -20,7 +20,6 @@ import { ApiResponse } from "@/types";
 
 /**
  * 현재 로그인한 동물병원 회원 치료 이력을 조회합니다.
- *
  * @async
  * @function
  * @param {GetTreatmentRequest} data - 치료 정보 요청 객체, 
