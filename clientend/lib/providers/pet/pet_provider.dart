@@ -134,9 +134,9 @@ class PetNotifier extends StateNotifier<PetState> {
       );
 
       if (success) {
-        // TODO: 반려동물 삭제 로직 구현
-        //final updatedPets = state.pets.where((p) => p.id != petId).toList();
-        state = state.copyWith(isLoading: false);
+        // 삭제 성공 시 목록에서 해당 반려동물 제거
+        final updatedPets = state.pets.where((p) => p.id != petId).toList();
+        state = state.copyWith(pets: updatedPets, isLoading: false);
       } else {
         state = state.copyWith(isLoading: false, error: '반려동물 삭제에 실패했습니다.');
       }

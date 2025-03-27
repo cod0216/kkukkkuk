@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
+import 'package:kkuk_kkuk/data/dtos/pet/pet_delete_response.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_list_response.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_registration_response.dart';
@@ -131,8 +132,14 @@ class PetRepository implements IPetRepository {
   @override
   Future<bool> deletePet(EthPrivateKey credentials, int petId) async {
     try {
-      // TODO: 반려동물 삭제 로직 추가
-      throw Exception('TODO: 반려동물 삭제 로직 추가');
+      // API 호출
+      final response = await _apiClient.delete('/api/pets/$petId');
+
+      // 응답 파싱
+      final deleteResponse = PetDeleteResponse.fromJson(response.data);
+
+      // 성공 여부 반환
+      return deleteResponse.status == 'success';
     } catch (e) {
       print('반려동물 삭제 오류: $e');
       throw Exception('Failed to delete pet: $e');
