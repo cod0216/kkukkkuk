@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "@/layouts/MainLayout";
 import TreatmentMain from "@/pages/treatment/TreatmentMain";
-import SignUp from '@/pages/signup/SignUp';
+import SignUp from "@/pages/signup/SignUp";
 import Login from "@/pages/auth/Login";
 import FindPw from "@/pages/auth/FindPw";
 /**
@@ -26,8 +26,8 @@ function App() {
       <Route path="/find-password" element={<FindPw />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route element={<MainLayout />}>
-      <Route path="/" element={<TreatmentMain />} />
-      <Route path="/treatment" element={<TreatmentMain />} />
+        <Route path="/" element={<TreatmentMain />} />
+        <Route path="/treatment" element={<TreatmentMain />} />
       </Route>
     </Routes>
   );

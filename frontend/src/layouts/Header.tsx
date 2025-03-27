@@ -54,19 +54,19 @@ const Header: React.FC = () => {
             } else {
               dispatch(clearAccessToken());
               await removeRefreshToken();
-              navigate("/");
+              navigate("/Login");
             }
           } catch (error) {
             console.error("헤더에서 토큰 재발급 실패", error);
             dispatch(clearAccessToken());
             await removeRefreshToken();
-            navigate("/");
+            navigate("/Login");
           } finally {
             setRefreshAttempted(true);
           }
         } else {
           dispatch(clearAccessToken());
-          navigate("/");
+          navigate("Login");
         }
       }
     };
