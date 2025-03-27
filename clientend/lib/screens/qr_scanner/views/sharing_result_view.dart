@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/grant_access_permission_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/grant_hospital_access_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/pet_medical_record_usecase_providers.dart';
 
 class SharingResultView extends ConsumerStatefulWidget {
@@ -24,20 +24,60 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
   bool isLoading = true;
   bool success = false;
   String errorMessage = '';
+  String transactionHash = '';
 
   @override
   void initState() {
     super.initState();
-    // 여기서는 권한 부여 로직을 실행하지 않고 단순히 성공 상태로 표시
-    // 실제 권한 부여 로직은 다음 단계에서 구현
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-          success = true;
-        });
-      }
+    _grantAccess();
+  }
+
+  // _grantAccess 메서드 내부 수정
+  Future<void> _grantAccess() async {
+    if (!mounted) return;
+    
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
     });
+
+    try {
+      // Calculate expiry date (30 days from now by default)
+      final expiryDate = DateTime.now().add(const Duration(days: 30));
+      
+      // Get the use case from the provider
+      final grantHospitalAccessUseCase = ref.read(grantHospitalAccessUseCaseProvider);
+      
+      // 펫 DID와 병원 DID 확인
+      final petDid = widget.pet.did ?? '';
+      final hospitalDid = widget.hospital.did;
+      
+      print('펫 DID: $petDid');
+      print('병원 DID: $hospitalDid');
+      
+      // Execute the use case with pet DID and hospital DID
+      final result = await grantHospitalAccessUseCase.execute(
+        petDid: petDid,
+        hospitalDid: hospitalDid,
+        expiryDate: expiryDate,
+      );
+      
+      if (!mounted) return;
+      
+      setState(() {
+        isLoading = false;
+        success = true;
+        transactionHash = result;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      
+      setState(() {
+        isLoading = false;
+        success = false;
+        errorMessage = e.toString();
+      });
+    }
   }
 
   @override
@@ -56,7 +96,7 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(height: 24),
-                    Text('권한 부여 중...'),
+                    Text('병원에 권한 부여 중...'),
                   ],
                 )
               : Column(
@@ -83,6 +123,26 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 16),
                     ),
+                    if (success && transactionHash.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      const Text(
+                        '트랜잭션 해시:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          transactionHash,
+                          style: const TextStyle(fontFamily: 'monospace'),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: () {
