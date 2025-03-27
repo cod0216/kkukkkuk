@@ -22,7 +22,7 @@ class PetCarousel extends StatelessWidget {
       ),
       itemBuilder: (context, index, realIndex) {
         final pet = pets[index];
-        return PetCard(pet: pet, onTap: onPetTap);
+        return PetCard(pet: pet, onTap: onPetTap!);
       },
     );
   }

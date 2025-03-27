@@ -20,6 +20,7 @@ class QRScannerView extends StatefulWidget {
 class _QRScannerViewState extends State<QRScannerView> {
   final MobileScannerController controller = MobileScannerController();
   bool hasPermission = false;
+  bool isProcessing = false; // 스캔 처리 중 상태 추가
 
   @override
   void initState() {
@@ -67,15 +68,32 @@ class _QRScannerViewState extends State<QRScannerView> {
         MobileScanner(
           controller: controller,
           onDetect: (capture) {
+            // 이미 처리 중이면 무시
+            if (isProcessing) return;
+            
             final List<Barcode> barcodes = capture.barcodes;
             if (barcodes.isNotEmpty && barcodes[0].rawValue != null) {
               try {
+                // 처리 중 상태로 설정
+                setState(() {
+                  isProcessing = true;
+                });
+                
                 final hospitalData = HospitalQRData.fromQRData(
                   barcodes[0].rawValue!,
                 );
+                
+                // 스캔 일시 중지
+                controller.stop();
+                
+                // 성공 콜백 호출
                 widget.onScanSuccess(hospitalData);
               } catch (e) {
                 widget.onScanError?.call();
+                // 에러 발생 시 처리 상태 초기화
+                setState(() {
+                  isProcessing = false;
+                });
               }
             }
           },
