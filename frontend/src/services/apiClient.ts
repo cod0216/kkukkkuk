@@ -1,11 +1,15 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { getAccessToken } from "@/utils/tokenUtil";
 import { convertKeysToCamelCase } from "@/utils/upper";
-import { getRefreshToken, removeRefreshToken, setRefreshtoken } from "@/utils/iDBUtil";
+import {
+  getRefreshToken,
+  removeRefreshToken,
+  setRefreshtoken,
+} from "@/utils/iDBUtil";
 import { store } from "@/redux/store";
 import { setAccessToken } from "@/redux/store";
 
-import { ResponseCode } from '@/types';
+import { ResponseCode } from "@/types";
 
 /**
  * @module apiClient
@@ -26,9 +30,18 @@ import { ResponseCode } from '@/types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL;
 
+/**
+ * 무한 순회 방지용 인터페이스
+ * @interface
+ */
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
 }
+
+/**
+ * refresh 요청이 진행 중일 때 그 결과를 공유할 promise
+ */
+let refreshPromise: Promise<string> | null = null;
 
 /**
  * Axoios 인스턴스를 생성합니다.
@@ -58,6 +71,42 @@ apiClient.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 );
 
+/**
+ * refresh token을 이용하여 새로운 access token을 발급받습니다.
+ * 동시에 여러 요청이 401 에러를 받으면 한 번만 refresh 요청을 진행하고,
+ * 그 결과를 공유하여 모든 요청에 적용합니다.
+ *
+ * @returns 새로 발급된 access token
+ */
+async function performRefreshToken(): Promise<string> {
+  const storedRefreshToken = await getRefreshToken();
+  if (!storedRefreshToken) {
+    return Promise.reject(new Error("RefreshToken을 찾을 수 없습니다."));
+  }
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/auths/refresh`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${storedRefreshToken}`,
+        },
+      }
+    );
+    const { accessToken, refreshToken: newRefreshToken } =
+      convertKeysToCamelCase(response.data.data);
+    if (!accessToken) {
+      throw new Error("AccessToken을 발급받을 수 없습니다.");
+    }
+    store.dispatch(setAccessToken(accessToken));
+    await setRefreshtoken(newRefreshToken);
+    return accessToken;
+  } catch (error) {
+    await removeRefreshToken();
+    return Promise.reject(error);
+  }
+}
 
 /**
  * refresh token을 이용하여 새로운 access token을 발급받고, 원래의 요청을 재시도합니다.
@@ -68,46 +117,17 @@ apiClient.interceptors.request.use(
 async function refreshAccessToken(
   originalRequest: CustomAxiosRequestConfig
 ): Promise<any> {
-  const refreshToken = await getRefreshToken();
-  console.log("리프래쉬 토큰:", refreshToken);
-  if (!refreshToken) {
-    return Promise.reject(new Error("Refresh token not found"));
+  if (!refreshPromise) {
+    refreshPromise = performRefreshToken();
   }
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/auths/refresh`,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      }
-    );
-    // 응답 구조: { status, message, data: { access_token, refresh_token } }
-    const { accessToken, refreshToken } = convertKeysToCamelCase(response.data.data);
-    if (!accessToken) {
-      throw new Error("No access token returned from refresh endpoint");
-    }
-
-    console.log("확인1");
-    // Redux 스토어에 새로운 access token 업데이트
-    store.dispatch(setAccessToken(accessToken));
-    console.log("확인2");
-    // (옵션) 새 리프레시 토큰을 IndexedDB에 업데이트하는 로직 추가 가능
-    await setRefreshtoken(refreshToken);
-    
-    // 원래 요청의 헤더에 새로운 액세스 토큰 설정 후 재요청
-    
+    const newAccessToken = await refreshPromise;
+    refreshPromise = null;
     originalRequest.headers = originalRequest.headers || {};
-    console.log("확인3");
-    originalRequest.headers.Authorization = `Bearer ${access_token}`;
-    console.log("확인4");
+    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
     return apiClient(originalRequest);
   } catch (error) {
-    console.log("실패222")
-    // 재발급 실패 시 IndexedDB에 저장된 refresh token 삭제 후 에러 반환
-    // await removeRefreshToken();
+    refreshPromise = null;
     return Promise.reject(error);
   }
 }

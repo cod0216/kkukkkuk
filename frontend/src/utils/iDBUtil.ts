@@ -13,6 +13,7 @@ import { openDB, DBSchema } from "idb";
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        eunchang         최초 생성
+ * 2025-03-26        eunchang         log 정리
  */
 
 /**
@@ -50,7 +51,6 @@ async function getDB() {
  * @param token - refreshToken
  */
 export async function setRefreshtoken(token: string): Promise<void> {
-  console.log("저장할 refreshToken:", token);
   const db = await getDB();
   await db.put(STORE_NAME, token, "refreshToken");
 }
