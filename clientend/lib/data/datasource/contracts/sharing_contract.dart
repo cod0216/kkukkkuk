@@ -4,7 +4,7 @@ import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/contracts/blockchain_client.dart';
 
-class PetSharingContract {
+class SharingContract {
   static const String contractAddress =
       '0xfe6aCF0A37532c3FE7e1B642c048Acf8983a7eDC';
 
@@ -24,7 +24,7 @@ class PetSharingContract {
   late final ContractFunction _updateSharingScope;
   late final ContractFunction _extendSharingPeriod;
 
-  PetSharingContract(this._blockchainClient);
+  SharingContract(this._blockchainClient);
 
   Future<void> initialize() async {
     try {
@@ -166,8 +166,32 @@ class PetSharingContract {
       return [];
     }
 
-    // TODO: 결과 처리 로직 구현
     List<Map<String, dynamic>> requests = [];
+
+    // 예상 구조: [requestIds, petAddresses, senderAddresses, recipientAddresses, scopes, periods, statuses, timestamps]
+    final requestIds = result[0] as List;
+    final petAddresses = result[1] as List;
+    final senderAddresses = result[2] as List;
+    final recipientAddresses = result[3] as List;
+    final scopes = result[4] as List;
+    final periods = result[5] as List<BigInt>;
+    final statuses = result[6] as List<BigInt>;
+    final timestamps = result[7] as List<BigInt>;
+
+    for (int i = 0; i < requestIds.length; i++) {
+      requests.add({
+        'requestId': requestIds[i].toString(),
+        'petAddress': petAddresses[i].toString(),
+        'senderAddress': senderAddresses[i].toString(),
+        'recipientAddress': recipientAddresses[i].toString(),
+        'scope': scopes[i].toString(),
+        'period': periods[i].toInt(),
+        'status': statuses[i].toInt(),
+        'timestamp': DateTime.fromMillisecondsSinceEpoch(
+          timestamps[i].toInt() * 1000,
+        ),
+      });
+    }
 
     return requests;
   }
@@ -284,9 +308,9 @@ class PetSharingContract {
   }
 }
 
-final petSharingContractProvider = Provider<PetSharingContract>((ref) {
+final sharingContractProvider = Provider<SharingContract>((ref) {
   final blockchainClient = ref.watch(blockchainClientProvider);
-  final contract = PetSharingContract(blockchainClient);
+  final contract = SharingContract(blockchainClient);
   contract.initialize();
   return contract;
 });

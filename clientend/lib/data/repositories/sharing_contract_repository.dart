@@ -1,13 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/datasource/contracts/pet_sharing_contract.dart';
+import 'package:kkuk_kkuk/data/datasource/contracts/sharing_contract.dart';
 import 'package:kkuk_kkuk/domain/repositories/sharing_contract_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
 class SharingContractRepository implements ISharingContractRepository {
-  final PetSharingContract _petSharingContract;
+  final SharingContract _sharingContract;
 
-  SharingContractRepository(this._petSharingContract);
+  SharingContractRepository(this._sharingContract);
 
   @override
   Future<String> createSharingRequest({
@@ -19,7 +18,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 요청 생성
-      final txHash = await _petSharingContract.createSharingRequest(
+      final txHash = await _sharingContract.createSharingRequest(
         credentials: credentials,
         petAddress: petAddress,
         recipientAddress: recipientAddress,
@@ -42,7 +41,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 요청 수락
-      final txHash = await _petSharingContract.acceptSharingRequest(
+      final txHash = await _sharingContract.acceptSharingRequest(
         credentials: credentials,
         requestId: requestId,
       );
@@ -62,7 +61,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 요청 거절
-      final txHash = await _petSharingContract.rejectSharingRequest(
+      final txHash = await _sharingContract.rejectSharingRequest(
         credentials: credentials,
         requestId: requestId,
       );
@@ -82,7 +81,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 요청 취소
-      final txHash = await _petSharingContract.cancelSharingRequest(
+      final txHash = await _sharingContract.cancelSharingRequest(
         credentials: credentials,
         requestId: requestId,
       );
@@ -103,7 +102,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 접근 권한 취소
-      final txHash = await _petSharingContract.revokeSharingAccess(
+      final txHash = await _sharingContract.revokeSharingAccess(
         credentials: credentials,
         petAddress: petAddress,
         userAddress: userAddress,
@@ -149,7 +148,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 상태 조회
-      return await _petSharingContract.getPetSharingStatus(
+      return await _sharingContract.getPetSharingStatus(
         petAddress: petAddress,
         userAddress: userAddress,
       );
@@ -166,7 +165,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 권한 확인
-      return await _petSharingContract.checkSharingPermission(
+      return await _sharingContract.checkSharingPermission(
         petAddress: petAddress,
         userAddress: userAddress,
       );
@@ -185,7 +184,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 범위 업데이트
-      return await _petSharingContract.updateSharingScope(
+      return await _sharingContract.updateSharingScope(
         credentials: credentials,
         petAddress: petAddress,
         userAddress: userAddress,
@@ -206,7 +205,7 @@ class SharingContractRepository implements ISharingContractRepository {
   }) async {
     try {
       // 공유 기간 연장
-      return await _petSharingContract.extendSharingPeriod(
+      return await _sharingContract.extendSharingPeriod(
         credentials: credentials,
         petAddress: petAddress,
         userAddress: userAddress,
@@ -222,6 +221,6 @@ class SharingContractRepository implements ISharingContractRepository {
 final sharingContractRepositoryProvider = Provider<ISharingContractRepository>((
   ref,
 ) {
-  final petSharingContract = ref.watch(petSharingContractProvider);
-  return SharingContractRepository(petSharingContract);
+  final sharingContract = ref.watch(sharingContractProvider);
+  return SharingContractRepository(sharingContract);
 });
