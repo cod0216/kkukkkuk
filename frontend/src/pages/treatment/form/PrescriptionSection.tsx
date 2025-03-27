@@ -145,7 +145,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                 {prescriptions.medications.length > 0 && (
                     <div className="font-bold text-md">약물</div>
                 )}
-                <div className="font-bold text-md mt-2">약물</div>
                 {prescriptions.medications.map((item: any, index: number) => (
                     <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
                         {/* <div>{item.type}</div> */}

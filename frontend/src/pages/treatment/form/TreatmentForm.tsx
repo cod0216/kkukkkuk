@@ -42,7 +42,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
   });
   const [images, setImages] = useState<string[]>([]);
   const [diagnosis, setDiagnosis] = useState('');
-  const [doctorId, setDoctorId] = useState<number>(doctors[0].id);
+  const [doctorId, setDoctorId] = useState<number>(doctors[0] ? doctors[0].id : 0);
 
   /**
    * 이미지 업로드 핸들러입니다. 

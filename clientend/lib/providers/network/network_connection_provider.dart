@@ -66,7 +66,7 @@ class NetworkConnectionNotifier extends StateNotifier<NetworkConnectionState> {
 
       if (isConnected) {
         state = state.copyWith(status: NetworkConnectionStatus.connected);
-        debugPrint('블록체인 네트워크에 연결되었습니다.');
+        print('블록체인 네트워크에 연결되었습니다.');
         return true;
       } else {
         state = state.copyWith(

@@ -2,18 +2,16 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';
-import 'package:kkuk_kkuk/domain/services/blockchain_service.dart';
+import 'package:kkuk_kkuk/data/datasource/contracts/blockchain_client.dart';
 
-class PetSharingContract {
-  // SSAFY 블록체인에 배포된 동물 공유 컨트랙트 주소
+class SharingContract {
   static const String contractAddress =
       '0xfe6aCF0A37532c3FE7e1B642c048Acf8983a7eDC';
 
-  final Web3Client _client;
+  final BlockchainClient _blockchainClient;
   late final DeployedContract _contract;
 
-  // 쉐어링 컨트랙트 함수들
+  // 컨트랙트 함수들 정의
   late final ContractFunction _createSharingRequest;
   late final ContractFunction _acceptSharingRequest;
   late final ContractFunction _rejectSharingRequest;
@@ -26,33 +24,35 @@ class PetSharingContract {
   late final ContractFunction _updateSharingScope;
   late final ContractFunction _extendSharingPeriod;
 
-  PetSharingContract(this._client);
+  SharingContract(this._blockchainClient);
 
-  /// 컨트랙트 초기화
   Future<void> initialize() async {
-    // assets 폴더에서 ABI 파일 로드
-    final abiString = await rootBundle.loadString('assets/sharingABI.json');
-    final abiJson = jsonDecode(abiString);
-    final abi = abiJson['sharingABI'];
+    try {
+      final abiString = await rootBundle.loadString('assets/sharingABI.json');
+      final abiJson = jsonDecode(abiString);
+      final abi = abiJson['sharingABI'];
 
-    // 컨트랙트 인스턴스 생성
-    _contract = DeployedContract(
-      ContractAbi.fromJson(jsonEncode(abi), 'PetSharing'),
-      EthereumAddress.fromHex(contractAddress),
-    );
+      _contract = DeployedContract(
+        ContractAbi.fromJson(jsonEncode(abi), 'PetSharing'),
+        EthereumAddress.fromHex(contractAddress),
+      );
 
-    // 컨트랙트 함수 초기화
-    _createSharingRequest = _contract.function('createSharingRequest');
-    _acceptSharingRequest = _contract.function('acceptSharingRequest');
-    _rejectSharingRequest = _contract.function('rejectSharingRequest');
-    _cancelSharingRequest = _contract.function('cancelSharingRequest');
-    _revokeSharingAccess = _contract.function('revokeSharingAccess');
-    _getSharingRequests = _contract.function('getSharingRequests');
-    _getSharedPets = _contract.function('getSharedPets');
-    _getPetSharingStatus = _contract.function('getPetSharingStatus');
-    _checkSharingPermission = _contract.function('checkSharingPermission');
-    _updateSharingScope = _contract.function('updateSharingScope');
-    _extendSharingPeriod = _contract.function('extendSharingPeriod');
+      // 함수 초기화
+      _createSharingRequest = _contract.function('createSharingRequest');
+      _acceptSharingRequest = _contract.function('acceptSharingRequest');
+      _rejectSharingRequest = _contract.function('rejectSharingRequest');
+      _cancelSharingRequest = _contract.function('cancelSharingRequest');
+      _revokeSharingAccess = _contract.function('revokeSharingAccess');
+      _getSharingRequests = _contract.function('getSharingRequests');
+      _getSharedPets = _contract.function('getSharedPets');
+      _getPetSharingStatus = _contract.function('getPetSharingStatus');
+      _checkSharingPermission = _contract.function('checkSharingPermission');
+      _updateSharingScope = _contract.function('updateSharingScope');
+      _extendSharingPeriod = _contract.function('extendSharingPeriod');
+    } catch (e) {
+      print('컨트랙트 초기화 오류: $e');
+      rethrow;
+    }
   }
 
   /// 공유 요청 생성
@@ -74,10 +74,9 @@ class PetSharingContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -92,10 +91,9 @@ class PetSharingContract {
       parameters: [requestId],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -110,10 +108,9 @@ class PetSharingContract {
       parameters: [requestId],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -128,10 +125,9 @@ class PetSharingContract {
       parameters: [requestId],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -150,10 +146,9 @@ class PetSharingContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -161,7 +156,7 @@ class PetSharingContract {
   Future<List<Map<String, dynamic>>> getSharingRequests(
     String userAddress,
   ) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getSharingRequests,
       params: [EthereumAddress.fromHex(userAddress)],
@@ -171,27 +166,29 @@ class PetSharingContract {
       return [];
     }
 
-    final List<dynamic> requestIds = result[0];
-    final List<dynamic> petAddresses = result[1];
-    final List<dynamic> senders = result[2];
-    final List<dynamic> recipients = result[3];
-    final List<dynamic> statuses = result[4];
-    final List<dynamic> scopes = result[5];
-    final List<dynamic> periods = result[6];
-    final List<dynamic> timestamps = result[7];
+    List<Map<String, dynamic>> requests = [];
 
-    final List<Map<String, dynamic>> requests = [];
+    // 예상 구조: [requestIds, petAddresses, senderAddresses, recipientAddresses, scopes, periods, statuses, timestamps]
+    final requestIds = result[0] as List;
+    final petAddresses = result[1] as List;
+    final senderAddresses = result[2] as List;
+    final recipientAddresses = result[3] as List;
+    final scopes = result[4] as List;
+    final periods = result[5] as List<BigInt>;
+    final statuses = result[6] as List<BigInt>;
+    final timestamps = result[7] as List<BigInt>;
+
     for (int i = 0; i < requestIds.length; i++) {
       requests.add({
-        'requestId': requestIds[i],
+        'requestId': requestIds[i].toString(),
         'petAddress': petAddresses[i].toString(),
-        'sender': senders[i].toString(),
-        'recipient': recipients[i].toString(),
-        'status': statuses[i],
-        'scope': scopes[i],
-        'period': (periods[i] as BigInt).toInt(),
+        'senderAddress': senderAddresses[i].toString(),
+        'recipientAddress': recipientAddresses[i].toString(),
+        'scope': scopes[i].toString(),
+        'period': periods[i].toInt(),
+        'status': statuses[i].toInt(),
         'timestamp': DateTime.fromMillisecondsSinceEpoch(
-          (timestamps[i] as BigInt).toInt() * 1000,
+          timestamps[i].toInt() * 1000,
         ),
       });
     }
@@ -201,7 +198,7 @@ class PetSharingContract {
 
   /// 사용자와 공유된 반려동물 목록 조회
   Future<List<String>> getSharedPets(String userAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getSharedPets,
       params: [EthereumAddress.fromHex(userAddress)],
@@ -222,7 +219,7 @@ class PetSharingContract {
     required String petAddress,
     required String userAddress,
   }) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getPetSharingStatus,
       params: [
@@ -252,7 +249,7 @@ class PetSharingContract {
     required String petAddress,
     required String userAddress,
   }) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _checkSharingPermission,
       params: [
@@ -281,10 +278,9 @@ class PetSharingContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -305,18 +301,16 @@ class PetSharingContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 }
 
-final petSharingContractProvider = Provider<PetSharingContract>((ref) {
-  final getWeb3ClientUseCase = ref.watch(getWeb3ClientUseCaseProvider);
-  final web3Client = getWeb3ClientUseCase.execute();
-  final contract = PetSharingContract(web3Client);
+final sharingContractProvider = Provider<SharingContract>((ref) {
+  final blockchainClient = ref.watch(blockchainClientProvider);
+  final contract = SharingContract(blockchainClient);
   contract.initialize();
   return contract;
 });

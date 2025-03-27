@@ -263,6 +263,7 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
       final isValid = validateKoreanMnemonicUseCase.execute(mnemonic);
 
       if (!isValid) {
+        // TODO: 이전 단계로 돌아가는 로직 추가
         state = state.copyWith(
           status: MnemonicWalletStatus.error,
           error: '유효하지 않은 니모닉입니다. 다시 확인해주세요.',
