@@ -17,7 +17,8 @@ import { useState } from "react"
 import { SignUpRequest, HospitalBase } from "@/interfaces"
 import axios from "axios"
 import HospitalSearchModal from "./HospitalSearchModal"
-import { FaPaw } from 'react-icons/fa';
+import { FaPaw } from 'react-icons/fa'
+import { useNavigate } from "react-router-dom"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
 const SIGNUP_ENDPOINT = '/api/auths/hospitals/signup'
@@ -78,12 +79,15 @@ function SignUp() {
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false)
   const [emailVerificationError, setEmailVerificationError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
+  const [isSendingVerification, setIsSendingVerification] = useState<boolean>(false)
 
   const [passwordError, setPasswordError] = useState<string | null>(null)
   
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [selectedHospital, setSelectedHospital] = useState<HospitalBase | null>(null)
 
+
+  const navigate = useNavigate()
   /**
    * 입력 필드 값 변경을 처리하는 함수
    * @param {React.ChangeEvent<HTMLInputElement>} e - 입력 필드 변경 이벤트
@@ -144,17 +148,19 @@ function SignUp() {
     setEmailError(null)
     setEmailVerificationError(null)
     setIsEmailVerificationCodeSent(false)
+    setIsSendingVerification(true)
 
     try {
       await axios.post(`${BASE_URL}${SEND_EMAIL_VERIFICATION_ENDPOINT}`, {
         email: signUpRequestForm.email,
       })
       setIsEmailVerificationCodeSent(true)
-      alert('인증번호가 발송되었습니다.')
     } catch (error) {
       console.error('인증번호 발송 실패', error)
       setEmailError('인증번호 발송에 실패했습니다. 다시 시도해주세요.')
       setIsEmailVerificationCodeSent(false)
+    } finally {
+      setIsSendingVerification(false)
     }
   }
 
@@ -176,7 +182,6 @@ function SignUp() {
         code: emailVerificationCode
       })
       setIsEmailVerified(true)
-      alert('이메일 인증이 완료되었습니다.')
     } catch (error) {
       console.error('이메일 인증 실패', error)
       setEmailVerificationError('인증번호가 일치하지 않습니다.')
@@ -312,8 +317,7 @@ function SignUp() {
 
     try {
       const response = await axios.post(`${BASE_URL}${SIGNUP_ENDPOINT}`, payload)
-      console.log('회원가입 성공', response.data)
-      alert('회원가입이 완료되었습니다.')
+      navigate('/')
     } catch (error) {
       console.error('회원가입 실패', error)
       setError('회원가입 실패')
@@ -321,7 +325,7 @@ function SignUp() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="w-full max-w-md mt-10 flex flex-col">
       <h1 className="my-4 text-4xl text-primary-500 text-center font-bold flex items-center justify-center"><FaPaw className="mr-2" />KKUK KKUK</h1>
       <form onSubmit={handleSubmit} className="flex flex-col">
 
@@ -384,9 +388,21 @@ function SignUp() {
             <button 
               type="button" 
               onClick={handleSendEmailVerificationCode}
-              className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
+              disabled={isSendingVerification || isEmailVerificationCodeSent}
+              className={`w-32 px-4 py-2 text-white rounded transition-colors ${
+                isSendingVerification 
+                  ? "bg-neutral-400 cursor-not-allowed" 
+                  : isEmailVerificationCodeSent
+                    ? "bg-neutral-500 cursor-not-allowed"
+                    : "bg-primary-400 hover:bg-primary-300"
+              }`}
             >
-              인증번호 발송
+              {isSendingVerification 
+                ? "발송 중..." 
+                : isEmailVerificationCodeSent
+                  ? "발송 완료"
+                  : "인증번호 발송"
+              }
             </button>
           </div>
           {emailError && <p className="text-secondary-500 text-sm mt-1">{emailError}</p>}
