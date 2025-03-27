@@ -1,7 +1,7 @@
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_request.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
-import 'package:kkuk_kkuk/domain/repositories/auth_repository_interface.dart';
-import 'package:kkuk_kkuk/domain/repositories/oauth_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth/auth_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth/oauth_repository_interface.dart';
 
 class LoginWithKakaoUseCase {
   final IAuthRepository _authRepository;

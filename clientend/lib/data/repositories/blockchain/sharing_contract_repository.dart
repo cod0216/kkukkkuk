@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/contracts/sharing_contract.dart';
-import 'package:kkuk_kkuk/domain/repositories/sharing_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/blockchain/sharing_contract_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
 class SharingContractRepository implements ISharingContractRepository {

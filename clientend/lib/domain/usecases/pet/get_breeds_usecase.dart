@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/repositories/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 
 class GetBreedsUseCase {
   final IPetRepository _repository;

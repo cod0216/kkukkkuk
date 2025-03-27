@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/repositories/mnemonic_repository.dart';
+import 'package:kkuk_kkuk/data/repositories/blockchain/mnemonic_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/generate_korean_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/get_saved_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/save_mnemonic_usecase.dart';

@@ -1,17 +1,21 @@
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/repositories/pet_repository_interface.dart';
-import 'package:kkuk_kkuk/domain/repositories/registry_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 
+/// 반려동물 목록 조회 UseCase
 class GetPetListUseCase {
-  final IRegistryContractRepository _repository;
+  final IPetRepository _repository;
 
   GetPetListUseCase(this._repository);
 
-  Future<List<Pet>> execute(String address) async {
+  /// 반려동물 목록 조회 실행
+  ///
+  /// [account] 사용자 계정 주소
+  Future<List<Pet>> execute(String account) async {
     try {
-      return await _repository.getPetList(address);
+      return await _repository.getPetList(account);
     } catch (e) {
-      throw Exception('반려동물 목록을 불러오는데 실패했습니다: $e');
+      print('반려동물 목록 조회 실패: $e');
+      throw Exception('반려동물 목록 조회에 실패했습니다: $e');
     }
   }
 }

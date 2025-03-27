@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
-import 'package:kkuk_kkuk/domain/repositories/token_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth/token_repository_interface.dart';
 
 class TokenRepository implements ITokenRepository {
   final SecureStorage _secureStorage;

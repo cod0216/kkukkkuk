@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/repositories/registry_contract_repository.dart';
+import 'package:kkuk_kkuk/data/repositories/blockchain/registry_contract_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/add_hospital_with_sharing_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/check_sharing_permission_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/delete_pet_usecase.dart';
@@ -36,7 +36,9 @@ final deletePetUseCaseProvider = Provider<DeletePetUseCase>((ref) {
   return DeletePetUseCase(repository);
 });
 
-final getPetAttributesUseCaseProvider = Provider<GetPetAttributesUseCase>((ref) {
+final getPetAttributesUseCaseProvider = Provider<GetPetAttributesUseCase>((
+  ref,
+) {
   final repository = ref.watch(registryContractRepositoryProvider);
   return GetPetAttributesUseCase(repository);
 });
@@ -46,25 +48,29 @@ final setPetAttributeUseCaseProvider = Provider<SetPetAttributeUseCase>((ref) {
   return SetPetAttributeUseCase(repository);
 });
 
-final addHospitalWithSharingUseCaseProvider = Provider<AddHospitalWithSharingUseCase>((ref) {
-  final repository = ref.watch(registryContractRepositoryProvider);
-  return AddHospitalWithSharingUseCase(repository);
-});
+final addHospitalWithSharingUseCaseProvider =
+    Provider<AddHospitalWithSharingUseCase>((ref) {
+      final repository = ref.watch(registryContractRepositoryProvider);
+      return AddHospitalWithSharingUseCase(repository);
+    });
 
 final removeHospitalUseCaseProvider = Provider<RemoveHospitalUseCase>((ref) {
   final repository = ref.watch(registryContractRepositoryProvider);
   return RemoveHospitalUseCase(repository);
 });
 
-final revokeSharingAgreementUseCaseProvider = Provider<RevokeSharingAgreementUseCase>((ref) {
-  final repository = ref.watch(registryContractRepositoryProvider);
-  return RevokeSharingAgreementUseCase(repository);
-});
+final revokeSharingAgreementUseCaseProvider =
+    Provider<RevokeSharingAgreementUseCase>((ref) {
+      final repository = ref.watch(registryContractRepositoryProvider);
+      return RevokeSharingAgreementUseCase(repository);
+    });
 
-final getAgreementDetailsUseCaseProvider = Provider<GetAgreementDetailsUseCase>((ref) {
-  final repository = ref.watch(registryContractRepositoryProvider);
-  return GetAgreementDetailsUseCase(repository);
-});
+final getAgreementDetailsUseCaseProvider = Provider<GetAgreementDetailsUseCase>(
+  (ref) {
+    final repository = ref.watch(registryContractRepositoryProvider);
+    return GetAgreementDetailsUseCase(repository);
+  },
+);
 
 final getPetHospitalsUseCaseProvider = Provider<GetPetHospitalsUseCase>((ref) {
   final repository = ref.watch(registryContractRepositoryProvider);
@@ -76,7 +82,8 @@ final getHospitalPetsUseCaseProvider = Provider<GetHospitalPetsUseCase>((ref) {
   return GetHospitalPetsUseCase(repository);
 });
 
-final checkSharingPermissionUseCaseProvider = Provider<CheckSharingPermissionUseCase>((ref) {
-  final repository = ref.watch(registryContractRepositoryProvider);
-  return CheckSharingPermissionUseCase(repository);
-});
+final checkSharingPermissionUseCaseProvider =
+    Provider<CheckSharingPermissionUseCase>((ref) {
+      final repository = ref.watch(registryContractRepositoryProvider);
+      return CheckSharingPermissionUseCase(repository);
+    });

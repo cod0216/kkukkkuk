@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/repositories/mnemonic_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/blockchain/mnemonic_repository_interface.dart';
 
 class SaveMnemonicUseCase {
   final MnemonicRepositoryInterface _repository;

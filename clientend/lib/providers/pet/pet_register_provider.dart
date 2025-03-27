@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/get_saved_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/register_pet_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/registry_usecase_providers.dart'
+    as registry_usecase_providers;
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -47,9 +47,6 @@ class PetRegisterState {
 /// 반려동물 등록 상태 관리 노티파이어
 class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
   static const String _privateKeyKey = 'eth_private_key';
-  static const String _addressKey = 'eth_address';
-  static const String _publicKeyKey = 'eth_public_key';
-  static const String _mnemonicKey = 'eth_mnemonic';
 
   final FlutterSecureStorage _secureStorage =
       const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
@@ -193,7 +190,9 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
 final petRegisterProvider =
     StateNotifierProvider<PetRegisterNotifier, PetRegisterState>((ref) {
       final getBreedsUseCase = ref.watch(getBreedsUseCaseProvider);
-      final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
+      final registerPetUseCase = ref.watch(
+        registry_usecase_providers.registerPetUseCaseProvider,
+      );
 
       return PetRegisterNotifier(getBreedsUseCase, registerPetUseCase);
     });
