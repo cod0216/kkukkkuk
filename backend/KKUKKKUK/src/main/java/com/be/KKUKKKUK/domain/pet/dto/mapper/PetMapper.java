@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.domain.pet.dto.mapper;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -16,9 +17,13 @@ import java.util.List;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.19          haelim           최초생성<br>
+ * 25.03.27          haelim           breedId Mapping 추가 <br>
  */
 @Mapper(componentModel = "spring")
 public interface PetMapper {
+    @Mapping(target = "breedId", source = "pet.breed.id")
     PetInfoResponse mapToPetInfoResponse(Pet pet);
+
+    @Mapping(target = "breedId", source = "pet.breed.id")
     List<PetInfoResponse> mapToPetInfoList(List<Pet> pets);
 }
