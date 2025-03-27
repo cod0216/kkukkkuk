@@ -24,21 +24,40 @@ const SEND_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/send'
 const VERIFY_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/verify'
 const CHECK_ACCOUNT_DUPLICATE_ENDPOINT = '/api/hospitals/account'
 
+/**
+ * 아이디 유효성을 검사하는 함수
+ * @param {string} account - 검사할 사용자 아이디
+ * @returns {boolean} 유효성 검사 결과 (5~10자의 영문 소문자, 숫자, 밑줄 조합이면 true)
+ */
 const validateAccount = (account: string): boolean => {
   const accountRegex = /^[a-z0-9_]{5,10}$/
   return accountRegex.test(account)
 }
 
+/**
+ * 이메일 유효성을 검사하는 함수
+ * @param {string} email - 검사할 이메일 주소
+ * @returns {boolean} 유효성 검사 결과 (올바른 이메일 형식이면 true)
+ */
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
   return emailRegex.test(email)
 }
 
+/**
+ * 비밀번호 유효성을 검사하는 함수
+ * @param {string} password - 검사할 비밀번호
+ * @returns {boolean} 유효성 검사 결과 (6~20자의 영문 대소문자, 숫자, 특수문자 조합이면 true)
+ */
 const validatePassword = (password: string): boolean => {
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&])[A-Za-z\d!@#$%^&]{6,20}$/
   return passwordRegex.test(password)
 }
 
+/**
+ * 회원가입 컴포넌트
+ * @returns {JSX.Element} 회원가입 폼 컴포넌트
+ */
 function SignUp() {
   const [signUpRequestForm, setSignUpRequestForm] = useState<SignUpRequest> ({
     account: "",
@@ -64,6 +83,11 @@ function SignUp() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [selectedHospital, setSelectedHospital] = useState<HospitalBase | null>(null)
 
+  /**
+   * 입력 필드 값 변경을 처리하는 함수
+   * @param {React.ChangeEvent<HTMLInputElement>} e - 입력 필드 변경 이벤트
+   * @returns {void}
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setSignUpRequestForm(prevData => ({...prevData, [name]: value}))
@@ -90,11 +114,21 @@ function SignUp() {
     }
   }
   
+  /**
+   * 이메일 인증 코드 입력값 변경을 처리하는 함수
+   * @param {React.ChangeEvent<HTMLInputElement>} e - 입력 필드 변경 이벤트
+   * @returns {void}
+   */
   const handleEmailVerificationCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailVerificationCode(e.target.value)
     setEmailVerificationError(null)
   }
 
+  /**
+   * 이메일 인증번호 발송 요청을 처리하는 함수
+   * @returns {Promise<void>} 인증번호 발송 결과
+   * @throws {Error} 인증번호 발송 실패 시 에러
+   */
   const handleSendEmailVerificationCode = async () => {
     if (!signUpRequestForm.email) {
       setEmailError("이메일을 입력해주세요.")
@@ -123,6 +157,11 @@ function SignUp() {
     }
   }
 
+  /**
+   * 이메일 인증번호 확인을 처리하는 함수
+   * @returns {Promise<void>} 인증번호 확인 결과
+   * @throws {Error} 인증번호 확인 실패 시 에러
+   */
   const handleEmailVerifyCode = async () => {
     if (!emailVerificationCode) {
       setEmailVerificationError('인증번호를 입력해주세요.')
@@ -144,6 +183,11 @@ function SignUp() {
     }
   }
   
+  /**
+   * 아이디 중복 확인을 처리하는 함수
+   * @returns {Promise<void>} 아이디 중복 확인 결과
+   * @throws {Error} 아이디 중복 확인 실패 시 에러
+   */
   const handleCheckAccountDuplicate = async () => {
     if (!signUpRequestForm.account) {
       setAccountError('아이디를 입력해주세요.')
@@ -174,6 +218,11 @@ function SignUp() {
     }
   }
 
+  /**
+   * 병원 선택 처리 함수
+   * @param {HospitalBase} hospital - 선택된 병원 정보
+   * @returns {void}
+   */
   const handleHospitalSelect = (hospital: HospitalBase) => {
     setSelectedHospital(hospital)
     setSignUpRequestForm(prevData => ({
@@ -182,14 +231,26 @@ function SignUp() {
     }))
   }
 
+  /**
+   * 병원 검색 모달 열기 함수
+   * @returns {void}
+   */
   const openModal = () => {
     setIsModalOpen(true)
   }
 
+  /**
+   * 병원 검색 모달 닫기 함수
+   * @returns {void}
+   */
   const closeModal = () => {
     setIsModalOpen(false)
   }
 
+  /**
+   * 회원가입 폼 유효성 검사 함수
+   * @returns {boolean} 폼 유효성 검사 결과 (모든 필드가 유효하면 true)
+   */
   const validateForm = (): boolean => {
     if (!validateAccount(signUpRequestForm.account)) {
       setAccountError('5~10자의 영문 소문자, 숫자, 밑줄(_)만 사용 가능합니다.')
@@ -224,6 +285,12 @@ function SignUp() {
     return true
   }
 
+  /**
+   * 회원가입 폼 제출 처리 함수
+   * @param {React.FormEvent<HTMLFormElement>} e - 폼 제출 이벤트
+   * @returns {Promise<void>} 회원가입 요청 결과
+   * @throws {Error} 회원가입 요청 실패 시 에러
+   */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 

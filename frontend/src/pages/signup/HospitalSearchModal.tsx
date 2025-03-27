@@ -15,6 +15,10 @@ import { useState } from 'react'
 import axios from 'axios'
 import { HospitalBase } from '@/interfaces'
 
+/**
+ * 병원 검색 모달 컴포넌트 속성 타입
+ * @interface
+ */
 interface HospitalSearchModalProps {
   isOpen: boolean
   onClose: () => void
@@ -24,18 +28,34 @@ interface HospitalSearchModalProps {
 const BASE_URL = import.meta.env.VITE_BASE_URL
 const SEARCH_HOSPITAL_ENDPOINT = '/api/hospitals/name/'
 
+/**
+ * 병원 검색 모달 컴포넌트
+ * @param {object} props - 컴포넌트 프롭스
+ * @param {boolean} props.isOpen - 모달 열림 상태
+ * @param {Function} props.onClose - 모달 닫기 콜백
+ * @param {Function} props.onSelect - 병원 선택 시 콜백
+ * @returns {JSX.Element | null} 모달 컴포넌트 또는 null
+ */
 function HospitalSearchModal({ isOpen, onClose, onSelect }: HospitalSearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [hospitals, setHospitals] = useState<HospitalBase[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  /**
+   * 모달 배경 클릭 시 모달을 닫는 핸들러
+   * @param {React.MouseEvent<HTMLDivElement>} e - 클릭 이벤트
+   */
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
+  /**
+   * 병원 검색을 실행하는 핸들러
+   * @returns {Promise<void>}
+   */
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       setError('병원 이름을 입력해주세요.')
