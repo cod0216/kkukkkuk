@@ -31,7 +31,7 @@ interface TreatmentFormProps {
  * 반려동물의 의료 기록을 입력하는 컴포넌트입니다. 
  */
 const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
-  const [symptoms, setSymptoms] = useState('');
+  const [notes, setNotes] = useState('');
   const [prescriptionType, setPrescriptionType] = useState('');
   const [prescriptionDosage, setPrescriptionDosage] = useState('');
   const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
@@ -42,7 +42,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
   });
   const [images, setImages] = useState<string[]>([]);
   const [diagnosis, setDiagnosis] = useState('');
-  const [doctorId, setDoctorId] = useState<number>(0);
+  const [doctorId, setDoctorId] = useState<number>(doctors[0].id);
 
   /**
    * 이미지 업로드 핸들러입니다. 
@@ -72,13 +72,15 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
       diagnosis,
       treatments: prescriptions,
       doctorName: doctors.find(doctor => doctor.id === doctorId)?.name || '',
-      notes: symptoms,
+      notes: notes,
       hospitalAddress: '',
       hospitalName: '',
       createdAt: new Date().toISOString(),
       isDeleted: false,
       pictures: images,
     };
+
+    console.log(record);
 
     onSave();
   };
@@ -112,7 +114,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
         <div className="flex-1 flex flex-col gap-2">
           {/* 진단 입력 필드 */}
           <div>
-            <div className="font-bold text-sm">진단</div>
+            <div className="font-bold text-md">진단</div>
             <input
               type="text"
               className="w-full border mt-2 p-2 text-sm rounded-md"
@@ -123,17 +125,17 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
 
           {/* 증상 입력 필드 */}
           <div>
-            <div className="font-bold text-sm">증상</div>
+            <div className="font-bold text-md">증상</div>
             <textarea
               className="w-full border p-2 text-sm h-24 rounded-md"
-              value={symptoms}
-              onChange={(e) => setSymptoms(e.target.value)}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
             />
           </div>
 
           {/* 사진 업로드 */}
           <div className="flex-1">
-            <div className="font-bold text-sm">사진</div>
+            <div className="font-bold text-md">사진</div>
             <div className="flex gap-1 mt-2">
               <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" id="file-upload" />
               <label
@@ -159,7 +161,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({ onSave, doctors }) => {
 
         {/* 처방 입력 필드 */}
         <div className="flex-1">
-          <div className="font-bold text-sm mb-2">처방</div>
+          <div className="font-bold text-md mb-2">처방</div>
           <PrescriptionSection
             prescriptions={prescriptions}
             setPrescriptions={setPrescriptions}

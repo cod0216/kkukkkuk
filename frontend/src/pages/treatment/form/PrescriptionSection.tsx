@@ -44,8 +44,8 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     const addPrescription = () => {
         if (prescriptionType.trim() && prescriptionDosage.trim()) {
             const newPrescription = {
-                key: treatmentType,
-                name: prescriptionType,
+                type: treatmentType,
+                key: prescriptionType,
                 value: prescriptionDosage
             };
 
@@ -100,7 +100,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                         <option key={type} value={type}>{type}</option>
                     ))}
                 </select>
-                
+
                 {/* 처방 항목명 입력 */}
                 <input
                     type="text"
@@ -109,7 +109,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                     placeholder="약물"
                     className="flex-1 border rounded px-2 py-1 text-sm max-w-40"
                 />
-                
+
                 {/* 처방 용량 입력 */}
                 <input
                     type="text"
@@ -118,7 +118,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                     placeholder="용량"
                     className="flex-1 border rounded px-2 py-1 text-sm max-w-40"
                 />
-                
+
                 {/* 처방 추가 버튼 */}
                 <button
                     onClick={addPrescription}
@@ -129,27 +129,38 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
             </div>
 
             {/* 기존 처방 목록 표시 */}
-            <div className="flex gap-1 flex-col text-sm mr-9">
+            <div className="flex gap-1 flex-col text-sm mr-9 p-2">
+                {prescriptions.examinations.length > 0 && (
+                    <div className="font-bold text-md mt-2">검사</div>
+                )}
                 {prescriptions.examinations.map((item: any, index: number) => (
                     <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
-                        <div>{item.type}</div>
-                        <div>{item.name}</div>
+                        {/* <div>{item.type}</div> */}
+                        <div>{item.key}</div>
                         <div>{item.value}</div>
                         <button onClick={() => removePrescription(index, TreatmentType.EXAMINATION)} className="text-primary-500 text-xs">x</button>
                     </div>
                 ))}
+
+                {prescriptions.medications.length > 0 && (
+                    <div className="font-bold text-md">약물</div>
+                )}
+                <div className="font-bold text-md mt-2">약물</div>
                 {prescriptions.medications.map((item: any, index: number) => (
                     <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
-                        <div>{item.type}</div>
-                        <div>{item.name}</div>
+                        {/* <div>{item.type}</div> */}
+                        <div>{item.key}</div>
                         <div>{item.value}</div>
                         <button onClick={() => removePrescription(index, TreatmentType.MEDICATION)} className="text-primary-500 text-xs">x</button>
                     </div>
                 ))}
+                {prescriptions.vaccinations.length > 0 && (
+                    <div className="font-bold text-md mt-2">접종</div>
+                )}
                 {prescriptions.vaccinations.map((item: any, index: number) => (
                     <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
-                        <div>{item.type}</div>
-                        <div>{item.name}</div>
+                        {/* <div>{item.type}</div> */}
+                        <div>{item.key}</div>
                         <div>{item.value}</div>
                         <button onClick={() => removePrescription(index, TreatmentType.VACCINATION)} className="text-primary-500 text-xs">x</button>
                     </div>

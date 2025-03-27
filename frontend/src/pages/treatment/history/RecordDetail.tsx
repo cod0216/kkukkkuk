@@ -60,19 +60,19 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({ record }) => {
           <div className="bg-gray-50 rounded-lg p-4 space-y-2">
             {record.treatments.examinations.map((exam, index) => (
               <div key={index} className="text-xs flex justify-between border-b pb-2 last:border-b-0">
-                <span className="font-medium text-gray-800">{exam.key}</span>
+                <span className="font-medium text-gray-800">{exam.type}</span>
                 <span className="text-gray-600">{exam.value}</span>
               </div>
             ))}
             {record.treatments.medications.map((medication, index) => (
               <div key={index} className="text-xs flex justify-between border-b pb-2 last:border-b-0">
-                <span className="font-medium text-gray-800">{medication.key}</span>
+                <span className="font-medium text-gray-800">{medication.type}</span>
                 <span className="text-gray-600">용량: {medication.value}</span>
               </div>
             ))}
             {record.treatments.vaccinations.map((vaccination, index) => (
               <div key={index} className="text-xs flex justify-between border-b pb-2 last:border-b-0">
-                <span className="font-medium text-gray-800">{vaccination.key}</span>
+                <span className="font-medium text-gray-800">{vaccination.type}</span>
                 <span className="text-gray-600">{vaccination.value}차</span>
               </div>
             ))}

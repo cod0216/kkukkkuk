@@ -50,9 +50,9 @@ const PetListItem: React.FC<PetListItemProps> = ({
               <div className="font-bold text-gray-900 text-nowrap">{treatment.name}</div>
               <div className="text-[8pt] font-medium text-gray-600">{treatment.breedName}</div>
           </div>
-          {/* <div className={`h-4 flex items-center text-[8pt] px-2 rounded-full text-nowrap ${getStateBadgeColor(treatment.state)}`}>
+          <div className={`h-4 flex items-center text-[8pt] px-2 rounded-full text-nowrap ${getStateBadgeColor(treatment.state)}`}>
             {treatment.state}
-          </div> */}
+          </div>
         </div>
       </div>
       <div className="text-xs text-gray-600">

@@ -42,15 +42,15 @@ const TreatmentMain: React.FC = () => {
       diagnosis: "감기",
       treatments: {
         examinations: [
-          { key: "혈액 검사", value: "백혈구 수치 확인" },
-          { key: "X-ray", value: "폐 상태 확인" }
+          { type: "혈액 검사", value: "백혈구 수치 확인" },
+          { type: "X-ray", value: "폐 상태 확인" }
         ],
         medications: [
-          { key: "타이레놀", value: "3" },
-          { key: "항생제", value: "2" }
+          { type: "타이레놀", value: "3" },
+          { type: "항생제", value: "2" }
         ],
         vaccinations: [
-          { key: "독감 예방 접종", value: "1" }
+          { type: "독감 예방 접종", value: "1" }
         ]
       },
       doctorName: "김의사",
@@ -130,7 +130,6 @@ const TreatmentMain: React.FC = () => {
 
   /**
    * 현재 진료기록의 상태에 따라 필요한 CSS 요소를 반환합니다.
-   * @param {TreatmentState} state - 진료 상태 enum
    * @returns {string} state 상태에 따른 CSS 태그 
    */
   const handleSaveTreatment = (): void => {

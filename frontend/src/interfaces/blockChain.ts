@@ -94,7 +94,7 @@ export interface BlockChainTreatment {
  * @interface
  */
 export interface ExaminationTreatment {
-  key: string; // 검사 종류 
+  type: string; // 검사 종류 
   value: string; // 검사 내용
 }
 
@@ -103,7 +103,7 @@ export interface ExaminationTreatment {
  * @interface
  */
 export interface MedicationTreatment {
-  key: string; // 약물 종류 
+  type: string; // 약물 종류 
   value: string; // 투여 횟수
 }
 
@@ -112,6 +112,6 @@ export interface MedicationTreatment {
  * @interface
  */
 export interface VaccinationTreatment {
-  key: string; // 접종 종류 
+  type: string; // 접종 종류 
   value: string; // 차수
 }
