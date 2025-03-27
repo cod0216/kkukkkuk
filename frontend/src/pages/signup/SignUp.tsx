@@ -186,7 +186,7 @@ function SignUp() {
     }
     
     if (!validatePassword(signUpRequestForm.password)) {
-      setPasswordError('비밀번호는 6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.')
+      setPasswordError('6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.')
       return false
     }
 
@@ -217,8 +217,10 @@ function SignUp() {
 
     const idString = signUpRequestForm.id
     const idAsNumber = parseInt(String(idString), 10)
+    const doctor_name = signUpRequestForm.doctorName
     const payload = {
       ...signUpRequestForm,
+      doctor_name: doctor_name,
       id: idAsNumber
     }
 
@@ -235,9 +237,9 @@ function SignUp() {
   }
 
   return (
-    <div className="">
-      <h1 className="my-4 text-4xl text-primary-500 font-bold">KKUK KKUK</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-md mx-auto">
+      <h1 className="my-4 text-4xl text-primary-500 text-center font-bold">KKUK KKUK</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col">
 
         <div className="mb-2">
           <label htmlFor="account">아이디</label>
@@ -250,12 +252,13 @@ function SignUp() {
               className="flex-1 p-2 border rounded"
               onChange={handleChange} 
               value={signUpRequestForm.account} 
+              placeholder="Account"
               required 
             />
             <button 
               type="button" 
               onClick={handleCheckAccountDuplicate}
-              className="px-4 py-2 bg-primary-400 text-white rounded"
+              className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
             >
               중복 확인
             </button>
@@ -274,6 +277,7 @@ function SignUp() {
             className="w-full p-2 border rounded"
             onChange={handleChange} 
             value={signUpRequestForm.password} 
+            placeholder="Password"
             required 
           />
           {passwordError && <p className="text-secondary-500 text-sm mt-1">{passwordError}</p>}
@@ -290,12 +294,13 @@ function SignUp() {
               className="flex-1 p-2 border rounded"
               onChange={handleChange} 
               value={signUpRequestForm.email} 
+              placeholder="Email"
               required 
             />
             <button 
               type="button" 
               onClick={handleSendEmailVerificationCode}
-              className="px-4 py-2 bg-primary-400 text-white rounded"
+              className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
             >
               인증번호 발송
             </button>
@@ -316,17 +321,18 @@ function SignUp() {
                 className="flex-1 p-2 border rounded"
                 onChange={handleEmailVerificationCodeChange} 
                 value={emailVerificationCode} 
+                placeholder="Verification Code"
                 required 
               />
               <button 
                 type="button" 
                 onClick={handleEmailVerifyCode}
-                className="px-4 py-2 bg-primary-400 text-white rounded"
+                className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
               >
                 인증 확인
               </button>
             </div>
-            {emailVerificationError && <p className="text-secondary-500 text-sm mt-1">{emailVerificationError}</p>}
+            {emailVerificationError && <p className="text-secondary-500 text-sm mt-1 overflow-hidden break-words">{emailVerificationError}</p>}
           </div>
         )}
 
@@ -341,13 +347,14 @@ function SignUp() {
               className="flex-1 p-2 border rounded"
               onChange={handleChange} 
               value={signUpRequestForm.id} 
+              placeholder="Hospital ID"
               required
-              readOnly={!!selectedHospital}
+              disabled={true}
             />
             <button 
               type="button" 
               onClick={openModal}
-              className="px-4 py-2 bg-primary-400 text-white rounded"
+              className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
             >
               병원 검색
             </button>
@@ -373,18 +380,20 @@ function SignUp() {
             className="w-full p-2 border rounded"
             onChange={handleChange} 
             value={signUpRequestForm.doctorName} 
+            placeholder="Doctor Name"
             required 
           />
         </div>
 
         {error && <p className="text-secondary-500 text-sm mb-2">{error}</p>}
-
-        <button 
-          className="w-full p-3 bg-primary-400 text-white rounded font-medium hover:bg-primary-500 transition-colors" 
-          type="submit"
-        >
-          회원가입
-        </button>
+        <div className="mt-10">
+          <button 
+            className="w-full p-3 bg-primary-400 text-white rounded font-medium hover:bg-primary-300 transition-colors" 
+            type="submit"
+          >
+            회원가입
+          </button>
+        </div>
 
       </form>
 
