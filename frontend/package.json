@@ -13,6 +13,8 @@
     "@reduxjs/toolkit": "^2.6.1",
     "autoprefixer": "^10.4.21",
     "axios": "^1.8.4",
+    "framer-motion": "^12.6.0",
+    "lucide-react": "^0.484.0",
     "idb": "^8.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

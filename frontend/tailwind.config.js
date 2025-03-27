@@ -19,7 +19,7 @@ export default {
           900: '#112244',
         },
         secondary: {
-          50 : '#FEFDF1',
+          50 : '#FFFEDB',
           100: '#FEF3C7',
           200: '#FDE68A',
           300: '#FCD34D',

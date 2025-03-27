@@ -1,9 +1,25 @@
 
 import React, { useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import PetListItem from '@/pages/treatment/PetListItem';
+import PetListItem from '@/pages/treatment/layout/PetListItem';
 import { Treatment, TreatmentState } from '@/interfaces';
+/**
+ * @module TreatmentSidebar
+ * @file TreatmentSidebar.tsx
+ * @author haelim
+ * @date 2025-03-26
+ * @description 진단 페이지 내부의 좌측 사이드바 역할을 수행합니다. 
+ *              병원에 진료했던 반려동물를 출력하는 UI 컴포넌트입니다.   
+ *              
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025-03-26        haelim           최초 생성
+ */
 
+/**
+ * TreatmentSidebar 컴포넌트의 Props 타입 정의
+ */
 interface SidebarProps {
     treatments: Treatment[];
     selectedPetIndex : number;
@@ -12,6 +28,10 @@ interface SidebarProps {
     getStateColor: (state: TreatmentState) => string;
 }
 
+/**
+ * 진단 페이지 내부의 좌측 사이드바 역할을 수행합니다. 
+ * 병원에 진료했던 반려동물를 출력하는 UI 컴포넌트입니다.  
+ */
 const TreatmentSidebar: React.FC<SidebarProps> = ({
     treatments,
     selectedPetIndex,
@@ -25,8 +45,10 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
         dateRange: { start: '', end: '' },
         state: TreatmentState.NONE,
       });
+
     
   return (
+    
     <div className="w-80 bg-white rounded-lg border p-4 mr-6">
         <div className="mb-6">
             {/* 검색 */}
@@ -105,6 +127,7 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
               treatment={treatment}
               isSelected={selectedPetIndex === index}
               onSelect={() => setSelectedPetIndex(index)}
+            //   onSelect={() => navigate(`/treatment/${index}`)}
               getStateColor={getStateColor}
               getStateBadgeColor={getStateBadgeColor}
             />
