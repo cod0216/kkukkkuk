@@ -1,3 +1,4 @@
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_delete_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_info_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
@@ -17,4 +18,7 @@ abstract class IWalletRepository {
   Future<WalletUpdateResponse> updateWallet(
     WalletUpdateRequest request,
   );
+  
+  /// 지갑 정보 삭제
+  Future<WalletDeleteResponse> deleteWallet();
 }

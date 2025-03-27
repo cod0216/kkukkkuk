@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_delete_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_info_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
@@ -53,6 +54,17 @@ class WalletRepository implements IWalletRepository {
       return WalletUpdateResponse.fromJson(response.data);
     } catch (e) {
       print('지갑 정보 업데이트 실패: $e');
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<WalletDeleteResponse> deleteWallet() async {
+    try {
+      final response = await _apiClient.delete('/api/wallets/me');
+      return WalletDeleteResponse.fromJson(response.data);
+    } catch (e) {
+      print('지갑 정보 삭제 실패: $e');
       rethrow;
     }
   }
