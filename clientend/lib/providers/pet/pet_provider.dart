@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet/get_pet_list_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_pet_list_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/register_pet_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/registry_usecase_providers.dart'
+    as registry_usecase_providers;
 import 'package:kkuk_kkuk/domain/usecases/pet/update_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/delete_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
@@ -42,8 +43,6 @@ class PetState {
 class PetNotifier extends StateNotifier<PetState> {
   static const String _privateKeyKey = 'eth_private_key';
   static const String _addressKey = 'eth_address';
-  static const String _publicKeyKey = 'eth_public_key';
-  static const String _mnemonicKey = 'eth_mnemonic';
 
   final FlutterSecureStorage _secureStorage =
       const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
@@ -112,21 +111,8 @@ class PetNotifier extends StateNotifier<PetState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final updatedPet = await _updatePetUseCase.execute(
-        EthPrivateKey.fromHex(
-          (await _secureStorage.read(key: _privateKeyKey)) ?? '',
-        ),
-        pet,
-      );
-
-      final updatedPets =
-          state.pets.map((p) {
-            return p;
-            // TODO: 반려동물 정보 수정 로직 구현
-            // return p.id == updatedPet.id ? updatedPet : p;
-          }).toList();
-
-      state = state.copyWith(pets: updatedPets, isLoading: false);
+      // TODO: 반려동물 정보 수정 로직 구현
+      Exception('updatePet is Not implemented');
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -199,8 +185,12 @@ class PetNotifier extends StateNotifier<PetState> {
 
 /// 반려동물 프로바이더
 final petProvider = StateNotifierProvider<PetNotifier, PetState>((ref) {
-  final getPetListUseCase = ref.watch(getPetListUseCaseProvider);
-  final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
+  final getPetListUseCase = ref.watch(
+    registry_usecase_providers.getPetListUseCaseProvider,
+  );
+  final registerPetUseCase = ref.watch(
+    registry_usecase_providers.registerPetUseCaseProvider,
+  );
   final updatePetUseCase = ref.watch(updatePetUseCaseProvider);
   final deletePetUseCase = ref.watch(deletePetUseCaseProvider);
 
