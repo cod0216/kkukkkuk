@@ -2,18 +2,16 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';
-import 'package:kkuk_kkuk/domain/services/blockchain_service.dart';
+import 'package:kkuk_kkuk/data/datasource/contracts/blockchain_client.dart';
 
-class PetRegistryContract {
-  // SSAFY 블록체인에 배포된 동물 등록 컨트랙트 주소
+class RegistryContract {
   static const String contractAddress =
       '0xE3B7abcB7cdd4c483ee891757Bc827592b1B151b';
 
-  final Web3Client _client;
+  final BlockchainClient _blockchainClient;
   late final DeployedContract _contract;
 
-  // 레지스트리 컨트랙트 함수들
+  // 컨트랙트 함수들 정의
   late final ContractFunction _registerPetWithAttributes;
   late final ContractFunction _registerPetOwnership;
   late final ContractFunction _changeOwner;
@@ -38,50 +36,52 @@ class PetRegistryContract {
   late final ContractFunction _getPetHospitals;
   late final ContractFunction _checkSharingPermission;
 
-  PetRegistryContract(this._client);
+  RegistryContract(this._blockchainClient);
 
-  /// 컨트랙트 초기화
   Future<void> initialize() async {
-    // assets 폴더에서 ABI 파일 로드
-    final abiString = await rootBundle.loadString('assets/registryABI.json');
-    final abiJson = jsonDecode(abiString);
-    final abi = abiJson['registryABI'];
+    try {
+      final abiString = await rootBundle.loadString('assets/registryABI.json');
+      final abiJson = jsonDecode(abiString);
+      final abi = abiJson['registryABI'];
 
-    // 컨트랙트 인스턴스 생성
-    _contract = DeployedContract(
-      ContractAbi.fromJson(jsonEncode(abi), 'PetRegistry'),
-      EthereumAddress.fromHex(contractAddress),
-    );
+      _contract = DeployedContract(
+        ContractAbi.fromJson(jsonEncode(abi), 'PetRegistry'),
+        EthereumAddress.fromHex(contractAddress),
+      );
 
-    // 컨트랙트 함수 초기화
-    _registerPetWithAttributes = _contract.function(
-      'registerPetWithAttributes',
-    );
-    _registerPetOwnership = _contract.function('registerPetOwnership');
-    _changeOwner = _contract.function('changeOwner');
-    _setAttribute = _contract.function('setAttribute');
-    _getAttribute = _contract.function('getAttribute');
-    _getAllAttributes = _contract.function('getAllAttributes');
-    _addHospital = _contract.function('addHospital');
-    _removeHospital = _contract.function('removeHospital');
-    _addMedicalRecord = _contract.function('addMedicalRecord');
-    _appendMedicalRecord = _contract.function('appendMedicalRecord');
-    _softDeleteMedicalRecord = _contract.function('softDeleteMedicalRecord');
-    _softDeletePet = _contract.function('softDeletePet');
-    _petExists = _contract.function('petExists');
-    _isPetDeleted = _contract.function('isPetDeleted');
-    _hasAccess = _contract.function('hasAccess');
-    _addHospitalWithSharing = _contract.function('addHospitalWithSharing');
-    _revokeSharingAgreement = _contract.function('revokeSharingAgreement');
-    _getActivePetsByOwner = _contract.function('getActivePetsByOwner');
-    _getAgreementDetails = _contract.function('getAgreementDetails');
-    _getHospitalPets = _contract.function('getHospitalPets');
-    _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
-    _getPetHospitals = _contract.function('getPetHospitals');
-    _checkSharingPermission = _contract.function('checkSharingPermission');
+      // 함수 초기화
+      _registerPetWithAttributes = _contract.function(
+        'registerPetWithAttributes',
+      );
+      _registerPetOwnership = _contract.function('registerPetOwnership');
+      _changeOwner = _contract.function('changeOwner');
+      _setAttribute = _contract.function('setAttribute');
+      _getAttribute = _contract.function('getAttribute');
+      _getAllAttributes = _contract.function('getAllAttributes');
+      _addHospital = _contract.function('addHospital');
+      _removeHospital = _contract.function('removeHospital');
+      _addMedicalRecord = _contract.function('addMedicalRecord');
+      _appendMedicalRecord = _contract.function('appendMedicalRecord');
+      _softDeleteMedicalRecord = _contract.function('softDeleteMedicalRecord');
+      _softDeletePet = _contract.function('softDeletePet');
+      _petExists = _contract.function('petExists');
+      _isPetDeleted = _contract.function('isPetDeleted');
+      _hasAccess = _contract.function('hasAccess');
+      _addHospitalWithSharing = _contract.function('addHospitalWithSharing');
+      _revokeSharingAgreement = _contract.function('revokeSharingAgreement');
+      _getActivePetsByOwner = _contract.function('getActivePetsByOwner');
+      _getAgreementDetails = _contract.function('getAgreementDetails');
+      _getHospitalPets = _contract.function('getHospitalPets');
+      _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
+      _getPetHospitals = _contract.function('getPetHospitals');
+      _checkSharingPermission = _contract.function('checkSharingPermission');
+    } catch (e) {
+      print('컨트랙트 초기화 오류: $e');
+      rethrow;
+    }
   }
 
-  /// 반려동물 등록 (속성 포함)
+  // 컨트랙트 함수 호출 메서드들
   Future<String> registerPetWithAttributes({
     required Credentials credentials,
     required String petAddress,
@@ -104,10 +104,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -122,10 +121,9 @@ class PetRegistryContract {
       parameters: [EthereumAddress.fromHex(petAddress)],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -144,10 +142,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -170,10 +167,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -182,7 +178,7 @@ class PetRegistryContract {
     required String petAddress,
     required String name,
   }) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getAttribute,
       params: [EthereumAddress.fromHex(petAddress), name],
@@ -202,7 +198,7 @@ class PetRegistryContract {
 
   /// 반려동물의 모든 속성 조회
   Future<Map<String, dynamic>> getAllAttributes(String petAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getAllAttributes,
       params: [EthereumAddress.fromHex(petAddress)],
@@ -244,10 +240,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -270,10 +265,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -292,10 +286,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -314,10 +307,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -342,10 +334,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -372,10 +363,9 @@ class PetRegistryContract {
       ],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -391,10 +381,9 @@ class PetRegistryContract {
       parameters: [EthereumAddress.fromHex(petAddress), recordKey],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
@@ -409,16 +398,15 @@ class PetRegistryContract {
       parameters: [EthereumAddress.fromHex(petAddress)],
     );
 
-    return await _client.sendTransaction(
-      credentials,
-      transaction,
-      chainId: BlockchainService.chainId,
+    return await _blockchainClient.sendTransaction(
+      credentials: credentials,
+      transaction: transaction,
     );
   }
 
   /// 반려동물 존재 여부 확인
   Future<bool> petExists(String petAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _petExists,
       params: [EthereumAddress.fromHex(petAddress)],
@@ -429,7 +417,7 @@ class PetRegistryContract {
 
   /// 반려동물 삭제 여부 확인
   Future<bool> isPetDeleted(String petAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _isPetDeleted,
       params: [EthereumAddress.fromHex(petAddress)],
@@ -443,7 +431,7 @@ class PetRegistryContract {
     required String petAddress,
     required String userAddress,
   }) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _hasAccess,
       params: [
@@ -460,7 +448,7 @@ class PetRegistryContract {
     required String petAddress,
     required String userAddress,
   }) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _checkSharingPermission,
       params: [
@@ -474,7 +462,7 @@ class PetRegistryContract {
 
   /// 소유자의 활성화된 반려동물 목록 조회
   Future<List<String>> getActivePetsByOwner(String ownerAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getActivePetsByOwner,
       params: [EthereumAddress.fromHex(ownerAddress)],
@@ -495,7 +483,7 @@ class PetRegistryContract {
     required String petAddress,
     required String hospitalAddress,
   }) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getAgreementDetails,
       params: [
@@ -523,7 +511,7 @@ class PetRegistryContract {
 
   /// 병원의 반려동물 목록 조회
   Future<List<String>> getHospitalPets(String hospitalAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getHospitalPets,
       params: [EthereumAddress.fromHex(hospitalAddress)],
@@ -541,7 +529,7 @@ class PetRegistryContract {
 
   /// 소유자의 반려동물 수 조회
   Future<int> getOwnedPetsCount(String ownerAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getOwnedPetsCount,
       params: [EthereumAddress.fromHex(ownerAddress)],
@@ -552,7 +540,7 @@ class PetRegistryContract {
 
   /// 반려동물의 병원 목록 조회
   Future<List<String>> getPetHospitals(String petAddress) async {
-    final result = await _client.call(
+    final result = await _blockchainClient.client.call(
       contract: _contract,
       function: _getPetHospitals,
       params: [EthereumAddress.fromHex(petAddress)],
@@ -567,12 +555,38 @@ class PetRegistryContract {
         .toList()
         .cast<String>();
   }
+
+  Future<TransactionReceipt?> getTransactionReceipt(String txHash) async {
+    try {
+      return await _blockchainClient.client.getTransactionReceipt(
+        txHash.startsWith('0x') ? txHash : '0x$txHash',
+      );
+    } catch (e) {
+      print('트랜잭션 영수증 조회 오류: $e');
+      return null;
+    }
+  }
+
+  // TODO: 전역 처리
+  Future<void> waitForTransactionCompletion(String txHash) async {
+    try {
+      TransactionReceipt? receipt;
+      while (receipt == null) {
+        receipt = await _blockchainClient.client.getTransactionReceipt(txHash);
+        if (receipt == null) {
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      }
+    } catch (e) {
+      print('Error waiting for transaction completion: $e');
+      rethrow;
+    }
+  }
 }
 
-final petRegistryContractProvider = Provider<PetRegistryContract>((ref) {
-  final getWeb3ClientUseCase = ref.watch(getWeb3ClientUseCaseProvider);
-  final web3Client = getWeb3ClientUseCase.execute();
-  final contract = PetRegistryContract(web3Client);
+final petRegistryContractProvider = Provider<RegistryContract>((ref) {
+  final blockchainClient = ref.watch(blockchainClientProvider);
+  final contract = RegistryContract(blockchainClient);
   contract.initialize();
   return contract;
 });

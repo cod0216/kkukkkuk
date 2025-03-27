@@ -1,18 +1,17 @@
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/repositories/pet_repository_interface.dart';
 import 'package:kkuk_kkuk/domain/repositories/registry_contract_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
-class RegisterPetUseCase {
+class UpdatePetUseCase {
   final IRegistryContractRepository _repository;
 
-  RegisterPetUseCase(this._repository);
+  UpdatePetUseCase(this._repository);
 
   Future<Pet> execute(EthPrivateKey credentials, Pet pet) async {
     try {
-      return await _repository.registerPet(credentials, pet);
+      return await _repository.updatePet(credentials, pet);
     } catch (e) {
-      throw Exception('반려동물 등록에 실패했습니다: $e');
+      throw Exception('반려동물 정보 수정에 실패했습니다: $e');
     }
   }
 }
