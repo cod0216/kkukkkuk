@@ -35,7 +35,6 @@ const Header: React.FC = () => {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   const [refreshAttempted, setRefreshAttempted] = useState(false);
 
-  // 만약 accessToken이 없으면 IndexedDB에서 refreshToken을 꺼내서 재발급 시도
   useEffect(() => {
     const checkAndRefresh = async () => {
       if (!accessToken && !refreshAttempted) {
@@ -46,13 +45,11 @@ const Header: React.FC = () => {
               refreshToken: storedRefreshToken,
             });
             if (response.status === ResponseStatus.SUCCESS && response.data) {
-              // refreshToken API 응답 구조에 맞게 새 토큰을 구조 분해합니다.
               const {
                 accessToken: newAccessToken,
                 refreshToken: newRefreshToken,
               } = response.data;
               dispatch(setAccessToken(newAccessToken));
-              // hospital 정보는 로그인 시 설정되었거나 별도 로직으로 처리 가능하므로 여기선 토큰만 업데이트
               await setRefreshtoken(newRefreshToken);
             } else {
               dispatch(clearAccessToken());
