@@ -1,7 +1,9 @@
 package com.be.KKUKKKUK.domain.hospital.service;
 
+import com.be.KKUKKKUK.domain.auth.dto.request.AccountFindRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
+import com.be.KKUKKKUK.domain.auth.dto.response.AccountFindResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
@@ -195,13 +197,7 @@ public class HospitalService {
         return hospitalRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
     }
-
-
-
-
-
-
-
+    
     /**
      * 해당 이메일로 가입한 동물병원 회원이 있는지 확인합니다.
      * @param email 확인할 이메일 주소
@@ -212,6 +208,7 @@ public class HospitalService {
         return findHospitalByEmailOptional(email).isEmpty();
     }
 
+    
     /**
      * email 로 동물 병원 회원을 조회합니다.
      * @param email 확인할 email
@@ -222,6 +219,17 @@ public class HospitalService {
         return hospitalRepository.findByEmail(email);
     }
 
+    /**
+     * email 로 동물 병원 회원을 조회합니다.
+     * @param email 확인할 email
+     * @return email로 조회한 hospital entity
+     * @throws ApiException 이메일로 동물병원을 찾지 못할 경우 예외처리
+     */
+    @Transactional(readOnly = true)
+    public Hospital findHospitalByEmail(String email) {
+        return findHospitalByEmailOptional(email).orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
+    }
+    
     /**
      * hospital entity 를 데이터베이스에 저장합니다.
      * @param hospital 저장할 entity
@@ -259,6 +267,21 @@ public class HospitalService {
         hospital.setDoctorName(request.getDoctorName());
         hospital.setDid(request.getDid());
         hospital.setEmail(request.getEmail());
+    }
+
+    /**
+     * 가입한 동물병원의 계정을 찾고, 마스킹해서 반환합니다.
+     * @param request 계정 찾기 요청
+     * @return 마스킹된 계정 정보
+     */
+    @Transactional(readOnly = true)
+    public AccountFindResponse findHospitalAccount(AccountFindRequest request) {
+        Hospital hospital = findHospitalByEmail(request.getEmail());
+        String account = hospital.getAccount();
+        // TODO : 정책 설정, 현재 account 5-10자
+//        account.substring(0, account.length() - );
+
+        return new AccountFindResponse(account);
     }
 }
 

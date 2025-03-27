@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.18          haelim           이메일 인증 api 추가<br>
  * 25.03.22          haelim           swagger 추가<br>
+ * 25.03.27          haelim           계청 찾기 api 추가<br>
  */
 @Tag(name = "인증 API", description = "회원 로그인, 회원가입, 로그아웃, 토큰 재발급 등의 기능을 제공합니다.")
 @RestController
@@ -116,5 +117,15 @@ public class AuthController {
             @RequestBody @Valid PasswordResetRequest request) {
         authService.resetPassword(request);
         return ResponseUtility.success("비밀번호가 이메일로 발송되었습니다.", null);
+    }
+
+    /**
+     * 회원가입했던 계정을 찾습니다.
+     */
+    @Operation(summary = "계정 찾기", description = "이메일로 회원가입했던 계정 정보를 찾습니다.")
+    @PostMapping("/accounts/find")
+    public ResponseEntity<?> findAccount(
+            @RequestBody @Valid AccountFindRequest request) {
+        return ResponseUtility.success("계정 조회에 성공했습니다.", authService.findAccount(request));
     }
 }

@@ -1,9 +1,7 @@
 package com.be.KKUKKKUK.domain.hospital.service;
 
-import com.be.KKUKKKUK.domain.auth.dto.request.EmailSendRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
-import com.be.KKUKKKUK.domain.auth.dto.request.PasswordResetRequest;
+import com.be.KKUKKKUK.domain.auth.dto.request.*;
+import com.be.KKUKKKUK.domain.auth.dto.response.AccountFindResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalLoginResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
@@ -51,7 +49,7 @@ import java.util.*;
  * 25.03.17          haelim           Service Layer 계층화 <br>
  * 25.03.18          haelim           이메일 인증 관련 api 추가 <br>
  * 25.03.19          haelim           진료기록 관련 api 추가 <br>
- *
+ * 25.03.27          haelim           계정 찾기 api 추가 <br>
  */
 @Service
 @Transactional
@@ -254,6 +252,14 @@ public class HospitalComplexService {
         return treatmentService.getFilteredTreatmentByHospitalId(hospitalId, flagExpired, state, petId);
     }
 
+    /**
+     * 사용자의 계정 찾기 요청을 처리합니다.
+     * @param request 계정 찾기 요청
+     * @return 조회된 계정 정보
+     */
+    public AccountFindResponse findAccount(AccountFindRequest request) {
+        return hospitalService.findHospitalAccount(request);
+    }
 
 
 

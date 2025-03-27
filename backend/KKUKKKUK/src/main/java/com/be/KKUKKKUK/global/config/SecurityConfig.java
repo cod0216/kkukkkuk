@@ -37,6 +37,7 @@ import java.util.Arrays;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초생성<br>
+ * 25.03.27          haelim           허용 url 추가(auth) <br>
  */
 @Configurable
 @Configuration
@@ -60,6 +61,7 @@ public class SecurityConfig {
             "/api/auths/emails/send",
             "/api/auths/emails/verify",
             "/api/auths/passwords/reset",
+            "/api/auths/accounts/find",
             "/api/auths/owners/kakao/login",
             "/api/auths/hospitals/signup",
             "/api/auths/hospitals/login",
