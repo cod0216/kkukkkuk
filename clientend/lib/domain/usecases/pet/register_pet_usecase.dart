@@ -1,9 +1,10 @@
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/registry_contract_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
 class RegisterPetUseCase {
-  final IPetRepository _repository;
+  final IRegistryContractRepository _repository;
 
   RegisterPetUseCase(this._repository);
 
