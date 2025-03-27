@@ -30,7 +30,7 @@ export const getTreatments = async (data: GetTreatmentRequest): Promise<ApiRespo
   const response = await request.get<any[]>(
     `/api/hospitals/me/treatments?expired=${data.expired || ""}&state=${data.state || ""}&pet_id=${data.petId || ""}`
   );
-
+  console.log(response)
   return {
     ...response,
     data: parseTreatmentResponse(response.data || [])
