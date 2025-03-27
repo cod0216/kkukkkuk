@@ -10,6 +10,7 @@
  * -----------------------------------------------------------
  * 2025-03-26        sangmuk         회원가입 페이지 구현
  * 2025-03-26        sangmuk         비밀번호 유효성 검사 추가
+ * 2025-03-27        sangmuk         아이디 유효성 검사 추가
  */
 
 import { useState } from "react"
@@ -22,6 +23,11 @@ const SIGNUP_ENDPOINT = '/api/auths/hospitals/signup'
 const SEND_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/send'
 const VERIFY_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/verify'
 const CHECK_ACCOUNT_DUPLICATE_ENDPOINT = '/api/hospitals/account'
+
+const validateAccount = (account: string): boolean => {
+  const accountRegex = /^[a-z0-9_]{5,10}$/
+  return accountRegex.test(account)
+}
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
@@ -144,6 +150,11 @@ function SignUp() {
       return
     }
     
+    if (!validateAccount(signUpRequestForm.account)) {
+      setAccountError('5~10자의 영문 소문자, 숫자, 밑줄(_)만 사용 가능합니다.')
+      return
+    }
+    
     setAccountError(null)
     
     try {
@@ -180,6 +191,11 @@ function SignUp() {
   }
 
   const validateForm = (): boolean => {
+    if (!validateAccount(signUpRequestForm.account)) {
+      setAccountError('5~10자의 영문 소문자, 숫자, 밑줄(_)만 사용 가능합니다.')
+      return false
+    }
+
     if (!isAccountAvailable) {
       setError('아이디 중복 확인을 완료해주세요.')
       return false
