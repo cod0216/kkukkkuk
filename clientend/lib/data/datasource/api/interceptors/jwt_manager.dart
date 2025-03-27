@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/repositories/token_repository.dart';
-import 'package:kkuk_kkuk/domain/repositories/token_repository_interface.dart';
+import 'package:kkuk_kkuk/data/repositories/auth/token_repository.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth/token_repository_interface.dart';
 
 class JwtManager extends Interceptor {
   final ITokenRepository tokenRepository;

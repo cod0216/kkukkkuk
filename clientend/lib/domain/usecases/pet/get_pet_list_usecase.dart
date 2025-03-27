@@ -1,6 +1,6 @@
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/repositories/pet_repository_interface.dart';
-import 'package:kkuk_kkuk/domain/repositories/registry_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/blockchain/registry_contract_repository_interface.dart';
 
 class GetPetListUseCase {
   final IRegistryContractRepository _repository;

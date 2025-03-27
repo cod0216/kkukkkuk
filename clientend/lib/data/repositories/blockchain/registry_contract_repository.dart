@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/contracts/registry_contract.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
-import 'package:kkuk_kkuk/domain/repositories/registry_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/blockchain/registry_contract_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
 class RegistryContractRepository implements IRegistryContractRepository {

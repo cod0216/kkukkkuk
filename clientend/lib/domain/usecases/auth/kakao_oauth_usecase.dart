@@ -1,5 +1,5 @@
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:kkuk_kkuk/domain/repositories/oauth_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth/oauth_repository_interface.dart';
 
 class KakaoOAuthUseCase {
   final IOAuthRepository _repository;

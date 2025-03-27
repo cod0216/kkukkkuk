@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/repositories/sharing_contract_repository.dart';
+import 'package:kkuk_kkuk/data/repositories/blockchain/sharing_contract_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/sharing/accept_sharing_request_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/sharing/cancel_sharing_request_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/sharing/check_sharing_permission_usecase.dart';

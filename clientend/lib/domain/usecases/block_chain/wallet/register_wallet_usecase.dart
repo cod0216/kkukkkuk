@@ -1,6 +1,6 @@
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
-import 'package:kkuk_kkuk/data/repositories/wallet_repository.dart';
+import 'package:kkuk_kkuk/data/repositories/blockchain/wallet_repository.dart';
 
 class RegisterWalletUseCase {
   final WalletRepository _walletRepository;

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:kkuk_kkuk/domain/repositories/oauth_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/auth/oauth_repository_interface.dart';
 
 class OAuthRepository implements IOAuthRepository {
   @override

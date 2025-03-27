@@ -1,5 +1,5 @@
 import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
-import 'package:kkuk_kkuk/domain/repositories/pet_medical_record_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet/pet_medical_record_repository_interface.dart';
 
 class GetMedicalRecordsByDateRangeUseCase {
   final IPetMedicalRecordRepository _repository;

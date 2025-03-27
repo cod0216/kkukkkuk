@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/repositories/pet_repository.dart';
-import 'package:kkuk_kkuk/data/repositories/registry_contract_repository.dart';
+import 'package:kkuk_kkuk/data/repositories/pet/pet_repository.dart';
+import 'package:kkuk_kkuk/data/repositories/blockchain/registry_contract_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/update_pet_usecase.dart';

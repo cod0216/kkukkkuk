@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/domain/repositories/mnemonic_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/blockchain/mnemonic_repository_interface.dart';
 
 class MnemonicRepository implements MnemonicRepositoryInterface {
   final FlutterSecureStorage _secureStorage;

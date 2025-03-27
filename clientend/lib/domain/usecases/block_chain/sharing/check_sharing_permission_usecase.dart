@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/repositories/sharing_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/blockchain/sharing_contract_repository_interface.dart';
 
 class CheckSharingPermissionUseCase {
   final ISharingContractRepository _repository;
