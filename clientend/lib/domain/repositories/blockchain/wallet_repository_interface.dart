@@ -1,11 +1,9 @@
-import 'package:kkuk_kkuk/domain/entities/wallet.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
 
 abstract class IWalletRepository {
-  Future<Wallet> createWallet(String userId);
-  Future<Wallet> registerWallet({
-    required String did,
-    required String address,
-    required String encryptedPrivateKey,
-    required String publicKey,
-  });
+  /// 지갑 등록 API 호출
+  Future<WalletRegistrationResponse> registerWallet(
+    WalletRegistrationRequest request,
+  );
 }
