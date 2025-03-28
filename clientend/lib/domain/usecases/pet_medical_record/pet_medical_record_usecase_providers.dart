@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/data/repositories/blockchain/registry_contract_repository.dart';
 import 'package:kkuk_kkuk/data/repositories/pet/pet_medical_record_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/check_access_permission_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_by_date_range_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/grant_access_permission_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/grant_hospital_access_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/verify_medical_record_usecase.dart';
 
 final getMedicalRecordsUseCaseProvider = Provider<GetMedicalRecordsUseCase>((
@@ -45,3 +47,9 @@ final grantAccessPermissionUseCaseProvider =
       final repository = ref.watch(petMedicalRecordRepositoryProvider);
       return GrantAccessPermissionUseCase(repository);
     });
+
+// Add the new provider for granting hospital access
+final grantHospitalAccessUseCaseProvider = Provider<GrantHospitalAccessUseCase>((ref) {
+  final repository = ref.watch(registryContractRepositoryProvider);
+  return GrantHospitalAccessUseCase(repository);
+});

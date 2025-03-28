@@ -20,9 +20,9 @@ class MedicalRecordQueryController {
     DateTime startDate,
     DateTime endDate,
   ) async {
-    await ref
-        .read(medicalRecordQueryProvider.notifier)
-        .getRecordsByDateRange(petId, startDate, endDate);
+    await null;
+    // TODO: Implement getRecordsByDateRange method
+    //ref.read(medicalRecordQueryProvider.notifier).getRecordsByDateRange(petId, startDate, endDate);
   }
 
   /// 현재 상태 조회
@@ -38,6 +38,11 @@ class MedicalRecordQueryController {
   /// 에러 상태 조회
   String? getError() {
     return ref.read(medicalRecordQueryProvider).error;
+  }
+
+  /// 진료 기록 상태 초기화
+  void clearRecords() {
+    ref.read(medicalRecordQueryProvider.notifier).clearRecords();
   }
 }
 

@@ -7,6 +7,8 @@ import 'package:kkuk_kkuk/screens/main/views/my_page_view.dart';
 import 'package:kkuk_kkuk/screens/auth/auth_screen.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/pet_profile_screen.dart';
 import 'package:kkuk_kkuk/screens/pet_register/pet_register_screen.dart';
+// QR 스캐너 라우트 import 추가
+import 'package:kkuk_kkuk/routes/qr_scanner_routes.dart';
 
 final router = GoRouter(
   initialLocation: '/',
@@ -51,5 +53,8 @@ final router = GoRouter(
       path: '/pet-detail',
       builder: (context, state) => PetProfileScreen(pet: state.extra as Pet),
     ),
+    
+    // QR 스캐너 라우트 추가
+    ...qrScannerRoutes,
   ],
 );

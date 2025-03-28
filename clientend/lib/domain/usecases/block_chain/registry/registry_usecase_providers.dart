@@ -5,6 +5,7 @@ import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/check_sharing_per
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/delete_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_agreement_details_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_hospital_pets_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_medical_records_from_blockchain_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_pet_attributes_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_pet_hospitals_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_pet_list_usecase.dart';
@@ -86,4 +87,11 @@ final checkSharingPermissionUseCaseProvider =
     Provider<CheckSharingPermissionUseCase>((ref) {
       final repository = ref.watch(registryContractRepositoryProvider);
       return CheckSharingPermissionUseCase(repository);
+    });
+
+// 블록체인에서 진료 기록 조회 유스케이스 Provider
+final getMedicalRecordsFromBlockchainUseCaseProvider =
+    Provider<GetMedicalRecordsFromBlockchainUseCase>((ref) {
+      final repository = ref.watch(registryContractRepositoryProvider);
+      return GetMedicalRecordsFromBlockchainUseCase(repository);
     });

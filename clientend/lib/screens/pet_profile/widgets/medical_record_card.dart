@@ -8,6 +8,12 @@ class MedicalRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('MedicalRecordCard building with record: $record');
+    // Add debug print to check record data
+    print('진료 일자: ${record.treatmentDate}');
+    print('진료 내용: ${record.treatmentDetails}');
+    print('진료 메모: ${record.memo}');
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -2,84 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_medical_record_repository_interface.dart';
 
-// 임시 진료 기록 데이터
-final Map<int, List<PetMedicalRecord>> _dummyRecords = {
-  1: [
-    PetMedicalRecord(
-      treatmentDate: DateTime(2024, 1, 15),
-      recordType: '정기검진',
-      veterinarian: '김수의',
-      petName: '공이',
-      petGender: 'MALE',
-      guardianName: '홍길동',
-      treatmentDetails: '구토시선 활영 (5~10kg)\n부방사선 활영 (5~10kg)',
-      medication: '파나쿠어 250mg',
-      xRayUrl: null,
-      memo: '고양이 금식 염증 단백질 수치 (SAA)\n혈청화합검사 (17종)\n심장초음파 (5kg 이하)',
-    ),
-    PetMedicalRecord(
-      treatmentDate: DateTime(2024, 1, 1),
-      recordType: '치료',
-      veterinarian: '이수의',
-      petName: '공이',
-      petGender: 'MALE',
-      guardianName: '홍길동',
-      treatmentDetails: '혈액 카테터 장착(catheter)\n전혈구검사(CBC, 나흐코딩)',
-      medication: 'Cardopet, ProBNP - Feline',
-      xRayUrl: null,
-      memo: '기본내복약/1일, bid (<5kg)',
-    ),
-    PetMedicalRecord(
-      treatmentDate: DateTime(2024, 1, 15),
-      recordType: '정기검진',
-      veterinarian: '김수의',
-      petName: '공이',
-      petGender: 'MALE',
-      guardianName: '홍길동',
-      treatmentDetails: '구토시선 활영 (5~10kg)\n부방사선 활영 (5~10kg)',
-      medication: '파나쿠어 250mg',
-      xRayUrl: null,
-      memo: '고양이 금식 염증 단백질 수치 (SAA)\n혈청화합검사 (17종)\n심장초음파 (5kg 이하)',
-    ),
-    PetMedicalRecord(
-      treatmentDate: DateTime(2024, 1, 1),
-      recordType: '치료',
-      veterinarian: '이수의',
-      petName: '공이',
-      petGender: 'MALE',
-      guardianName: '홍길동',
-      treatmentDetails: '혈액 카테터 장착(catheter)\n전혈구검사(CBC, 나흐코딩)',
-      medication: 'Cardopet, ProBNP - Feline',
-      xRayUrl: null,
-      memo: '기본내복약/1일, bid (<5kg)',
-    ),
-    PetMedicalRecord(
-      treatmentDate: DateTime(2024, 1, 15),
-      recordType: '정기검진',
-      veterinarian: '김수의',
-      petName: '공이',
-      petGender: 'MALE',
-      guardianName: '홍길동',
-      treatmentDetails: '구토시선 활영 (5~10kg)\n부방사선 활영 (5~10kg)',
-      medication: '파나쿠어 250mg',
-      xRayUrl: null,
-      memo: '고양이 금식 염증 단백질 수치 (SAA)\n혈청화합검사 (17종)\n심장초음파 (5kg 이하)',
-    ),
-    PetMedicalRecord(
-      treatmentDate: DateTime(2024, 1, 1),
-      recordType: '치료',
-      veterinarian: '이수의',
-      petName: '공이',
-      petGender: 'MALE',
-      guardianName: '홍길동',
-      treatmentDetails: '혈액 카테터 장착(catheter)\n전혈구검사(CBC, 나흐코딩)',
-      medication: 'Cardopet, ProBNP - Feline',
-      xRayUrl: null,
-      memo: '기본내복약/1일, bid (<5kg)',
-    ),
-  ],
-};
-
 class PetMedicalRecordRepository implements IPetMedicalRecordRepository {
   @override
   Future<List<PetMedicalRecord>> getMedicalRecords(int petId) async {
@@ -87,7 +9,7 @@ class PetMedicalRecordRepository implements IPetMedicalRecordRepository {
       // TODO: 블록체인에서 진료 기록 데이터 가져오기
       // TODO: 블록체인 데이터를 PetMedicalRecord 객체로 변환
       await Future.delayed(const Duration(seconds: 1));
-      return _dummyRecords[petId] ?? [];
+      return [];
     } catch (e) {
       throw Exception('진료 기록을 가져오는데 실패했습니다: $e');
     }
@@ -115,11 +37,8 @@ class PetMedicalRecordRepository implements IPetMedicalRecordRepository {
       // TODO: 블록체인에서 특정 기간의 진료 기록 조회
       // TODO: 날짜 범위에 따른 필터링 로직 구현
       await Future.delayed(const Duration(seconds: 1));
-      final records = _dummyRecords[petId] ?? [];
-      return records.where((record) {
-        return record.treatmentDate.isAfter(startDate) &&
-            record.treatmentDate.isBefore(endDate);
-      }).toList();
+      final records = [];
+      return [];
     } catch (e) {
       throw Exception('기간별 진료 기록 조회에 실패했습니다: $e');
     }
