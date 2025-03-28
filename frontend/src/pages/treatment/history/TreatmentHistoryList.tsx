@@ -50,17 +50,16 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
   setSelectedRecordIndex = () => {},
   selectedPetDid
 }) => {
-  const [_selectedPetIndex, setSelectedPetIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [hospitalPets, setHospitalPets] = useState<HospitalPet[]>([]);
   const [blockchainRecords, setBlockchainRecords] = useState<BlockChainRecord[]>([]);
   const [currentUserAddress, setCurrentUserAddress] = useState<string | null>(null);
-  const [selectedRecordIndex, setSelectedRecordIndexLocal] = useState<number>(0);
   const [didRegistryAddress, setDidRegistryAddress] = useState<string>('');
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   
   // 선택된 기록
-  const selectedRecord = blockchainRecords.length > 0 ? blockchainRecords[selectedRecordIndex] : null;
+  const selectedRecord = blockchainRecords.length > 0 ? blockchainRecords[selectedIndex] : null;
   
   // 컨트랙트 주소 가져오기
   useEffect(() => {
@@ -101,21 +100,33 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
       const petIndex = hospitalPets.findIndex(pet => pet.petDID === selectedPetDid);
       
       if (petIndex !== -1) {
-        // 해당 반려동물 선택 및 의료 기록 표시
-        setSelectedPetIndex(petIndex);
-        setBlockchainRecords(hospitalPets[petIndex].records);
+        const petRecords = hospitalPets[petIndex].records;
+        // 해당 반려동물의 의료 기록 표시
+        setBlockchainRecords(petRecords);
         
-        // 의료 기록이 있으면 첫 번째 기록 선택
-        if (hospitalPets[petIndex].records.length > 0) {
-          setSelectedRecordIndexLocal(0);
-          setSelectedRecordIndex(0);
+        // 의료 기록이 있는 경우
+        if (petRecords.length > 0) {
+          // 선택된 인덱스가 유효하지 않은 경우에만 첫 번째 레코드 선택
+          // 1. 선택된 인덱스가 레코드 배열 범위를 벗어난 경우
+          // 2. 아직 선택된 적이 없는 경우 (selectedIndex가 -1인 경우)
+          if (selectedIndex < 0 || selectedIndex >= petRecords.length) {
+            setSelectedIndex(0);
+          }
         } else {
-          setSelectedRecordIndexLocal(-1);
-          setSelectedRecordIndex(-1);
+          // 레코드가 없는 경우 선택 초기화
+          setSelectedIndex(-1);
         }
       }
     }
-  }, [selectedPetDid, hospitalPets, setSelectedRecordIndex]);
+  }, [selectedPetDid, hospitalPets, selectedIndex]);
+  
+  // 선택된 인덱스가 변경될 때만 상위 컴포넌트에 알림
+  useEffect(() => {
+    // 유효한 인덱스인 경우에만 업데이트
+    if (selectedIndex >= 0 && selectedIndex < blockchainRecords.length) {
+      setSelectedRecordIndex(selectedIndex);
+    }
+  }, [selectedIndex, blockchainRecords.length, setSelectedRecordIndex]);
   
   const fetchHospitalPets = async () => {
     setLoading(true);
@@ -129,13 +140,14 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
         
         // selectedPetDid가 없을 때만 첫 번째 반려동물을 선택
         if (!selectedPetDid && response.pets.length > 0) {
-          setSelectedPetIndex(0);
-          setBlockchainRecords(response.pets[0].records);
+          // 기록 설정
+          const firstPetRecords = response.pets[0].records;
+          setBlockchainRecords(firstPetRecords);
           
-          // 첫 번째 기록 선택
-          if (response.pets[0].records.length > 0) {
-            setSelectedRecordIndexLocal(0);
-            setSelectedRecordIndex(0);
+          // 첫 번째 기록 선택 - 최초 로드 시에만 실행되므로 여기서는 무조건 첫 번째 선택
+          if (firstPetRecords.length > 0) {
+            setSelectedIndex(0);
+            // 상위 컴포넌트에 알림은 selectedIndex가 변경될 때 useEffect에서 처리
           }
         }
       } else {
@@ -152,8 +164,10 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
   
   // 기록 선택 핸들러
   const handleRecordSelect = (index: number) => {
-    setSelectedRecordIndexLocal(index);
-    setSelectedRecordIndex(index);
+    if (index >= 0 && index < blockchainRecords.length) {
+      setSelectedIndex(index);
+      // 상위 컴포넌트 알림은 useEffect에서 처리됨
+    }
   };
 
   return (
@@ -200,6 +214,7 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
               <RecordItem 
                 records={blockchainRecords}
                 onRecordSelect={handleRecordSelect}
+                selectedRecordId={selectedRecord?.id}
               />
             </div>
           )}
@@ -209,14 +224,14 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
       {/* 모바일에서만 표시되는 상세 정보 */}
       {selectedRecord && (
         <div className="md:hidden mt-4">
-          <RecordDetail record={selectedRecord} />
+          <RecordDetail key={`mobile-detail-${selectedIndex}`} record={selectedRecord} />
         </div>
       )}
       
       {/* 데스크톱에서는 부모 컴포넌트에서 RecordDetail을 관리 */}
       {selectedRecord && (
         <div className="hidden md:block max-w-sm">
-          <RecordDetail record={selectedRecord} />
+          <RecordDetail key={`desktop-detail-${selectedIndex}`} record={selectedRecord} />
         </div>
       )}
     </div>
