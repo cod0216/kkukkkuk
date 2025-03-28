@@ -16,15 +16,28 @@
  * @interface
  */
 export interface BlockChainRecord {
-  diagnosis: string;
-  treatments: BlockChainTreatment;
-  doctorName: string;
-  notes: string;
-  hospitalAddress: string;
-  hospitalName: string;
-  createdAt: string;
-  isDeleted: boolean;
-  pictures: string[];
+  id?: string;  // 블록체인에 저장될 때의 식별자
+  timestamp: number;  // Unix 타임스탬프 (초)
+  diagnosis: string;  // 진단명
+  treatments: BlockChainTreatment;  // 치료 정보
+  doctorName: string;  // 담당 의사 이름
+  notes: string;  // 진료 메모
+  hospitalAddress: string;  // 병원 계정 주소
+  hospitalName: string;  // 병원 이름
+  createdAt: string;  // 생성 일시 (ISO 형식)
+  isDeleted: boolean;  // 삭제 여부
+  pictures?: string[];  // 첨부 이미지 (base64)
+  expireDate?: number;  // 유효기간 만료일 (Unix 타임스탬프)
+}
+
+/**
+ * 블록체인 진료 기록 응답 객체
+ * @interface
+ */
+export interface BlockChainRecordResponse {
+  success: boolean;  // 성공 여부
+  error?: string;  // 오류 메시지
+  treatments: BlockChainRecord[];  // 진료 기록 목록
 }
 
 /**
@@ -80,21 +93,12 @@ export const TreatmentTypes: TreatmentTypeInfo[] = [
 ];
 
 /**
- * 치료 정보를 포함하는 인터페이스입니다.
- * @interface
- */
-export interface BlockChainTreatment {
-  examinations: ExaminationTreatment[]; // 검사 목록
-  medications: MedicationTreatment[]; // 약물 목록
-  vaccinations: VaccinationTreatment[]; // 접종 목록
-}
-
-/**
  * 검사 정보 인터페이스입니다.
  * @interface
  */
 export interface ExaminationTreatment {
   type: string; // 검사 종류 
+  key?: string; // 키 (내부 식별자)
   value: string; // 검사 내용
 }
 
@@ -104,6 +108,7 @@ export interface ExaminationTreatment {
  */
 export interface MedicationTreatment {
   type: string; // 약물 종류 
+  key?: string; // 키 (내부 식별자)
   value: string; // 투여 횟수
 }
 
@@ -113,5 +118,6 @@ export interface MedicationTreatment {
  */
 export interface VaccinationTreatment {
   type: string; // 접종 종류 
+  key?: string; // 키 (내부 식별자)
   value: string; // 차수
 }
