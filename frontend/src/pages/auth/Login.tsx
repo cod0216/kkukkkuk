@@ -24,6 +24,7 @@ import { ResponseStatus } from "@/types";
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        eunchang         최초 생성
+ * 2025-03-26        eunchang         자동 로그인 체크박스
  */
 
 const Login = () => {
@@ -32,6 +33,7 @@ const Login = () => {
 
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +59,9 @@ const Login = () => {
         }
         await setRefreshtoken(refreshToken);
 
-        navigate("/treatment");
+        localStorage.setItem("autoLogin", rememberMe ? "true" : "false");
+
+        navigate("/");
       } else {
         setError(response.message);
       }
@@ -113,6 +117,8 @@ const Login = () => {
                 name="remember-me"
                 type="checkbox"
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
               />
               <label
                 htmlFor="remember-me"
