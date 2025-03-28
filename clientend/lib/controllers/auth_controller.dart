@@ -62,6 +62,11 @@ class AuthController {
     ref.read(networkConnectionProvider.notifier).reset();
     ref.read(authCoordinatorProvider.notifier).reset();
   }
+
+  /// 에러 발생 시 이전 상태로 돌아가기
+  void handleErrorRetry() {
+    ref.read(mnemonicWalletProvider.notifier).returnToPreviousState();
+  }
 }
 
 /// 인증 컨트롤러 프로바이더

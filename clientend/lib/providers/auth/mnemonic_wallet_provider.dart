@@ -20,6 +20,7 @@ enum MnemonicWalletStatus {
 /// 니모닉 지갑 상태 관리 클래스
 class MnemonicWalletState {
   final MnemonicWalletStatus status;
+  final MnemonicWalletStatus? previousStatus; // Add this to track previous state
   final List<String>? mnemonicWords; // 니모닉 단어 목록
   final List<int>? selectedWordIndices; // 선택된 니모닉 단어 인덱스
   final String? walletAddress;
@@ -31,6 +32,7 @@ class MnemonicWalletState {
 
   MnemonicWalletState({
     this.status = MnemonicWalletStatus.initial,
+    this.previousStatus,
     this.mnemonicWords,
     this.selectedWordIndices,
     this.walletAddress,
@@ -43,6 +45,7 @@ class MnemonicWalletState {
 
   MnemonicWalletState copyWith({
     MnemonicWalletStatus? status,
+    MnemonicWalletStatus? previousStatus,
     List<String>? mnemonicWords,
     List<int>? selectedWordIndices,
     String? walletAddress,
@@ -54,6 +57,7 @@ class MnemonicWalletState {
   }) {
     return MnemonicWalletState(
       status: status ?? this.status,
+      previousStatus: previousStatus ?? this.previousStatus,
       mnemonicWords: mnemonicWords ?? this.mnemonicWords,
       selectedWordIndices: selectedWordIndices ?? this.selectedWordIndices,
       walletAddress: walletAddress ?? this.walletAddress,
@@ -224,6 +228,7 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
   void startWalletRecovery() {
     state = state.copyWith(
       status: MnemonicWalletStatus.recoveringWallet,
+      previousStatus: state.status, // Save current status
       error: null,
     );
   }
@@ -234,6 +239,7 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
         state.mnemonicWords != null) {
       state = state.copyWith(
         status: MnemonicWalletStatus.mnemonicConfirmation,
+        previousStatus: state.status, // Save current status
         selectedWordIndices: [], // Reset selected indices
         error: null,
       );
@@ -245,13 +251,15 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
     if (mnemonic.isEmpty) {
       state = state.copyWith(
         status: MnemonicWalletStatus.error,
+        previousStatus: state.status, // Save current status
         error: '니모닉을 입력해주세요.',
       );
       return;
     }
 
     state = state.copyWith(
-      status: MnemonicWalletStatus.recoveringWallet,
+      status: MnemonicWalletStatus.creatingWallet,
+      previousStatus: state.status, // Save current status
       error: null,
     );
 
@@ -263,7 +271,6 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
       final isValid = validateKoreanMnemonicUseCase.execute(mnemonic);
 
       if (!isValid) {
-        // TODO: 이전 단계로 돌아가는 로직 추가
         state = state.copyWith(
           status: MnemonicWalletStatus.error,
           error: '유효하지 않은 니모닉입니다. 다시 확인해주세요.',
@@ -283,6 +290,23 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
       state = state.copyWith(
         status: MnemonicWalletStatus.error,
         error: '지갑 복구에 실패했습니다: $e',
+      );
+    }
+  }
+  
+  /// 이전 상태로 돌아가기
+  void returnToPreviousState() {
+    // If there's a previous state, go back to it
+    if (state.previousStatus != null) {
+      state = state.copyWith(
+        status: state.previousStatus,
+        error: null,
+      );
+    } else {
+      // If no previous state is recorded, go to wallet choice
+      state = state.copyWith(
+        status: MnemonicWalletStatus.walletChoice,
+        error: null,
       );
     }
   }

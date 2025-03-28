@@ -130,8 +130,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           case MnemonicWalletStatus.error:
             return ErrorView(
               message: mnemonicState.error ?? '지갑 생성 중 오류가 발생했습니다.',
-              // TODO: 이전 단계로 돌아가는 로직 추가
-              onRetry: () => controller.handleMnemonicGeneration(),
+              onRetry: () => controller.handleErrorRetry(),
             );
 
           case MnemonicWalletStatus.completed:
