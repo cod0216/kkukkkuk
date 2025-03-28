@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.wallet.dto.mapper;
 
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
+import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -22,5 +23,5 @@ import java.util.List;
 public interface WalletMapper {
     WalletInfoResponse mapWalletToWalletInfo(Wallet wallet);
 
-    List<WalletInfoResponse> mapWalletsToWalletInfo(List<Wallet> wallet);
+    List<WalletInfoResponse> mapWalletOwnersToWalletInfos(List<WalletOwner> walletOwners);
 }

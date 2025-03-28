@@ -3,6 +3,7 @@ import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,4 +20,8 @@ import java.util.Optional;
  */
 public interface WalletOwnerRepository extends JpaRepository<WalletOwner, Integer> {
     Optional<WalletOwner> findByOwnerIdAndWalletId(Integer ownerId, Integer walletId);
+
+    List<WalletOwner> findByWalletId(Integer walletId);
+
+    List<WalletOwner> findByOwnerId(Integer ownerId);
 }
