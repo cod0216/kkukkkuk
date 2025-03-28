@@ -59,3 +59,4 @@ export enum StorageKey {
   USER = "user",
   HOSPITAL = "hospital",
 }
+

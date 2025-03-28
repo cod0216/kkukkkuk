@@ -17,5 +17,5 @@
  */
 export enum Gender {
   MALE = "수컷",
-  FEMAIL = "암컷",
+  FEMALE = "암컷",
 }

@@ -1,25 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import TreatmentHeader from "@/pages/treatment/layout/TreatmentHeader";
 import TreatmentSidebar from "@/pages/treatment/layout/TreatmentSidebar";
-import RecordDetail from "@/pages/treatment/history/RecordDetail";
 import TreatmentForm from "@/pages/treatment/form/TreatmentForm";
 import { getTreatments } from "@/services/treatmentService";
 import { ApiResponse, ResponseStatus } from "@/types";
-import { Treatment, TreatmentState, TreatmentResponse, Doctor, BlockChainRecord } from '@/interfaces';
+import { Treatment, TreatmentState, TreatmentResponse, Doctor } from '@/interfaces';
 import { getDoctors } from '@/services/doctorService';
 import TreatmentHistoryList from "@/pages/treatment/history/TreatmentHistoryList";
+import { connectWallet } from '@/services/blockchainAuthService';
 
 /**
  * @module TreatmentMain
  * @file TreatmentMain.tsx
  * @author haelim
  * @date 2025-03-26
+ * @author seonghun
+ * @date 2025-03-28
  * @description 진단 페이지의 메인 컴포넌트입니다.  
  *              
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
+ * 2025-03-28        seonghun         TreatmentForm에 onCancel 콜백 추가 및 UI 변경경
  */
 
 
@@ -28,43 +31,29 @@ import TreatmentHistoryList from "@/pages/treatment/history/TreatmentHistoryList
  */
 const TreatmentMain: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
+  const [blockchainPets, setBlockchainPets] = useState<Treatment[]>([]);
+  const [allPets, setAllPets] = useState<Treatment[]>([]);
   const [selectedPetIndex, setSelectedPetIndex] = useState(0);
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [selectedRecordIndex, setSelectedRecordIndex] = useState(0);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   /**
-   * 샘플 데이터 
-   * @type {BlockChainRecord[]}
+   * 블록체인 네트워크 연결을 시도합니다.
    */
-  const records: BlockChainRecord[] = [
-    {
-      diagnosis: "감기",
-      treatments: {
-        examinations: [
-          { type: "혈액 검사", value: "백혈구 수치 확인" },
-          { type: "X-ray", value: "폐 상태 확인" }
-        ],
-        medications: [
-          { type: "타이레놀", value: "3" },
-          { type: "항생제", value: "2" }
-        ],
-        vaccinations: [
-          { type: "독감 예방 접종", value: "1" }
-        ]
-      },
-      doctorName: "김의사",
-      notes: "휴식과 수분 섭취 권장",
-      hospitalAddress: "hospital:0xexampleaddress",
-      hospitalName: "서울 중앙 병원",
-      createdAt: "2025.03.26",
-      isDeleted: false,
-      pictures: [
-        "https://example.com/image1.jpg",
-        "https://example.com/image2.jpg"
-      ]
-    }
-  ];
+  useEffect(() => {
+    const initializeBlockchain = async () => {
+      try {
+        await connectWallet();
+        setConnectionError(null);
+      } catch (error: any) {
+        console.error("블록체인 연결 실패:", error);
+        setConnectionError(error.message || "블록체인 연결에 실패했습니다.");
+      }
+    };
+
+    initializeBlockchain();
+  }, []);
 
   /**
    * 병원에 등록된 의사를 조회합니다. 
@@ -90,6 +79,20 @@ const TreatmentMain: React.FC = () => {
       }
     };
     fetchData();
+  }, []);
+
+  /**
+   * API와 블록체인에서 가져온 반려동물 목록을 병합합니다.
+   */
+  useEffect(() => {
+    setAllPets([...treatments, ...blockchainPets]);
+  }, [treatments, blockchainPets]);
+
+  /**
+   * 블록체인에서 가져온 반려동물 목록을 처리합니다.
+   */
+  const handleBlockchainPetsLoad = useCallback((pets: Treatment[]) => {
+    setBlockchainPets(pets);
   }, []);
 
   /**
@@ -144,6 +147,46 @@ const TreatmentMain: React.FC = () => {
     setIsFormVisible((before) => !before);
   };
 
+  // 연결 오류 표시
+  if (connectionError) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+          <h2 className="text-xl font-bold text-red-700 mb-2">블록체인 연결 오류</h2>
+          <p className="text-gray-700 mb-4">{connectionError}</p>
+          
+          <div className="mb-4 border-t border-gray-200 pt-3">
+            <h3 className="font-bold text-gray-800 mb-2">연결 가이드</h3>
+            <ul className="text-gray-700 list-disc pl-5 space-y-1 text-sm">
+              <li>메타마스크 확장프로그램이 설치되어 있는지 확인하세요.</li>
+              <li>메타마스크에 로그인이 되어 있는지 확인하세요.</li>
+              <li>메타마스크에 다음 네트워크 정보를 추가했는지 확인하세요:
+                <ul className="pl-4 mt-1 space-y-1 text-xs">
+                  <li>네트워크 이름: SSAFY</li>
+                  <li>RPC URL: https://rpc.ssafy-blockchain.com</li>
+                  <li>체인 ID: 31221</li>
+                  <li>통화 기호: ETH</li>
+                </ul>
+              </li>
+              <li>네트워크에 연결했더라도 공유받지 않은 반려동물 정보는 보이지 않습니다.</li>
+              <li>테스트를 원할 경우 앱에서 메타마스크 계정으로 반려동물 정보를 공유받으세요.</li>
+            </ul>
+          </div>
+          
+          <button 
+            className="px-4 py-2 bg-primary-500 text-white rounded-md"
+            onClick={() => window.location.reload()}
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 현재 선택된 반려동물 정보
+  const selectedPet = allPets[selectedPetIndex];
+
   return (
     <div className="w-full py-5 px-4 mx-auto sm:px-6 lg:px-8 flex">
       {/* 사이드바 */}
@@ -153,26 +196,32 @@ const TreatmentMain: React.FC = () => {
         getStateColor={getStateColor}
         selectedPetIndex={selectedPetIndex}
         setSelectedPetIndex={setSelectedPetIndex}
+        onBlockchainPetsLoad={handleBlockchainPetsLoad}
       />
       
       {/* 메인 */}
-      <div className="flex flex-1 gap-5">
+      <div className="flex flex-1">
         <div className="flex flex-col flex-1">
           <TreatmentHeader
-            treatment={treatments[selectedPetIndex] ?? null}
+            treatment={selectedPet}
             getStateBadgeColor={getStateBadgeColor}
             isFormVisible={isFormVisible}
             onSelected={onSelected}
           />
 
           {isFormVisible ? (
-            <TreatmentHistoryList records={records} setSelectedRecordIndex={setSelectedRecordIndex} />
+            <TreatmentHistoryList 
+              selectedPetDid={selectedPet?.petDid}
+            />
           ) : (
-            <TreatmentForm doctors={doctors} onSave={handleSaveTreatment} />
+            <TreatmentForm 
+              doctors={doctors} 
+              onSave={handleSaveTreatment}
+              onCancel={() => setIsFormVisible(true)}
+              petDID={selectedPet?.petDid || ''}
+            />
           )}
         </div>
-
-        {isFormVisible && (<RecordDetail record={records[selectedRecordIndex]} />)}
       </div>
     </div>
   );

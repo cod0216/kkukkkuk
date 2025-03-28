@@ -1,18 +1,21 @@
 import React, { FC } from 'react';
 import { PlusCircle } from 'lucide-react';
-import { TreatmentType, ExaminationTreatment, MedicationTreatment, VaccinationTreatment } from '@/interfaces';
+import { TreatmentType, ExaminationTreatment, MedicationTreatment, VaccinationTreatment } from '@/interfaces/blockChain';
 
 /**
  * @module PrescriptionSection
  * @file PrescriptionSection.tsx
  * @author haelim
  * @date 2025-03-26
+ * @author seonghun
+ * @date 2025-03-28
  * @description 반려동물 진단 처방을 관리하는 UI 컴포넌트입니다.
  * 
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
+ * 2025-03-28        seonghun         처방 정보 표시 방식 개선 (key 필드 사용)
  */
 
 

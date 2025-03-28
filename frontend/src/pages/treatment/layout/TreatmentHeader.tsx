@@ -6,13 +6,16 @@ import { Treatment, Gender, TreatmentState } from "@/interfaces/index";
  * @file TreatmentHeader.tsx
  * @author haelim
  * @date 2025-03-26
- * @description 진단 페이지 내부의 헤더 역할을 수행합니다.
- *              진단 페이지 상단 메인으로 조회할 반려동물를 출력하는 UI 컴포넌트입니다.
- *
+ * @author seonghun
+ * @date 2025-03-28
+ * @description 진단 페이지 내부의 헤더 역할을 수행합니다. 
+ *              진단 페이지 상단 메인으로 조회할 반려동물를 출력하는 UI 컴포넌트입니다.   
+ *              
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
+ * 2025-03-28        seonghun         선택한 동물 정보 표시 추가
  */
 
 /**
@@ -44,37 +47,41 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({
 
       {/* 중앙 정보 */}
       <div className="flex-1 px-4">
-        <div className="flex items-center gap-3">
-          <div className="text-md font-bold text-gray-800">
-            {treatment?.name}
+        {treatment ? (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="text-md font-bold text-gray-800">
+            {treatment.name}
           </div>
-          {treatment && (
-            <div
+              <div
               className={`text-[10px] px-2 py-0.5 rounded-full ${getStateBadgeColor(
                 treatment.state
               )}`}
             >
-              {treatment?.state}
+                {treatment.state}
+              </div>
             </div>
-          )}
+            <div className="text-gray-600 text-sm font-medium mt-0.5">
+          {treatment.breedName}
         </div>
-        <div className="text-gray-600 text-sm font-medium mt-0.5">
-          {treatment?.breedName}
-        </div>
-        <div className="text-gray-500 text-xs flex gap-1 mt-1">
-          <span>{treatment?.gender === Gender.MALE ? "수컷" : "암컷"}</span>
-          <span>·</span>
-          <span>
-            {treatment?.flagNeutering ? "중성화 완료" : "중성화 안함"}
+            <div className="text-gray-500 text-xs flex gap-1 mt-1">
+              <span>{treatment.gender === Gender.MALE ? "수컷" : "암컷"}</span>
+              <span>·</span>
+              <span>
+            {treatment.flagNeutering ? "중성화 완료" : "중성화 안함"}
           </span>
-          <span>·</span>
-          <span>{treatment?.age}세</span>
-        </div>
+              <span>·</span>
+              <span>{treatment.age}세</span>
+            </div>
+          </>
+        ) : (
+          <div className="text-gray-500 text-sm">반려동물을 선택해주세요</div>
+        )}
       </div>
 
       {/* 오른쪽 버튼 */}
-      {isFormVisible && (
-        <button
+      {isFormVisible && treatment && (
+        <button 
           onClick={onSelected}
           className="bg-primary-500 hover:bg-primary-700 text-white text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1 transition"
         >

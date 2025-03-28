@@ -1,4 +1,5 @@
 import { Gender } from "@/interfaces/pet"; 
+import { BlockChainRecord, BlockChainRecordResponse } from "@/interfaces/blockChain";
 
 /**
  * @module treatmentInterfaces
@@ -87,3 +88,9 @@ export const parseTreatmentResponse = (data: any[]): TreatmentResponse => {
     }))
   };
 };
+
+// BlockChainRecord와 BlockChainRecordResponse 인터페이스는 
+// blockChain.ts로 이동되었으므로 여기서는 export만 합니다.
+export type { BlockChainRecord, BlockChainRecordResponse };
+
+
