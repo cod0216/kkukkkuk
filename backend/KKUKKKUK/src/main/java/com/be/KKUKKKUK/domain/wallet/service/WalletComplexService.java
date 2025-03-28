@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -123,8 +124,14 @@ public class WalletComplexService {
     }
 
     public WalletInfoResponse updateWallet(Integer ownerId, Integer walletId, WalletUpdateRequest request) {
-        // TODO :
-        return null;
+        Wallet wallet = walletOwnerService.checkConnection(ownerId, walletId).getWallet();
+
+        if(!Objects.isNull(request.getDid())) wallet.setDid(request.getDid());
+        if(!Objects.isNull(request.getPublicKey())) wallet.setPublicKey(request.getPublicKey());
+        if(!Objects.isNull(request.getPrivateKey())) wallet.setPrivateKey(request.getPrivateKey());
+        if(!Objects.isNull(request.getAddress())) wallet.setAddress(request.getAddress());
+
+        return walletMapper.mapWalletToWalletInfo(walletService.saveWallet(wallet));
     }
 
     /**
