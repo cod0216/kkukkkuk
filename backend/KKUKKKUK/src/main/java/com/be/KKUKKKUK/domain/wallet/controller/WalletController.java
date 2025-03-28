@@ -38,7 +38,6 @@ public class WalletController {
     private final WalletComplexService walletComplexService;
     private final WalletService walletService;
 
-
     /**
      * 현재 로그인된 사용자의 지갑 정보를 등록합니다.
      * @param owner 인증된 보호자 계정 정보
@@ -59,7 +58,7 @@ public class WalletController {
     }
 
     /**
-     * 현재 로그인된 보호자 회원의 지갑 정보를 조회합니다.
+     * 현재 로그인된 보호자 회원의 지갑 목록을 조회합니다.
      * @param owner 인증된 보호자 계정 정보
      * @return 현재 로그인된 회원의 지갑 정보
      */
@@ -70,28 +69,29 @@ public class WalletController {
     @GetMapping
     public ResponseEntity<?> getMyWalletInfo(@AuthenticationPrincipal OwnerDetails owner) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
-        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 정보입니다.", walletService.getWalletInfoByOwnerId(ownerId));
+        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletService.getWalletInfoByOwnerId(ownerId));
     }
 
 
-//    /**
-//     * 현재 로그인된 사용자의 지갑 정보를 수정합니다.
-//     * @param owner 인증된 보호자 계정 정보
-//     * @param request 지갑 수정 요청
-//     * @return 수정 완료된 지갑의 정보
-//     */
-//    @Operation(summary = "지갑 정보 수정", description = "특정 지갑 정보를 수정합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "지갑 정보 수정 성공")
-//    })
-//    @PutMapping("/me")
-//    public ResponseEntity<?> updateMyWallet(
-//            @AuthenticationPrincipal OwnerDetails owner,
-//            @RequestBody WalletUpdateRequest request
-//    ) {
-//        Integer ownerId = Integer.parseInt(owner.getUsername());
-//        return ResponseUtility.success("지갑 정보가 성공적으로 업데이트되었습니다.", walletService.updateWallet(ownerId, request));
-//    }
+    /**
+     * 특정 지갑 정보를 수정합니다.
+     * @param owner 인증된 보호자 계정 정보
+     * @param request 지갑 수정 요청
+     * @return 수정 완료된 지갑의 정보
+     */
+    @Operation(summary = "지갑 정보 수정", description = "특정 지갑 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "지갑 정보 수정 성공")
+    })
+    @PutMapping("/{walletId}")
+    public ResponseEntity<?> updateMyWallet(
+            @AuthenticationPrincipal OwnerDetails owner,
+            @PathVariable Integer walletId,
+            @RequestBody WalletUpdateRequest request
+    ) {
+        Integer ownerId = Integer.parseInt(owner.getUsername());
+        return ResponseUtility.success("지갑 정보가 성공적으로 업데이트되었습니다.", walletComplexService.updateWallet(ownerId, walletId, request));
+    }
 
     /**
      * 현재 로그인된 사용자의 지갑 정보를 삭제합니다.
@@ -101,31 +101,15 @@ public class WalletController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "지갑 삭제 성공")
     })
-    @DeleteMapping("/me")
+    @DeleteMapping("/{walletId}")
     public ResponseEntity<?> deleteMyWalletById(
-            @AuthenticationPrincipal OwnerDetails owner
+            @AuthenticationPrincipal OwnerDetails owner,
+            @PathVariable Integer walletId
     ) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
-        walletService.deleteWalletByWalletId(ownerId);
+        walletComplexService.deleteWalletByWalletId(ownerId, walletId);
         return ResponseUtility.success("지갑 정보가 정상적으로 삭제되었습니다.", null);
     }
-
-//    /**
-//     * 사용자의 지갑 복구를 위해 개인 키 정보를 조회합니다.
-//     * @param owner 인증된 보호자 계정 정보
-//     * @return 암호화된 개인키
-//     */
-//    @Operation(summary = "지갑 복구", description = "사용자의 지갑 복구를 위해 개인키 정보를 조회합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "지갑 복구 성공")
-//    })
-//    @PostMapping("/me/recover")
-//    public ResponseEntity<?> recoverMyWallet(
-//            @AuthenticationPrincipal OwnerDetails owner
-//    ) {
-//        Integer ownerId = Integer.parseInt(owner.getUsername());
-//        return ResponseUtility.success("암호화된 개인키 정보입니다.", walletService.recoverWallet(ownerId));
-//    }
 
     /**
      * 로그인된 사용자 지갑에 새로운 반려동물을 등록합니다.
@@ -146,19 +130,39 @@ public class WalletController {
         return ResponseUtility.success("반려동물 등록에 성공했습니다.", walletComplexService.registerPet(ownerId, walletId, request));
     }
 
-//    /**
-//     * 로그인된 사용자 지갑에 있는 반려동물 목록을 조회합니다.
-//     * @param ownerDetails 인증된 보호자 회원
-//     * @return 조회된 반려동물 목록
+    /**
+     * 특정 지갑에 있는 반려동물 목록을 조회합니다.
+     * @param ownerDetails 인증된 보호자 회원
+     * @return 조회된 반려동물 목록
+     */
+    @Operation(summary = "반려동물 목록 조회", description = "로그인된 사용자 지갑에 있는 반려동물 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "반려동물 목록 조회 성공")
+    })
+    @GetMapping("/{walletId}/pets")
+    public ResponseEntity<?> getPetInfoList(
+            @AuthenticationPrincipal OwnerDetails ownerDetails,
+            @PathVariable Integer walletId
+    ) {
+        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
+        return ResponseUtility.success("반려동물 전체 목록 조회에 성공했습니다.", walletComplexService.getPetInfoListByWalletId(ownerId, walletId));
+    }
+
+    //    /**
+//     * 사용자의 지갑 복구를 위해 개인 키 정보를 조회합니다.
+//     * @param owner 인증된 보호자 계정 정보
+//     * @return 암호화된 개인키
 //     */
-//    @Operation(summary = "반려동물 목록 조회", description = "로그인된 사용자 지갑에 있는 반려동물 목록을 조회합니다.")
+//    @Operation(summary = "지갑 복구", description = "사용자의 지갑 복구를 위해 개인키 정보를 조회합니다.")
 //    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "반려동물 목록 조회 성공")
+//            @ApiResponse(responseCode = "200", description = "지갑 복구 성공")
 //    })
-//    @GetMapping("/me/pets")
-//    public ResponseEntity<?> getPetInfoList(@AuthenticationPrincipal OwnerDetails ownerDetails) {
-//        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
-//        return ResponseUtility.success("반려동물 전체 목록 조회에 성공했습니다.", walletComplexService.getPetInfoListByOwnerId(ownerId));
+//    @PostMapping("/me/recover")
+//    public ResponseEntity<?> recoverMyWallet(
+//            @AuthenticationPrincipal OwnerDetails owner
+//    ) {
+//        Integer ownerId = Integer.parseInt(owner.getUsername());
+//        return ResponseUtility.success("암호화된 개인키 정보입니다.", walletService.recoverWallet(ownerId));
 //    }
 
 }
