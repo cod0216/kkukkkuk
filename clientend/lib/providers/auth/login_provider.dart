@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/create_wallet_from_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 
@@ -28,6 +30,8 @@ class LoginState {
 /// 로그인 상태 관리 노티파이어
 class LoginNotifier extends StateNotifier<LoginState> {
   final Ref ref;
+  final _secureStorage = const FlutterSecureStorage();
+  static const String _privateKeyKey = 'eth_private_key';
 
   LoginNotifier(this.ref) : super(LoginState());
 
@@ -40,11 +44,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
       state = state.copyWith(authResponse: response, isLoading: false);
 
-      final hasWallet = response.data.wallet != null;
+      // 로컬 스토리지에 개인키 저장 확인
+      final privateKey = await _secureStorage.read(key: _privateKeyKey);
+      final hasWallet = privateKey != null && privateKey.isNotEmpty;
 
       if (hasWallet) {
+        // 개인키가 있으면 네트워크 연결 화면으로 이동
         ref.read(authCoordinatorProvider.notifier).moveToNetworkConnection();
       } else {
+        // 개인키가 없으면 지갑 생성 화면으로 이동
         ref.read(mnemonicWalletProvider.notifier).reset();
         ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
       }
