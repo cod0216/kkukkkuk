@@ -18,9 +18,10 @@ import { SignUpRequest, HospitalBase } from "@/interfaces"
 import axios from "axios"
 import HospitalSearchModal from "./HospitalSearchModal"
 import { FaPaw } from 'react-icons/fa'
-import { useNavigate } from "react-router-dom"
+import useAppNavigation from "@/hooks/useAppNavigation"
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
+
+const BASE_URL = import.meta.env.VITE_SERVER_URL
 const SIGNUP_ENDPOINT = '/api/auths/hospitals/signup'
 const SEND_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/send'
 const VERIFY_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/verify'
@@ -86,8 +87,8 @@ function SignUp() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [selectedHospital, setSelectedHospital] = useState<HospitalBase | null>(null)
 
+  const { goToLogin } = useAppNavigation()
 
-  const navigate = useNavigate()
   /**
    * 입력 필드 값 변경을 처리하는 함수
    * @param {React.ChangeEvent<HTMLInputElement>} e - 입력 필드 변경 이벤트
@@ -316,8 +317,8 @@ function SignUp() {
     setError(null)
 
     try {
-      const response = await axios.post(`${BASE_URL}${SIGNUP_ENDPOINT}`, payload)
-      navigate('/')
+      await axios.post(`${BASE_URL}${SIGNUP_ENDPOINT}`, payload)
+      goToLogin()
     } catch (error) {
       console.error('회원가입 실패', error)
       setError('회원가입 실패')
@@ -325,7 +326,7 @@ function SignUp() {
   }
 
   return (
-    <div className="w-full max-w-md mt-10 flex flex-col">
+    <div className="w-full max-w-md mx-auto mt-10 flex flex-col">
       <h1 className="my-4 text-4xl text-primary-500 text-center font-bold flex items-center justify-center"><FaPaw className="mr-2" />KKUK KKUK</h1>
       <form onSubmit={handleSubmit} className="flex flex-col">
 
