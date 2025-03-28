@@ -10,19 +10,32 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class WalletOwnerService {
     private final WalletOwnerRepository walletOwnerRepository;
 
-    public WalletOwner checkPermission(Integer ownerId, Integer walletId) {
-        return walletOwnerRepository.findByOwnerIdAndWalletId(ownerId, walletId)
-                .orElseThrow(() -> new ApiException(ErrorCode.WALLET_NOT_ALLOWED));
-    }
+
 
     public WalletOwner connectWalletAndOwner(Owner owner, Wallet wallet) {
         WalletOwner walletOwner = new WalletOwner(owner, wallet);
         return walletOwnerRepository.save(walletOwner);
+    }
+
+    public void disConnectWalletAndOwner(Integer ownerId, Integer walletId) {
+        WalletOwner walletOwner = checkConnection(ownerId, walletId);
+        walletOwnerRepository.delete(walletOwner);
+    }
+
+    public WalletOwner checkConnection(Integer ownerId, Integer walletId) {
+        return findByOwnerIdAndWalletIdOptional(ownerId, walletId)
+                .orElseThrow(() -> new ApiException(ErrorCode.WALLET_NOT_ALLOWED));
+    }
+
+    private Optional<WalletOwner> findByOwnerIdAndWalletIdOptional(Integer ownerId, Integer walletId) {
+        return walletOwnerRepository.findByOwnerIdAndWalletId(ownerId, walletId);
     }
 }

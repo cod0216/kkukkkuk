@@ -13,7 +13,6 @@ import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
-import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
 import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -87,11 +86,7 @@ public class WalletComplexService {
 
 
     public Wallet getWalletByWalletId(Integer ownerId, Integer walletId) {
-        // 1. 지갑 - 보호자 관계 찾기
-        WalletOwner walletOwner = walletOwnerService.checkPermission(ownerId, walletId);
-
-        // 2. 지갑 반환
-        return walletOwner.getWallet();
+        return walletOwnerService.checkConnection(ownerId, walletId).getWallet();
     }
 
 
@@ -113,22 +108,18 @@ public class WalletComplexService {
         Wallet wallet;
 
         // 2. 기존 지갑 존재하면 기존 지갑 연결
-        if(optionalWallet.isPresent()){
-            wallet = optionalWallet.get();
-
         // 3. 존재하지 않으면 지갑 생성
-        }else{
-            wallet = request.toWalletEntity();
-            wallet = walletService.saveWallet(wallet);
-        }
+        wallet = optionalWallet.orElseGet(() -> walletService.saveWallet(request.toWalletEntity()));
 
-        Wallet newWallet = walletOwnerService.connectWalletAndOwner(owner, wallet).getWallet();
+        // 4. 관계 테이블에 지갑 - 보호자 관계 추가
+        walletOwnerService.connectWalletAndOwner(owner, wallet);
 
-        return walletMapper.mapWalletToWalletInfo(newWallet);
+        // 5. 반환
+        return walletMapper.mapWalletToWalletInfo(wallet);
     }
 
-    public void deleteWalletByWalletId(Integer ownerId, Integer ownerId1) {
-        // TODO :
+    public void deleteWalletByWalletId(Integer ownerId, Integer walletId) {
+        walletOwnerService.disConnectWalletAndOwner(ownerId, walletId);
     }
 
     public WalletInfoResponse updateWallet(Integer ownerId, Integer walletId, WalletUpdateRequest request) {
