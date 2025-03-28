@@ -16,7 +16,6 @@
  * 2025-03-28        seonghun         블록체인 서비스 연동
  */
 
-import { ethers } from 'ethers';
 import { GetTreatmentRequest, TreatmentResponse } from '@/interfaces/treatment';
 import { BlockChainRecord, BlockChainRecordResponse } from '@/interfaces/blockChain';
 import { request } from '@/services/apiRequest';

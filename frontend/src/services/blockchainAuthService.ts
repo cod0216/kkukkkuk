@@ -15,7 +15,7 @@
  */
 
 import { ethers } from 'ethers';
-import { NETWORK_CONFIG, DID_REGISTRY_ADDRESS, GAS_SETTINGS, didRegistryABI } from '@/utils/constants';
+import { NETWORK_CONFIG, DID_REGISTRY_ADDRESS, didRegistryABI } from '@/utils/constants';
 
 const CHAIN_ID = NETWORK_CONFIG.chainId.toString();
 
@@ -201,8 +201,6 @@ export const getAccount = async (): Promise<AccountState> => {
   // 이미 연결되어 있으면 현재 상태 반환
   if (accountState.isConnected && accountState.signer) {
     try {
-      // 연결 상태 검증
-      const address = await accountState.signer.getAddress();
       return accountState;
     } catch (e) {
       // 상태가 유효하지 않으면 재연결
@@ -237,7 +235,7 @@ const setupEventListeners = () => {
   });
 
   // 네트워크 변경 이벤트
-  window.ethereum.on('chainChanged', async (chainId: string) => {
+  window.ethereum.on('chainChanged', async () => {
     // 네트워크 변경 - 상태 업데이트
     try {
       await connectWallet();

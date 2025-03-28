@@ -50,7 +50,7 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
   setSelectedRecordIndex = () => {},
   selectedPetDid
 }) => {
-  const [selectedPetIndex, setSelectedPetIndex] = useState<number | null>(null);
+  const [_selectedPetIndex, setSelectedPetIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [hospitalPets, setHospitalPets] = useState<HospitalPet[]>([]);
@@ -198,8 +198,6 @@ const TreatmentHistoryList: React.FC<TreatmentHistoryListProps> = ({
           {!loading && !error && blockchainRecords.length > 0 && (
             <div className="overflow-y-auto">
               <RecordItem 
-                petDID={selectedPetIndex !== null ? hospitalPets[selectedPetIndex]?.petDID : ''}
-                didRegistryAddress={didRegistryAddress}
                 records={blockchainRecords}
                 onRecordSelect={handleRecordSelect}
               />

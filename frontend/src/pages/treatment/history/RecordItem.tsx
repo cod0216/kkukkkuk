@@ -24,8 +24,6 @@ import { BlockChainRecord } from "@/interfaces";
  * @param onRecordSelect 기록 선택 시 호출될 콜백 함수
  */
 interface RecordItemProps {
-  petDID: string;
-  didRegistryAddress: string;
   records: BlockChainRecord[];
   onRecordSelect: (index: number) => void;
 }
@@ -39,24 +37,16 @@ interface SortConfig {
  * 반려동물 의료 기록을 테이블 형식으로 표시하는 컴포넌트
  */
 const RecordItem: React.FC<RecordItemProps> = ({ 
-  petDID, 
-  didRegistryAddress,
   records,
   onRecordSelect
 }) => {
   const [searchText, setSearchText] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  // const [filterStatus, setFilterStatus] = useState<string>('all');
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'desc' });
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   // 검색 및 필터링
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilterStatus(e.target.value);
   };
 
   // 정렬 처리
@@ -73,10 +63,7 @@ const RecordItem: React.FC<RecordItemProps> = ({
   // 날짜 포맷 함수
   const formatDate = (timestamp: number): string => {
     try {
-      // console.log('Timestamp received:', timestamp);
-      // Unix timestamp를 밀리초 단위로 변환 (초 * 1000)
       const date = new Date(timestamp * 1000);
-      // console.log('Formatted date:', date);
       return date.toLocaleString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
@@ -97,11 +84,11 @@ const RecordItem: React.FC<RecordItemProps> = ({
       record.hospitalName.toLowerCase().includes(searchText.toLowerCase()) ||
       record.doctorName.toLowerCase().includes(searchText.toLowerCase());
     
-    const matchesStatus = filterStatus === 'all' ||
-      (filterStatus === 'active' && !record.isDeleted) ||
-      (filterStatus === 'deleted' && record.isDeleted);
+    // const matchesStatus = filterStatus === 'all' ||
+    //   (filterStatus === 'active' && !record.isDeleted) ||
+    //   (filterStatus === 'deleted' && record.isDeleted);
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   // 정렬된 데이터
@@ -118,17 +105,9 @@ const RecordItem: React.FC<RecordItemProps> = ({
     }
   });
 
-  if (loading) {
-    return <div className="text-center p-4">진료기록을 로딩 중입니다...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center p-4 text-red-500">{error}</div>;
-  }
-
   return (
     <div className="w-full">
-      {/* 검색 및 필터 UI */}
+      {/* 검색 UI */}
       <div className="mb-2 flex">
         <input
           type="text"

@@ -36,8 +36,6 @@ const TreatmentMain: React.FC = () => {
   const [selectedPetIndex, setSelectedPetIndex] = useState(0);
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [selectedRecordIndex, setSelectedRecordIndex] = useState(0);
-  const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   /**
@@ -47,11 +45,9 @@ const TreatmentMain: React.FC = () => {
     const initializeBlockchain = async () => {
       try {
         await connectWallet();
-        setIsConnected(true);
         setConnectionError(null);
       } catch (error: any) {
         console.error("블록체인 연결 실패:", error);
-        setIsConnected(false);
         setConnectionError(error.message || "블록체인 연결에 실패했습니다.");
       }
     };
@@ -215,7 +211,6 @@ const TreatmentMain: React.FC = () => {
 
           {isFormVisible ? (
             <TreatmentHistoryList 
-              setSelectedRecordIndex={setSelectedRecordIndex} 
               selectedPetDid={selectedPet?.petDid}
             />
           ) : (
