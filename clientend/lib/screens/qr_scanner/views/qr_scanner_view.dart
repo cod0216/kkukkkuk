@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
+import 'package:kkuk_kkuk/models/qr_scanner_state.dart';
+import 'package:kkuk_kkuk/controllers/qr_scanner_controller.dart';
 
-class QRScannerView extends StatefulWidget {
+class QRScannerView extends ConsumerStatefulWidget {
   final Function(HospitalQRData) onScanSuccess;
   final VoidCallback? onScanError;
 
@@ -14,25 +16,17 @@ class QRScannerView extends StatefulWidget {
   });
 
   @override
-  State<QRScannerView> createState() => _QRScannerViewState();
+  ConsumerState<QRScannerView> createState() => _QRScannerViewState();
 }
 
-class _QRScannerViewState extends State<QRScannerView> {
+class _QRScannerViewState extends ConsumerState<QRScannerView> {
   final MobileScannerController controller = MobileScannerController();
-  bool hasPermission = false;
-  bool isProcessing = false; // 스캔 처리 중 상태 추가
 
   @override
   void initState() {
     super.initState();
-    _requestCameraPermission();
-  }
-
-  Future<void> _requestCameraPermission() async {
-    final status = await Permission.camera.request();
-    setState(() {
-      hasPermission = status.isGranted;
-    });
+    // 컨트롤러를 통해 카메라 권한 요청
+    ref.read(qrScannerProvider.notifier).requestCameraPermission();
   }
 
   @override
@@ -43,7 +37,9 @@ class _QRScannerViewState extends State<QRScannerView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!hasPermission) {
+    final scannerState = ref.watch(qrScannerProvider);
+
+    if (scannerState.status == QRScannerStatus.noPermission) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +47,9 @@ class _QRScannerViewState extends State<QRScannerView> {
             const Text('카메라 권한이 필요합니다'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _requestCameraPermission,
+              onPressed: () {
+                ref.read(qrScannerProvider.notifier).requestCameraPermission();
+              },
               child: const Text('권한 요청'),
             ),
           ],
@@ -68,32 +66,30 @@ class _QRScannerViewState extends State<QRScannerView> {
         MobileScanner(
           controller: controller,
           onDetect: (capture) {
+            final scannerController = ref.read(qrScannerProvider.notifier);
+
             // 이미 처리 중이면 무시
-            if (isProcessing) return;
-            
+            if (scannerController.isProcessing) return;
+
             final List<Barcode> barcodes = capture.barcodes;
             if (barcodes.isNotEmpty && barcodes[0].rawValue != null) {
               try {
                 // 처리 중 상태로 설정
-                setState(() {
-                  isProcessing = true;
-                });
-                
+                scannerController.startProcessing();
+
                 final hospitalData = HospitalQRData.fromQRData(
                   barcodes[0].rawValue!,
                 );
-                
+
                 // 스캔 일시 중지
                 controller.stop();
-                
-                // 성공 콜백 호출
+
+                // 상태 업데이트 및 성공 콜백 호출
+                scannerController.setHospitalData(hospitalData);
                 widget.onScanSuccess(hospitalData);
               } catch (e) {
+                scannerController.setError(e.toString());
                 widget.onScanError?.call();
-                // 에러 발생 시 처리 상태 초기화
-                setState(() {
-                  isProcessing = false;
-                });
               }
             }
           },
