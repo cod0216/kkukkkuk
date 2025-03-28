@@ -32,6 +32,7 @@ const Login = () => {
 
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -56,6 +57,9 @@ const Login = () => {
           await removeRefreshToken();
         }
         await setRefreshtoken(refreshToken);
+
+        // 자동 로그인 여부에 따라 로컬 스토리지에 플래그 저장
+        localStorage.setItem("autoLogin", rememberMe ? "true" : "false");
 
         navigate("/");
       } else {
@@ -113,6 +117,8 @@ const Login = () => {
                 name="remember-me"
                 type="checkbox"
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
               />
               <label
                 htmlFor="remember-me"

@@ -6,8 +6,8 @@ import SignUp from "@/pages/signup/SignUp";
 import Login from "@/pages/auth/Login";
 import FindPw from "@/pages/auth/FindPw";
 import FindId from "@/pages/auth/FindId";
+import { getRefreshToken, removeRefreshToken } from "@/utils/iDBUtil";
 
-import { getRefreshToken } from "@/utils/iDBUtil";
 /**
  * @module App
  * @file App.tsx
@@ -31,12 +31,12 @@ function App() {
   /**
    * refreshToken을 조회하고 허용된 사이트 외에는 로그인 페이지로 이동시킵니다.
    */
+  // 로그인 상태 관리: refresh token이 없으면 로그인 페이지로 이동
   useEffect(() => {
     const checkRefreshToken = async () => {
       const token = await getRefreshToken();
       const publicPaths = ["/login", "/sign-up", "/find-password", "/find-id"];
       const currentPath = location.pathname;
-
       const isPublic = publicPaths.some((path) => currentPath.startsWith(path));
       if (!token && !isPublic) {
         navigate("/login");
@@ -44,6 +44,49 @@ function App() {
     };
     checkRefreshToken();
   }, [navigate, location]);
+
+  // 탭(창) 추적 및 마지막 탭 종료 시 RT 삭제 로직 (자동 로그인이 아닐 경우)
+  useEffect(() => {
+    const openTabsKey = "openTabs";
+    // 각 탭에 고유 id 생성
+    const tabId = Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+
+    const addTab = () => {
+      const stored = localStorage.getItem(openTabsKey);
+      const tabs: string[] = stored ? JSON.parse(stored) : [];
+      tabs.push(tabId);
+      localStorage.setItem(openTabsKey, JSON.stringify(tabs));
+    };
+
+    const removeTab = () => {
+      const stored = localStorage.getItem(openTabsKey);
+      let tabs: string[] = stored ? JSON.parse(stored) : [];
+      tabs = tabs.filter((id) => id !== tabId);
+      localStorage.setItem(openTabsKey, JSON.stringify(tabs));
+
+      // 300ms delay 후 탭이 모두 닫혔는지 확인
+      setTimeout(() => {
+        const storedAfter = localStorage.getItem(openTabsKey);
+        const updatedTabs: string[] = storedAfter
+          ? JSON.parse(storedAfter)
+          : [];
+        // 모든 탭이 닫혔고, 자동 로그인(autoLogin 플래그가 "true"가 아니면) refresh token 삭제
+        if (
+          updatedTabs.length === 0 &&
+          localStorage.getItem("autoLogin") !== "true"
+        ) {
+          removeRefreshToken();
+        }
+      }, 300);
+    };
+
+    addTab();
+    window.addEventListener("beforeunload", removeTab);
+    return () => {
+      window.removeEventListener("beforeunload", removeTab);
+      // cleanup에서는 즉시 removeTab을 호출하지 않습니다.
+    };
+  }, []);
 
   return (
     <Routes>

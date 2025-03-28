@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
  * 2025-03-26        haelim           최초 생성
  * 2025-03-26        eunchang         로그아웃 버튼 생성
  * 2025-03-27        eunchang         로그인 표시 및 토큰 미 존재 시 리다이렉션
- * 2025-03-28        eunchang         토큰 name으로 사용자 이름 표시시
+ * 2025-03-28        eunchang         토큰 name으로 사용자 이름 표시
  */
 
 const Header: React.FC = () => {
@@ -30,11 +30,9 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
-  // Base64 디코딩 후 UTF-8 변환을 통해 payload의 한글을 올바르게 디코딩하는 함수
   const decodeTokenPayload = (token: string) => {
     try {
       const payloadBase64 = token.split(".")[1];
-      // atob로 디코딩한 후 각 문자를 %XX 형태로 변환한 후 decodeURIComponent로 UTF-8 문자열로 변환
       const decoded = decodeURIComponent(
         atob(payloadBase64)
           .split("")
@@ -48,7 +46,6 @@ const Header: React.FC = () => {
     }
   };
 
-  // accessToken의 payload에서 name을 추출하여 사용자 이름으로 사용
   let userName = "사용자";
   if (accessToken) {
     const payload = decodeTokenPayload(accessToken);
