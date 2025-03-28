@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BlockChainRecord } from "@/interfaces";
 /**
  * @module RecordItem
@@ -26,11 +26,7 @@ import { BlockChainRecord } from "@/interfaces";
 interface RecordItemProps {
   records: BlockChainRecord[];
   onRecordSelect: (index: number) => void;
-}
-
-interface SortConfig {
-  key: keyof BlockChainRecord;
-  direction: 'asc' | 'desc';
+  selectedRecordId?: string | null;
 }
 
 /**
@@ -38,28 +34,9 @@ interface SortConfig {
  */
 const RecordItem: React.FC<RecordItemProps> = ({ 
   records,
-  onRecordSelect
+  onRecordSelect,
+  selectedRecordId
 }) => {
-  const [searchText, setSearchText] = useState<string>('');
-  // const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'desc' });
-
-  // 검색 및 필터링
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
-  };
-
-  // 정렬 처리
-  const handleSort = (key: keyof BlockChainRecord) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    
-    setSortConfig({ key, direction });
-  };
-
   // 날짜 포맷 함수
   const formatDate = (timestamp: number): string => {
     try {
@@ -77,108 +54,38 @@ const RecordItem: React.FC<RecordItemProps> = ({
     }
   };
 
-  // 필터링된 데이터
-  const filteredRecords = records.filter(record => {
-    const matchesSearch = !searchText || 
-      record.diagnosis.toLowerCase().includes(searchText.toLowerCase()) ||
-      record.hospitalName.toLowerCase().includes(searchText.toLowerCase()) ||
-      record.doctorName.toLowerCase().includes(searchText.toLowerCase());
-    
-    // const matchesStatus = filterStatus === 'all' ||
-    //   (filterStatus === 'active' && !record.isDeleted) ||
-    //   (filterStatus === 'deleted' && record.isDeleted);
-    
-    return matchesSearch;
-  });
-
-  // 정렬된 데이터
-  const sortedRecords = [...filteredRecords].sort((a, b) => {
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
-    
-    if (aValue === undefined || bValue === undefined) return 0;
-    
-    if (sortConfig.direction === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
-  });
-
   return (
     <div className="w-full">
-      {/* 검색 UI */}
-      <div className="mb-2 flex">
-        <input
-          type="text"
-          placeholder="진단명, 병원명, 의사명으로 검색"
-          className="px-2 py-1 border rounded-md w-48 text-xs"
-          value={searchText}
-          onChange={handleSearch}
-        />
-      </div>
-
       {/* 테이블 */}
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th 
-                className="px-2 py-1 text-left cursor-pointer text-xs"
-                onClick={() => handleSort('timestamp')}
-              >
-                진료일
-                {sortConfig.key === 'timestamp' && (
-                  <span className="ml-1">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </th>
-              <th 
-                className="px-2 py-1 text-left cursor-pointer text-xs"
-                onClick={() => handleSort('diagnosis')}
-              >
-                진단명
-                {sortConfig.key === 'diagnosis' && (
-                  <span className="ml-1">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </th>
-              <th 
-                className="px-2 py-1 text-left cursor-pointer text-xs"
-                onClick={() => handleSort('hospitalName')}
-              >
-                병원명
-                {sortConfig.key === 'hospitalName' && (
-                  <span className="ml-1">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </th>
-              <th 
-                className="px-2 py-1 text-left cursor-pointer text-xs"
-                onClick={() => handleSort('doctorName')}
-              >
-                담당의사
-                {sortConfig.key === 'doctorName' && (
-                  <span className="ml-1">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </th>
+              <th className="px-2 py-1 text-left text-xs">진료일</th>
+              <th className="px-2 py-1 text-left text-xs">진단명</th>
+              <th className="px-2 py-1 text-left text-xs">병원명</th>
+              <th className="px-2 py-1 text-left text-xs">담당의사</th>
               <th className="px-2 py-1 text-center text-xs">처방</th>
             </tr>
           </thead>
           <tbody>
-            {sortedRecords.length === 0 ? (
+            {records.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-2 py-2 text-center border-b text-xs">
                   진료기록이 없습니다.
                 </td>
               </tr>
             ) : (
-              sortedRecords.map((record, index) => {
-                // 원본 배열에서의 인덱스 찾기
-                const originalIndex = records.findIndex(r => r.id === record.id);
-                
+              records.map((record, index) => {
                 return (
                   <tr 
                     key={record.id || index} 
-                    className="hover:bg-gray-50 border-b cursor-pointer text-xs"
-                    onClick={() => onRecordSelect(originalIndex >= 0 ? originalIndex : index)}
+                    className={`border-b cursor-pointer text-xs ${
+                      selectedRecordId && record.id === selectedRecordId 
+                        ? 'bg-blue-50 hover:bg-blue-100' 
+                        : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => onRecordSelect(index)}
                   >
                     <td className="px-2 py-1">{formatDate(record.timestamp)}</td>
                     <td className="px-2 py-1 max-w-[150px] truncate">{record.diagnosis}</td>
