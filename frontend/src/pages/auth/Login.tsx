@@ -24,6 +24,7 @@ import { ResponseStatus } from "@/types";
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        eunchang         최초 생성
+ * 2025-03-26        eunchang         자동 로그인 체크박스
  */
 
 const Login = () => {
@@ -58,7 +59,6 @@ const Login = () => {
         }
         await setRefreshtoken(refreshToken);
 
-        // 자동 로그인 여부에 따라 로컬 스토리지에 플래그 저장
         localStorage.setItem("autoLogin", rememberMe ? "true" : "false");
 
         navigate("/");
