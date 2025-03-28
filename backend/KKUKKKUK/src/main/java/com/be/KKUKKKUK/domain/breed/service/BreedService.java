@@ -32,23 +32,24 @@ public class BreedService {
     private final BreedMapper breedMapper;
 
     @Transactional(readOnly = true)
+    public List<BreedResponse> breedResponses() {
+        return breedMapper.mapBreedListToBreedResponseList(breedRepository.findBreedByParentIdIsNull());
+    }
+
+    @Transactional(readOnly = true)
     public List<BreedResponse> breedResponseList(Integer breedId) {
-        List<Breed> breedList;
-        if (Objects.isNull(breedId)) {
-            breedList = breedRepository.findBreedByParentIdIsNull();
+        Breed parentBreed = breedRepository.findByIdAndParentIdIsNull(breedId)
+                .orElseThrow(
+                        () -> new ApiException(ErrorCode.BREED_NOT_FOUND));
 
-        } else {
-            Breed parentBreed = breedRepository.findById(breedId)
-                    .orElseThrow(() -> new ApiException(ErrorCode.BREED_NOT_FOUND));
-            breedList = breedRepository.findBreedByParentId(parentBreed);
-        }
+        List<Breed> breedByParentId = breedRepository.findBreedByParentId(parentBreed);
 
-        return breedMapper.mapBreedListToBreedResponseList(breedList);
+        return breedMapper.mapBreedListToBreedResponseList(breedByParentId);
     }
 
     public Breed getBreedById(Integer breedId) {
         return breedRepository.findById(breedId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BREED_NOT_FOUND)
-        );
+                );
     }
 }

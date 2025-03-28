@@ -5,10 +5,7 @@ import com.be.KKUKKKUK.domain.breed.service.BreedService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,11 +28,16 @@ public class BreedController {
     private final BreedService breedService;
 
     @GetMapping
-    public ResponseEntity<?> getPetBreed(@RequestParam("parentId") Integer breedId) {
-        List<BreedResponse> breedResponses = breedService.breedResponseList(breedId);
+    public ResponseEntity<?> getPetParentBreed() {
+        List<BreedResponse> breedResponses = breedService.breedResponses();
+        return ResponseUtility.success("최상위 종 목록입니다.", breedResponses);
+    }
 
-        return Objects.isNull(breedId) ?
-                ResponseUtility.success("최상위 종 목록입니다.", breedResponses)
-                : ResponseUtility.success("하위 종 목록입니다.", breedResponses);
+
+    @GetMapping("/{parentId}")
+    public ResponseEntity<?> getPetChildBreed(@PathVariable Integer parentId) {
+        List<BreedResponse> breedResponses = breedService.breedResponseList(parentId);
+
+        return ResponseUtility.success("하위 종 목록입니다.", breedResponses);
     }
 }
