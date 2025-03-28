@@ -39,6 +39,11 @@ class MedicalRecordQueryController {
   String? getError() {
     return ref.read(medicalRecordQueryProvider).error;
   }
+
+  /// 진료 기록 상태 초기화
+  void clearRecords() {
+    ref.read(medicalRecordQueryProvider.notifier).clearRecords();
+  }
 }
 
 final medicalRecordQueryControllerProvider =

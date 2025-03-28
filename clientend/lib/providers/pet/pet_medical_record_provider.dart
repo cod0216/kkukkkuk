@@ -50,6 +50,11 @@ class MedicalRecordQueryNotifier
     this._getMedicalRecordsByDateRangeUseCase,
   ) : super(MedicalRecordQueryState());
 
+  /// 진료 기록 상태 초기화
+  void clearRecords() {
+    state = MedicalRecordQueryState();
+  }
+
   /// 전체 진료 기록 조회
   Future<void> getMedicalRecords(int petId) async {
     state = state.copyWith(isLoading: true, error: null);

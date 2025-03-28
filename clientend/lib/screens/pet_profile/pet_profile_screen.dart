@@ -43,7 +43,20 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   }
 
   /// 진료 기록 데이터 로드
+  @override
+  void dispose() {
+    // 화면이 종료될 때 진료 기록 상태 초기화
+    Future.microtask(() {
+      _controller.clearRecords();
+    });
+    super.dispose();
+  }
+
   void _loadMedicalRecords() {
+    // 진료 기록 상태 초기화 후 새로운 데이터 로드
+    Future.microtask(() {
+      _controller.clearRecords();
+    });
     // 기존 DB에서 진료 기록 조회
     Future.microtask(() async {
       await _controller.getAllRecords(widget.pet.id ?? 1);
