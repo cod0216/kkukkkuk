@@ -6,12 +6,15 @@ import { Treatment, Gender, TreatmentState } from "@/interfaces/index";
  * @file PetListItem.tsx
  * @author haelim
  * @date 2025-03-26
- * @description 진단 페이지 좌측 동물 목록 조회의 각 아이템 UI 컴포넌트입니다.
- *
+ * @author seonghun
+ * @date 2025-03-28
+ * @description 진단 페이지 좌측 동물 목록 조회의 각 아이템 UI 컴포넌트입니다. 
+ * 
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
+ * 2025-03-28        seonghun         상위 컴포넌트와 연동
  */
 
 /**
