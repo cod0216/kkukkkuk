@@ -6,7 +6,7 @@ class GenerateKoreanMnemonicUseCase {
     try {
       // 니모닉 생성
       final mnemonic = Mnemonic.generate(
-        Language.korean,
+        Language.english,
         passphrase: "",
         entropyLength: strength,
       );
