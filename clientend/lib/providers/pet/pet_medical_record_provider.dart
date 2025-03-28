@@ -42,7 +42,8 @@ class MedicalRecordQueryState {
 class MedicalRecordQueryNotifier
     extends StateNotifier<MedicalRecordQueryState> {
   final GetMedicalRecordsUseCase _getMedicalRecordsUseCase;
-  final GetMedicalRecordsByDateRangeUseCase _getMedicalRecordsByDateRangeUseCase;
+  final GetMedicalRecordsByDateRangeUseCase
+  _getMedicalRecordsByDateRangeUseCase;
 
   MedicalRecordQueryNotifier(
     this._getMedicalRecordsUseCase,
@@ -54,71 +55,75 @@ class MedicalRecordQueryNotifier
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: 블록체인 데이터 캐싱 구현
-      // TODO: 페이지네이션 구현
-      // TODO: 데이터 정렬 로직 구현
       final records = await _getMedicalRecordsUseCase.execute(petId);
+      // Keep existing blockchain records when updating from API
+      final allRecords = [...state.records, ...records];
       state = state.copyWith(
-        records: records,
+        records: allRecords,
         isLoading: false,
         lastQueryDate: DateTime.now(),
       );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: '진료 기록을 불러오는데 실패했습니다: ${e.toString()}',
+        error: '진료 기록을 불러오는데 실패했습니다: $e',
       );
     }
   }
 
-  /// 기간별 진료 기록 조회
-  Future<void> getRecordsByDateRange(
-    int petId,
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
-    state = state.copyWith(isLoading: true, error: null);
+  /// 블록체인에서 조회한 진료 기록 추가
+  void addBlockchainRecords(List<PetMedicalRecord> blockchainRecords) {
+    if (blockchainRecords.isEmpty) return;
 
-    try {
-      // TODO: 날짜 범위 유효성 검사 추가
-      // TODO: 날짜 기준 정렬 로직 구현
-      // TODO: 기간별 데이터 캐싱 구현
-      final records = await _getMedicalRecordsByDateRangeUseCase.execute(
-        petId,
-        startDate,
-        endDate,
-      );
-      state = state.copyWith(
-        records: records,
-        isLoading: false,
-        lastQueryDate: DateTime.now(),
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '기간별 진료 기록을 불러오는데 실패했습니다: ${e.toString()}',
-      );
+    print('Adding blockchain records: $blockchainRecords');
+    print('Current state records: ${state.records}');
+
+    // Preserve existing records and add new ones
+    final allRecords = [...state.records, ...blockchainRecords];
+
+    // Remove duplicates based on treatment date and details
+    final uniqueRecords = <PetMedicalRecord>[];
+    final recordKeys = <String>{};
+
+    for (final record in allRecords) {
+      final key =
+          '${record.treatmentDate.toIso8601String()}_${record.treatmentDetails}';
+
+      if (!recordKeys.contains(key)) {
+        recordKeys.add(key);
+        uniqueRecords.add(record);
+      }
     }
-  }
 
-  /// 상태 초기화
-  void resetState() {
-    // TODO: 캐시 데이터 삭제 구현
-    // TODO: 리소스 정리 로직 추가
-    state = MedicalRecordQueryState();
+    // Sort by date (descending)
+    uniqueRecords.sort((a, b) => b.treatmentDate.compareTo(a.treatmentDate));
+
+    print('Final unique records count: ${uniqueRecords.length}');
+
+    // Update state while preserving other fields
+    state = state.copyWith(
+      records: uniqueRecords,
+      lastQueryDate: DateTime.now(),
+      isLoading: false, // Ensure loading is false
+    );
+
+    // Verify state update
+    print('State updated - record count: ${state.records.length}');
   }
 }
 
 /// 진료 기록 조회 프로바이더
-final medicalRecordQueryProvider =
-    StateNotifierProvider<MedicalRecordQueryNotifier, MedicalRecordQueryState>((
-      ref,
-    ) {
-      final getMedicalRecordsUseCase = ref.watch(getMedicalRecordsUseCaseProvider);
-      final getMedicalRecordsByDateRangeUseCase = ref.watch(getMedicalRecordsByDateRangeUseCaseProvider);
-      
-      return MedicalRecordQueryNotifier(
-        getMedicalRecordsUseCase,
-        getMedicalRecordsByDateRangeUseCase,
-      );
-    });
+final medicalRecordQueryProvider = StateNotifierProvider<
+  MedicalRecordQueryNotifier,
+  MedicalRecordQueryState
+>((ref) {
+  final getMedicalRecordsUseCase = ref.watch(getMedicalRecordsUseCaseProvider);
+  final getMedicalRecordsByDateRangeUseCase = ref.watch(
+    getMedicalRecordsByDateRangeUseCaseProvider,
+  );
+
+  return MedicalRecordQueryNotifier(
+    getMedicalRecordsUseCase,
+    getMedicalRecordsByDateRangeUseCase,
+  );
+});
