@@ -39,18 +39,7 @@ public class WalletService {
         return walletRepository.findByAddress(address);
     }
 
-    /**
-     * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
-     * 지갑이 없다면 null 을 반환합니다.
-     *
-     * @param ownerId 보호자 회원의 ID
-     * @return 디지털 지갑 정보
-     */
-    @Transactional(readOnly = true)
-    public List<WalletInfoResponse> getWalletInfoByOwnerId(Integer ownerId) {
-        List<Wallet> wallets = walletRepository.findByOwnerId(ownerId);
-        return walletMapper.mapWalletsToWalletInfo(wallets);
-    }
+
 
 //
 
@@ -76,14 +65,7 @@ public class WalletService {
 //    }
 
 
-    /**
-     * 보호자 ID로 보호자의 지갑을 조회합니다.
-     * @param ownerId 지갑 주인 ID
-     * @return 조회된 지갑 entity
-     */
-    private List<Wallet> getWalletOptionalByOwnerId(Integer ownerId) {
-        return walletRepository.findByOwnerId(ownerId);
-    }
+
 
     //TODO
     public void deleteWalletByWalletId(Integer ownerId) {
@@ -103,17 +85,7 @@ public class WalletService {
         return walletRepository.findById(walletId)
                 .orElseThrow(() -> new ApiException(ErrorCode.WALLET_NOT_FOUND));
     }
-    /**
-     * 지갑에 대한 권한을 확인합니다.
-     *
-     * @param owner 지갑의 실제 주인
-     * @param ownerId 요청한 사용자 ID
-     */
-    private void checkPermissionToWallet(Owner owner, Integer ownerId) {
-        if (owner.getId().equals(ownerId)) {
-            throw new ApiException(ErrorCode.WALLET_NOT_ALLOWED);
-        }
-    }
+
 
 
     public Wallet saveWallet(Wallet wallet) {

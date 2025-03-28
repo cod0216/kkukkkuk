@@ -69,7 +69,7 @@ public class WalletController {
     @GetMapping
     public ResponseEntity<?> getMyWalletInfo(@AuthenticationPrincipal OwnerDetails owner) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
-        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletService.getWalletInfoByOwnerId(ownerId));
+        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByOwnerId(ownerId));
     }
 
 

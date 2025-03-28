@@ -18,7 +18,5 @@ import java.util.Optional;
  * <br>
  */
 public interface WalletRepository extends JpaRepository<Wallet, Integer> {
-    List<Wallet> findByOwnerId(Integer ownerId);
-
     Optional<Wallet> findByAddress(String address);
 }

@@ -10,6 +10,7 @@ import com.be.KKUKKKUK.domain.pet.entity.Pet;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
 import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
+import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
@@ -124,6 +125,41 @@ public class WalletComplexService {
         Wallet newWallet = walletOwnerService.connectWalletAndOwner(owner, wallet).getWallet();
 
         return walletMapper.mapWalletToWalletInfo(newWallet);
+    }
+
+    public void deleteWalletByWalletId(Integer ownerId, Integer ownerId1) {
+        // TODO :
+    }
+
+    public WalletInfoResponse updateWallet(Integer ownerId, Integer walletId, WalletUpdateRequest request) {
+        // TODO :
+        return null;
+    }
+
+    /**
+     * 보호자 ID로 보호자의 지갑을 조회합니다.
+     * @param ownerId 지갑 주인 ID
+     * @return 조회된 지갑 entity
+     */
+    private List<Wallet> getWalletOptionalByOwnerId(Integer ownerId) {
+        // TODO :
+        return null;
+    }
+
+    /**
+     * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
+     * 지갑이 없다면 null 을 반환합니다.
+     *
+     * @param ownerId 보호자 회원의 ID
+     * @return 디지털 지갑 정보
+     */
+    @Transactional(readOnly = true)
+    public List<WalletInfoResponse> getWalletInfoByOwnerId(Integer ownerId) {
+        // TODO :
+
+//        List<Wallet> wallets = walletRepository.findByOwnerId(ownerId);
+//        return walletMapper.mapWalletsToWalletInfo(wallets);
+        return null;
     }
 
 }
