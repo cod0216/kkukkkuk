@@ -20,7 +20,7 @@ import HospitalSearchModal from "./HospitalSearchModal"
 import { FaPaw } from 'react-icons/fa'
 import { useNavigate } from "react-router-dom"
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_URL = import.meta.env.VITE_SERVER_URL
 const SIGNUP_ENDPOINT = '/api/auths/hospitals/signup'
 const SEND_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/send'
 const VERIFY_EMAIL_VERIFICATION_ENDPOINT = '/api/auths/emails/verify'
@@ -325,7 +325,7 @@ function SignUp() {
   }
 
   return (
-    <div className="w-full max-w-md mt-10 flex flex-col">
+    <div className="w-full max-w-md mx-auto mt-10 flex flex-col">
       <h1 className="my-4 text-4xl text-primary-500 text-center font-bold flex items-center justify-center"><FaPaw className="mr-2" />KKUK KKUK</h1>
       <form onSubmit={handleSubmit} className="flex flex-col">
 
