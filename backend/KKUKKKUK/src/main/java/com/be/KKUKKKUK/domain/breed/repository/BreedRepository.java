@@ -4,6 +4,7 @@ import com.be.KKUKKKUK.domain.breed.entity.Breed;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.breed.repository<br>
@@ -20,4 +21,6 @@ public interface BreedRepository extends JpaRepository<Breed, Integer> {
     List<Breed> findBreedByParentIdIsNull();
 
     List<Breed> findBreedByParentId(Breed parent);
+
+    Optional<Breed> findByIdAndParentIdIsNull(Integer id);
 }
