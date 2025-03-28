@@ -151,7 +151,7 @@ const Login = () => {
               비밀번호 찾기
             </Link>
             <Link
-              to="/register"
+              to="/sign-up"
               className="font-medium text-sm text-gray-500 hover:text-indigo-500"
             >
               병원 계정 등록
