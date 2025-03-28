@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.global.exception;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +22,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.10          Fiat_lux           최초생성<br>
+ * 25.03.21          haelim             NoResourceFoundException, HttpRequestMethodNotSupportedException, 추가 <br>
+ * 25.03.27          haelim             HttpMessageNotReadableException 추가<br>
+ *
  */
 @RestControllerAdvice
 @Slf4j
@@ -65,14 +69,21 @@ public class GlobalExceptionHandler {
      * 사용자 입력값 검증 예외를 처리합니다.
      *
      * <p>
-     * 요청 바디에서 입력값 검증 실패 시 발생하는 {@link MethodArgumentNotValidException} {@link ConstraintViolationException}을 처리합니다.
+     * 요청 바디에서 입력값 검증 실패 시 발생하는 {@link MethodArgumentNotValidException},
+     * {@link ConstraintViolationException}, {@link HttpMessageNotReadableException}을 처리합니다.
      * 필드별 에러 메시지를 조합하여 응답에 포함합니다.
+     * </p>
+     *
+     * <p>
+     * - {@link MethodArgumentNotValidException}: @Valid 검증 실패 시 발생
+     * - {@link ConstraintViolationException}: @Validated 검증 실패 시 발생
+     * - {@link HttpMessageNotReadableException}: JSON 파싱 오류 등 요청 바디를 읽을 수 없는 경우 발생
      * </p>
      *
      * @param e 입력값 검증 예외
      * @return 검증 실패에 대한 HTTP 응답 엔터티
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
+    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorResponseEntity> handleValidException(Exception e) {
         String errorMessages;
 
@@ -89,6 +100,8 @@ public class GlobalExceptionHandler {
                             violation.getMessage()))
                     .reduce((message1, message2) -> message1 + ". " + message2)
                     .orElse("입력값 검증 오류가 발생했습니다.");
+        } else if (e instanceof HttpMessageNotReadableException) {
+            errorMessages = "요청 body 를 읽을 수 없습니다. JSON 형식을 확인해주세요.";
         } else {
             errorMessages = "알 수 없는 검증 오류가 발생했습니다.";
         }
