@@ -1,5 +1,5 @@
 /**
- * @module pet 
+ * @module pet
  * @file pet.ts
  * @author haelim
  * @date 2025-03-26
@@ -11,13 +11,11 @@
  * 2025-03-26        haelim           최초 생성
  */
 
-
 /**
  * 반려동물의 성별을 나타내는 enum
  * @enum
  */
 export enum Gender {
-    MALE = "수컷",
-    FEMAIL = "암컷"
+  MALE = "수컷",
+  FEMAIL = "암컷",
 }
-
