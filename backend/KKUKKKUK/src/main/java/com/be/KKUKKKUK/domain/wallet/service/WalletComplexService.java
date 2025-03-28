@@ -8,13 +8,18 @@ import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
+import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
+import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
+import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
+import com.be.KKUKKKUK.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.wallet.service<br>
@@ -28,6 +33,7 @@ import java.util.List;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.20          haelim           최초 생성<br>
+ * 25.03.28          haelim           지갑 여러 개 관리, WalletOwnerService 추가 <br>
  */
 
 @Service
@@ -38,18 +44,10 @@ public class WalletComplexService {
     private final PetService petService;
     private final OwnerService ownerService;
     private final BreedService breedService;
+    private final WalletOwnerService walletOwnerService;
 
-    /**
-     * 보호자의 지갑을 신규로 생성합니다.
-     * @param ownerId 지갑 등록 요청한 보호자 ID
-     * @param request 등록할 지갑 정보
-     * @return 등록된 지갑 정보
-     */
-    @Transactional
-    public WalletInfoResponse registerWallet(Integer ownerId, WalletRegisterRequest request) {
-        Owner owner = ownerService.getOwnerById(ownerId);
-        return walletService.registerWallet(owner, request);
-    }
+    private final WalletMapper walletMapper;
+
 
     /**
      * 로그인한 사용자 계정에 반려동물을 신규로 등록합니다.
@@ -57,15 +55,21 @@ public class WalletComplexService {
      * @param request 반려동물 신규 등록 요청
      * @return 등록된 반려동물 정보
      */
-    public PetInfoResponse registerPet(Integer ownerId, PetRegisterRequest request) {
+    public PetInfoResponse registerPet(Integer ownerId, Integer walletId, PetRegisterRequest request) {
+        // 1. 반려동물 entity 객체 생성
         Pet pet = request.toPetEntity();
 
-        Wallet wallet = walletService.getWalletByOwnerId(ownerId);
+        // 2. 등록할 지갑 찾기
+        Wallet wallet = getWalletByWalletId(ownerId, walletId);
+
+        // 3. 지갑과 반려동물 연결
         pet.setWallet(wallet);
 
+        // 4. 반려동물 품종 조회
         Breed breed = breedService.getBreedById(request.getBreedId());
         pet.setBreed(breed);
 
+        // 반려동물 저장
         return petService.savePetInfo(pet);
     }
 
@@ -74,9 +78,53 @@ public class WalletComplexService {
      * @param ownerId 현재 로그인한 회원 계정 ID
      * @return 조회된 반려동물 목록
      */
-    public List<PetInfoResponse> getPetInfoListByOwnerId(Integer ownerId) {
-        Wallet wallet = walletService.getWalletByOwnerId(ownerId);
+    public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
+        Wallet wallet = getWalletByWalletId(ownerId, walletId);
         return petService.findPetInfoListByWalletId(wallet.getId());
     }
 
+
+
+    public Wallet getWalletByWalletId(Integer ownerId, Integer walletId) {
+        // 1. 지갑 - 보호자 관계 찾기
+        WalletOwner walletOwner = walletOwnerService.checkPermission(ownerId, walletId);
+
+        // 2. 지갑 반환
+        return walletOwner.getWallet();
+    }
+
+
+    /**
+     * 지갑을 신규 등록합니다.
+     *
+     * @param ownerId 등록할 지갑 주인 ID
+     * @param request 등록 요청
+     * @return 등록된 지갑 정보
+     */
+    @Transactional
+    public WalletInfoResponse registerWallet(Integer ownerId, WalletRegisterRequest request) throws ApiException {
+        // 1. 사용자 entity 불러오기
+        Owner owner = ownerService.getOwnerById(ownerId);
+
+        // 1. 이미 지갑이 존재하는지 확인
+        Optional<Wallet> optionalWallet = walletService.getWalletOptionalByWalletAddress(request.getAddress());
+
+        Wallet wallet;
+
+        // 2. 기존 지갑 존재하면 기존 지갑 연결
+        if(optionalWallet.isPresent()){
+            wallet = optionalWallet.get();
+
+        // 3. 존재하지 않으면 지갑 생성
+        }else{
+            wallet = request.toWalletEntity();
+            wallet = walletService.saveWallet(wallet);
+        }
+
+        Wallet newWallet = walletOwnerService.connectWalletAndOwner(owner, wallet).getWallet();
+
+        return walletMapper.mapWalletToWalletInfo(newWallet);
+    }
+
 }
+

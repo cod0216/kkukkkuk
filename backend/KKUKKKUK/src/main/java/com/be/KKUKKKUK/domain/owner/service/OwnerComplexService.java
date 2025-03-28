@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.owner.service<br>
@@ -47,7 +49,7 @@ public class OwnerComplexService {
     @Transactional(readOnly = true)
     public OwnerDetailInfoResponse getOwnerInfoWithWallet(Integer ownerId) {
         OwnerInfoResponse ownerInfo = ownerService.getOwnerInfo(ownerId);
-        WalletInfoResponse walletInfo = walletService.getWalletInfoByOwnerId(ownerId);
+        List<WalletInfoResponse> walletInfo = walletService.getWalletInfoByOwnerId(ownerId);
 
         return new OwnerDetailInfoResponse(ownerInfo, walletInfo);
     }
@@ -64,12 +66,12 @@ public class OwnerComplexService {
         OwnerInfoResponse ownerInfo = ownerService.tryLoginOrSignUp(request);
 
         // 2. 사용자 지갑 정보 요청
-        WalletInfoResponse wallet = walletService.getWalletInfoByOwnerId(ownerInfo.getId());
+        List<WalletInfoResponse> wallets = walletService.getWalletInfoByOwnerId(ownerInfo.getId());
 
         // 3. JWT 토큰 발급
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(ownerInfo.getId(), ownerInfo.getName(), RelatedType.OWNER);
 
-        return new OwnerLoginResponse(ownerInfo, tokenPair, wallet);
+        return new OwnerLoginResponse(ownerInfo, tokenPair, wallets);
     }
 
 }

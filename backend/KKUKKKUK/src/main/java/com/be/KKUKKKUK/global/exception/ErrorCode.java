@@ -52,6 +52,7 @@ public enum ErrorCode {
 
     WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
     WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "지갑이 이미 존재합니다."),
+    WALLET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "WALLET-003", "지갑에 대한 권한이 없습니다."),
 
     OWNER_NOT_FOUND(HttpStatus.NOT_FOUND, "OWNER-001", "보호자 정보를 찾을 수 없습니다."),
     OWNER_NOT_ALLOWED(HttpStatus.FORBIDDEN, "OWNER-002", "해당 사용자에 대한 권한이 없습니다."),

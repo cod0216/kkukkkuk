@@ -93,8 +93,8 @@ public class PetComplexService {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         if(Objects.isNull(pet.getWallet())) throw new ApiException(ErrorCode.PET_NOT_ALLOW);
 
-        if(Boolean.FALSE.equals(pet.getWallet().getOwner().getId().equals(ownerId))){
-            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
-        }
+//        if(Boolean.FALSE.equals(pet.getWallet().getOwner().getId().equals(ownerId))){
+//            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
+//        }
     }
 }

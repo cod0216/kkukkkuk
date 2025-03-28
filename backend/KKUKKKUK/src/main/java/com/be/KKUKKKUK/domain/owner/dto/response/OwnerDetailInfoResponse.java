@@ -4,6 +4,8 @@ import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * packageName    : com.be.KKUKKKUK.domain.owner.dto<br>
  * fileName       : OwnerDetailInfoResponse.java<br>
@@ -14,10 +16,11 @@ import lombok.Data;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.17          haelim           최초 생성<br>
+ * 25.03.28          haelim           지갑 여러 개 조회하도록 수정 <br>
  */
 @Data
 @AllArgsConstructor
 public class OwnerDetailInfoResponse {
     private OwnerInfoResponse owner;
-    private WalletInfoResponse wallet;
+    private List<WalletInfoResponse> wallets;
 }

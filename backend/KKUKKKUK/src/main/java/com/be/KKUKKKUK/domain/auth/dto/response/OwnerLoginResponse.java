@@ -5,6 +5,8 @@ import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * packageName    : com.be.KKUKKKUK.domain.auth.dto.response<br>
  * fileName       : OwnerLoginResponse.java<br>
@@ -15,11 +17,12 @@ import lombok.Data;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.28          haelim           지갑 여러 개 조회하도록 수정 <br>
  */
 @Data
 @AllArgsConstructor
 public class OwnerLoginResponse {
     private OwnerInfoResponse owner;
-    private JwtTokenPairResponse tokens; //TODO 변수 명을 이것만 복수로 하신 이유가 있을까요?
-    private WalletInfoResponse wallet;
+    private JwtTokenPairResponse tokens;
+    private List<WalletInfoResponse> wallets;
 }
