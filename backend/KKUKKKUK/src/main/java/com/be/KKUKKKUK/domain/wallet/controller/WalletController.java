@@ -5,7 +5,6 @@ import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
 import com.be.KKUKKKUK.domain.wallet.service.WalletComplexService;
-import com.be.KKUKKKUK.domain.wallet.service.WalletService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,7 +44,8 @@ public class WalletController {
      */
     @Operation(summary = "지갑 등록", description = "현재 로그인된 사용자에게 지갑 정보를 등록합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "지갑 등록 성공")
+            @ApiResponse(responseCode = "200", description = "지갑 등록 성공"),
+            @ApiResponse(responseCode = "409", description = "이미 등록된 지갑")
     })
     @PostMapping
     public ResponseEntity<?> registerMyWallet(
@@ -63,7 +63,7 @@ public class WalletController {
      */
     @Operation(summary = "지갑 정보 전체 조회", description = "현재 로그인된 보호자 회원의 모든 지갑 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "지갑 정보 조회 성공")
+            @ApiResponse(responseCode = "200", description = "지갑 정보 조회 성공"),
     })
     @GetMapping
     public ResponseEntity<?> getAllWalletInfo(@AuthenticationPrincipal OwnerDetails owner) {
@@ -79,7 +79,9 @@ public class WalletController {
      */
     @Operation(summary = "지갑 정보 상세 조회", description = "현재 로그인된 보호자 회원의 모든 지갑 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "지갑 정보 조회 성공")
+            @ApiResponse(responseCode = "200", description = "지갑 정보 조회 성공"),
+            @ApiResponse(responseCode = "403", description = "지갑에 대한 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "지갑을 찾을 수 없음"),
     })
     @GetMapping("/{walletId}")
     public ResponseEntity<?> getWalletInfo(
@@ -98,7 +100,9 @@ public class WalletController {
      */
     @Operation(summary = "지갑 정보 수정", description = "특정 지갑 정보를 수정합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "지갑 정보 수정 성공")
+            @ApiResponse(responseCode = "200", description = "지갑 정보 수정 성공"),
+            @ApiResponse(responseCode = "403", description = "지갑에 대한 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "지갑을 찾을 수 없음"),
     })
     @PutMapping("/{walletId}")
     public ResponseEntity<?> updateMyWallet(
@@ -116,7 +120,9 @@ public class WalletController {
      */
     @Operation(summary = "지갑 삭제", description = "현재 로그인된 사용자의 지갑 정보를 삭제합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "지갑 삭제 성공")
+            @ApiResponse(responseCode = "200", description = "지갑 삭제 성공"),
+            @ApiResponse(responseCode = "403", description = "지갑에 대한 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "지갑을 찾을 수 없음"),
     })
     @DeleteMapping("/{walletId}")
     public ResponseEntity<?> deleteMyWalletById(

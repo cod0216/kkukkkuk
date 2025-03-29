@@ -51,6 +51,11 @@ public class AuthController {
 
     /** 동물병원 회원의 로그인 api **/
     @Operation(summary = "동물병원 회원 로그인", description = "동물병원 회원이 로그인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     @PostMapping("/hospitals/login")
     public ResponseEntity<?> hospitalLogin(
             @Valid @RequestBody HospitalLoginRequest request) {
@@ -59,6 +64,11 @@ public class AuthController {
 
     /** 동물병원 회원의 회원가입 api **/
     @Operation(summary = "동물병원 회원가입", description = "동물병원 회원이 회원가입합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "409", description = "가입할 수 없는 계정 / 이메일 / 병원"),
+    })
     @PostMapping("/hospitals/signup")
     public ResponseEntity<?> hospitalSignup(
             @Valid @RequestBody HospitalSignupRequest request) {
@@ -69,6 +79,10 @@ public class AuthController {
      * 리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.
      */
     @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급받습니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "재발급 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+    })
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
         return ResponseUtility.success("액세스 토큰 재발급이 완료되었습니다.", authService.refreshAccessToken(request));
@@ -90,6 +104,10 @@ public class AuthController {
      * 회원가입을 위한 이메일 인증을 위해 인증 번호를 발송합니다.
      */
     @Operation(summary = "이메일 인증 코드 발송", description = "회원가입을 위해 이메일 인증 코드를 발송합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이메일 발송 성공"),
+            @ApiResponse(responseCode = "409", description = "이메일 중복"),
+    })
     @PostMapping("/emails/send")
     public ResponseEntity<?> sendEmailAuthCodeForEmail(
             @RequestBody @Valid EmailSendRequest request) {
@@ -101,6 +119,10 @@ public class AuthController {
      * 회원가입을 위한 이메일 인증을 위해 발송했던 인증 번호를 확인합니다.
      */
     @Operation(summary = "이메일 인증 코드 검증", description = "발송된 인증 코드를 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "인증 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+    })
     @PostMapping("/emails/verify")
     public ResponseEntity<?> verifyEmail(
             @RequestBody @Valid EmailVerificationRequest request) {
@@ -112,6 +134,10 @@ public class AuthController {
      * 비밀번호를 초기화합니다.
      */
     @Operation(summary = "비밀번호 초기화", description = "비밀번호를 초기화하고 이메일로 전송합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "비밀번호 초기화, 이메일 발송 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패, 이메일, 계정 불일치 혹은 정보 없음"),
+    })
     @PostMapping("/passwords/reset")
     public ResponseEntity<?> sendEmailAuthCodeForPassword(
             @RequestBody @Valid PasswordResetRequest request) {
@@ -123,6 +149,10 @@ public class AuthController {
      * 회원가입했던 계정을 찾습니다.
      */
     @Operation(summary = "계정 찾기", description = "이메일로 회원가입했던 계정 정보를 찾습니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "계정 찾기 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 이메일로 가입된 정보 없음"),
+    })
     @PostMapping("/accounts/find")
     public ResponseEntity<?> findAccount(
             @RequestBody @Valid AccountFindRequest request) {
