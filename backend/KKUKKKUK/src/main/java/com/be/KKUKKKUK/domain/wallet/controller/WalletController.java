@@ -87,7 +87,7 @@ public class WalletController {
             @AuthenticationPrincipal OwnerDetails owner,
             @PathVariable Integer walletId) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
-        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByWalletId(walletId));
+        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByWalletId(ownerId, walletId));
     }
 
 

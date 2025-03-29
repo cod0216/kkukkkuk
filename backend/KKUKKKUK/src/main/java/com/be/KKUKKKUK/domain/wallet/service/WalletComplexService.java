@@ -90,12 +90,23 @@ public class WalletComplexService {
      * 지갑이 없다면 빈 리스트를 반환합니다.
      *
      * @param ownerId 보호자 회원의 ID
-     * @return 디지털 지갑 정보
+     * @return 디지털 지갑 정보 목록
      */
     @Transactional(readOnly = true)
     public List<WalletShortInfoResponse> getWalletInfoByOwnerId(Integer ownerId) {
         return walletOwnerService.getWalletShortInfoByOwnerId(ownerId);
     }
+
+    /**
+     * 지갑 ID 로 특정 지갑의 정보를 조회합니다.
+     * @param walletId 조회할 지갑 ID
+     * @return 조회된 지갑 상세 정보
+     */
+    public WalletInfoResponse getWalletInfoByWalletId(Integer ownerId, Integer walletId) {
+
+        return null;
+    }
+
 
     /**
      * 지갑을 신규 등록합니다.
@@ -158,6 +169,7 @@ public class WalletComplexService {
     public void deleteWalletByWalletId(Integer ownerId, Integer walletId) {
         walletOwnerService.disConnectWalletAndOwner(ownerId, walletId);
     }
+
 
 }
 
