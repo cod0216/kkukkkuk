@@ -87,6 +87,6 @@ public class DoctorController {
     public ResponseEntity<?> deleteDoctorOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails, @PathVariable Integer doctorId) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         doctorService.deleteDoctorOnHospital(hospitalId, doctorId);
-        return ResponseUtility.success("수의사가 정상적으로 삭제되었습니다.", null);
+        return ResponseUtility.emptyResponse("수의사가 정상적으로 삭제되었습니다.");
     }
 }

@@ -17,8 +17,12 @@ import org.springframework.http.ResponseEntity;
  * -----------------------------------------------------------<br>
  * 2025-03-14        haelim            최초생성<br>
  * 2025-03-16        haelim            final로 변경 및 상태 코드 커스텀 메소드 추가<br>
+ * 2025-03-29        haelim            emptyResponse 메소드 추가<br>
+ *
  */
 public final class ResponseUtility {
+
+    private static final Object EMPTY_OBJECT = new Object();
 
     /**
      * 요청이 성공했을 때 기본 메시지와 함께 200 OK 응답을 반환합니다.
@@ -65,6 +69,16 @@ public final class ResponseUtility {
      */
     public static ResponseEntity<ApiResponse<Object>> error(String message, HttpStatus status) {
         return ResponseEntity.status(status).body(new ApiResponse<>(StatusEnum.FAILURE, message, null));
+    }
+
+    /**
+     * 삭제 요청 시 No Content 대신 빈 객체를 반환합니다.
+     *
+     * @param message 응답 메시지
+     * @return 200 OK 응답을 포함한 {@link ResponseEntity}, 빈 객체 반환
+     */
+    public static ResponseEntity<ApiResponse<Object>> emptyResponse(String message) {
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_OBJECT));
     }
 
     /**

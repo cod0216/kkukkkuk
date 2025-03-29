@@ -83,7 +83,7 @@ public class AuthController {
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletRequest request) {
         authService.logout(userDetails, request);
-        return ResponseUtility.success("로그아웃이 성공적으로 처리되었습니다.", null);
+        return ResponseUtility.emptyResponse("로그아웃이 성공적으로 처리되었습니다.");
     }
 
     /**
@@ -94,7 +94,7 @@ public class AuthController {
     public ResponseEntity<?> sendEmailAuthCodeForEmail(
             @RequestBody @Valid EmailSendRequest request) {
         authService.sendEmailAuthCode(request);
-        return ResponseUtility.success("이메일 인증을 위한 코드가 발송되었습니다.", null);
+        return ResponseUtility.emptyResponse("이메일 인증을 위한 코드가 발송되었습니다.");
     }
 
     /**
@@ -105,7 +105,7 @@ public class AuthController {
     public ResponseEntity<?> verifyEmail(
             @RequestBody @Valid EmailVerificationRequest request) {
         authService.checkEmailCodeValid(request);
-        return ResponseUtility.success("이메일 인증이 성공적으로 완료되었습니다.", null);
+        return ResponseUtility.emptyResponse("이메일 인증이 성공적으로 완료되었습니다.");
     }
 
     /**
@@ -116,7 +116,7 @@ public class AuthController {
     public ResponseEntity<?> sendEmailAuthCodeForPassword(
             @RequestBody @Valid PasswordResetRequest request) {
         authService.resetPassword(request);
-        return ResponseUtility.success("비밀번호가 이메일로 발송되었습니다.", null);
+        return ResponseUtility.emptyResponse("비밀번호가 이메일로 발송되었습니다.");
     }
 
     /**
