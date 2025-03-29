@@ -46,14 +46,14 @@ public enum ErrorCode {
     NO_USER_TYPE(HttpStatus.UNAUTHORIZED, "AUTH-012", "유효하지 않은 회원 유형입니다."),
 
     HOSPITAL_NOT_FOUND(HttpStatus.NOT_FOUND, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
+    HOSPITAL_NOT_ALLOWED(HttpStatus.FORBIDDEN, "HOSPITAL-002", "병원에 대한 권한이 없습니다."),
 
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
-    DOCTOR_NOT_ALLOWED(HttpStatus.NOT_FOUND, "DOCTOR-002", "의사 정보를 찾을 수 없습니다."),
+    DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사에 대한 권한이 없습니다."),
 
     WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
     WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "이미 등록된 지갑입니다."),
-    //  NOT FOUND 로 변경
-    WALLET_NOT_ALLOWED(HttpStatus.NOT_FOUND, "WALLET-003", "지갑 정보를 찾을 수 없습니다."),
+    WALLET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "WALLET-003", "지갑에 대한 권한이 없습니다."),
 
     OWNER_NOT_FOUND(HttpStatus.NOT_FOUND, "OWNER-001", "보호자 정보를 찾을 수 없습니다."),
 
@@ -62,8 +62,7 @@ public enum ErrorCode {
     EMAIL_NOT_MATCHED(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
 
     PET_NOT_FOUND(HttpStatus.NOT_FOUND, "PET-001", "해당 반려동물을 찾을 수 없습니다."),
-    //  NOT FOUND 로 변경
-    PET_NOT_ALLOWED(HttpStatus.NOT_FOUND, "PET-002", "반려동물 정보를 찾을 수 없습니다."),
+    PET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PET-002", "반려동물에 대한 권한이 없습니다."),
 
     BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다.");
 
