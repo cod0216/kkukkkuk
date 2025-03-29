@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
  * author         : haelim<br>
  * date           : 2025-03-28<br>
  * description    : WalletOwner entity class 입니다.<br>
+ *                  Wallet entity, Owner entity 사이의 N : M 관계에 대한 entity 입니다.
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>

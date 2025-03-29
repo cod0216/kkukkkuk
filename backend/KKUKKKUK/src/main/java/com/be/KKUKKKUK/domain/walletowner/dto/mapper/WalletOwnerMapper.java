@@ -6,6 +6,17 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
+/**
+ * packageName    : com.be.KKUKKKUK.domain.walletowner.dto.mapper<br>
+ * fileName       : WalletOwnerMapper.java<br>
+ * author         : haelim<br>
+ * date           : 2025-03-28<br>
+ * description    : WalletOwner entity 의 Map struct 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.03.28          haelim           최초생성<br>
+ */
 @Mapper(componentModel = "spring")
 public interface WalletOwnerMapper {
     List<WalletShortInfoResponse> mapToWalletInfos(List<Wallet> wallets);

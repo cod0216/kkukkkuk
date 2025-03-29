@@ -16,6 +16,7 @@ import java.util.List;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
+ * 25.03.29          haelim           name 추가<br>
  */
 @Data
 @AllArgsConstructor

@@ -113,7 +113,7 @@ public class WalletComplexService {
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
         // 6. 변환된 데이터를 사용해 WalletInfoResponse 생성 후 반환
-        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), ownerInfos);
+        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos);
     }
 
 
@@ -143,7 +143,7 @@ public class WalletComplexService {
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
         // 6. 변환된 데이터를 사용해 WalletInfoResponse 생성 후 반환
-        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), ownerInfos);
+        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos);
     }
 
 
@@ -160,14 +160,14 @@ public class WalletComplexService {
         if(!Objects.isNull(request.getDid())) wallet.setDid(request.getDid());
         if(!Objects.isNull(request.getPublicKey())) wallet.setPublicKey(request.getPublicKey());
         if(!Objects.isNull(request.getPrivateKey())) wallet.setPrivateKey(request.getPrivateKey());
-        if(!Objects.isNull(request.getAddress())) wallet.setAddress(request.getAddress());
+        if(!Objects.isNull(request.getName())) wallet.setAddress(request.getName());
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
         Wallet updateWallet = walletService.saveWallet(wallet);
 
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
-        return new WalletInfoResponse(updateWallet.getId(), updateWallet.getDid(), updateWallet.getAddress(), ownerInfos);
+        return new WalletInfoResponse(updateWallet.getId(), updateWallet.getDid(), updateWallet.getAddress(), wallet.getName(), ownerInfos);
     }
 
     /**
