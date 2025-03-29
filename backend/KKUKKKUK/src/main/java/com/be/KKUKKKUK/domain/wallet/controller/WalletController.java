@@ -62,14 +62,32 @@ public class WalletController {
      * @param owner 인증된 보호자 계정 정보
      * @return 현재 로그인된 회원의 지갑 정보
      */
-    @Operation(summary = "지갑 정보 조회", description = "현재 로그인된 보호자 회원의 지갑 정보를 조회합니다.")
+    @Operation(summary = "지갑 정보 전체 조회", description = "현재 로그인된 보호자 회원의 모든 지갑 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "지갑 정보 조회 성공")
     })
     @GetMapping
-    public ResponseEntity<?> getMyWalletInfo(@AuthenticationPrincipal OwnerDetails owner) {
+    public ResponseEntity<?> getAllWalletInfo(@AuthenticationPrincipal OwnerDetails owner) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
         return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByOwnerId(ownerId));
+    }
+
+
+    /**
+     * 특정 지갑 정보를 조회합니다.
+     * @param owner 인증된 보호자 계정 정보
+     * @return 조회된 지갑의 상세 정보
+     */
+    @Operation(summary = "지갑 정보 상세 조회", description = "현재 로그인된 보호자 회원의 모든 지갑 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "지갑 정보 조회 성공")
+    })
+    @GetMapping("/{walletId}")
+    public ResponseEntity<?> getWalletInfo(
+            @AuthenticationPrincipal OwnerDetails owner,
+            @PathVariable Integer walletId) {
+        Integer ownerId = Integer.parseInt(owner.getUsername());
+        return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByWalletId(walletId));
     }
 
 
