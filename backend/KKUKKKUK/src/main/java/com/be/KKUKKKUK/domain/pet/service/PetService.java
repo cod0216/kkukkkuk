@@ -119,7 +119,7 @@ public class PetService {
         if(Objects.isNull(pet.getWallet())) {
             throw new ApiException(ErrorCode.PET_NOT_FOUND);
         }
-        if(!Objects.equals(ownerId, pet.getWallet().getOwner().getId()))
-            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
+//        if(!Objects.equals(ownerId, pet.getWallet().getOwner().getId()))
+//            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
     }
 }

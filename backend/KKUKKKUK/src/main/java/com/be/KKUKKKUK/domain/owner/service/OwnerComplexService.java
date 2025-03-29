@@ -6,12 +6,14 @@ import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerDetailInfoResponse;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
-import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
-import com.be.KKUKKKUK.domain.wallet.service.WalletService;
+import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
+import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 /**
@@ -37,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OwnerComplexService {
     private final OwnerService ownerService;
     private final TokenService tokenService;
-    private final WalletService walletService;
+    private final WalletOwnerService walletOwnerService;
 
     /**
      * 특정 보호자(Owner)의 정보를 보호자의 지갑 정보와 함께 조회합니다.
@@ -47,7 +49,8 @@ public class OwnerComplexService {
     @Transactional(readOnly = true)
     public OwnerDetailInfoResponse getOwnerInfoWithWallet(Integer ownerId) {
         OwnerInfoResponse ownerInfo = ownerService.getOwnerInfo(ownerId);
-        WalletInfoResponse walletInfo = walletService.getWalletInfoByOwnerId(ownerId);
+        List<WalletShortInfoResponse> walletInfo = walletOwnerService.getWalletShortInfoByOwnerId(ownerId);
+
 
         return new OwnerDetailInfoResponse(ownerInfo, walletInfo);
     }
@@ -64,12 +67,12 @@ public class OwnerComplexService {
         OwnerInfoResponse ownerInfo = ownerService.tryLoginOrSignUp(request);
 
         // 2. 사용자 지갑 정보 요청
-        WalletInfoResponse wallet = walletService.getWalletInfoByOwnerId(ownerInfo.getId());
+        List<WalletShortInfoResponse> wallets = walletOwnerService.getWalletShortInfoByOwnerId(ownerInfo.getId());
 
         // 3. JWT 토큰 발급
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(ownerInfo.getId(), ownerInfo.getName(), RelatedType.OWNER);
 
-        return new OwnerLoginResponse(ownerInfo, tokenPair, wallet);
+        return new OwnerLoginResponse(ownerInfo, tokenPair, wallets);
     }
 
 }

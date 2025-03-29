@@ -16,24 +16,21 @@ import lombok.ToString;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.17          haelim           최초생성<br>
- * 25.03.24          haelim           swagger, JsonNaming 설정<br>
+ * 25.03.24          haelim           swagger 설정<br>
+ * 25.03.29          haelim           NotBlank 삭제, address 수정 못하게 변경, name 추가<br>
  */
 @Getter
 @ToString
 public class WalletUpdateRequest {
     @Schema(description = "지갑의 암호화된 개인키", example = "exampleprivatekey")
-    @NotBlank
     private String privateKey;
 
     @Schema(description = "지갑의 공개키", example = "examplepublickey")
-    @NotBlank
     private String publicKey;
 
-    @Schema(description = "지갑 주소", example = "examplewalletaddress")
-    @NotBlank
-    private String address;
-
     @Schema(description = "지갑 주소", example = "examplewalletdid")
-    @NotBlank
     private String did;
+
+    @Schema(description = "지갑 이름", example = "임보용 지갑")
+    private String name;
 }

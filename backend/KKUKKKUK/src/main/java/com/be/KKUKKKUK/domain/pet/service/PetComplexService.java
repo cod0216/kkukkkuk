@@ -1,5 +1,7 @@
 package com.be.KKUKKKUK.domain.pet.service;
 
+import com.be.KKUKKKUK.domain.breed.entity.Breed;
+import com.be.KKUKKKUK.domain.breed.service.BreedService;
 import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
 import com.be.KKUKKKUK.domain.pet.dto.request.PetUpdateRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
@@ -30,9 +32,8 @@ import java.util.Objects;
 @Transactional
 @RequiredArgsConstructor
 public class PetComplexService {
-    private final WalletService walletService;
     private final PetService petService;
-//    private final BreedService breedService;
+    private final BreedService breedService;
 
     /**
      * 특정 반려동물의 정보를 수정합니다.
@@ -54,10 +55,10 @@ public class PetComplexService {
         if(!Objects.isNull(request.getGender())) pet.setGender(request.getGender());
         if(!Objects.isNull(request.getDid())) pet.setDid(request.getDid());
         if(!Objects.isNull(request.getBirth())) pet.setBirth(request.getBirth());
-//      if(!Objects.isNull(request.getBreedId())){
-//            Breed breed = breedService.getBreedById(request.getBreedId());
-//            pet.setBreed(breed)
-//        }
+        if(!Objects.isNull(request.getBreedId())){
+            Breed breed = breedService.getBreedById(request.getBreedId());
+            pet.setBreed(breed);
+        }
 
         return petService.savePetInfo(pet);
     }
@@ -90,10 +91,10 @@ public class PetComplexService {
      */
     private void checkPetOwner(OwnerDetails ownerDetails, Pet pet) {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
-        if(Objects.isNull(pet.getWallet())) throw new ApiException(ErrorCode.PET_NOT_ALLOW);
+        if(Objects.isNull(pet.getWallet())) throw new ApiException(ErrorCode.PET_NOT_ALLOWED);
 
-        if(Boolean.FALSE.equals(pet.getWallet().getOwner().getId().equals(ownerId))){
-            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
-        }
+//        if(Boolean.FALSE.equals(pet.getWallet().getOwner().getId().equals(ownerId))){
+//            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
+//        }
     }
 }

@@ -21,50 +21,51 @@ import org.springframework.http.HttpStatus;
  * 25.03.20          haelim             COMMON-003, COMMON-004 작성, Endpoint 관련 Error 작성
  * 25.03.21          Fiat_lux           Breed 관련 Error 작성
  * 25.03.27          haelim             인증 관련 Error 추가
+ * 25.03.28          haelim             리소스를 찾을 수 없는 경우 NOT_FOUND 반환
  */
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON-001", "유효성 검증에 실패했습니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-002", "서버에서 처리할 수 없습니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-002", "서버 내부 오류가 발생했습니다."),
     NO_ENDPOINT(HttpStatus.NOT_FOUND, "COMMON-003", "존재하지 않는 엔드포인트입니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "COMMON-004", "허용되지 않는 메소드입니다."),
 
-    OWNER_REGISTRATION_FAILED(HttpStatus.BAD_REQUEST, "AUTH-001", "사용자 정보 업데이트에 실패했습니다."),
+    OWNER_REGISTRATION_FAILED(HttpStatus.CONFLICT, "AUTH-001", "사용자 정보 업데이트에 실패했습니다."),
 
-    ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH-002", "입력하신 계정 정보가 존재하지 않습니다."),
-    PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "AUTH-003", "비밀번호가 올바르지 않습니다. 다시 확인해주세요."),
-    HOSPITAL_DUPLICATED(HttpStatus.CONFLICT, "AUTH-004", "이미 존재하는 계정입니다."),
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH-002", "입력하신 계정 정보가 존재하지 않습니다."),
+    PASSWORD_NOT_MATCHED(HttpStatus.UNAUTHORIZED, "AUTH-003", "비밀번호가 올바르지 않습니다. 다시 확인해주세요."),
+    HOSPITAL_DUPLICATED(HttpStatus.CONFLICT, "AUTH-004", "이미 가입된 동물병원 계정입니다."),
     NO_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-005", "액세스 토큰이 필요합니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-006", "유효하지 않은 토큰입니다."),
     TOKEN_STORAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-007", "토큰 저장 중 오류가 발생했습니다."),
-    ACCOUNT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "AUTH-008", "등록할 수 없는 계정입니다."),
+    ACCOUNT_NOT_AVAILABLE(HttpStatus.CONFLICT, "AUTH-008", "등록할 수 없는 계정입니다."),
     NO_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-009", "리프레시 토큰이 필요합니다."),
-    AUTH_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH-010", "이미 만료된 코드입니다."),
-    AUTH_CODE_NOT_MATCH(HttpStatus.UNAUTHORIZED, "AUTH-011", "인증 코드가 일치하지 않습니다."),
-    NO_USER_TYPE(HttpStatus.UNAUTHORIZED, "AUTH-012", "존재하지 않는 회원 유형입니다."),
+    AUTH_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH-010", "인증 코드가 만료되었습니다."),
+    AUTH_CODE_NOT_MATCHED(HttpStatus.UNAUTHORIZED, "AUTH-011", "인증 코드가 일치하지 않습니다."),
+    NO_USER_TYPE(HttpStatus.UNAUTHORIZED, "AUTH-012", "유효하지 않은 회원 유형입니다."),
 
-    HOSPITAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
+    HOSPITAL_NOT_FOUND(HttpStatus.NOT_FOUND, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
 
-    DOCTOR_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
-    DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사 정보에 대한 권한이 없습니다."),
+    DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
+    DOCTOR_NOT_ALLOWED(HttpStatus.NOT_FOUND, "DOCTOR-002", "의사 정보를 찾을 수 없습니다."),
 
-    WALLET_NOT_FOUND(HttpStatus.BAD_REQUEST, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
-    WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "지갑이 이미 존재합니다."),
+    WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
+    WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "이미 등록된 지갑입니다."),
+    //  NOT FOUND 로 변경
+    WALLET_NOT_ALLOWED(HttpStatus.NOT_FOUND, "WALLET-003", "지갑 정보를 찾을 수 없습니다."),
 
-    OWNER_NOT_FOUND(HttpStatus.BAD_REQUEST, "OWNER-001", "보호자 정보를 찾을 수 없습니다."),
-    OWNER_NOT_ALLOWED(HttpStatus.FORBIDDEN, "OWNER-002", "해당 사용자에 대한 권한이 없습니다."),
+    OWNER_NOT_FOUND(HttpStatus.NOT_FOUND, "OWNER-001", "보호자 정보를 찾을 수 없습니다."),
 
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL-001", "이메일을 전송할 수 없습니다."),
-    EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용중인 이메일입니다."),
-    EMAIL_NOT_MATCH(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
+    EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용 중인 이메일입니다."),
+    EMAIL_NOT_MATCHED(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
 
-    PET_NOT_FOUND(HttpStatus.BAD_REQUEST, "PET-001", "해당 반려동물을 찾을 수 없습니다."),
-    PET_NOT_ALLOW(HttpStatus.FORBIDDEN, "PET-002", "해당 반려동물에 대한 권한이 없습니다."),
+    PET_NOT_FOUND(HttpStatus.NOT_FOUND, "PET-001", "해당 반려동물을 찾을 수 없습니다."),
+    //  NOT FOUND 로 변경
+    PET_NOT_ALLOWED(HttpStatus.NOT_FOUND, "PET-002", "반려동물 정보를 찾을 수 없습니다."),
 
     BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다.");
-    ;
-
 
     private final HttpStatus httpStatus;
     private final String code;

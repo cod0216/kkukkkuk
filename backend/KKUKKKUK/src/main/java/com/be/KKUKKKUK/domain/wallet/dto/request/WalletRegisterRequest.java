@@ -42,8 +42,13 @@ public class WalletRegisterRequest {
     @Schema(description = "지갑 주소", example = "examplewalletdid")
     private String did;
 
+    @NotBlank
+    @Schema(description = "지갑 이름", example = "임보용 지갑")
+    private String name;
+
     public Wallet toWalletEntity() {
         return Wallet.builder()
+                .name(name)
                 .privateKey(privateKey)
                 .publicKey(publicKey)
                 .address(address)

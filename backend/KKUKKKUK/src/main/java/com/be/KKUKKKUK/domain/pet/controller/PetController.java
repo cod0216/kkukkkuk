@@ -76,7 +76,7 @@ public class PetController {
             @PathVariable Integer petId
     ){
         petComplexService.deletePetFromWallet(ownerDetails, petId);
-        return ResponseUtility.success("반려동물 삭제에 성공했습니다.", null);
+        return ResponseUtility.emptyResponse("반려동물 삭제에 성공했습니다.");
     }
 
 }
