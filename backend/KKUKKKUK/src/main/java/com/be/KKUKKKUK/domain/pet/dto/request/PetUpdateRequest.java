@@ -2,6 +2,8 @@ package com.be.KKUKKKUK.domain.pet.dto.request;
 
 import com.be.KKUKKKUK.global.enumeration.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -20,6 +22,7 @@ import java.time.LocalDate;
  * 25.03.24          haelim           swagger, JsonNaming 설정<br>
  */
 @Getter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PetUpdateRequest {
     @Schema(description = "반려동물 DID", example = "pet:0xtestpetdid")
     private String did;
