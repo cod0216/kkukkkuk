@@ -39,6 +39,7 @@ import java.util.Arrays;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초생성<br>
  * 25.03.27          haelim           허용 url 추가(auth) <br>
+ * 25.03.29          haelim           회원 유형에 따른 허용 URL 설정 <br>
  */
 @Configurable
 @Configuration
@@ -50,8 +51,9 @@ public class SecurityConfig {
     private final HospitalDetailService hospitalDetailService;
     private final OwnerDetailService ownerDetailService;
 
-    // 인증 없이 접근을 허용할 URL 경로 설정
-    public static final String[] allowUrls = {
+    /**
+     * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
+     */    public static final String[] allowUrls = {
             "/",
             "/error",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
@@ -60,26 +62,57 @@ public class SecurityConfig {
             "/api/breeds/**"
     };
 
-    // OWNER만 접근 가능한 URL
+    /**
+     * OWNER 만 접근 가능한 URL 경로를 설정합니다.
+     */
     private static final String[] ROLE_OWNER_URLS = {
             "/api/owners/**", "/api/pets/**", "/api/wallets/**"
     };
 
-    // HOSPITAL만 접근 가능한 URL
+
+    /**
+     * HOSPITAL 만 접근 가능한 URL 경로를 설정합니다.
+     */
     private static final String[] ROLE_HOSPITAL_URLS = {
             "/api/hospitals/**", "/api/doctors/**"
     };
 
+    /**
+     * OWNER, HOSPITAL 모두 접근 가능한 URL 경로를 설정합니다.
+     */
+    private static final String[] ROLE_ALL_URLS = {
+//            "/api/breeds/**"
+    };
+
+
+    /**
+     * 비밀번호 암호화 방식으로 BCryptPasswordEncoder를 사용하여 PasswordEncoder 빈을 설정합니다.
+     * @return BCryptPasswordEncoder 객체
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * JWT 인증을 처리하기 위해 커스텀 필터를 빈으로 설정합니다. 이 필터는 요청에 포함된 JWT를 검증하여 인증을 수행합니다.
+     * @return JwtAuthenticationFilter 객체
+     */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(tokenService, jwtUtility, hospitalDetailService, ownerDetailService);
     }
 
+    /**
+     *
+     * HTTP 보안 설정을 정의하는 메서드입니다.
+     * 이 메서드는 URL에 대한 인증 규칙을 설정하고, JWT 인증 필터를 추가합니다.
+     *
+     * @param http HTTP 보안 설정 객체
+     * @param corsConfigurationSource CORS 설정 객체
+     * @return SecurityFilterChain 객체
+     * @throws Exception 설정 중 발생할 수 있는 예외
+     */
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
@@ -91,9 +124,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(allowUrls).permitAll()
-                        .requestMatchers(ROLE_OWNER_URLS).hasRole(RelatedType.OWNER.name())
-                        .requestMatchers(ROLE_HOSPITAL_URLS).hasRole(RelatedType.HOSPITAL.name())
+                        .requestMatchers(allowUrls).permitAll() // 인증 없이 접근 가능
+                        .requestMatchers(ROLE_OWNER_URLS).hasRole(RelatedType.OWNER.name()) // OWNER 접근 가능
+                        .requestMatchers(ROLE_HOSPITAL_URLS).hasRole(RelatedType.HOSPITAL.name())// HOSPITAL 접근 가능
+                        .requestMatchers(ROLE_ALL_URLS).hasAnyRole(RelatedType.OWNER.name(), RelatedType.HOSPITAL.name()) // OWNER와 HOSPITAL 모두 접근 가능
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -101,6 +135,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * CORS(Cross-Origin Resource Sharing) 정책을 설정하여 특정 도메인에서 API 요청을 허용합니다.
+     * @return CorsConfigurationSource 객체
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
