@@ -7,6 +7,7 @@ import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerDetailInfoResponse;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
+import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.service.WalletComplexService;
 import com.be.KKUKKKUK.domain.wallet.service.WalletService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
@@ -51,7 +52,7 @@ public class OwnerComplexService {
     @Transactional(readOnly = true)
     public OwnerDetailInfoResponse getOwnerInfoWithWallet(Integer ownerId) {
         OwnerInfoResponse ownerInfo = ownerService.getOwnerInfo(ownerId);
-        List<WalletInfoResponse> walletInfo = walletComplexService.getWalletInfoByOwnerId(ownerId);
+        List<WalletShortInfoResponse> walletInfo = walletComplexService.getWalletInfoByOwnerId(ownerId);
 
         return new OwnerDetailInfoResponse(ownerInfo, walletInfo);
     }
@@ -68,7 +69,7 @@ public class OwnerComplexService {
         OwnerInfoResponse ownerInfo = ownerService.tryLoginOrSignUp(request);
 
         // 2. 사용자 지갑 정보 요청
-        List<WalletInfoResponse> wallets = walletComplexService.getWalletInfoByOwnerId(ownerInfo.getId());
+        List<WalletShortInfoResponse> wallets = walletComplexService.getWalletInfoByOwnerId(ownerInfo.getId());
 
         // 3. JWT 토큰 발급
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(ownerInfo.getId(), ownerInfo.getName(), RelatedType.OWNER);

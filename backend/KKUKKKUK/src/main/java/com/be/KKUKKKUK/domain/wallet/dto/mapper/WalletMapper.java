@@ -1,9 +1,9 @@
 package com.be.KKUKKKUK.domain.wallet.dto.mapper;
 
-import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
-import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
-import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
+import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
+import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -21,7 +21,14 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring")
 public interface WalletMapper {
-    WalletInfoResponse mapWalletToWalletInfo(Wallet wallet);
+    
+    @Mapping(target = "id", source = "owner.id")
+    @Mapping(target = "name", source = "owner.name")
+    List<OwnerShortInfoResponse> mapOwnersToOwnerShortInfos(List<Owner> owners);
+    
+    @Mapping(target = "id", source = "owner.id")
+    @Mapping(target = "name", source = "owner.name")
+    OwnerShortInfoResponse mapOwnerToOwnerShortInfo(Owner owner);
 
-    List<WalletInfoResponse> mapWalletOwnersToWalletInfos(List<WalletOwner> walletOwners);
+
 }

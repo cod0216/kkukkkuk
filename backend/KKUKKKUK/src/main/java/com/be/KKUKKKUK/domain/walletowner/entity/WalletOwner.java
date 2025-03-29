@@ -46,8 +46,9 @@ public class WalletOwner {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    public WalletOwner(Owner owner, Wallet wallet) {
+    public WalletOwner(Owner owner, Wallet wallet, LocalDateTime createdAt) {
         this.owner = owner;
         this.wallet = wallet;
+        this.createdAt = createdAt;
     }
 }

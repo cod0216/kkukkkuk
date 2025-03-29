@@ -1,7 +1,7 @@
 package com.be.KKUKKKUK.domain.auth.dto.response;
 
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
-import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
+import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -24,5 +24,5 @@ import java.util.List;
 public class OwnerLoginResponse {
     private OwnerInfoResponse owner;
     private JwtTokenPairResponse tokens;
-    private List<WalletInfoResponse> wallets;
+    private List<WalletShortInfoResponse> wallets;
 }
