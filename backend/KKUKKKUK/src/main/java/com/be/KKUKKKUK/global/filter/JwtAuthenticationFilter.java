@@ -68,6 +68,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/hospitals/authorization-number/**", "/api/hospitals/name/**", "/api/hospitals/account/**"
     };
 
+
+    /**
+     * 요청을 필터링하여 인증을 수행합니다.
+     * 요청에서 JWT 토큰을 추출하고, 해당 토큰이 유효한지 검증한 후, 인증 정보를 SecurityContext에 설정합니다.
+     *
+     * @param request 요청 객체
+     * @param response 응답 객체
+     * @param filterChain 필터 체인
+     * @throws ServletException 서블릿 예외
+     * @throws IOException I/O 예외
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response,
@@ -123,8 +134,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * 액세스 토큰이 유효할 경우 실행될 메서드입니다.
-     * @param accessToken
+     * 유효한 액세스 토큰에 대해 사용자 인증을 처리하는 메서드입니다.
+     * 유효한 액세스 토큰을 기반으로 사용자를 인증하고, 인증 정보를 SecurityContext에 설정합니다.
+     *
+     * @param accessToken 유효한 액세스 토큰
      */
     protected void processValidAccessToken(String accessToken) {
         RelatedType type = jwtUtility.getUserType(accessToken);
@@ -145,7 +158,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-
+    /**
+     * 인증 오류 응답을 작성하는 메서드입니다.
+     * 응답에 오류 메시지와 상태 코드를 포함하여 클라이언트에게 전송합니다.
+     *
+     * @param response 응답 객체
+     * @param errorCode 오류 코드
+     * @throws IOException I/O 예외
+     */
     private void writeErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=utf-8");
@@ -159,6 +179,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         );
     }
 
+    /**
+     * JWT 토큰에서 사용자 인증 정보를 생성하는 메서드입니다.
+     * 액세스 토큰을 사용하여 사용자 유형과 ID를 추출하고, 해당 인증 정보를 생성하여 반환합니다.
+     *
+     * @param token JWT 액세스 토큰
+     * @return 생성된 인증 객체
+     */
     private Authentication getAuthentication(String token) {
         RelatedType userType = jwtUtility.getUserType(token);
         Integer userId = jwtUtility.getUserId(token);
@@ -168,112 +195,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return new UsernamePasswordAuthenticationToken(userId, null, authorities);
     }
 }
-
-//public class JwtAuthenticationFilter extends OncePerRequestFilter {
-//    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
-//    private final TokenService tokenService;
-//    private final JwtUtility jwtUtility;
-//    private final HospitalDetailService hospitalDetailService;
-//    private final OwnerDetailService ownerDetailService;
-//
-//    private static final String[] AllowUrls = new String[]{
-//            "/",
-//            "/error",
-//            "/v3/api-docs/**",
-//            "/swagger-ui/**",
-//            "/swagger-ui.html",
-//            "/swagger-resources/**",
-//            "/api/auths/**",
-//            "/api/hospitals/authorization-number/**",
-//            "/api/hospitals/name/**",
-//            "/api/hospitals/account/**",
-//    };
-//
-//
-//    @Override
-//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-//                                    FilterChain filterChain) throws ServletException, IOException {
-//
-//        String uri = request.getRequestURI();
-//
-//        if (Arrays.stream(AllowUrls).anyMatch(pattern -> pathMatcher.match(pattern, uri))) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-//
-//        String authHeader = request.getHeader("Authorization");
-//        if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
-//            writeErrorResponse(response, ErrorCode.NO_ACCESS_TOKEN);
-//            return;
-//        }
-//
-//        String accessToken = authHeader.substring(7);
-//        if (jwtUtility.validateToken(accessToken)) {
-//            // 액세스 토큰이 유효하면 블랙리스트 검증
-//            if (checkTokenBlacklisted(accessToken)) {
-//                writeErrorResponse(response, ErrorCode.INVALID_TOKEN);  // 블랙리스트에 있으면 오류 응답
-//                return;
-//            }
-//
-//            // 03.29
-//            Authentication auth = getAuthentication(accessToken);
-//            SecurityContextHolder.getContext().setAuthentication(auth);
-//
-//            processValidAccessToken(accessToken);
-//        } else {
-//            SecurityContextHolder.clearContext(); // 인증 실패 시 보안 컨텍스트 초기화
-//            writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
-//            return;
-//        }
-//
-//
-//        filterChain.doFilter(request, response);
-//    }
-//
-//    // 블랙리스트 확인 메서드
-//    private boolean checkTokenBlacklisted(String accessToken) {
-//        return tokenService.checkBlacklisted(accessToken);  // 블랙리스트 확인 로직
-//    }
-//
-//    protected void processValidAccessToken(String accessToken) {
-//        RelatedType type = jwtUtility.getUserType(accessToken);
-//        Integer userId = jwtUtility.getUserId(accessToken);
-//
-//        UserDetails userDetails;
-//        if (type.equals(RelatedType.OWNER)) {
-//            userDetails = ownerDetailService.loadUserByUsername(userId.toString());
-//        } else if (type.equals(RelatedType.HOSPITAL)) {
-//            userDetails = hospitalDetailService.loadUserByUsername(userId.toString());
-//        } else {
-//            throw new ApiException(ErrorCode.INVALID_TOKEN);
-//
-//        }
-//
-//        UsernamePasswordAuthenticationToken authentication =
-//                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//    }
-//
-//    private void writeErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
-//        response.setStatus(errorCode.getHttpStatus().value());
-//        response.setContentType("application/json;charset=utf-8");
-//        response.getWriter().write(
-//                String.format("{\"status\": \"%s\",\"status_code\": \"%s\", \"name\": \"%s\", \"code\": \"%s\", \"message\": \"%s\"}",
-//                        StatusEnum.FAILURE,
-//                        errorCode.getHttpStatus().value(),
-//                        errorCode.name(),
-//                        errorCode.getCode(),
-//                        errorCode.getMessage())
-//        );
-//    }
-//
-//    private Authentication getAuthentication(String token) {
-//        RelatedType userType = jwtUtility.getUserType(token);
-//        Integer userId = jwtUtility.getUserId(token);
-//
-//        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userType.name()));
-//
-//        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
-//    }
-//}
