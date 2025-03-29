@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.13          Fiat_lux           최초생성<br>
- * 25.03.28          haelim             지갑 - 보호자 N:M 으로 변경, owner 삭제<br>
+ * 25.03.28          haelim             지갑 - 보호자 N:M 으로 변경, owner 삭제, name 추가<br>
  */
 @Entity
 @Table(name = "wallet")
@@ -49,5 +49,8 @@ public class Wallet {
 
     @Column(nullable = false)
     private String did;
+
+    @Column(nullable = false)
+    private String name;
 
 }

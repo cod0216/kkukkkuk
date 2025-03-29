@@ -24,5 +24,6 @@ public class WalletInfoResponse {
     private Integer id;
     private String did;
     private String address;
+    private String name;
     private List<OwnerShortInfoResponse> owners;
 }
