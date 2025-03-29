@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/wallets")
 public class WalletController {
     private final WalletComplexService walletComplexService;
-    private final WalletService walletService;
 
     /**
      * 현재 로그인된 사용자의 지갑 정보를 등록합니다.

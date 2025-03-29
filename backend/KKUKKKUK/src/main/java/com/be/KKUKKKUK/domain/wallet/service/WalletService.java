@@ -26,7 +26,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WalletService {
     private final WalletRepository walletRepository;
-//    private final WalletMapper walletMapper;
 
     Optional<Wallet> getWalletOptionalByWalletAddress(String address) {
         return walletRepository.findByAddress(address);

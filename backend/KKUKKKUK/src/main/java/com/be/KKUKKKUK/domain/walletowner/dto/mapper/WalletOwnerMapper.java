@@ -10,9 +10,4 @@ import java.util.List;
 public interface WalletOwnerMapper {
     List<WalletShortInfoResponse> mapToWalletInfos(List<Wallet> wallets);
 
-//    OwnerShortInfoResponse mapToOwnerInfo(Owner owner);
-
-//    WalletInfoResponse mapToWalletInfo(Wallet wallet, List<OwnerShortInfoResponse> ownerInfos);
-//    List<OwnerShortInfoResponse> mapToOwnerInfos(List<Owner> owners);
-
 }

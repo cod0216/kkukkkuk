@@ -61,7 +61,7 @@ public class WalletComplexService {
         Pet pet = request.toPetEntity();
 
         // 2. 등록할 지갑 찾기
-        Wallet wallet = walletOwnerService.checkConnection(ownerId, walletId).getWallet();
+        Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
 
         // 3. 지갑과 반려동물 연결
         pet.setWallet(wallet);
@@ -80,7 +80,7 @@ public class WalletComplexService {
      * @return 조회된 반려동물 목록
      */
     public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
-        Wallet wallet = walletOwnerService.checkConnection(ownerId, walletId).getWallet();
+        Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
         return petService.findPetInfoListByWalletId(wallet.getId());
     }
 
@@ -103,8 +103,17 @@ public class WalletComplexService {
      * @return 조회된 지갑 상세 정보
      */
     public WalletInfoResponse getWalletInfoByWalletId(Integer ownerId, Integer walletId) {
+        // 1. 지갑 연결 조회
+        Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
 
-        return null;
+        // 4. 특정 지갑에 연결된 모든 보호자 조회
+        List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
+
+        // 5. Owner -> OwnerShortInfoResponse 변환
+        List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
+
+        // 6. 변환된 데이터를 사용해 WalletInfoResponse 생성 후 반환
+        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), ownerInfos);
     }
 
 
@@ -146,7 +155,7 @@ public class WalletComplexService {
      * @return 업데이트된 지갑 정보
      */
     public WalletInfoResponse updateWallet(Integer ownerId, Integer walletId, WalletUpdateRequest request) {
-        Wallet wallet = walletOwnerService.checkConnection(ownerId, walletId).getWallet();
+        Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
 
         if(!Objects.isNull(request.getDid())) wallet.setDid(request.getDid());
         if(!Objects.isNull(request.getPublicKey())) wallet.setPublicKey(request.getPublicKey());
@@ -167,7 +176,7 @@ public class WalletComplexService {
      * @param walletId 삭제할 지갑 ID
      */
     public void deleteWalletByWalletId(Integer ownerId, Integer walletId) {
-        walletOwnerService.disConnectWalletAndOwner(ownerId, walletId);
+        walletOwnerService.disconnectWalletAndOwner(ownerId, walletId);
     }
 
 
