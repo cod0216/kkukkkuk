@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.hospital.dto;
 
 
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
+import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,7 +35,7 @@ public class HospitalDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_HOSPITAL"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+ RelatedType.HOSPITAL.name()));
     }
 
     @Override

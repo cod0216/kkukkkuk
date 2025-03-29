@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.global.config;
 import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalDetailService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerDetailService;
+import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.filter.JwtAuthenticationFilter;
 import com.be.KKUKKKUK.global.util.JwtUtility;
 import lombok.RequiredArgsConstructor;
@@ -53,25 +54,21 @@ public class SecurityConfig {
     public static final String[] allowUrls = {
             "/",
             "/error",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-resources/**",
-            "/api/auths/refresh",
-            "/api/auths/emails/send",
-            "/api/auths/emails/verify",
-            "/api/auths/passwords/reset",
-            "/api/auths/accounts/find",
-            "/api/auths/owners/kakao/login",
-            "/api/auths/hospitals/signup",
-            "/api/auths/hospitals/login",
-            "/api/hospitals/authorization-number/**",
-            "/api/hospitals/account/**",
-            "/api/hospitals/name/**",
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
+            "/api/auths/**",
+            "/api/hospitals/authorization-number/**", "/api/hospitals/account/**", "/api/hospitals/name/**",
             "/api/breeds/**"
-
     };
 
+    // OWNER만 접근 가능한 URL
+    private static final String[] ROLE_OWNER_URLS = {
+            "/api/owners/**", "/api/pets/**", "/api/wallets/**"
+    };
+
+    // HOSPITAL만 접근 가능한 URL
+    private static final String[] ROLE_HOSPITAL_URLS = {
+            "/api/hospitals/**", "/api/doctors/**"
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -86,22 +83,19 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-                // 인증 없이 접근 가능한 URL 지정
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers(allowUrls).permitAll() // allowUrls 배열에 포함된 URL은 모두 인증 없이 접근 가능
-                        .anyRequest().authenticated() // 나머지 URL은 인증이 필요
-                )
-                // CSRF 보호 비활성화
                 .csrf(CsrfConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // 폼 로그인 및 기본 HTTP 인증 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(HttpBasicConfigurer::disable)
-                // 세션을 사용하지 않고, JWT 인증 방식 사용
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                // JWT 인증 필터를 Spring Security 필터 체인에 추가
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(allowUrls).permitAll()
+                        .requestMatchers(ROLE_OWNER_URLS).hasRole(RelatedType.OWNER.name())
+                        .requestMatchers(ROLE_HOSPITAL_URLS).hasRole(RelatedType.HOSPITAL.name())
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

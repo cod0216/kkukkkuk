@@ -83,7 +83,7 @@ public class HospitalService {
         Hospital hospital = findHospitalByAccount(request.getAccount());
 
         if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {
-            throw new ApiException(ErrorCode.PASSWORD_NOT_MATCH);
+            throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
         return hospitalMapper.mapToHospitalInfo(hospital);
@@ -92,6 +92,7 @@ public class HospitalService {
 
     /**
      * 동물병원의 인허가 번호로 동물병원을 조회합니다.
+     *
      * @param authorizationNumber 조회할 동물병원의 인허가번호
      * @return 인허가 번호로 조회한 동물병원 정보
      * @throws ApiException 인허가번호로 동물병원을 찾을 수 없는 경우 예외 발생
