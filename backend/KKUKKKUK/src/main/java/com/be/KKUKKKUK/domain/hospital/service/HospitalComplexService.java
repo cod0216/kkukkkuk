@@ -172,7 +172,7 @@ public class HospitalComplexService {
         if (Objects.isNull(redisAuthCode)) throw new ApiException(ErrorCode.AUTH_CODE_EXPIRED);
 
         // 3. 사용자가 입력한 인증 코드와 저장된 인증 코드 비교
-        if (!redisAuthCode.equals(code)) throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCH);
+        if (!redisAuthCode.equals(code)) throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCHED);
 
         // 4. 인증 완료한 인증코드 삭제
         redisService.deleteValues(EMAIL_AUTH_CODE_PREFIX + email);
@@ -193,7 +193,7 @@ public class HospitalComplexService {
         Hospital hospital = hospitalService.findHospitalByAccount(request.getAccount());
 
         // 2. 이메일 정보가 일치하지 않는 경우 예외처리
-        if(!hospital.getEmail().equals(email)) throw new ApiException(ErrorCode.EMAIL_NOT_MATCH);
+        if(!hospital.getEmail().equals(email)) throw new ApiException(ErrorCode.EMAIL_NOT_MATCHED);
 
         // 3. 신규 비밀번호 생성
         String newPassword = RandomCodeUtility.generatePassword(PASSWORD_LENGTH);
