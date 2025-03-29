@@ -1,6 +1,7 @@
 package com.be.KKUKKKUK.domain.owner.dto;
 
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
+import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +32,7 @@ public class OwnerDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_OWNER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+ RelatedType.OWNER.name()));
     }
 
     @Override

@@ -51,7 +51,7 @@ public class WalletComplexService {
     private final WalletMapper walletMapper;
 
     /**
-     * 로그인한 사용자 계정에 반려동물을 신규로 등록합니다.
+     * 특정 지갑에 반려동물을 신규로 등록합니다.
      * @param ownerId 로그인한 사용자 ID
      * @param request 반려동물 신규 등록 요청
      * @return 등록된 반려동물 정보
@@ -75,7 +75,7 @@ public class WalletComplexService {
     }
 
     /**
-     * 현재 로그인한 회원 지갑의 모든 반려동물 목록을 조회합니다.
+     * 특정 회원 지갑의 모든 반려동물 목록을 조회합니다.
      * @param ownerId 현재 로그인한 회원 계정 ID
      * @return 조회된 반려동물 목록
      */

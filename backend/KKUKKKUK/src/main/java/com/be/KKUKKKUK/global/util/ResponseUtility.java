@@ -5,6 +5,10 @@ import com.be.KKUKKKUK.global.api.StatusEnum;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * packageName    : com.be.KKUKKKUK.global.util<br>
  * fileName       : ResponseUtility.java<br>
@@ -22,7 +26,8 @@ import org.springframework.http.ResponseEntity;
  */
 public final class ResponseUtility {
 
-    private static final Object EMPTY_OBJECT = new Object();
+    private static final Map<Object, Object> EMPTY_SET = Collections.emptyMap();
+
 
     /**
      * 요청이 성공했을 때 기본 메시지와 함께 200 OK 응답을 반환합니다.
@@ -78,7 +83,7 @@ public final class ResponseUtility {
      * @return 200 OK 응답을 포함한 {@link ResponseEntity}, 빈 객체 반환
      */
     public static ResponseEntity<ApiResponse<Object>> emptyResponse(String message) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_OBJECT));
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_SET));
     }
 
     /**

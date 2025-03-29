@@ -50,7 +50,7 @@ public class Wallet {
     @Column(nullable = false)
     private String did;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String name;
 
 }

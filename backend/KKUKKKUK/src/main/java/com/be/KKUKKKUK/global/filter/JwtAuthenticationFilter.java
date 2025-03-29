@@ -15,6 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -23,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -56,71 +60,85 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HospitalDetailService hospitalDetailService;
     private final OwnerDetailService ownerDetailService;
 
-
-    private static final String[] AllowUrls = new String[]{
+    private static final String[] ALLOW_URLS = new String[]{
             "/",
             "/error",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-resources/**",
-            "/api/auths/refresh",
-            "/api/auths/emails/send",
-            "/api/auths/emails/verify",
-            "/api/auths/passwords/reset",
-            "/api/auths/accounts/find",
-            "/api/auths/owners/kakao/login",
-            "/api/auths/hospitals/signup",
-            "/api/auths/hospitals/login",
-            "/api/hospitals/authorization-number/**",
-            "/api/hospitals/name/**",
-            "/api/hospitals/account/**",
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
+            "/api/auths/**",
+            "/api/hospitals/authorization-number/**", "/api/hospitals/name/**", "/api/hospitals/account/**"
     };
 
 
+    /**
+     * 요청을 필터링하여 인증을 수행합니다.
+     * 요청에서 JWT 토큰을 추출하고, 해당 토큰이 유효한지 검증한 후, 인증 정보를 SecurityContext에 설정합니다.
+     *
+     * @param request 요청 객체
+     * @param response 응답 객체
+     * @param filterChain 필터 체인
+     * @throws ServletException 서블릿 예외
+     * @throws IOException I/O 예외
+     */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         String uri = request.getRequestURI();
 
-        if (Arrays.stream(AllowUrls).anyMatch(pattern -> pathMatcher.match(pattern, uri))) {
+        // 1. 허용된 URL에 대해서는 인증 필터 통과
+        if (Arrays.stream(ALLOW_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri))) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // 2. 헤더에서 access token 확인
         String authHeader = request.getHeader("Authorization");
         if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
-//            throw new ApiException(ErrorCode.NO_ACCESS_TOKEN);
             writeErrorResponse(response, ErrorCode.NO_ACCESS_TOKEN);
             return;
         }
 
-        String accessToken = authHeader.substring(7);
+        // 3. refresh token 유효성 검증
+        String accessToken = authHeader.substring(7);  // "Bearer "를 제외한 토큰 부분
         if (jwtUtility.validateToken(accessToken)) {
-            // 액세스 토큰이 유효하면 블랙리스트 검증
+            // 3-1. 액세스 토큰이 유효하면 블랙리스트 검증
             if (checkTokenBlacklisted(accessToken)) {
                 writeErrorResponse(response, ErrorCode.INVALID_TOKEN);  // 블랙리스트에 있으면 오류 응답
                 return;
             }
 
+            // 3-2. 인증 토큰을 SecurityContext에 설정
+            Authentication auth = getAuthentication(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            // 3-3. 유효한 토큰 처리
             processValidAccessToken(accessToken);
         } else {
             SecurityContextHolder.clearContext(); // 인증 실패 시 보안 컨텍스트 초기화
-//            throw new ApiException(ErrorCode.INVALID_TOKEN);
             writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
             return;
         }
-
-
-        filterChain.doFilter(request, response);
+        // 4. refresh token 유효성 검증
+        filterChain.doFilter(request, response);  // 필터 체인을 계속해서 호출
     }
 
-    // 블랙리스트 확인 메서드
+    /**
+     * 블랙리스트 확인 메서드입니다.
+     * 레디스에 저장된 블랙리스트와 대조해서, 블랙리스트 여부를 판단합니다.
+     * @param accessToken 엑세스 토큰
+     * @return 블랙리스트 여부 true(블랙리스트), false(블랙리스트 아님)
+     */
     private boolean checkTokenBlacklisted(String accessToken) {
-        return tokenService.checkBlacklisted(accessToken);  // 블랙리스트 확인 로직
+        return tokenService.checkBlacklisted(accessToken);
     }
 
+    /**
+     * 유효한 액세스 토큰에 대해 사용자 인증을 처리하는 메서드입니다.
+     * 유효한 액세스 토큰을 기반으로 사용자를 인증하고, 인증 정보를 SecurityContext에 설정합니다.
+     *
+     * @param accessToken 유효한 액세스 토큰
+     */
     protected void processValidAccessToken(String accessToken) {
         RelatedType type = jwtUtility.getUserType(accessToken);
         Integer userId = jwtUtility.getUserId(accessToken);
@@ -132,7 +150,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             userDetails = hospitalDetailService.loadUserByUsername(userId.toString());
         } else {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
-
         }
 
         UsernamePasswordAuthenticationToken authentication =
@@ -141,6 +158,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    /**
+     * 인증 오류 응답을 작성하는 메서드입니다.
+     * 응답에 오류 메시지와 상태 코드를 포함하여 클라이언트에게 전송합니다.
+     *
+     * @param response 응답 객체
+     * @param errorCode 오류 코드
+     * @throws IOException I/O 예외
+     */
     private void writeErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=utf-8");
@@ -152,5 +177,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         errorCode.getCode(),
                         errorCode.getMessage())
         );
+    }
+
+    /**
+     * JWT 토큰에서 사용자 인증 정보를 생성하는 메서드입니다.
+     * 액세스 토큰을 사용하여 사용자 유형과 ID를 추출하고, 해당 인증 정보를 생성하여 반환합니다.
+     *
+     * @param token JWT 액세스 토큰
+     * @return 생성된 인증 객체
+     */
+    private Authentication getAuthentication(String token) {
+        RelatedType userType = jwtUtility.getUserType(token);
+        Integer userId = jwtUtility.getUserId(token);
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userType.name()));
+
+        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
     }
 }

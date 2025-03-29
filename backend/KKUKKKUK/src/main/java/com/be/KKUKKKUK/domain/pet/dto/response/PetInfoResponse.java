@@ -2,6 +2,8 @@ package com.be.KKUKKKUK.domain.pet.dto.response;
 
 import com.be.KKUKKKUK.global.enumeration.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +22,7 @@ import java.time.LocalDate;
  */
 @Data
 @RequiredArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PetInfoResponse {
     private Integer id;
 
@@ -29,11 +32,9 @@ public class PetInfoResponse {
 
     private Gender gender;
 
-    @JsonProperty("flag_neutering")
     private Boolean flagNeutering;
 
     private LocalDate birth;
 
-    @JsonProperty("breed_id")
     private Integer breedId;
 }
