@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HospitalDetailService hospitalDetailService;
     private final OwnerDetailService ownerDetailService;
 
-    private static final String[] ALLOW_URLS = new String[]{
+    private static final String[] ALLOWED_URLS = new String[]{
             "/",
             "/error",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
@@ -68,6 +68,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/hospitals/authorization-number/**", "/api/hospitals/name/**", "/api/hospitals/account/**"
     };
 
+    /**
+     * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
+     */
+    public static final String[] NOT_ALLOWED_URLS = {
+            "/api/auths/logout",
+    };
 
     /**
      * 요청을 필터링하여 인증을 수행합니다.
@@ -87,7 +93,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
 
         // 1. 허용된 URL에 대해서는 인증 필터 통과
-        if (Arrays.stream(ALLOW_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri))) {
+        if (checkAllowedUrl(uri, request, response)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -99,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 3. refresh token 유효성 검증
+        // 3. access token 유효성 검증
         String accessToken = authHeader.substring(7);  // "Bearer "를 제외한 토큰 부분
         if (jwtUtility.validateToken(accessToken)) {
             // 3-1. 액세스 토큰이 유효하면 블랙리스트 검증
@@ -119,7 +125,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
             return;
         }
-        // 4. refresh token 유효성 검증
         filterChain.doFilter(request, response);  // 필터 체인을 계속해서 호출
     }
 
@@ -194,4 +199,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return new UsernamePasswordAuthenticationToken(userId, null, authorities);
     }
+
+    /**
+     * 허용된 URL인지 확인하고, 예외적으로 인증이 필요한 경우 인증을 수행합니다.
+     *
+     * @param uri 요청된 URI
+     * @param request 요청 객체
+     * @param response 응답 객체
+     * @return 허용된 URL이면 true, 인증이 필요하면 false
+     */
+    private boolean checkAllowedUrl(String uri, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        boolean flagAllowed = Arrays.stream(ALLOWED_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri));
+        boolean flagException = Arrays.stream(NOT_ALLOWED_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri));
+
+        // 허용된 URL이면서 예외 URL이 아닌 경우 통과
+        return flagAllowed && !flagException;
+    }
+
 }

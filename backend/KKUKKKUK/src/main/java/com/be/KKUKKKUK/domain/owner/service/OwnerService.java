@@ -1,20 +1,11 @@
 package com.be.KKUKKKUK.domain.owner.service;
 
 import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
-import com.be.KKUKKKUK.domain.auth.dto.response.JwtTokenPairResponse;
-import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
-import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.owner.dto.mapper.OwnerMapper;
 import com.be.KKUKKKUK.domain.owner.dto.request.OwnerUpdateRequest;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import com.be.KKUKKKUK.domain.owner.repository.OwnerRepository;
-import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
-import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
-import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
-import com.be.KKUKKKUK.domain.wallet.dto.response.WalletRecoverResponse;
-import com.be.KKUKKKUK.domain.wallet.service.WalletService;
-import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

@@ -5,13 +5,16 @@ import com.be.KKUKKKUK.domain.auth.dto.request.OwnerLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.OwnerLoginResponse;
 import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerDetailInfoResponse;
+import com.be.KKUKKKUK.domain.owner.dto.response.OwnerImageResponse;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
+import com.be.KKUKKKUK.domain.s3.service.S3Service;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -40,6 +43,7 @@ public class OwnerComplexService {
     private final OwnerService ownerService;
     private final TokenService tokenService;
     private final WalletOwnerService walletOwnerService;
+    private final S3Service s3Service;
 
     /**
      * 특정 보호자(Owner)의 정보를 보호자의 지갑 정보와 함께 조회합니다.
@@ -75,4 +79,8 @@ public class OwnerComplexService {
         return new OwnerLoginResponse(ownerInfo, tokenPair, wallets);
     }
 
+    public OwnerImageResponse updateOwnerProfile(Integer ownerId, MultipartFile imageFile) {
+        String image = s3Service.uploadImage(ownerId, RelatedType.OWNER, imageFile);
+        return new OwnerImageResponse(image);
+    }
 }

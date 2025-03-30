@@ -53,7 +53,8 @@ public class SecurityConfig {
 
     /**
      * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
-     */    public static final String[] allowUrls = {
+     */
+    public static final String[] ALLOWED_URLS = {
             "/",
             "/error",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
@@ -63,12 +64,18 @@ public class SecurityConfig {
     };
 
     /**
+     * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
+     */
+    public static final String[] NOT_ALLOWED_URLS = {
+            "/api/auths/logout",
+    };
+
+    /**
      * OWNER 만 접근 가능한 URL 경로를 설정합니다.
      */
     private static final String[] ROLE_OWNER_URLS = {
             "/api/owners/**", "/api/pets/**", "/api/wallets/**"
     };
-
 
     /**
      * HOSPITAL 만 접근 가능한 URL 경로를 설정합니다.
@@ -124,11 +131,15 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(allowUrls).permitAll() // 인증 없이 접근 가능
+                        .requestMatchers(NOT_ALLOWED_URLS).authenticated() // 인증 필요
+
+                        .requestMatchers(ALLOWED_URLS).permitAll() // 인증 없이 접근 가능
+
                         .requestMatchers(ROLE_OWNER_URLS).hasRole(RelatedType.OWNER.name()) // OWNER 접근 가능
                         .requestMatchers(ROLE_HOSPITAL_URLS).hasRole(RelatedType.HOSPITAL.name())// HOSPITAL 접근 가능
                         .requestMatchers(ROLE_ALL_URLS).hasAnyRole(RelatedType.OWNER.name(), RelatedType.HOSPITAL.name()) // OWNER와 HOSPITAL 모두 접근 가능
-                        .anyRequest().authenticated()
+                        .
+                        anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
