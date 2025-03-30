@@ -7,6 +7,10 @@ import Login from "@/pages/auth/Login";
 import FindPw from "@/pages/auth/FindPw";
 import FindId from "@/pages/auth/FindId";
 import { getRefreshToken, removeRefreshToken } from "@/utils/iDBUtil";
+import MyPage from "@/pages/mypage/MyPage"
+import ViewProfile from "@/pages/mypage/ViewProfile"
+import EditProfile from "@/pages/mypage/EditProfile"
+import DoctorManagement from "@/pages/mypage/DoctorManagement"
 
 /**
  * @module App
@@ -23,6 +27,7 @@ import { getRefreshToken, removeRefreshToken } from "@/utils/iDBUtil";
  * 2025-03-26        eunchang         최초 생성
  * 2025-03-27        eunchang         로그인 상태 관리
  * 2025-03-27        eunchang         자동로그인 여부에 따른 로그인 상태 관리
+ * 2025-03-30        sangmuk          마이페이지 라우트 추가
  */
 
 function App() {
@@ -93,6 +98,11 @@ function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<TreatmentMain />} />
         <Route path="/treatment" element={<TreatmentMain />} />
+        <Route path="/my-page" element={<MyPage />}>
+          <Route index element={<ViewProfile />} />
+          <Route path="edit-profile" element={<EditProfile />} />
+          <Route path="doctor-management" element={<DoctorManagement />} />
+        </Route>
       </Route>
     </Routes>
   );
