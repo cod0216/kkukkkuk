@@ -1,6 +1,5 @@
 package com.be.KKUKKKUK.domain.wallet.entity;
 
-import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

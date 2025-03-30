@@ -1,6 +1,8 @@
 package com.be.KKUKKKUK.domain.auth.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,10 +20,8 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class JwtTokenPairResponse {
-    @JsonProperty("access_token")
     private String accessToken;
-
-    @JsonProperty("refresh_token")
     private String refreshToken;
 }
