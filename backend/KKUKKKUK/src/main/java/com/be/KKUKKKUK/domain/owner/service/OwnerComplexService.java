@@ -34,6 +34,7 @@ import java.util.List;
  * 25.03.17          haelim           OwnerService 와 계층화, 지갑 관련 CURD 메소드 추가<br>
  * 25.03.19          haelim           지갑 관련 CURD 메소드 WalletComplexService 로 이동 <br>
  * 25.03.27          haelim           JWT 토큰에 이름 추가  <br>
+ * 25.03.30          haelim           프로필 이미지 업로드 api  <br>
  */
 
 @Service
@@ -79,6 +80,12 @@ public class OwnerComplexService {
         return new OwnerLoginResponse(ownerInfo, tokenPair, wallets);
     }
 
+    /**
+     * 프로필 이미지 수정 요청을 처리합니다.
+     * @param ownerId 프로필 수정할 owner ID
+     * @param imageFile 새로운 프로필 이미지 파일
+     * @return 변경된 이미의 url
+     */
     public OwnerImageResponse updateOwnerProfile(Integer ownerId, MultipartFile imageFile) {
         String image = s3Service.uploadImage(ownerId, RelatedType.OWNER, imageFile);
         return new OwnerImageResponse(image);

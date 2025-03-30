@@ -11,6 +11,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
+/**
+ * packageName    : com.be.KKUKKKUK.domain.s3.service<br>
+ * fileName       : S3Service.java<br>
+ * author         : haelim <br>
+ * date           : 2025-03-30<br>
+ * description    : S3 entity 의 service 클래스입니다. <br>
+ *                  S3Uploader 로 이미지를 S3 에 업로드하고, S3 테이블에 이미지 url 을 저장합니다.
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.03.30          haelim           최초생성<br>
+ * <br>
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -18,7 +31,13 @@ public class S3Service {
     private final S3Repository s3Repository;
     private final S3Uploader s3Uploader;
 
-
+    /**
+     * 이미지를 S3에 업로드하고, 기존 이미지는 삭제합니다.
+     * @param relativeId 식별자 ID
+     * @param relatedType 연관된 테이블 타입(Owner, Hospital, Pet...)
+     * @param imageFile 이미지 파일
+     * @return 저장된 이미지 url
+     */
     public String uploadImage(Integer relativeId, RelatedType relatedType, MultipartFile imageFile) {
         // 1. 기존 이미지 있으면 삭제
         s3Repository.findByRelatedIdAndRelatedType(relativeId, relatedType).ifPresent(s3 -> {

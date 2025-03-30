@@ -1,6 +1,5 @@
 package com.be.KKUKKKUK.domain.owner.dto.response;
 
-import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
