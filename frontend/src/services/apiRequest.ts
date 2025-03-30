@@ -15,6 +15,7 @@ import { AxiosError } from "axios";
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        eunchang         최초 생성
+ * 2025-03-30        sangmuk          request patch method 추가
  */
 
 /**
@@ -107,6 +108,24 @@ export const request = {
         message: errorMessage,
         data: null,
       };
+    }
+  },
+
+  /**
+   * PATCH Request
+   */
+  patch: async <T>(url: string, data?: object): Promise<ApiResponse<T>> => {
+    try {
+      const response = await apiClient.patch<ApiResponse<T>>(url, data)
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError
+      const errorMessage = extractErrorMessage(axiosError)
+      return {
+        status: ResponseStatus.FAILURE,
+        message: errorMessage,
+        data: null,
+      }
     }
   },
 };

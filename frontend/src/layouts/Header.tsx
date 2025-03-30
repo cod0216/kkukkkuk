@@ -6,6 +6,7 @@ import { logout as logoutApi } from "@/services/authService";
 import { clearAccessToken } from "@/redux/store";
 import { removeRefreshToken } from "@/utils/iDBUtil";
 import { useNavigate } from "react-router-dom";
+import useAppNavigation from "@/hooks/useAppNavigation"
 
 /**
  * @module Header
@@ -23,12 +24,15 @@ import { useNavigate } from "react-router-dom";
  * 2025-03-26        eunchang         로그아웃 버튼 생성
  * 2025-03-27        eunchang         로그인 표시 및 토큰 미 존재 시 리다이렉션
  * 2025-03-28        eunchang         토큰 name으로 사용자 이름 표시
+ * 2025-03-30        sangmuk          헤더 병원 이름 클릭 시 마이페이지로 이동하도록 수정
  */
 
 const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+
+  const { goToMyPage } = useAppNavigation()
 
   const decodeTokenPayload = (token: string) => {
     try {
@@ -73,7 +77,7 @@ const Header: React.FC = () => {
           <div className="text-xl font-bold text-primary-500">KKUK KKUK</div>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="text-sm font-medium">{userName}</div>
+          <div className="text-sm font-medium cursor-pointer" onClick={goToMyPage}>{userName}</div>
           {accessToken ? (
             <button
               onClick={handleLogout}
