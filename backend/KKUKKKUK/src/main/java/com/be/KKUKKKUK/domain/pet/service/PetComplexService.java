@@ -72,7 +72,7 @@ public class PetComplexService {
      */
     @Transactional(readOnly = true)
     public List<PetInfoResponse> findPetInfoListByWalletId(Integer walletId) {
-        List<PetInfoResponse> responses = petMapper.mapToPetInfoList(petService.findPetsByWalletId(walletId));
+        List<PetInfoResponse> responses = petService.findPetsByWalletId(walletId);
 
         responses.forEach(pet -> pet.setImage(s3Service.getImage(pet.getId(), RelatedType.PET)));
 

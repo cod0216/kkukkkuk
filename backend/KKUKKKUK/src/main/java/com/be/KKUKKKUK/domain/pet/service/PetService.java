@@ -39,8 +39,8 @@ public class PetService {
      * @param walletId 지갑 ID
      * @return 지갑에 속한 반려동물 목록
      */
-    List<Pet> findPetsByWalletId(Integer walletId) {
-        return petRepository.findByWalletId(walletId);
+    public List<PetInfoResponse> findPetsByWalletId(Integer walletId) {
+        return petMapper.mapToPetInfoList(petRepository.findByWalletId(walletId));
     }
 
     /**
