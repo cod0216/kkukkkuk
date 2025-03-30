@@ -54,6 +54,7 @@ public class OwnerComplexService {
     @Transactional(readOnly = true)
     public OwnerDetailInfoResponse getOwnerInfoWithWallet(Integer ownerId) {
         OwnerInfoResponse ownerInfo = ownerService.getOwnerInfo(ownerId);
+        ownerInfo.setImage(s3Service.getImage(ownerId, RelatedType.OWNER));
         List<WalletShortInfoResponse> walletInfo = walletOwnerService.getWalletShortInfoByOwnerId(ownerId);
 
 
@@ -70,6 +71,7 @@ public class OwnerComplexService {
     public OwnerLoginResponse loginOrSignup(OwnerLoginRequest request) {
         // 1. 사용자 정보 불러오기
         OwnerInfoResponse ownerInfo = ownerService.tryLoginOrSignUp(request);
+        ownerInfo.setImage(s3Service.getImage(ownerInfo.getId(), RelatedType.OWNER));
 
         // 2. 사용자 지갑 정보 요청
         List<WalletShortInfoResponse> wallets = walletOwnerService.getWalletShortInfoByOwnerId(ownerInfo.getId());
@@ -86,8 +88,10 @@ public class OwnerComplexService {
      * @param imageFile 새로운 프로필 이미지 파일
      * @return 변경된 이미의 url
      */
-    public OwnerImageResponse updateOwnerProfile(Integer ownerId, MultipartFile imageFile) {
+    public OwnerImageResponse updateOwnerImage(Integer ownerId, MultipartFile imageFile) {
         String image = s3Service.uploadImage(ownerId, RelatedType.OWNER, imageFile);
         return new OwnerImageResponse(image);
     }
+
+
 }

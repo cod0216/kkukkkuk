@@ -8,6 +8,7 @@ import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
+import com.be.KKUKKKUK.domain.pet.service.PetComplexService;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
 import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
@@ -49,6 +50,7 @@ public class WalletComplexService {
     private final WalletOwnerService walletOwnerService;
 
     private final WalletMapper walletMapper;
+    private final PetComplexService petComplexService;
 
     /**
      * 특정 지갑에 반려동물을 신규로 등록합니다.
@@ -81,9 +83,8 @@ public class WalletComplexService {
      */
     public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
-        return petService.findPetInfoListByWalletId(wallet.getId());
+        return petComplexService.findPetInfoListByWalletId(wallet.getId());
     }
-
 
     /**
      * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.

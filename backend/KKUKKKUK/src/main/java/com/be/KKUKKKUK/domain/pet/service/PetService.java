@@ -33,38 +33,13 @@ public class PetService {
     private final PetRepository petRepository;
     private final PetMapper petMapper;
 
-    /**
-     * 반려동물의 ID 로 반려 동물을 개별 조회합니다.
-     * @param petId 조회할 반려동물의 ID
-     * @return 조회된 반려동물의 정보
-     */
-    public PetInfoResponse getPetInfoByPetId(OwnerDetails ownerDetails, Integer petId) {
-        // 1. 반려동물 조회
-        Pet pet = findPetById(petId);
-
-        // 2. 반려동물에 대한 권한 체크
-        checkOwnerAuthority(ownerDetails, pet);
-
-        // 3. 응답
-        return petMapper.mapToPetInfoResponse(pet);
-    }
-
-    /**
-     * 지갑에 속한 반려동물을 전체조회합니다.
-     * @param walletId 지갑 ID
-     * @return 지갑에 속한 반려동물 정보 목록
-     */
-    @Transactional(readOnly = true)
-    public List<PetInfoResponse> findPetInfoListByWalletId(Integer walletId) {
-        return petMapper.mapToPetInfoList(findPetsByWalletId(walletId));
-    }
 
     /**
      * Repository 에서 특정 지갑에 속한 반려동물 목록을 조회합니다.
      * @param walletId 지갑 ID
      * @return 지갑에 속한 반려동물 목록
      */
-    private List<Pet> findPetsByWalletId(Integer walletId) {
+    List<Pet> findPetsByWalletId(Integer walletId) {
         return petRepository.findByWalletId(walletId);
     }
 
@@ -108,18 +83,4 @@ public class PetService {
         return petMapper.mapToPetInfoResponse(savePet(pet));
     }
 
-    /**
-     * 요청을 시도하는 보호자 회원의 반려동물에 대한 권한을 확인합니다.
-     * @param ownerDetails 요청 시도한 보호자 정보
-     * @param pet 반려동물 entity 객체
-     * @throws ApiException 반려동물이 속한 지갑 주인과 일치하지 않는 경우 예외처리
-     */
-    private void checkOwnerAuthority(OwnerDetails ownerDetails, Pet pet){
-        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
-        if(Objects.isNull(pet.getWallet())) {
-            throw new ApiException(ErrorCode.PET_NOT_FOUND);
-        }
-//        if(!Objects.equals(ownerId, pet.getWallet().getOwner().getId()))
-//            throw new ApiException(ErrorCode.PET_NOT_ALLOW);
-    }
 }

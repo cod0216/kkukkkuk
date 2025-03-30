@@ -24,4 +24,5 @@ public class OwnerInfoResponse {
     private String name;
     private String email;
     private LocalDate birth;
+    private String image;
 }

@@ -84,6 +84,6 @@ public class OwnerController {
             @RequestParam("image") MultipartFile imageFile
     ){
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
-        return ResponseUtility.success("계정 프로필이 성공적으로 업데이트되었습니다.", ownerComplexService.updateOwnerProfile(ownerId, imageFile));
+        return ResponseUtility.success("계정 프로필이 성공적으로 업데이트되었습니다.", ownerComplexService.updateOwnerImage(ownerId, imageFile));
     }
 }

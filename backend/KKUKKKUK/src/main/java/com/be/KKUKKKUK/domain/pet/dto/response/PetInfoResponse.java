@@ -36,5 +36,7 @@ public class PetInfoResponse {
 
     private LocalDate birth;
 
+    private String image;
+
     private Integer breedId;
 }

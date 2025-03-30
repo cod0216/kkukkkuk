@@ -50,4 +50,19 @@ public class S3Service {
         // 3. 새로운 이미지 저장
         return s3Repository.save(new S3(relativeId, relatedType, image, LocalDateTime.now())).getUrl();
     }
+
+    /**
+     * 연관된 이미지를 조회합니다.
+     * @param relativeId 식별자 ID
+     * @param relatedType 연관된 테이블 타입(Owner, Hospital, Pet...)
+     * @return 이미지 URL, 이미지가 없다면 null
+     */
+    public String getImage(Integer relativeId, RelatedType relatedType) {
+        return s3Repository.findByRelatedIdAndRelatedType(relativeId, relatedType)
+                .map(S3::getUrl)
+                .orElse(null);
+    }
+
+
+
 }
