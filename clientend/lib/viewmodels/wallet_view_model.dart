@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/mnemonic_usecase_provider.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/wallet_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/wallet/mnemonic/mnemonic_usecase_provider.dart';
+import 'package:kkuk_kkuk/domain/usecases/wallet/wallet_usecase_providers.dart';
 
 /// 니모닉 지갑 생성 및 설정 단계
 enum WalletStatus {
@@ -212,9 +212,8 @@ class WalletViewModel extends StateNotifier<WalletState> {
 
       state = state.copyWith(status: WalletStatus.registeringWallet);
 
-      // 지갑 생성
-      final registerWalletUseCase = ref.read(registerWalletUseCaseProvider);
       // 지갑 등록
+      final registerWalletUseCase = ref.read(registerWalletUseCaseProvider);
       final registeredWallet = await registerWalletUseCase.execute(
         did: wallet['did'] ?? '',
         address: wallet['address'] ?? '',
@@ -258,6 +257,11 @@ class WalletViewModel extends StateNotifier<WalletState> {
     );
   }
 
+  /// 에러 발생 시 이전 상태로 돌아가기
+  void handleErrorRetry() {
+    ref.read(walletViewModelProvider.notifier).returnToPreviousState();
+  }
+
   /// 니모닉 확인 단계로 진행
   void startMnemonicConfirmation() {
     if (state.status == WalletStatus.mnemonicGenerated &&
@@ -269,6 +273,17 @@ class WalletViewModel extends StateNotifier<WalletState> {
         error: null,
       );
     }
+  }
+
+  /// 새 지갑 생성 처리
+  void handleNewWallet() {
+    ref.read(walletViewModelProvider.notifier).generateMnemonic();
+  }
+
+  /// 니모닉으로 지갑 복구 처리
+  void handleWalletRecovery() {
+    ref.read(walletViewModelProvider.notifier).reset();
+    ref.read(walletViewModelProvider.notifier).startWalletRecovery();
   }
 
   /// 니모닉으로 지갑 복구 - 결과를 반환하도록 수정

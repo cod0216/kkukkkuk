@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/repositories/auth/oauth_repository.dart';
-import 'package:kkuk_kkuk/domain/usecases/auth/kakao_oauth_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/auth/kakao_logout_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/auth/oauth/kakao_login_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/auth/oauth/kakao_logout_usecase.dart';
 
-final kakaoOAuthUseCaseProvider = Provider((ref) {
+final kakaoLoginUseCaseProvider = Provider((ref) {
   final repository = ref.watch(oAuthRepositoryProvider);
-  return KakaoOAuthUseCase(repository);
+  return KakaoLoginUseCase(repository);
 });
 
 final kakaoLogoutUseCaseProvider = Provider((ref) {

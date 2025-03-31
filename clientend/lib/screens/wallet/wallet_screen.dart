@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_display_view.dart';
@@ -7,17 +8,16 @@ import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_confirmation_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/wallet_recovery_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
-import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 /// 지갑 설정 화면
 class WalletScreen extends ConsumerWidget {
-  final AuthViewModel viewModel;
+  final StateNotifierProvider<WalletViewModel, WalletState> viewModel;
 
   const WalletScreen({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final walletState = ref.watch(walletViewModelProvider);
+    final walletState = ref.watch(viewModel);
 
     // 초기 상태면 니모닉 생성 시작
     if (walletState.status == WalletStatus.initial) {
@@ -35,7 +35,12 @@ class WalletScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 상태에 따라 다른 내용 표시
-              _buildCurrentView(context, ref, walletState, viewModel),
+              _buildCurrentView(
+                context,
+                ref,
+                walletState,
+                ref.read(viewModel.notifier),
+              ),
 
               // 에러 메시지 표시
               if (walletState.error != null)
@@ -59,7 +64,7 @@ class WalletScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     WalletState walletState,
-    AuthViewModel viewModel,
+    WalletViewModel viewModel,
   ) {
     switch (walletState.status) {
       case WalletStatus.initial:
@@ -95,7 +100,18 @@ class WalletScreen extends ConsumerWidget {
         );
 
       case WalletStatus.completed:
-        return const Center(child: Text('지갑 설정이 완료되었습니다.'));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // First update auth state
+          ref.read(authViewModelProvider.notifier).moveToNetworkConnection();
+          // Then close the screen
+          Navigator.of(context).pop();
+        });
+        return const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [Text('지갑 설정이 완료되었습니다.'), SizedBox(height: 24)],
+          ),
+        );
     }
   }
 

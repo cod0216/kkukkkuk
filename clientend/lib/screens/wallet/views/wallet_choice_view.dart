@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 
 class WalletChoiceView extends ConsumerWidget {
-  final AuthViewModel controller;
+  final WalletViewModel controller;
 
   const WalletChoiceView({super.key, required this.controller});
 

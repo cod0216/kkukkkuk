@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/auth/oauth/oauth_usecase_providers.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';
 import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 
@@ -30,7 +30,6 @@ class AuthState {
   // 로그인 관련 상태
   final bool isLoginLoading;
   final String? loginError;
-  final AuthenticateResponse? authResponse;
 
   // 네트워크 연결 관련 상태
   final NetworkConnectionStatus networkStatus;
@@ -42,7 +41,6 @@ class AuthState {
   AuthState({
     this.isLoginLoading = false,
     this.loginError,
-    this.authResponse,
     this.networkStatus = NetworkConnectionStatus.initial,
     this.networkError,
     this.currentStep = AuthStep.login,
@@ -51,7 +49,6 @@ class AuthState {
   AuthState copyWith({
     bool? isLoginLoading,
     String? loginError,
-    AuthenticateResponse? authResponse,
     NetworkConnectionStatus? networkStatus,
     String? networkError,
     AuthStep? currentStep,
@@ -59,7 +56,6 @@ class AuthState {
     return AuthState(
       isLoginLoading: isLoginLoading ?? this.isLoginLoading,
       loginError: loginError ?? this.loginError,
-      authResponse: authResponse ?? this.authResponse,
       networkStatus: networkStatus ?? this.networkStatus,
       networkError: networkError ?? this.networkError,
       currentStep: currentStep ?? this.currentStep,
@@ -72,14 +68,8 @@ class AuthResult {
   final bool success;
   final bool hasWallet;
   final String? error;
-  final AuthenticateResponse? response;
 
-  AuthResult({
-    required this.success,
-    this.hasWallet = false,
-    this.error,
-    this.response,
-  });
+  AuthResult({required this.success, this.hasWallet = false, this.error});
 }
 
 /// 인증 관련 비즈니스 로직을 처리하는 뷰 모델
@@ -99,43 +89,24 @@ class AuthViewModel extends StateNotifier<AuthState> {
   Future<AuthResult> signInWithKakao() async {
     try {
       state = state.copyWith(isLoginLoading: true, loginError: null);
+      // 카카오 로그인
+      final kakaoLoginUseCase = ref.read(kakaoLoginUseCaseProvider);
+      final userInfo = await kakaoLoginUseCase.execute();
+      // 카카오 로그인 성공 시 로그인 처리
+      final loginUseCase = ref.read(loginUseCaseProvider);
+      await loginUseCase.execute(userInfo);
 
-      final loginUseCase = ref.read(loginWithKakaoUseCaseProvider);
-      final response = await loginUseCase.execute();
-
-      state = state.copyWith(authResponse: response, isLoginLoading: false);
+      state = state.copyWith(isLoginLoading: false);
 
       // 로컬 스토리지에 개인키 저장 확인
+      // TODO: UseCase로 변경
       final privateKey = await _secureStorage.read(key: _privateKeyKey);
       final hasWallet = privateKey != null && privateKey.isNotEmpty;
 
-      return AuthResult(
-        success: true,
-        hasWallet: hasWallet,
-        response: response,
-      );
+      return AuthResult(success: true, hasWallet: hasWallet);
     } catch (e) {
       state = state.copyWith(isLoginLoading: false, loginError: '로그인 실패: $e');
       return AuthResult(success: false, error: e.toString());
-    }
-  }
-
-  /// 로그아웃 처리
-  Future<void> logout() async {
-    try {
-      state = state.copyWith(isLoginLoading: true, loginError: null);
-
-      final logoutUseCase = ref.read(logoutUseCaseProvider);
-      final success = await logoutUseCase.execute();
-
-      if (success) {
-        reset();
-      } else {
-        throw Exception('Logout failed');
-      }
-    } catch (e) {
-      state = state.copyWith(isLoginLoading: false, loginError: '로그아웃 실패: $e');
-      rethrow;
     }
   }
 
@@ -195,48 +166,19 @@ class AuthViewModel extends StateNotifier<AuthState> {
     }
   }
 
-  /// 새 지갑 생성 처리
-  void handleNewWallet() {
-    ref.read(walletViewModelProvider.notifier).generateMnemonic();
-  }
-
-  /// 지갑 복구 화면으로 이동
-  void handleWalletRecovery() {
-    ref.read(walletViewModelProvider.notifier).reset();
-    ref.read(walletViewModelProvider.notifier).startWalletRecovery();
-  }
-
-  /// 니모닉으로 지갑 복구 처리
-  Future<void> recoverWallet(String mnemonic) async {
-    final result = await ref
-        .read(walletViewModelProvider.notifier)
-        .recoverWallet(mnemonic);
-
-    if (result.success) {
-      moveToNetworkConnection();
-    }
-    // 실패 시 WalletProvider에서 이미 에러 상태로 변경됨
-  }
-
-  /// 니모닉 지갑 생성 처리
-  void handleMnemonicGeneration() {
-    ref.read(walletViewModelProvider.notifier).generateMnemonic();
-  }
-
-  /// 니모닉 확인 처리
-  Future<void> confirmMnemonic() async {
-    final result =
-        await ref.read(walletViewModelProvider.notifier).confirmMnemonic();
-
-    if (result.success) {
-      moveToNetworkConnection();
-    }
-    // 실패 시 WalletProvider에서 이미 에러 상태로 변경됨
-  }
-
   /// 지갑 설정 화면으로 이동
   void moveToWalletSetup() {
     state = state.copyWith(currentStep: AuthStep.walletSetup);
+  }
+
+  /// 지갑 생성 화면으로 이동
+  void moveToWalletCreation(BuildContext context) {
+    ref.read(walletViewModelProvider.notifier).reset();
+
+    // Update state before navigation
+    state = state.copyWith(currentStep: AuthStep.walletCreation);
+
+    context.push('/wallet-creation', extra: walletViewModelProvider);
   }
 
   /// 네트워크 연결 단계로 이동
@@ -252,14 +194,6 @@ class AuthViewModel extends StateNotifier<AuthState> {
   /// 에러 발생 시 이전 상태로 돌아가기
   void handleErrorRetry() {
     ref.read(walletViewModelProvider.notifier).returnToPreviousState();
-  }
-
-  /// 지갑 생성 화면으로 이동
-  void moveToWalletCreation(BuildContext context) {
-    ref.read(walletViewModelProvider.notifier).reset();
-    context.push('/wallet-creation', extra: this);
-
-    state = state.copyWith(currentStep: AuthStep.walletCreation);
   }
 
   /// 인증 흐름 초기화
