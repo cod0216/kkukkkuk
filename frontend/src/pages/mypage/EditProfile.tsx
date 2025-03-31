@@ -9,12 +9,15 @@
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-30        sangmuk         최초 생성
+ * 2025-03-31        sangmuk         회원정보 수정 시 헤더의 병원 이름이 같이 변경되도록 수정
  */
 
 import { useState, useEffect } from 'react'
 import { request } from "@/services/apiRequest"
 import { ApiResponse, ResponseStatus } from "@/types"
-// import { HospitalDetail } from "@/interfaces"
+import { HospitalDetail } from "@/interfaces"
+import { useDispatch } from "react-redux"
+import { setHospital } from "@/redux/store"
 
 interface LocalHospital {
   id: number;
@@ -49,6 +52,8 @@ function EditProfile() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -102,6 +107,21 @@ function EditProfile() {
              phoneNumber: response.data.phoneNumber,
              password: ""
           })
+
+          const hospitalForDispatch: HospitalDetail = {
+            id: response.data.id,
+            email: response.data.email,
+            name: response.data.name,
+            phone_number: response.data.phoneNumber,
+            account: response.data.account,
+            address: response.data.address,
+            public_key: response.data.publicKey,
+            authorization_number: response.data.authorizationNumber,
+            doctor_name: response.data.doctorName,
+            x_axis: response.data.xaxis,
+            y_axis: response.data.yaxis,
+          }
+          dispatch(setHospital(hospitalForDispatch))
         }
      } else {
        setError(response.message || "정보 수정에 실패했습니다.")
