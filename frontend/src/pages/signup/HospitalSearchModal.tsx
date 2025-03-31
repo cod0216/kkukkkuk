@@ -9,6 +9,7 @@
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        sangmuk         병원 검색 모달 컴포넌트 작성
+ * 2025-03-31        sangmuk         ui 개선
  */
 
 import { useState } from 'react'
@@ -109,18 +110,18 @@ function HospitalSearchModal({ isOpen, onClose, onSelect }: HospitalSearchModalP
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="병원 이름을 입력하세요"
-            className="flex-1 p-2 border rounded"
+            className="flex-1 p-2 border roundedw-full border-gray-300 placeholder-gray-500 text-sm text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
           <button
             onClick={handleSearch}
-            className="px-4 py-2 bg-primary-400 text-white rounded"
+            className="px-4 py-2 bg-primary-500 text-white text-sm rounded hover:bg-primary-600"
             disabled={isLoading}
           >
             {isLoading ? '검색 중...' : '검색'}
           </button>
         </div>
         
-        {error && <p className="text-secondary-500 mb-4">{error}</p>}
+        {error && <p className="text-secondary-500  text-sm mb-4">{error}</p>}
         
         {hospitals.length > 0 ? (
           <div className="border rounded divide-y">
@@ -138,14 +139,14 @@ function HospitalSearchModal({ isOpen, onClose, onSelect }: HospitalSearchModalP
           </div>
         ) : (
           hospitals.length === 0 && !isLoading && !error && (
-            <p className="text-center text-neutral-600">검색 결과가 없습니다.</p>
+            <p className="text-center text-sm text-neutral-600">검색 결과가 없습니다.</p>
           )
         )}
         
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-neutral-300 text-neutral-600 rounded"
+            className="px-4 py-2 bg-neutral-300 text-sm text-neutral-600 rounded"
           >
             닫기
           </button>
