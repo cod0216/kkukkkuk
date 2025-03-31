@@ -161,13 +161,13 @@ function DoctorManagement() {
 
       <form
         onSubmit={handleAddDoctor}
-        className="mb-6 flex items-center space-x-2"
+        className="mb-6 flex items-center space-x-2 w-fit min-w-[400px] min-h-[42px]"
       >
         <input
           type="text"
           value={newDoctorName}
           onChange={(e) => setNewDoctorName(e.target.value)}
-          placeholder="등록할 의사의 이름을 입력해주세요"
+          placeholder="의사의 이름을 입력해주세요"
           className="flex-grow px-3 py-2 border border-neutral-300 rounded"
           disabled={editingDoctorId !== null}
         />
@@ -186,7 +186,7 @@ function DoctorManagement() {
           {doctors.map((doctor) => (
             <li
               key={doctor.id}
-              className="flex justify-between items-center p-3 border rounded bg-white"
+              className="w-fit min-w-[400px] min-h-[42px] flex justify-between items-center p-3 border rounded bg-white"
             >
               {editingDoctorId === doctor.id ? (
                 <>

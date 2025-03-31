@@ -148,7 +148,7 @@ function EditProfile() {
              name="name"
              value={formData.name || ''}
              onChange={handleChange}
-             className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded"
+             className="mt-1 block w-fit min-w-[300px] px-3 py-2 border border-neutral-200 rounded"
           />
         </div>
         <div>
@@ -159,7 +159,7 @@ function EditProfile() {
              name="phoneNumber"
              value={formData.phoneNumber || ''}
              onChange={handleChange}
-             className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded"
+             className="mt-1 block w-fit min-w-[300px] px-3 py-2 border border-neutral-200 rounded"
           />
         </div>
         <div>
@@ -170,13 +170,13 @@ function EditProfile() {
             name="password"
             value={formData.password || ''}
             onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded"
+            className="mt-1 block w-fit min-w-[300px] px-3 py-2 border border-neutral-200 rounded"
           />
         </div>
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-start pt-2">
           <button
             type="submit"
-            className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"
+            className=" px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"
           >
             수정하기
           </button>
