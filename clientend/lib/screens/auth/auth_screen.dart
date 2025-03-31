@@ -5,6 +5,7 @@ import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
+import 'package:kkuk_kkuk/screens/auth/views/wallet_guide_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/wallet_screen.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
@@ -69,7 +70,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         title = '로그인';
         break;
       case AuthStep.walletSetup:
-        title = '지갑 설정';
+        title = '지갑 안내';
+        break;
+      case AuthStep.walletCreation:
+        title = '지갑 생성';
         break;
       case AuthStep.networkConnection:
         title = '네트워크 연결';
@@ -103,8 +107,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         return LoginView(controller: controller);
 
       case AuthStep.walletSetup:
-        // 통합된 지갑 화면 사용
-        return WalletScreen(controller: controller);
+      case AuthStep.walletCreation:
+        return WalletGuideView(controller: controller);
 
       case AuthStep.networkConnection:
         return NetworkConnectionView(controller: controller);
