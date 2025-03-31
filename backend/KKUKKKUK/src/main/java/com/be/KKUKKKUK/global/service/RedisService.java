@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.global.service;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
@@ -26,6 +27,7 @@ import java.util.Set;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.18          haelim           최초 생성<br>
+ * 25.03.31          haelim           getKeys 메서드 추가, 특정 패턴에 맞는 모든 key 조회<br>
  */
 @Service
 @RequiredArgsConstructor
@@ -72,7 +74,7 @@ public class RedisService {
         try (Cursor<byte[]> cursor = redisTemplate.execute((RedisCallback<Cursor<byte[]>>) connection ->
                 connection.scan(ScanOptions.scanOptions().match(pattern).count(100).build())
         )) {
-            while (cursor.hasNext()) {
+            while (Objects.nonNull(cursor) && cursor.hasNext()) {
                 keys.add(new String(cursor.next()));
             }
         } catch (Exception e) {

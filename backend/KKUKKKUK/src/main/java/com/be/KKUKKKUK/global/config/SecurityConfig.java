@@ -64,10 +64,10 @@ public class SecurityConfig {
     };
 
     /**
-     * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
+     * ALLOWED_URLS 에 포함되지만 예외적으로 인증이 필요한 URL 경로를 설정합니다.
      */
     public static final String[] NOT_ALLOWED_URLS = {
-            "/api/auths/logout",
+            "/api/auths/logout", "/api/auths/logout/all",
     };
 
     /**

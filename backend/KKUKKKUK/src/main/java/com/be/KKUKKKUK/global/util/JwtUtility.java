@@ -130,6 +130,7 @@ public class JwtUtility {
     public String getUUID(String token) {
         return getClaim(token, CLAIM_UUID, String.class);
     }
+
     /**
      * JWT 토큰에서 사용자 타입(RelatedType)을 추출합니다.
      * @param token JWT 토큰

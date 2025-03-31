@@ -8,6 +8,7 @@ import com.be.KKUKKKUK.global.service.RedisService;
 import com.be.KKUKKKUK.global.util.JwtUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,30 +102,32 @@ public class TokenService {
      * @param request 사용자의 요청
      */
     public void logout(HttpServletRequest request) {
+        // 1. 액세스 토큰 확인
         String accessToken = resolveToken(request);
         if (!jwtUtility.validateToken(accessToken) || checkBlacklisted(accessToken, false)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
-        // 액세스 토큰에 매핑된 리프레시 토큰의 UUID 찾기
+        // 2. 액세스 토큰에 맵핑된 리프레시 토큰 찾기
         Integer userId = jwtUtility.getUserId(accessToken);
         RelatedType userType = jwtUtility.getUserType(accessToken);
         String tokenUUID = jwtUtility.getUUID(accessToken);
 
         String storedRefreshToken = redisService.getValues(getTokenKey(userId, userType, tokenUUID));
 
-        // 해당 리프레시 토큰을 블랙리스트에 추가
+        // 3. 해당 리프레시 토큰을 블랙리스트에 추가
         blacklistToken(storedRefreshToken, true);
 
-        // 액세스 토큰도 블랙리스트에 추가
+        // 4. 사용한 액세스 토큰도 블랙리스트에 추가
         blacklistToken(accessToken, false);
     }
 
     /**
-     * 로그아웃 시 해당 액세스 토큰에 매핑된 리프레시 토큰만 블랙리스트에 추가하고 삭제합니다.
+     * 사용자의 모든 리프레시 토큰을 블랙리스트에 추가하고 삭제합니다.
      * @param request 사용자의 요청
      */
     public void logoutAll(HttpServletRequest request) {
+        // 1. 액세스 토큰 확인
         String accessToken = resolveToken(request);
         if (!jwtUtility.validateToken(accessToken) || checkBlacklisted(accessToken, false)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
@@ -133,13 +136,15 @@ public class TokenService {
         Integer userId = jwtUtility.getUserId(accessToken);
         RelatedType type = jwtUtility.getUserType(accessToken);
 
-        // 모든 userID, type 에 해당하는 모든 엑세스 / 리프레시 토큰 무효화
-        Set<String> refreshTokens = redisService.getKeys(getTokenFormat(userId, type));
-        refreshTokens.forEach(refreshToken -> {
+        // 2. 사용자 userID, type 에 해당하는 모든 리프레시 토큰 무효화
+        Set<String> refreshTokenKeys = redisService.getKeys(getTokenFormat(userId, type));
+
+        refreshTokenKeys.forEach(tokenKey -> {
+            String refreshToken = redisService.getValues(tokenKey);
             blacklistToken(refreshToken, true);
         });
 
-        // 액세스 토큰도 블랙리스트에 추가
+        // 3. 사용한 액세스 토큰도 블랙리스트에 추가
         blacklistToken(accessToken, false);
     }
 
@@ -179,14 +184,19 @@ public class TokenService {
     }
 
     /**
-     *
+     * 리프레시 토큰을 Redis 에 저장합니다.
      */
     private void saveRefreshToken(String key, String refreshToken) {
         redisService.setValues(key, refreshToken, Duration.ofMillis(refreshTokenValidity));
     }
 
     /**
-     *
+     * Redis 에서 사용할 key 값을 반환합니다.
+     * 사용자 ID, 유형, UUID 값을 기반으로 key 값을 생성합니다.
+     * @param userId 사용자 ID
+     * @param type 사용자 유형 (Hospital, Owner)
+     * @param tokenUUID 토큰의 UUID
+     * @return Redis 에서 사용할 key 값
      */
     private String getTokenKey(Integer userId, RelatedType type, String tokenUUID) {
         return "%d:%s:%s".formatted(userId, type.name(), tokenUUID);
@@ -199,7 +209,7 @@ public class TokenService {
      * @return Redis 에서 조회할 Format
      */
     private String getTokenFormat(Integer userId, RelatedType type) {
-        return "%d:%s".formatted(userId, type.name());
+        return "%d:%s:*".formatted(userId, type.name());
     }
 
 }

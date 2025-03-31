@@ -99,6 +99,16 @@ public class AuthController {
     }
 
     /**
+     * 전체 기기 로그아웃 api
+     */
+    @Operation(summary = "전체 로그아웃", description = "모든 기기에서 로그아웃을 수행합니다.")
+    @PostMapping("/logout/all")
+    public ResponseEntity<?> logoutAll(HttpServletRequest request) {
+        authService.logoutAll(request);
+        return ResponseUtility.emptyResponse("로그아웃이 성공적으로 처리되었습니다.");
+    }
+
+    /**
      * 회원가입을 위한 이메일 인증을 위해 인증 번호를 발송합니다.
      */
     @Operation(summary = "이메일 인증 코드 발송", description = "회원가입을 위해 이메일 인증 코드를 발송합니다.")

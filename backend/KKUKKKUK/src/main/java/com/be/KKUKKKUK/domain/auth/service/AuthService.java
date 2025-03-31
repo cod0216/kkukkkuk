@@ -81,6 +81,13 @@ public class AuthService {
     }
 
     /**
+     * 사용자를 모든 기기에서 로그아웃시킵니다.
+     */
+    public void logoutAll(HttpServletRequest request) {
+        tokenService.logoutAll(request);
+    }
+
+    /**
      * 회원가입 시, 이메일 인증을 위해 인증 코드를 발송합니다.
      * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
      * @param request 인증할 이메일
