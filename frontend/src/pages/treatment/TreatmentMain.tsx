@@ -38,10 +38,19 @@ const TreatmentMain: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [blockchainPets, setBlockchainPets] = useState<Treatment[]>([]);
   const [allPets, setAllPets] = useState<Treatment[]>([]);
-  const [selectedPetIndex, setSelectedPetIndex] = useState(0);
+  const [selectedPetId, setSelectedPetId] = useState<string>('');
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  
+  // 선택된 반려동물 정보
+  const selectedPet = allPets.find(pet => {
+    if (pet.petDid) {
+      return pet.petDid === selectedPetId;
+    } else {
+      return pet.id.toString() === selectedPetId;
+    }
+  });
 
   /**
    * 블록체인 네트워크 연결을 시도합니다.
@@ -108,6 +117,38 @@ const TreatmentMain: React.FC = () => {
   }, []);
 
   /**
+   * 반려동물의 상태가 변경되었을 때 호출되는 함수입니다.
+   */
+  const handlePetStateChanged = useCallback((petId: string, newState: TreatmentState, isCancelled: boolean) => {
+    // 블록체인 반려동물 목록 업데이트
+    setBlockchainPets(prev => 
+      prev.map(pet => 
+        pet.petDid === petId 
+          ? { ...pet, calculatedState: newState, isCancelled } 
+          : pet
+      )
+    );
+    
+    // 선택된 반려동물이 취소된 경우 상태 업데이트
+    if (selectedPetId === petId && isCancelled) {
+      // 취소 후 필요한 추가 로직이 있다면 여기에 작성
+      console.log('선택된 반려동물 취소됨:', petId);
+    }
+  }, [selectedPetId]);
+  
+  /**
+   * 취소 처리가 완료된 후 호출되는 함수입니다.
+   */
+  const handleCancellationComplete = useCallback(() => {
+    if (!selectedPet?.petDid) return;
+    
+    // 선택된 반려동물 상태를 취소로 변경
+    handlePetStateChanged(selectedPet.petDid, TreatmentState.CANCELLED, true);
+    
+    // 추가 작업이 필요한 경우 여기에 작성
+  }, [selectedPet, handlePetStateChanged]);
+
+  /**
    * 동물 상태에 따라 화면에 보여줄 스타일을 반환합니다.
    * @param {TreatmentState} state - 진료 상태 enum
    * @returns {string} 진료 상태에 따른 tailwind class
@@ -120,6 +161,8 @@ const TreatmentMain: React.FC = () => {
         return "text-secondary-300 border border-secondary-300";
       case TreatmentState.COMPLETED:
         return "bg-gray-200 text-gray-700 border border-gray-400";
+      case TreatmentState.CANCELLED:
+        return "bg-red-200 text-red-700 border border-red-400";
       default:
         return "bg-gray-200 text-gray-700 border border-gray-400";
     }
@@ -138,6 +181,8 @@ const TreatmentMain: React.FC = () => {
         return "bg-secondary-50 border-secondary-300 hover:bg-secondary-100";
       case TreatmentState.COMPLETED:
         return "bg-gray-50 border border-gray-200";
+      case TreatmentState.CANCELLED:
+        return "bg-red-50 border border-red-200";
       default:
         return "bg-gray-50 text-gray-700 border-gray-200";
     }
@@ -216,9 +261,6 @@ const TreatmentMain: React.FC = () => {
     );
   }
 
-  // 현재 선택된 반려동물 정보
-  const selectedPet = allPets[selectedPetIndex];
-
   return (
     <div className="w-full py-5 px-4 mx-auto sm:px-6 lg:px-8 flex">
       {/* 사이드바 */}
@@ -226,9 +268,10 @@ const TreatmentMain: React.FC = () => {
         treatments={treatments}
         getStateBadgeColor={getStateBadgeColor}
         getStateColor={getStateColor}
-        selectedPetIndex={selectedPetIndex}
-        setSelectedPetIndex={setSelectedPetIndex}
+        selectedPetId={selectedPetId}
+        setSelectedPetId={setSelectedPetId}
         onBlockchainPetsLoad={handleBlockchainPetsLoad}
+        onStateChanged={handlePetStateChanged}
       />
 
       {/* 메인 */}
@@ -239,6 +282,7 @@ const TreatmentMain: React.FC = () => {
             getStateBadgeColor={getStateBadgeColor}
             isFormVisible={isFormVisible}
             onSelected={onSelected}
+            onCancelled={handleCancellationComplete}
           />
 
           {isFormVisible ? (

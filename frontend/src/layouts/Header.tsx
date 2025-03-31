@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { FaPaw } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaPaw, FaQrcode } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, clearAccessToken, setHospital } from "@/redux/store";
 import { logout as logoutApi } from "@/services/authService";
@@ -9,6 +9,8 @@ import useAppNavigation from "@/hooks/useAppNavigation"
 import { HospitalDetail } from "@/interfaces";
 import { request } from "@/services/apiRequest"
 import { ApiResponse, ResponseStatus } from "@/types"
+import QRGenerator from '@/pages/treatment/QRGenerator';
+import { getAccountAddress } from '@/services/blockchainAuthService';
 
 /**
  * @module Header
@@ -28,6 +30,7 @@ import { ApiResponse, ResponseStatus } from "@/types"
  * 2025-03-28        eunchang         토큰 name으로 사용자 이름 표시
  * 2025-03-30        sangmuk          헤더 병원 이름 클릭 시 마이페이지로 이동하도록 수정
  * 2025-03-31        sangmuk          회원정보 수정 시 헤더의 병원 이름이 같이 변경되도록 수정
+ * 2025-03-31        seonghun         QR 보기 버튼 로그아웃 버튼 우측으로 이동동
  */
 
 const Header: React.FC = () => {
@@ -35,6 +38,12 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   const hospital = useSelector((state: RootState) => state.auth.hospital as HospitalDetail | null);
+  const [qrModalVisible, setQrModalVisible] = React.useState(false);
+  const [hospitalInfo, setHospitalInfo] = useState({
+    name: '',
+    address: '',
+    did: ''
+  });
 
   const { goToMyPage, goHome } = useAppNavigation()
 
@@ -89,6 +98,28 @@ const Header: React.FC = () => {
   //   }
   // }
 
+  // 병원 정보 가져오기
+  useEffect(() => {
+    const fetchHospitalInfo = async () => {
+      try {
+        const accountAddress = await getAccountAddress();
+        if (accountAddress) {
+          setHospitalInfo({
+            name: userName, // 토큰에서 가져온 병원명 사용
+            address: accountAddress,
+            did: accountAddress // 이더리움 주소를 DID로 사용
+          });
+        }
+      } catch (error) {
+        console.error('병원 정보 가져오기 오류:', error);
+      }
+    };
+    
+    if (accessToken) {
+      fetchHospitalInfo();
+    }
+  }, [accessToken, userName]);
+
   const handleLogout = async () => {
     try {
       await logoutApi();
@@ -98,6 +129,14 @@ const Header: React.FC = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const openQrModal = () => {
+    setQrModalVisible(true);
+  };
+
+  const closeQrModal = () => {
+    setQrModalVisible(false);
   };
 
   return (
@@ -110,12 +149,21 @@ const Header: React.FC = () => {
         <div className="flex items-center space-x-4">
           <div className="text-sm font-medium cursor-pointer" onClick={goToMyPage}>{userName}</div>
           {accessToken ? (
-            <button
-              onClick={handleLogout}
-              className="px-2 py-1 border rounded-md text-xs font-medium text-nowrap w-20 justify-center hover:bg-neutral-200"
-            >
-              로그아웃
-            </button>
+            <>
+              <button
+                onClick={openQrModal}
+                className="bg-primary-500 hover:bg-primary-600 text-white text-xs rounded-md p-2 flex items-center"
+                title="병원 QR 코드 보기"
+              >
+                <FaQrcode className="mr-1" /> QR 보기
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-2 py-1 border rounded-md text-xs font-medium text-nowrap w-20 justify-center hover:bg-neutral-200"
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
             <button
               onClick={() => navigate("/login")}
@@ -126,6 +174,11 @@ const Header: React.FC = () => {
           )}
         </div>
       </div>
+      <QRGenerator 
+        visible={qrModalVisible} 
+        onClose={closeQrModal} 
+        hospitalInfo={hospitalInfo}
+      />
     </header>
   );
 };

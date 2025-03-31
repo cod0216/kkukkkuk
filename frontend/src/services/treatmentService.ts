@@ -14,6 +14,7 @@
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         블록체인 서비스 연동
+ * 2025-03-31        seonghun         접수일, 만료일 사이 진료기록 존재 여부 반환 함수 생성
  */
 
 import { GetTreatmentRequest, TreatmentResponse } from '@/interfaces/treatment';
@@ -493,4 +494,225 @@ export const createBlockchainTreatment = async (
       error: `진료 기록 작성 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}` 
     };
   }
+};
+
+/**
+ * 블록체인에서 반려동물의 기본 속성 정보를 조회합니다.
+ * @param petDID 반려동물 DID 주소
+ * @returns 반려동물의 기본 정보 (이름, 성별, 출생일, 중성화 여부, 품종)
+ */
+export const getPetBasicInfo = async (petDID: string): Promise<{
+  success: boolean;
+  error?: string;
+  petInfo?: {
+    name: string;
+    gender: string;
+    birth: string;
+    flagNeutering: boolean | string;
+    breedName: string;
+  };
+}> => {
+  // 필수 파라미터 확인
+  if (!petDID) {
+    console.error('필수 파라미터가 누락되었습니다:', { petDID });
+    return { 
+      success: false, 
+      error: '반려동물 DID 주소가 누락되었습니다.'
+    };
+  }
+
+  try {
+    // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
+    const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
+    const contract = await getRegistryContract();
+    const signer = await getSigner();
+    
+    if (!contract || !signer) {
+      return { 
+        success: false, 
+        error: 'MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.'
+      };
+    }
+    
+    // 반려동물 존재 여부 확인
+    const exists = await contract.petExists(petDID);
+    if (!exists) {
+      return { 
+        success: false, 
+        error: '등록되지 않은 반려동물입니다.'
+      };
+    }
+    
+    // 접근 권한 확인
+    const currentUserAddress = await signer.getAddress();
+    const accessGranted = await contract.hasAccess(petDID, currentUserAddress);
+    
+    if (!accessGranted) {
+      return { 
+        success: false, 
+        error: '이 반려동물 정보에 접근할 권한이 없습니다.'
+      };
+    }
+    
+    // 모든 속성 조회
+    const [names, values, _expireDates] = await contract.getAllAttributes(petDID);
+    // console.log('반려동물 기본 정보 조회 성공:', { namesCount: names.length });
+    
+    // 기본 속성 정보만 필터링
+    const petAttributes: {[key: string]: any} = {
+      name: '이름 없음',
+      gender: '성별 정보 없음',
+      birth: '출생일 정보 없음',
+      flagNeutering: 'false',
+      breedName: '품종 정보 없음'
+    };
+    
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      const value = values[i];
+      
+      if (name === 'name') {
+        petAttributes.name = value;
+      } else if (name === 'gender') {
+        petAttributes.gender = value;
+      } else if (name === 'birth') {
+        petAttributes.birth = value;
+      } else if (name === 'flagNeutering') {
+        // PetMedicalRecord.tsx와 동일한 방식으로 중성화 정보 처리
+        // 문자열 그대로 저장 (표시 시에 해석)
+        petAttributes.flagNeutering = value;
+      } else if (name === 'breedName') {
+        petAttributes.breedName = value;
+      }
+    }
+    
+    return { 
+      success: true, 
+      petInfo: {
+        name: petAttributes.name,
+        gender: petAttributes.gender,
+        birth: petAttributes.birth,
+        flagNeutering: petAttributes.flagNeutering,
+        breedName: petAttributes.breedName
+      }
+    };
+  } catch (error: any) {
+    console.error('반려동물 기본 정보 조회 중 오류가 발생했습니다:', error.message || error);
+    return { 
+      success: false, 
+      error: `반려동물 기본 정보 조회 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
+    };
+  }
+};
+
+/**
+ * 접수일자와 만료일 사이에 기록된 진료기록이 있는지 확인합니다.
+ * @param petDID 반려동물 DID 주소
+ * @param createdAt 접수일자 (유닉스 타임스탬프)
+ * @param expireDate 만료일자 (유닉스 타임스탬프)
+ * @returns 진료기록 존재 여부
+ */
+export const hasTreatmentRecords = async (
+  petDID: string,
+  createdAt: number,
+  expireDate: number
+): Promise<{ success: boolean; hasTreatment: boolean; error?: string }> => {
+  try {
+    // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
+    const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
+    const contract = await getRegistryContract();
+    const signer = await getSigner();
+    
+    if (!contract || !signer) {
+      return { 
+        success: false, 
+        hasTreatment: false,
+        error: 'MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.'
+      };
+    }
+    
+    // 반려동물 존재 여부 확인
+    const exists = await contract.petExists(petDID);
+    if (!exists) {
+      return { 
+        success: false, 
+        hasTreatment: false,
+        error: '등록되지 않은 반려동물입니다.'
+      };
+    }
+    
+    // 접근 권한 확인
+    const currentUserAddress = await signer.getAddress();
+    const accessGranted = await contract.hasAccess(petDID, currentUserAddress);
+    
+    if (!accessGranted) {
+      return { 
+        success: false, 
+        hasTreatment: false,
+        error: '이 반려동물 정보에 접근할 권한이 없습니다.'
+      };
+    }
+    
+    // 모든 속성 조회
+    const [names, values, _expireDates] = await contract.getAllAttributes(petDID);
+    
+    // 의료기록만 필터링하여 접수일자와 만료일 사이에 기록된 진료기록이 있는지 확인
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      const value = values[i];
+      
+      if (name.startsWith('medical_record_') || name.startsWith('medical_')) {
+        try {
+          const recordData = JSON.parse(value);
+          
+          // timestamp 변환
+          let timestamp = 0;
+          if (recordData.createdAt) {
+            timestamp = Number(recordData.createdAt);
+          } else if (recordData.timestamp) {
+            timestamp = Number(recordData.timestamp);
+          } else if (name.startsWith('medical_record_')) {
+            // medical_record_TIMESTAMP_ADDRESS 형식에서 타임스탬프 추출
+            const parts = name.split('_');
+            if (parts.length >= 3) {
+              try {
+                timestamp = Number(parts[2]);
+              } catch (e) {
+                timestamp = 0;
+              }
+            }
+          }
+          
+          // 접수일자와 만료일 사이에 기록된 진료기록인지 확인
+          if (timestamp >= createdAt && timestamp <= expireDate) {
+            // 삭제된 진료기록은 제외
+            if (!recordData.isDeleted) {
+              return { success: true, hasTreatment: true };
+            }
+          }
+        } catch (error) {
+          console.error('의료 기록 파싱 오류:', error);
+        }
+      }
+    }
+    
+    // 진료기록이 없는 경우
+    return { success: true, hasTreatment: false };
+  } catch (error: any) {
+    console.error('진료기록 확인 중 오류가 발생했습니다:', error.message || error);
+    return { 
+      success: false, 
+      hasTreatment: false,
+      error: `진료기록 확인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
+    };
+  }
+};
+
+export default {
+  getTreatments,
+  getBlockchainTreatments,
+  getHospitalPetsWithRecords,
+  createBlockchainTreatment,
+  getPetBasicInfo,
+  hasTreatmentRecords
 };
