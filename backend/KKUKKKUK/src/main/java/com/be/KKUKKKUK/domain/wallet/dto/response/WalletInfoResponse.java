@@ -1,6 +1,5 @@
 package com.be.KKUKKKUK.domain.wallet.dto.response;
 
-import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import lombok.AllArgsConstructor;

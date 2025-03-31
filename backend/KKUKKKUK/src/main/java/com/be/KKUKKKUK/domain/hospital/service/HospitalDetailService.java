@@ -8,8 +8,7 @@ import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.hospital.service<br>
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Component;
  * 25.03.13          haerim           최초생성<br>
  * <br>
  */
-@Component //TODO 이건 왜 이걸 했는지 궁금합니다
+@Service
 @RequiredArgsConstructor
 public class HospitalDetailService implements UserDetailsService {
     private final HospitalRepository hospitalRepository;

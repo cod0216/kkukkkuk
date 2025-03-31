@@ -11,8 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -44,8 +42,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PostMapping("/owners/kakao/login")
-    public ResponseEntity<?> ownerLogin(
-            @Valid @RequestBody OwnerLoginRequest request) {
+    public ResponseEntity<?> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
         return ResponseUtility.success("현재 로그인한 보호자 회원의 토큰 정보입니다.", authService.ownerLogin(request));
     }
 
@@ -57,8 +54,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PostMapping("/hospitals/login")
-    public ResponseEntity<?> hospitalLogin(
-            @Valid @RequestBody HospitalLoginRequest request) {
+    public ResponseEntity<?> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
         return ResponseUtility.success("동물병원 로그인이 완료되었습니다.", authService.hospitalLogin(request));
     }
 
@@ -70,8 +66,7 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "가입할 수 없는 계정 / 이메일 / 병원"),
     })
     @PostMapping("/hospitals/signup")
-    public ResponseEntity<?> hospitalSignup(
-            @Valid @RequestBody HospitalSignupRequest request) {
+    public ResponseEntity<?> hospitalSignup(@Valid @RequestBody HospitalSignupRequest request) {
         return ResponseUtility.success("동물병원 회원가입이 완료되었습니다.", authService.hospitalSignup(request));
     }
 
@@ -117,8 +112,7 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "이메일 중복"),
     })
     @PostMapping("/emails/send")
-    public ResponseEntity<?> sendEmailAuthCodeForEmail(
-            @RequestBody @Valid EmailSendRequest request) {
+    public ResponseEntity<?> sendEmailAuthCodeForEmail(@RequestBody @Valid EmailSendRequest request) {
         authService.sendEmailAuthCode(request);
         return ResponseUtility.emptyResponse("이메일 인증을 위한 코드가 발송되었습니다.");
     }
@@ -132,8 +126,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패"),
     })
     @PostMapping("/emails/verify")
-    public ResponseEntity<?> verifyEmail(
-            @RequestBody @Valid EmailVerificationRequest request) {
+    public ResponseEntity<?> verifyEmail(@RequestBody @Valid EmailVerificationRequest request) {
         authService.checkEmailCodeValid(request);
         return ResponseUtility.emptyResponse("이메일 인증이 성공적으로 완료되었습니다.");
     }
@@ -147,8 +140,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패, 이메일, 계정 불일치 혹은 정보 없음"),
     })
     @PostMapping("/passwords/reset")
-    public ResponseEntity<?> sendEmailAuthCodeForPassword(
-            @RequestBody @Valid PasswordResetRequest request) {
+    public ResponseEntity<?> sendEmailAuthCodeForPassword(@RequestBody @Valid PasswordResetRequest request) {
         authService.resetPassword(request);
         return ResponseUtility.emptyResponse("비밀번호가 이메일로 발송되었습니다.");
     }
@@ -162,8 +154,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "해당 이메일로 가입된 정보 없음"),
     })
     @PostMapping("/accounts/find")
-    public ResponseEntity<?> findAccount(
-            @RequestBody @Valid AccountFindRequest request) {
+    public ResponseEntity<?> findAccount(@RequestBody @Valid AccountFindRequest request) {
         return ResponseUtility.success("계정 조회에 성공했습니다.", authService.findAccount(request));
     }
 }
