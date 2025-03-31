@@ -4,13 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
-import 'package:kkuk_kkuk/screens/auth/views/mnemonic_generation_view.dart';
-import 'package:kkuk_kkuk/screens/auth/views/mnemonic_confirmation_view.dart';
-import 'package:kkuk_kkuk/screens/auth/views/mnemonic_recovery_view.dart';
+import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_recovery_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
-import 'package:kkuk_kkuk/screens/auth/views/wallet_choice_view.dart';
+import 'package:kkuk_kkuk/screens/wallet/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
+import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_setup_view.dart';
 
 /// 인증 화면
 class AuthScreen extends ConsumerStatefulWidget {
@@ -111,20 +110,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           case MnemonicWalletStatus.initial:
           case MnemonicWalletStatus.walletChoice:
             return WalletChoiceView(controller: controller);
-          case MnemonicWalletStatus.generatingMnemonic:
-            // 니모닉 생성 화면
-            return MnemonicGenerationView(controller: controller);
 
           case MnemonicWalletStatus.recoveringWallet:
             // 니모닉 복구 화면
             return MnemonicRecoveryView(controller: controller);
 
+          // 통합된 니모닉 설정 뷰 사용
+          case MnemonicWalletStatus.generatingMnemonic:
           case MnemonicWalletStatus.mnemonicGenerated:
           case MnemonicWalletStatus.mnemonicConfirmation:
           case MnemonicWalletStatus.creatingWallet:
           case MnemonicWalletStatus.registeringWallet:
-            // 니모닉 확인 화면
-            return MnemonicConfirmationView(controller: controller);
+            return MnemonicSetupView(controller: controller);
 
           case MnemonicWalletStatus.error:
             return ErrorView(
