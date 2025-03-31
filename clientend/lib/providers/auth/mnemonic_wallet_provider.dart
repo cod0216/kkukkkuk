@@ -159,10 +159,6 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
     }
 
     try {
-      // 니모닉 안전하게 저장
-      final saveMnemonicUseCase = ref.read(saveMnemonicUseCaseProvider);
-      await saveMnemonicUseCase.execute(mnemonic);
-
       state = state.copyWith(status: MnemonicWalletStatus.creatingWallet);
 
       // 지갑 생성 및 등록 진행
@@ -278,10 +274,6 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
         );
         return;
       }
-
-      // 니모닉 안전하게 저장
-      final saveMnemonicUseCase = ref.read(saveMnemonicUseCaseProvider);
-      await saveMnemonicUseCase.execute(mnemonic);
 
       state = state.copyWith(status: MnemonicWalletStatus.creatingWallet);
 
