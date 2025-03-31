@@ -148,7 +148,7 @@ function EditProfile() {
              name="name"
              value={formData.name || ''}
              onChange={handleChange}
-             className="mt-1 block w-fit min-w-[300px] px-3 py-2 border border-neutral-200 rounded"
+             className="mt-1 block w-fit min-w-[400px] px-3 py-2 border border-neutral-200 rounded"
           />
         </div>
         <div>
@@ -159,7 +159,7 @@ function EditProfile() {
              name="phoneNumber"
              value={formData.phoneNumber || ''}
              onChange={handleChange}
-             className="mt-1 block w-fit min-w-[300px] px-3 py-2 border border-neutral-200 rounded"
+             className="mt-1 block w-fit min-w-[400px] px-3 py-2 border border-neutral-200 rounded"
           />
         </div>
         <div>
@@ -170,7 +170,7 @@ function EditProfile() {
             name="password"
             value={formData.password || ''}
             onChange={handleChange}
-            className="mt-1 block w-fit min-w-[300px] px-3 py-2 border border-neutral-200 rounded"
+            className="mt-1 block w-fit min-w-[400px] px-3 py-2 border border-neutral-200 rounded"
           />
         </div>
         <div className="flex justify-start pt-2">
