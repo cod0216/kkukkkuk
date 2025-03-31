@@ -98,7 +98,7 @@ export const request = {
    */
   delete: async <T>(url: string): Promise<ApiResponse<T>> => {
     try {
-      const response = await apiClient.post<ApiResponse<T>>(url);
+      const response = await apiClient.delete<ApiResponse<T>>(url);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;

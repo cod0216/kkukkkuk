@@ -76,12 +76,12 @@ function ViewProfile() {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">회원정보</h2>
-      <div className="space-y-4 bg-white">
+      <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-neutral-600">
             병원 이름
           </label>
-          <p className="mt-1 w-full px-3 py-2 border border-neutral-200 rounded text-neutral-600 min-h-[42px] flex items-center">
+          <p className="mt-1 w-fit min-w-[400px] px-3 py-2 bg-white border border-neutral-200 rounded min-h-[42px] flex items-center">
             {hospitalInfo.name ?? <span className="text-neutral-400">정보 없음</span>}
           </p>
         </div>
@@ -89,7 +89,7 @@ function ViewProfile() {
           <label className="block text-sm font-medium text-neutral-600">
             계정
           </label>
-          <p className="mt-1 w-full px-3 py-2 border border-neutral-200 rounded text-neutral-600 min-h-[42px] flex items-center">
+          <p className="mt-1 w-fit min-w-[400px] px-3 py-2 bg-white border border-neutral-200 rounded min-h-[42px] flex items-center">
             {hospitalInfo.account ?? <span className="text-neutral-400">정보 없음</span>}
           </p>
         </div>
@@ -97,7 +97,7 @@ function ViewProfile() {
           <label className="block text-sm font-medium text-neutral-600">
             주소
           </label>
-          <p className="mt-1 w-full px-3 py-2 border border-neutral-200 rounded text-neutral-600 min-h-[42px] flex items-center">
+          <p className="mt-1 w-fit min-w-[400px] px-3 py-2 bg-white border border-neutral-200 rounded min-h-[42px] flex items-center">
             {hospitalInfo.address ?? <span className="text-neutral-400">정보 없음</span>}
           </p>
         </div>
@@ -105,7 +105,7 @@ function ViewProfile() {
           <label className="block text-sm font-medium text-neutral-600">
             전화번호
           </label>
-          <p className="mt-1 w-full px-3 py-2 border border-neutral-200 rounded text-neutral-600 min-h-[42px] flex items-center">
+          <p className="mt-1 w-fit min-w-[400px] px-3 py-2 bg-white border border-neutral-200 rounded min-h-[42px] flex items-center">
             {hospitalInfo.phoneNumber ?? <span className="text-neutral-400">정보 없음</span>}
           </p>
         </div>
@@ -113,7 +113,7 @@ function ViewProfile() {
           <label className="block text-sm font-medium text-neutral-600">
             병원 인허가 번호
           </label>
-          <p className="mt-1 w-full px-3 py-2 border border-neutral-200 rounded text-neutral-600 min-h-[42px] flex items-center">
+          <p className="mt-1 w-fit min-w-[400px] px-3 py-2 bg-white border border-neutral-200 rounded min-h-[42px] flex items-center">
             {hospitalInfo.authorizationNumber ?? <span className="text-neutral-400">정보 없음</span>}
           </p>
         </div>

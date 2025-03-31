@@ -11,13 +11,14 @@
  * 2025-03-26        sangmuk         회원가입 페이지 구현
  * 2025-03-26        sangmuk         비밀번호 유효성 검사 추가
  * 2025-03-27        sangmuk         아이디 유효성 검사 추가
+ * 2025-03-31        sangmuk         ui 개선
  */
 
 import { useState } from "react";
 import { SignUpRequest, HospitalBase } from "@/interfaces";
 import axios from "axios";
 import HospitalSearchModal from "./HospitalSearchModal";
-import { FaPaw } from "react-icons/fa";
+import { FaPaw, FaUser, FaLock, FaHospital, FaEnvelope } from "react-icons/fa";
 import useAppNavigation from "@/hooks/useAppNavigation";
 
 const BASE_URL = import.meta.env.VITE_SERVER_URL;
@@ -339,209 +340,215 @@ function SignUp() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-10 flex flex-col">
-      <h1 className="my-4 text-4xl text-primary-500 text-center font-bold flex items-center justify-center">
-        <FaPaw className="mr-2" />
-        KKUK KKUK
-      </h1>
-      <form onSubmit={handleSubmit} className="flex flex-col">
-        <div className="mb-2">
-          <label htmlFor="account">아이디</label>
-          <br />
-          <div className="flex gap-2">
-            <input
-              type="text"
-              name="account"
-              id="account"
-              className="flex-1 p-2 border rounded"
-              onChange={handleChange}
-              value={signUpRequestForm.account}
-              placeholder="Account"
-              required
-            />
-            <button
-              type="button"
-              onClick={handleCheckAccountDuplicate}
-              className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
-            >
-              중복 확인
-            </button>
-          </div>
-          {accountError && (
-            <p className="text-secondary-500 text-sm mt-1">{accountError}</p>
-          )}
-          {isAccountAvailable && (
-            <p className="text-primary-500 text-sm mt-1">
-              사용 가능한 아이디입니다.
-            </p>
-          )}
-        </div>
-
-        <div className="mb-2">
-          <label htmlFor="password">비밀번호</label>
-          <br />
-          <input
-            type="password"
-            name="password"
-            id="password"
-            className="w-full p-2 border rounded"
-            onChange={handleChange}
-            value={signUpRequestForm.password}
-            placeholder="Password"
-            required
-          />
-          {passwordError && (
-            <p className="text-secondary-500 text-sm mt-1">{passwordError}</p>
-          )}
-        </div>
-
-        <div className="mb-2">
-          <label htmlFor="email">이메일</label>
-          <br />
-          <div className="flex gap-2">
-            <input
-              type="email"
-              name="email"
-              id="email"
-              className="flex-1 p-2 border rounded"
-              onChange={handleChange}
-              value={signUpRequestForm.email}
-              placeholder="Email"
-              required
-            />
-            <button
-              type="button"
-              onClick={handleSendEmailVerificationCode}
-              disabled={isSendingVerification || isEmailVerificationCodeSent}
-              className={`w-32 px-4 py-2 text-white rounded transition-colors ${
-                isSendingVerification
-                  ? "bg-neutral-400 cursor-not-allowed"
-                  : isEmailVerificationCodeSent
-                  ? "bg-neutral-500 cursor-not-allowed"
-                  : "bg-primary-400 hover:bg-primary-300"
-              }`}
-            >
-              {isSendingVerification
-                ? "발송 중..."
-                : isEmailVerificationCodeSent
-                ? "발송 완료"
-                : "인증번호 발송"}
-            </button>
-          </div>
-          {emailError && (
-            <p className="text-secondary-500 text-sm mt-1">{emailError}</p>
-          )}
-          {isEmailVerified && (
-            <p className="text-primary-500 text-sm mt-1">
-              이메일이 인증되었습니다.
-            </p>
-          )}
-        </div>
-
-        {isEmailVerificationCodeSent && !isEmailVerified && (
+    <div className="min-h-screen flex justify-center items-center">
+      <div className="w-full max-w-sm flex flex-col items-center">
+        <h1 className="my-4 text-3xl text-primary-500 text-center font-bold flex items-center justify-center">
+          <FaPaw className="mr-2 text-2xl" />
+          KKUK KKUK
+        </h1>
+        <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="mb-2">
-            <label htmlFor="emailVerificationCode">인증번호</label>
-            <br />
             <div className="flex gap-2">
-              <input
-                type="text"
-                name="emailVerificationCode"
-                id="emailVerificationCode"
-                className="flex-1 p-2 border rounded"
-                onChange={handleEmailVerificationCodeChange}
-                value={emailVerificationCode}
-                placeholder="Verification Code"
-                required
-              />
+              <div className="relative flex-1">
+                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
+                <input
+                  type="text"
+                  name="account"
+                  id="account"
+                  className="w-full pl-10 px-3 py-2 text-sm block border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  onChange={handleChange}
+                  value={signUpRequestForm.account}
+                  placeholder="아이디"
+                  required
+                />
+              </div>  
               <button
                 type="button"
-                onClick={handleEmailVerifyCode}
-                className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
+                onClick={handleCheckAccountDuplicate}
+                className="px-3 py-2 text-sm bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
               >
-                인증 확인
+                중복 확인
               </button>
             </div>
-            {emailVerificationError && (
-              <p className="text-secondary-500 text-sm mt-1 overflow-hidden break-words">
-                {emailVerificationError}
+            {accountError && (
+              <p className="text-secondary-500 text-sm mt-1">{accountError}</p>
+            )}
+            {isAccountAvailable && (
+              <p className="text-primary-500 text-sm mt-1">
+                사용 가능한 아이디입니다.
               </p>
             )}
           </div>
-        )}
 
-        <div className="mb-2">
-          <label htmlFor="id">병원 인허가 번호</label>
-          <br />
-          <div className="flex gap-2">
-            <input
-              type="text"
-              name="id"
-              id="id"
-              className="flex-1 p-2 border rounded"
-              onChange={handleChange}
-              value={signUpRequestForm.id}
-              placeholder="Hospital ID"
-              required
-              disabled={true}
-            />
-            <button
-              type="button"
-              onClick={openModal}
-              className="px-4 py-2 bg-primary-400 text-white rounded hover:bg-primary-300 transition-colors"
-            >
-              병원 검색
-            </button>
+          <div className="mb-2">
+            <div className="relative">
+              <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
+              <input
+                type="password"
+                name="password"
+                id="password"
+                className="w-full pl-10 px-3 py-2 text-sm border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleChange}
+                value={signUpRequestForm.password}
+                placeholder="비밀번호"
+                required
+              />
+            </div>
+            {passwordError && (
+              <p className="text-secondary-500 text-sm mt-1">{passwordError}</p>
+            )}
           </div>
-        </div>
 
-        {selectedHospital && (
-          <div className="mb-4 p-3 bg-gray-50 rounded border">
-            <h3 className="font-medium mb-1">선택된 병원 정보</h3>
-            <p>
-              <span className="font-medium">이름:</span> {selectedHospital.name}
-            </p>
-            <p>
-              <span className="font-medium">주소:</span>{" "}
-              {selectedHospital.address}
-            </p>
-            <p>
-              <span className="font-medium">전화번호:</span>{" "}
-              {selectedHospital.phone_number}
-            </p>
+          <div className="mb-2">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  className="w-full pl-10 px-3 py-2 text-sm border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  onChange={handleChange}
+                  value={signUpRequestForm.email}
+                  placeholder="이메일"
+                  required
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleSendEmailVerificationCode}
+                disabled={isSendingVerification || isEmailVerificationCodeSent}
+                className={`w-32 px-4 py-2 text-white text-sm rounded-md transition-colors ${
+                  isSendingVerification
+                    ? "bg-neutral-400 cursor-not-allowed"
+                    : isEmailVerificationCodeSent
+                    ? "bg-neutral-500 cursor-not-allowed"
+                    : "bg-primary-500 hover:bg-primary-600"
+                }`}
+              >
+                {isSendingVerification
+                  ? "발송 중..."
+                  : isEmailVerificationCodeSent
+                  ? "발송 완료"
+                  : "인증번호 발송"}
+              </button>
+            </div>
+            {emailError && (
+              <p className="text-secondary-500 text-sm mt-1">{emailError}</p>
+            )}
+            {isEmailVerified && (
+              <p className="text-primary-500 text-sm mt-1">
+                이메일이 인증되었습니다.
+              </p>
+            )}
           </div>
-        )}
 
-        <div className="mb-2">
-          <label htmlFor="doctorName">수의사 이름</label>
-          <br />
-          <input
-            type="text"
-            name="doctorName"
-            id="doctorName"
-            className="w-full p-2 border rounded"
-            onChange={handleChange}
-            value={signUpRequestForm.doctorName}
-            placeholder="Doctor Name"
-            required
-          />
-        </div>
+          {isEmailVerificationCodeSent && !isEmailVerified && (
+            <div className="mb-2">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    name="emailVerificationCode"
+                    id="emailVerificationCode"
+                    className="w-full pl-10 p-2 text-sm border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    onChange={handleEmailVerificationCodeChange}
+                    value={emailVerificationCode}
+                    placeholder="인증번호"
+                    required
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleEmailVerifyCode}
+                  className="px-3 py-2 text-sm bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
+                >
+                  인증 확인
+                </button>
+              </div>
+              {emailVerificationError && (
+                <p className="text-secondary-500 text-sm mt-1 overflow-hidden break-words">
+                  {emailVerificationError}
+                </p>
+              )}
+            </div>
+          )}
 
-        {error && <p className="text-secondary-500 text-sm mb-2">{error}</p>}
-        <div className="mt-10">
+          <div className="mb-2">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <FaHospital className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
+                <input
+                  type="text"
+                  name="id"
+                  id="id"
+                  className="w-full pl-10 p-2 text-sm border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  onChange={handleChange}
+                  value={signUpRequestForm.id}
+                  placeholder="병원 인허가 번호"
+                  required
+                  disabled={true}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={openModal}
+                className="px-3 py-2 text-sm bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
+              >
+                병원 검색
+              </button>
+            </div>
+          </div>
+
+          {selectedHospital && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-md border">
+              <h3 className="font-medium mb-1">선택된 병원 정보</h3>
+              <p>
+                <span className="font-medium">이름:</span> {selectedHospital.name}
+              </p>
+              <p>
+                <span className="font-medium">주소:</span>{" "}
+                {selectedHospital.address}
+              </p>
+              <p>
+                <span className="font-medium">전화번호:</span>{" "}
+                {selectedHospital.phone_number}
+              </p>
+            </div>
+          )}
+
+          <div className="mb-2">
+            <div className="relative">
+              <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
+              <input
+                type="text"
+                name="doctorName"
+                id="doctorName"
+                className="w-full pl-10 p-2 text-sm border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleChange}
+                value={signUpRequestForm.doctorName}
+                placeholder="수의사 이름"
+                required
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-secondary-500 text-sm mb-2">{error}</p>}
           <button
-            className="w-full p-3 bg-primary-400 text-white rounded font-medium hover:bg-primary-300 transition-colors"
+            className="mt-8 w-full flex justify-center py-2 px-4 text-sm border border-transparent text-md font-medium rounded-md text-white bg-primary-500 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             type="submit"
           >
             회원가입
           </button>
-        </div>
-      </form>
+        </form>
 
-      <HospitalSearchModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onSelect={handleHospitalSelect}
-      />
+        <HospitalSearchModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onSelect={handleHospitalSelect}
+        />
+      </div>
     </div>
   );
 }
