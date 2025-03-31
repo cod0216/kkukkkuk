@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.wallet.dto.response;
 
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
+import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -27,4 +28,5 @@ public class WalletInfoResponse {
     private String address;
     private String name;
     private List<OwnerShortInfoResponse> owners;
+    private List<PetInfoResponse> pets;
 }

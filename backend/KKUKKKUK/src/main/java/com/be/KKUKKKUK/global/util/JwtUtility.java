@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
  * 2025-03-16          haelim          하드코딩 수정<br>
  * 2025-03-20          haelim          토큰의 남은 시간 확인 메서드 (getRemainingExpiration) 추가 <br>
  * 2025-03-27          haelim          토큰에 사용자 이름 정보 추가 <br>
+ * 2025-03-31          haelim          토큰에 UUID 추가 <br>
  */
 
 @Component
@@ -39,6 +40,7 @@ public class JwtUtility {
     private static final String CLAIM_USER_ID = "id";
     private static final String CLAIM_TYPE = "type";
     private static final String CLAIM_USER_NAME = "name";
+    private static final String CLAIM_UUID = "uuid";
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -66,8 +68,8 @@ public class JwtUtility {
      * @param relatedType 사용자 타입
      * @return 생성된 Access Token
      */
-    public String createAccessToken(Integer userId, String userName, RelatedType relatedType) {
-        return createToken(userId, userName, relatedType, accessTokenValidity);
+    public String createAccessToken(Integer userId, String userName, RelatedType relatedType, String uuid) {
+        return createToken(userId, userName, relatedType, uuid, accessTokenValidity);
     }
 
     /**
@@ -76,8 +78,8 @@ public class JwtUtility {
      * @param relatedType 사용자 타입
      * @return 생성된 Refresh Token
      */
-    public String createRefreshToken(Integer userId, String userName, RelatedType relatedType) {
-        return createToken(userId, userName, relatedType, refreshTokenValidity);
+    public String createRefreshToken(Integer userId, String userName, RelatedType relatedType, String uuid) {
+        return createToken(userId, userName, relatedType, uuid, refreshTokenValidity);
     }
 
     /**
@@ -87,7 +89,7 @@ public class JwtUtility {
      * @param validity 토큰 유효시간
      * @return 생성된 JWT 토큰
      */
-    private String createToken(Integer userId,  String userName, RelatedType relatedType, long validity) {
+    private String createToken(Integer userId,  String userName, RelatedType relatedType, String uuid, long validity) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + validity);
 
@@ -95,6 +97,7 @@ public class JwtUtility {
                 .claim(CLAIM_USER_ID, userId)
                 .claim(CLAIM_USER_NAME, userName)
                 .claim(CLAIM_TYPE, relatedType.name())
+                .claim(CLAIM_UUID, uuid)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(signingKey)
@@ -117,6 +120,15 @@ public class JwtUtility {
      */
     public String getUserName(String token) {
         return getClaim(token, CLAIM_USER_NAME, String.class);
+    }
+
+    /**
+     * JWT 토큰에서 토큰의 UUID 을 추출합니다.
+     * @param token JWT 토큰
+     * @return UUID
+     */
+    public String getUUID(String token) {
+        return getClaim(token, CLAIM_UUID, String.class);
     }
 
     /**
@@ -187,4 +199,6 @@ public class JwtUtility {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+
 }

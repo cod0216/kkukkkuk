@@ -46,4 +46,11 @@ public class S3 {
     @CreatedDate
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    public S3(Integer id, RelatedType relatedType, String url, LocalDateTime createdAt) {
+        this.relatedType = relatedType;
+        this.relatedId = id;
+        this.url = url;
+        this.createdAt = createdAt;
+    }
 }

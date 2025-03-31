@@ -21,4 +21,5 @@ import java.time.LocalDate;
 public class OwnerShortInfoResponse {
     private Integer id;
     private String name;
+    private String image;
 }

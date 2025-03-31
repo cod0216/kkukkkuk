@@ -8,7 +8,9 @@ import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
+import com.be.KKUKKKUK.domain.pet.service.PetComplexService;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
+import com.be.KKUKKKUK.domain.s3.service.S3Service;
 import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
@@ -16,6 +18,7 @@ import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
+import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,10 +45,11 @@ import java.util.Objects;
 @Transactional
 @RequiredArgsConstructor
 public class WalletComplexService {
-    private final WalletService walletService;
+    private final S3Service s3Service;
     private final PetService petService;
     private final OwnerService ownerService;
     private final BreedService breedService;
+    private final WalletService walletService;
     private final WalletOwnerService walletOwnerService;
 
     private final WalletMapper walletMapper;
@@ -81,7 +85,11 @@ public class WalletComplexService {
      */
     public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
-        return petService.findPetInfoListByWalletId(wallet.getId());
+
+        List<PetInfoResponse> petInfos = petService.findPetsByWalletId(wallet.getId());
+        petInfos.forEach(pet -> pet.setImage(s3Service.getImage(pet.getId(), RelatedType.PET)));
+
+        return petInfos;
     }
 
 
@@ -112,8 +120,10 @@ public class WalletComplexService {
         // 5. Owner -> OwnerShortInfoResponse 변환
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
+        List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, walletId);
+
         // 6. 변환된 데이터를 사용해 WalletInfoResponse 생성 후 반환
-        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos);
+        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos, petInfos);
     }
 
 
@@ -142,8 +152,11 @@ public class WalletComplexService {
         // 5. Owner -> OwnerShortInfoResponse 변환
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
+        // 7. 반려동물 목록 불러오기
+        List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, wallet.getId());
+
         // 6. 변환된 데이터를 사용해 WalletInfoResponse 생성 후 반환
-        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos);
+        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos, petInfos);
     }
 
 
@@ -167,7 +180,9 @@ public class WalletComplexService {
 
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
-        return new WalletInfoResponse(updateWallet.getId(), updateWallet.getDid(), updateWallet.getAddress(), wallet.getName(), ownerInfos);
+        List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, walletId);
+
+        return new WalletInfoResponse(updateWallet.getId(), updateWallet.getDid(), updateWallet.getAddress(), wallet.getName(), ownerInfos, petInfos);
     }
 
     /**

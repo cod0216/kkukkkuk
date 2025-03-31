@@ -8,9 +8,11 @@ import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.pet.controller<br>
@@ -43,7 +45,7 @@ public class PetController {
     public ResponseEntity<?> getPetInfoByPetId(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
             @PathVariable Integer petId) {
-        return ResponseUtility.success("반려동물 조회에 성공했습니다.", petService.getPetInfoByPetId(ownerDetails, petId));
+        return ResponseUtility.success("반려동물 조회에 성공했습니다.", petComplexService.getPetInfoByPetId(ownerDetails, petId));
     }
 
     /**
@@ -78,5 +80,22 @@ public class PetController {
         petComplexService.deletePetFromWallet(ownerDetails, petId);
         return ResponseUtility.emptyResponse("반려동물 삭제에 성공했습니다.");
     }
+
+    /**
+     * 반려동물 프로필을 업로드합니다.
+     * @param ownerDetails 인증된 보호자 계정
+     * @param petId 프로필 변경할 반려동물 ID
+     * @return 수정된 이미지 url
+     */
+    @Operation(summary = "반려동물 프로필 이미지 변경", description = "반려동물 프로필 이미지를 업로드합니다.")
+    @PostMapping(path = "/{petId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> uploadPetImage(
+            @AuthenticationPrincipal OwnerDetails ownerDetails,
+            @PathVariable Integer petId,
+            @RequestParam MultipartFile imageFile
+    ) {
+        return ResponseUtility.success("반려동물 프로필 업로드에 성공했습니다.", petComplexService.updatePetImage(ownerDetails, petId, imageFile));
+    }
+
 
 }

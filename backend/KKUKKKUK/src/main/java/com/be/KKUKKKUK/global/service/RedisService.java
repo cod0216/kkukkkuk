@@ -1,9 +1,21 @@
 package com.be.KKUKKKUK.global.service;
 
+import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * packageName    : com.be.KKUKKKUK.global.service<br>
@@ -15,6 +27,7 @@ import java.time.Duration;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.03.18          haelim           최초 생성<br>
+ * 25.03.31          haelim           getKeys 메서드 추가, 특정 패턴에 맞는 모든 key 조회<br>
  */
 @Service
 @RequiredArgsConstructor
@@ -46,5 +59,28 @@ public class RedisService {
      */
     public void deleteValues(String key) {
         redisTemplate.delete(key);
+    }
+
+    /**
+     * 주어진 패턴에 맞는 모든 Redis 키를 조회합니다.
+     *
+     * @param pattern 조회할 키의 패턴 (예: "BLACKLIST:*")
+     * @return 해당 패턴에 맞는 키들의 Set
+     */
+    public Set<String> getKeys(String pattern) {
+        Set<String> keys = new HashSet<>();
+
+        // SCAN 명령을 사용하여 패턴에 맞는 키들을 조회
+        try (Cursor<byte[]> cursor = redisTemplate.execute((RedisCallback<Cursor<byte[]>>) connection ->
+                connection.scan(ScanOptions.scanOptions().match(pattern).count(100).build())
+        )) {
+            while (Objects.nonNull(cursor) && cursor.hasNext()) {
+                keys.add(new String(cursor.next()));
+            }
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return keys;
     }
 }
