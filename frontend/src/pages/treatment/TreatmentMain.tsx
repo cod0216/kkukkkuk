@@ -4,10 +4,15 @@ import TreatmentSidebar from "@/pages/treatment/layout/TreatmentSidebar";
 import TreatmentForm from "@/pages/treatment/form/TreatmentForm";
 import { getTreatments } from "@/services/treatmentService";
 import { ApiResponse, ResponseStatus } from "@/types";
-import { Treatment, TreatmentState, TreatmentResponse, Doctor } from '@/interfaces';
-import { getDoctors } from '@/services/doctorService';
+import {
+  Treatment,
+  TreatmentState,
+  TreatmentResponse,
+  Doctor,
+} from "@/interfaces";
+import { getDoctors } from "@/services/doctorService";
 import TreatmentHistoryList from "@/pages/treatment/history/TreatmentHistoryList";
-import { connectWallet } from '@/services/blockchainAuthService';
+import { connectWallet } from "@/services/blockchainAuthService";
 
 /**
  * @module TreatmentMain
@@ -16,18 +21,18 @@ import { connectWallet } from '@/services/blockchainAuthService';
  * @date 2025-03-26
  * @author seonghun
  * @date 2025-03-28
- * @description 진단 페이지의 메인 컴포넌트입니다.  
- *              
+ * @description 진단 페이지의 메인 컴포넌트입니다.
+ *
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         TreatmentForm에 onCancel 콜백 추가 및 UI 변경경
+ * 2025-03-26        eunchang         MetaMask 확장프로그램 설치 URL
  */
 
-
 /**
- * 진단 페이지의 메인 컴포넌트 
+ * 진단 페이지의 메인 컴포넌트
  */
 const TreatmentMain: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
@@ -56,7 +61,7 @@ const TreatmentMain: React.FC = () => {
   }, []);
 
   /**
-   * 병원에 등록된 의사를 조회합니다. 
+   * 병원에 등록된 의사를 조회합니다.
    */
   useEffect(() => {
     const fetchData = async () => {
@@ -69,12 +74,19 @@ const TreatmentMain: React.FC = () => {
   }, []);
 
   /**
-   * 진료중인 동물 목록을 조회합니다. 
+   * 진료중인 동물 목록을 조회합니다.
    */
   useEffect(() => {
     const fetchData = async () => {
-      const response: ApiResponse<TreatmentResponse> = await getTreatments({ expired: "", petId: "", state: "" });
-      if (response.status === ResponseStatus.SUCCESS && response.data?.treatments) {
+      const response: ApiResponse<TreatmentResponse> = await getTreatments({
+        expired: "",
+        petId: "",
+        state: "",
+      });
+      if (
+        response.status === ResponseStatus.SUCCESS &&
+        response.data?.treatments
+      ) {
         setTreatments(response.data.treatments);
       }
     };
@@ -116,7 +128,7 @@ const TreatmentMain: React.FC = () => {
   /**
    * 현재 진료기록의 상태에 따라 필요한 CSS 요소를 반환합니다.
    * @param {TreatmentState} state - 진료 상태 enum
-   * @returns {string} state 상태에 따른 CSS 태그 
+   * @returns {string} state 상태에 따른 CSS 태그
    */
   const getStateColor = (state: TreatmentState): string => {
     switch (state) {
@@ -133,15 +145,14 @@ const TreatmentMain: React.FC = () => {
 
   /**
    * 현재 진료기록의 상태에 따라 필요한 CSS 요소를 반환합니다.
-   * @returns {string} state 상태에 따른 CSS 태그 
+   * @returns {string} state 상태에 따른 CSS 태그
    */
   const handleSaveTreatment = (): void => {
     setIsFormVisible(true);
   };
 
-  
   /**
-   * 반료동물의 의료 기록 입력을 위한한 폼을 열고 닫고의 동작을 수행합니다. 
+   * 반료동물의 의료 기록 입력을 위한한 폼을 열고 닫고의 동작을 수행합니다.
    */
   const onSelected = (): void => {
     setIsFormVisible((before) => !before);
@@ -152,15 +163,30 @@ const TreatmentMain: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <h2 className="text-xl font-bold text-red-700 mb-2">블록체인 연결 오류</h2>
+          <h2 className="text-xl font-bold text-red-700 mb-2">
+            블록체인 연결 오류
+          </h2>
+
           <p className="text-gray-700 mb-4">{connectionError}</p>
-          
+
           <div className="mb-4 border-t border-gray-200 pt-3">
             <h3 className="font-bold text-gray-800 mb-2">연결 가이드</h3>
             <ul className="text-gray-700 list-disc pl-5 space-y-1 text-sm">
-              <li>메타마스크 확장프로그램이 설치되어 있는지 확인하세요.</li>
+              <li>
+                메타마스크{" "}
+                <a
+                  href="https://chromewebstore.google.com/detail/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=item-share-cb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  확장프로그램
+                </a>
+                이 설치되어 있는지 확인하세요.
+              </li>
               <li>메타마스크에 로그인이 되어 있는지 확인하세요.</li>
-              <li>메타마스크에 다음 네트워크 정보를 추가했는지 확인하세요:
+              <li>
+                메타마스크에 다음 네트워크 정보를 추가했는지 확인하세요:
                 <ul className="pl-4 mt-1 space-y-1 text-xs">
                   <li>네트워크 이름: SSAFY</li>
                   <li>RPC URL: https://rpc.ssafy-blockchain.com</li>
@@ -168,12 +194,18 @@ const TreatmentMain: React.FC = () => {
                   <li>통화 기호: ETH</li>
                 </ul>
               </li>
-              <li>네트워크에 연결했더라도 공유받지 않은 반려동물 정보는 보이지 않습니다.</li>
-              <li>테스트를 원할 경우 앱에서 메타마스크 계정으로 반려동물 정보를 공유받으세요.</li>
+              <li>
+                네트워크에 연결했더라도 공유받지 않은 반려동물 정보는 보이지
+                않습니다.
+              </li>
+              <li>
+                테스트를 원할 경우 앱에서 메타마스크 계정으로 반려동물 정보를
+                공유받으세요.
+              </li>
             </ul>
           </div>
-          
-          <button 
+
+          <button
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
             onClick={() => window.location.reload()}
           >
@@ -198,7 +230,7 @@ const TreatmentMain: React.FC = () => {
         setSelectedPetIndex={setSelectedPetIndex}
         onBlockchainPetsLoad={handleBlockchainPetsLoad}
       />
-      
+
       {/* 메인 */}
       <div className="flex flex-1">
         <div className="flex flex-col flex-1">
@@ -210,15 +242,13 @@ const TreatmentMain: React.FC = () => {
           />
 
           {isFormVisible ? (
-            <TreatmentHistoryList 
-              selectedPetDid={selectedPet?.petDid}
-            />
+            <TreatmentHistoryList selectedPetDid={selectedPet?.petDid} />
           ) : (
-            <TreatmentForm 
-              doctors={doctors} 
+            <TreatmentForm
+              doctors={doctors}
               onSave={handleSaveTreatment}
               onCancel={() => setIsFormVisible(true)}
-              petDID={selectedPet?.petDid || ''}
+              petDID={selectedPet?.petDid || ""}
             />
           )}
         </div>
