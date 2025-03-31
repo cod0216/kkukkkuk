@@ -3,7 +3,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/create_wallet_from_mnemonic_usecase.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 
 /// 로그인 상태를 관리하는 클래스

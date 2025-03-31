@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
-import 'dart:math' as math;
 
 class MnemonicRecoveryView extends ConsumerStatefulWidget {
   final AuthController controller;

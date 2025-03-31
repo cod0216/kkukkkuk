@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';
 
@@ -8,20 +7,6 @@ enum NetworkConnectionStatus {
   connecting, // 연결 중
   connected, // 연결됨
   failed, // 연결 실패
-}
-
-/// 네트워크 설정
-class NetworkConfig {
-  static const NETWORK_CONFIG = {
-    'rpcUrl': 'https://rpc.ssafy-blockchain.com',
-    'wsUrl': 'wss://ws.ssafy-blockchain.com',
-    'chainId': '31221', // 10진수
-    'chainName': 'SSAFY',
-    'nativeCurrency': {'name': 'ETH', 'symbol': 'ETH', 'decimals': 18},
-  };
-
-  static const DEFAULT_GAS = 300000;
-  static const DEFAULT_GAS_PRICE = '1';
 }
 
 /// 네트워크 연결 상태 관리 클래스
