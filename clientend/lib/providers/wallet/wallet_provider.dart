@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/mnemonic_usecase_provider.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/wallet_usecase_providers.dart';
 
@@ -19,16 +18,17 @@ enum WalletStatus {
 
 /// 니모닉 지갑 상태 관리 클래스
 class WalletState {
+  // 기존 코드 유지
   final WalletStatus status;
-  final WalletStatus? previousStatus; // Add this to track previous state
-  final List<String>? mnemonicWords; // 니모닉 단어 목록
-  final List<int>? selectedWordIndices; // 선택된 니모닉 단어 인덱스
+  final WalletStatus? previousStatus;
+  final List<String>? mnemonicWords;
+  final List<int>? selectedWordIndices;
   final String? walletAddress;
   final String? publicKey;
   final String? did;
   final int? walletId;
   final String? error;
-  final int accountIndex; // HD 지갑 계정 인덱스
+  final int accountIndex;
 
   WalletState({
     this.status = WalletStatus.initial,
@@ -43,6 +43,7 @@ class WalletState {
     this.accountIndex = 0,
   });
 
+  // 기존 copyWith 메서드 유지
   WalletState copyWith({
     WalletStatus? status,
     WalletStatus? previousStatus,
@@ -68,6 +69,21 @@ class WalletState {
       accountIndex: accountIndex ?? this.accountIndex,
     );
   }
+}
+
+/// 지갑 생성/등록 결과를 담는 클래스
+class WalletResult {
+  final bool success;
+  final String? error;
+  final int? walletId;
+  final String? walletAddress;
+
+  WalletResult({
+    required this.success,
+    this.error,
+    this.walletId,
+    this.walletAddress,
+  });
 }
 
 /// 니모닉 지갑 상태 관리 노티파이어
@@ -105,8 +121,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
-  /// 니모닉 단어 선택
+  // 기존 코드 유지 (selectMnemonicWord, removeLastSelectedWord)
   void selectMnemonicWord(int index) {
+    // 기존 코드 유지
     if (state.selectedWordIndices == null) return;
     if (state.selectedWordIndices!.contains(index))
       return; // Prevent selecting same word twice
@@ -120,8 +137,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
-  /// Remove the last selected word
   void removeLastSelectedWord() {
+    // 기존 코드 유지
     if (state.selectedWordIndices == null || state.selectedWordIndices!.isEmpty)
       return;
 
@@ -130,10 +147,14 @@ class WalletNotifier extends StateNotifier<WalletState> {
     state = state.copyWith(selectedWordIndices: updatedIndices);
   }
 
-  /// 니모닉 확인
-  Future<void> confirmMnemonic() async {
+  /// 니모닉 확인 - 결과를 반환하도록 수정
+  Future<WalletResult> confirmMnemonic() async {
     if (state.mnemonicWords == null || state.selectedWordIndices == null) {
-      return;
+      state = state.copyWith(
+        status: WalletStatus.error,
+        error: '니모닉 단어가 없습니다.',
+      );
+      return WalletResult(success: false, error: '니모닉 단어가 없습니다.');
     }
 
     // 선택된 단어들로 니모닉 문장 생성
@@ -154,24 +175,25 @@ class WalletNotifier extends StateNotifier<WalletState> {
         status: WalletStatus.error,
         error: '잘못된 니모닉 단어 조합입니다.',
       );
-      return;
+      return WalletResult(success: false, error: '잘못된 니모닉 단어 조합입니다.');
     }
 
     try {
       state = state.copyWith(status: WalletStatus.creatingWallet);
 
       // 지갑 생성 및 등록 진행
-      await createAndRegisterWallet(mnemonic);
+      return await createAndRegisterWallet(mnemonic);
     } catch (e) {
       state = state.copyWith(
         status: WalletStatus.error,
         error: '니모닉 저장에 실패했습니다: $e',
       );
+      return WalletResult(success: false, error: '니모닉 저장에 실패했습니다: $e');
     }
   }
 
-  /// 지갑 생성 및 등록
-  Future<void> createAndRegisterWallet(String mnemonic) async {
+  /// 지갑 생성 및 등록 - 결과를 반환하도록 수정
+  Future<WalletResult> createAndRegisterWallet(String mnemonic) async {
     try {
       // 지갑 생성
       final createWalletFromMnemonicUseCase = ref.read(
@@ -200,18 +222,25 @@ class WalletNotifier extends StateNotifier<WalletState> {
         publicKey: wallet['publicKey'] ?? '',
       );
 
+      final walletId = registeredWallet.toJson()['id'] ?? 0;
+
       state = state.copyWith(
         status: WalletStatus.completed,
-        walletId: registeredWallet.toJson()['id'] ?? 0,
+        walletId: walletId,
       );
 
-      // 네트워크 연결 단계로 이동 (authCoordinatorProvider에서 authControllerProvider로 변경)
-      ref.read(authControllerProvider.notifier).moveToNetworkConnection();
+      // AuthController 직접 참조 대신 결과 반환
+      return WalletResult(
+        success: true,
+        walletId: walletId,
+        walletAddress: wallet['address'],
+      );
     } catch (e) {
       state = state.copyWith(
         status: WalletStatus.error,
         error: '지갑 생성 및 등록에 실패했습니다: $e',
       );
+      return WalletResult(success: false, error: '지갑 생성 및 등록에 실패했습니다: $e');
     }
   }
 
@@ -242,15 +271,15 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
-  /// 니모닉으로 지갑 복구
-  Future<void> recoverWallet(String mnemonic) async {
+  /// 니모닉으로 지갑 복구 - 결과를 반환하도록 수정
+  Future<WalletResult> recoverWallet(String mnemonic) async {
     if (mnemonic.isEmpty) {
       state = state.copyWith(
         status: WalletStatus.error,
         previousStatus: state.status, // Save current status
         error: '니모닉을 입력해주세요.',
       );
-      return;
+      return WalletResult(success: false, error: '니모닉을 입력해주세요.');
     }
 
     state = state.copyWith(
@@ -271,18 +300,22 @@ class WalletNotifier extends StateNotifier<WalletState> {
           status: WalletStatus.error,
           error: '유효하지 않은 니모닉입니다. 다시 확인해주세요.',
         );
-        return;
+        return WalletResult(
+          success: false,
+          error: '유효하지 않은 니모닉입니다. 다시 확인해주세요.',
+        );
       }
 
       state = state.copyWith(status: WalletStatus.creatingWallet);
 
       // 지갑 생성 및 등록 진행
-      await createAndRegisterWallet(mnemonic);
+      return await createAndRegisterWallet(mnemonic);
     } catch (e) {
       state = state.copyWith(
         status: WalletStatus.error,
         error: '지갑 복구에 실패했습니다: $e',
       );
+      return WalletResult(success: false, error: '지갑 복구에 실패했습니다: $e');
     }
   }
 

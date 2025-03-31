@@ -26,9 +26,20 @@ class AuthController extends StateNotifier<AuthStep> {
   /// 로그인 처리
   Future<void> handleLogin() async {
     try {
-      await ref.read(loginProvider.notifier).signInWithKakao();
+      final result = await ref.read(loginProvider.notifier).signInWithKakao();
+
+      if (!result.success) {
+        state = AuthStep.error;
+        return;
+      }
+
+      if (result.hasWallet) {
+        moveToNetworkConnection();
+      } else {
+        ref.read(walletProvider.notifier).reset();
+        moveToWalletSetup();
+      }
     } catch (e) {
-      print('Login error in controller: $e');
       state = AuthStep.error;
     }
   }
@@ -46,7 +57,14 @@ class AuthController extends StateNotifier<AuthStep> {
 
   /// 니모닉으로 지갑 복구 처리
   Future<void> recoverWallet(String mnemonic) async {
-    await ref.read(walletProvider.notifier).recoverWallet(mnemonic);
+    final result = await ref
+        .read(walletProvider.notifier)
+        .recoverWallet(mnemonic);
+
+    if (result.success) {
+      moveToNetworkConnection();
+    }
+    // 실패 시 WalletProvider에서 이미 에러 상태로 변경됨
   }
 
   /// 니모닉 지갑 생성 처리
@@ -56,7 +74,12 @@ class AuthController extends StateNotifier<AuthStep> {
 
   /// 니모닉 확인 처리
   Future<void> confirmMnemonic() async {
-    await ref.read(walletProvider.notifier).confirmMnemonic();
+    final result = await ref.read(walletProvider.notifier).confirmMnemonic();
+
+    if (result.success) {
+      moveToNetworkConnection();
+    }
+    // 실패 시 WalletProvider에서 이미 에러 상태로 변경됨
   }
 
   /// 지갑 설정 화면으로 이동
