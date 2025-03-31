@@ -83,7 +83,7 @@ public final class ResponseUtility {
      * @return 200 OK 응답을 포함한 {@link ResponseEntity}, 빈 객체 반환
      */
     public static ResponseEntity<ApiResponse<Object>> emptyResponse(String message) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_SET));
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_SET)); //TODO 200 ok 보단 204가 더 적절하지 않을까요?
     }
 
     /**

@@ -108,7 +108,7 @@ public class WalletController {
     public ResponseEntity<?> updateMyWallet(
             @AuthenticationPrincipal OwnerDetails owner,
             @PathVariable Integer walletId,
-            @RequestBody WalletUpdateRequest request
+            @RequestBody WalletUpdateRequest request //TODO @Valid 를 사용하고 안하고 하시는데 이유가 있을까요?
     ) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
         return ResponseUtility.success("지갑 정보가 성공적으로 업데이트되었습니다.", walletComplexService.updateWallet(ownerId, walletId, request));
@@ -148,7 +148,7 @@ public class WalletController {
     public ResponseEntity<?> registerPet(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
             @PathVariable Integer walletId,
-            @RequestBody @Valid PetRegisterRequest request) {
+            @RequestBody @Valid PetRegisterRequest request) { //TODO 이건 @Valid 쓰시고 순서를 다르게 하셨네요
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("반려동물 등록에 성공했습니다.", walletComplexService.registerPet(ownerId, walletId, request));
     }
@@ -171,7 +171,7 @@ public class WalletController {
         return ResponseUtility.success("반려동물 전체 목록 조회에 성공했습니다.", walletComplexService.getPetInfoListByWalletId(ownerId, walletId));
     }
 
-    //    /**
+    //    /** //TODO 이런 주석은 지워주세요
 //     * 사용자의 지갑 복구를 위해 개인 키 정보를 조회합니다.
 //     * @param owner 인증된 보호자 계정 정보
 //     * @return 암호화된 개인키

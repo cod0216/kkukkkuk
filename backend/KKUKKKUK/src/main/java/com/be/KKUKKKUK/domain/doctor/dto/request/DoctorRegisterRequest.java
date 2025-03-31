@@ -20,7 +20,7 @@ import lombok.ToString;
  * 25.03.15          haelim           최초생성<br>
  * 25.03.24          haelim           swagger 작성<br>
  */
-
+//TODO 어노테이션 다 필요할까요?
 @Getter
 @ToString
 @NoArgsConstructor

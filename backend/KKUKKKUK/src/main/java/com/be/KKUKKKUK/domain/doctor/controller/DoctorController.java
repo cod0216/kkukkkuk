@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/doctors")
-public class DoctorController {
+public class DoctorController { //TODO 전 각각의 메서위치르 통합하는거 어떠십ㄴ가ㅛ?
     private final DoctorService doctorService;
 
     /**

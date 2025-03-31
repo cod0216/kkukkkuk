@@ -82,7 +82,7 @@ public class HospitalService {
     public HospitalInfoResponse tryLogin(HospitalLoginRequest request) {
         Hospital hospital = findHospitalByAccount(request.getAccount());
 
-        if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {//TODO 이건 메서드 분리 안하는 이유가 있을까요? 어떤 기준을 가지고 메서드 분리를 하고 안하는지 궁금합니다.
             throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
@@ -125,10 +125,10 @@ public class HospitalService {
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
     @Transactional
-    public HospitalInfoResponse updateHospital(Integer id, HospitalUpdateRequest request) {
+    public HospitalInfoResponse updateHospital(Integer id, HospitalUpdateRequest request) { //TODO 변수명 단순 id 보다는 어떤 entity의 id 인지 명확하게 하는건 어떻게 생각하시나요?
         Hospital hospital = findHospitalById(id);
 
-        if (!Objects.isNull(request.getDid())) hospital.setDid(request.getDid());
+        if (!Objects.isNull(request.getDid())) hospital.setDid(request.getDid()); //TODO 이런것도 메서드로 분리하는건 어떻게 생각하시나요
         if (!Objects.isNull(request.getName())) hospital.setName(request.getName());
         if (!Objects.isNull(request.getPhoneNumber())) hospital.setPhoneNumber(request.getPhoneNumber());
         if (!Objects.isNull(request.getPassword())) hospital.setPassword(passwordEncoder.encode(request.getPassword()));

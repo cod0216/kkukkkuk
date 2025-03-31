@@ -43,7 +43,7 @@ public class DoctorService {
      * @return 등록 완료된 수의사 정보
      */
     @Transactional
-    public DoctorInfoResponse registerDoctor(Hospital hospital, DoctorRegisterRequest request) {
+    public DoctorInfoResponse registerDoctor(Hospital hospital, DoctorRegisterRequest request) { //TODO 파라미터에 null 값이 들어오면 어떻게 될까요?
         return doctorMapper.mapToDoctorInfo(doctorRepository.save(new Doctor(request.getName(), hospital)));
     }
 
@@ -57,7 +57,7 @@ public class DoctorService {
     public DoctorInfoResponse getDoctorInfoById(Integer hospitalId, Integer doctorId) {
         Doctor doctor = getDoctorById(doctorId);
 
-        // 수의사가 속한 병원이 아니면 조회 불가
+        // 수의사가 속한 병원이 아니면 조회 불가 //TODO 주석은 지워주세요
         checkPermissionToDoctor(doctor, hospitalId);
 
         return doctorMapper.mapToDoctorInfo(doctor);

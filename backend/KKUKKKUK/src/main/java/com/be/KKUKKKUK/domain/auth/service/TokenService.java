@@ -96,7 +96,7 @@ public class TokenService {
      * @param type   관련 타입
      * @return 저장된 리프레시 토큰 (없으면 null 반환)
      */
-    public String getRefreshToken(Integer userId, RelatedType type) {
+    public String getRefreshToken(Integer userId, RelatedType type) { //TODO 트랜잭션 readOnly
         return redisService.getValues(getRefreshTokenKey(userId, type));
     }
 
@@ -171,7 +171,7 @@ public class TokenService {
      * @throws ApiException 요청 헤더에 리프레시 토큰이 없는 경우 예외처리
      */
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+        String bearerToken = request.getHeader("Authorization"); //TODO 이런 값들은 상수로 관리하는건 어떻게 생각하세요?
         if (!Objects.isNull(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
@@ -185,7 +185,7 @@ public class TokenService {
      * @param type   관련 타입
      * @return Redis 키 (예: "123:OWNER")
      */
-    public String getRefreshTokenKey(Integer userId, RelatedType type) {
+    public String getRefreshTokenKey(Integer userId, RelatedType type) { //TODO 접근제어자 생각 해보시면 좋을 것 같습니다
         return "%d:%s".formatted(userId, type.name());
     }
 }

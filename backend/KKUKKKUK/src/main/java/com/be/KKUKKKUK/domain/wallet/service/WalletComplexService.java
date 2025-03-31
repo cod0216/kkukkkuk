@@ -79,7 +79,7 @@ public class WalletComplexService {
      * @param ownerId 현재 로그인한 회원 계정 ID
      * @return 조회된 반려동물 목록
      */
-    public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
+    public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) { //TODO 트랜잭션 readOnly 속성 같아 보입니다!
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
         return petService.findPetInfoListByWalletId(wallet.getId());
     }
@@ -143,7 +143,7 @@ public class WalletComplexService {
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
 
         // 6. 변환된 데이터를 사용해 WalletInfoResponse 생성 후 반환
-        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos);
+        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos); //TODO 여긴 mapper 를 사용하지 않은 이유가 있을까요?
     }
 
 

@@ -24,9 +24,9 @@ import lombok.*;
 
 @Getter
 @ToString
-@AllArgsConstructor
+@AllArgsConstructor //TODO 필요할까요?
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class HospitalUpdateRequest {
+public class HospitalUpdateRequest { //TODO Validation 신경 써서 해주세요
     @Schema(description = "동물병원 DID", example = "hospital:0xtesthospitaldid")
     private String did;
 

@@ -23,14 +23,14 @@ import org.springframework.stereotype.Component;
  * 25.03.13          haerim           최초생성<br>
  * <br>
  */
-@Component
+@Component //TODO 이건 왜 이걸 했는지 궁금합니다
 @RequiredArgsConstructor
 public class HospitalDetailService implements UserDetailsService {
     private final HospitalRepository hospitalRepository;
     private final HospitalMapper hospitalMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String id) {
+    public UserDetails loadUserByUsername(String id) { //TODO id 가 어떤 id 인지 좀 자세하게 붙이는건 어떠신가요?
         Hospital hospital = hospitalRepository.findById(Integer.parseInt(id))
                 .orElseThrow(() -> new ApiException(ErrorCode.INVALID_TOKEN));
 
