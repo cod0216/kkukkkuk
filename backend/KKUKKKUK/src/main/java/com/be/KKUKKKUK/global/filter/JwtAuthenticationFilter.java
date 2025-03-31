@@ -135,7 +135,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return 블랙리스트 여부 true(블랙리스트), false(블랙리스트 아님)
      */
     private boolean checkTokenBlacklisted(String accessToken) {
-        return tokenService.checkBlacklisted(accessToken);
+        return tokenService.checkBlacklisted(accessToken, false);
     }
 
     /**

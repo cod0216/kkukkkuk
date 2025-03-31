@@ -75,16 +75,9 @@ public class AuthService {
 
     /**
      * 사용자를 로그아웃시킵니다.
-     * 사용자 정보에서 사용자의 type (동물병원, 보호자)을 구분하여 요청을 처리합니다.
-     *
-     * @param userDetails 현재 인증된 사용자 정보
      */
-    public void logout(UserDetails userDetails, HttpServletRequest request) {
-        int userId = Integer.parseInt(userDetails.getUsername());
-        RelatedType type = (userDetails instanceof HospitalDetails) ? RelatedType.HOSPITAL : RelatedType.OWNER;
-
-        tokenService.deleteRefreshToken(userId, type);
-        tokenService.blacklistAccessToken(request);
+    public void logout(HttpServletRequest request) {
+        tokenService.logout(request);
     }
 
     /**

@@ -44,6 +44,7 @@ public enum ErrorCode {
     AUTH_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH-010", "인증 코드가 만료되었습니다."),
     AUTH_CODE_NOT_MATCHED(HttpStatus.UNAUTHORIZED, "AUTH-011", "인증 코드가 일치하지 않습니다."),
     NO_USER_TYPE(HttpStatus.UNAUTHORIZED, "AUTH-012", "유효하지 않은 회원 유형입니다."),
+    NO_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-013", "인증 토큰이 필요합니다."),
 
     HOSPITAL_NOT_FOUND(HttpStatus.NOT_FOUND, "HOSPITAL-001", "병원 정보를 찾을 수 없습니다."),
     HOSPITAL_NOT_ALLOWED(HttpStatus.FORBIDDEN, "HOSPITAL-002", "병원에 대한 권한이 없습니다."),
@@ -59,7 +60,7 @@ public enum ErrorCode {
 
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL-001", "이메일을 전송할 수 없습니다."),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "EMAIL-002", "이미 사용 중인 이메일입니다."),
-    EMAIL_NOT_MATCHED(HttpStatus.CONFLICT, "EMAIL-003", "이메일 정보가 일치하지 않습니다."),
+    EMAIL_NOT_MATCHED(HttpStatus.NOT_FOUND, "EMAIL-003", "이메일과 아이디에 일치하는 계정을 찾을 수 없습니다."),
 
     PET_NOT_FOUND(HttpStatus.NOT_FOUND, "PET-001", "해당 반려동물을 찾을 수 없습니다."),
     PET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PET-002", "반려동물에 대한 권한이 없습니다."),

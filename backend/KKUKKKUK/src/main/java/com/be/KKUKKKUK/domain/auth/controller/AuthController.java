@@ -93,10 +93,8 @@ public class AuthController {
      */
     @Operation(summary = "로그아웃", description = "로그아웃을 수행합니다.")
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(
-            @AuthenticationPrincipal UserDetails userDetails,
-            HttpServletRequest request) {
-        authService.logout(userDetails, request);
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        authService.logout(request);
         return ResponseUtility.emptyResponse("로그아웃이 성공적으로 처리되었습니다.");
     }
 
