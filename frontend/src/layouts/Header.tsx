@@ -65,21 +65,21 @@ const Header: React.FC = () => {
     fetchHospitalInfo()
   }, [accessToken, hospital, dispatch])
 
-  const decodeTokenPayload = (token: string) => {
-    try {
-      const payloadBase64 = token.split(".")[1];
-      const decoded = decodeURIComponent(
-        atob(payloadBase64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      return JSON.parse(decoded);
-    } catch (error) {
-      console.error("Token decoding failed", error);
-      return null;
-    }
-  };
+  // const decodeTokenPayload = (token: string) => {
+  //   try {
+  //     const payloadBase64 = token.split(".")[1];
+  //     const decoded = decodeURIComponent(
+  //       atob(payloadBase64)
+  //         .split("")
+  //         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+  //         .join("")
+  //     );
+  //     return JSON.parse(decoded);
+  //   } catch (error) {
+  //     console.error("Token decoding failed", error);
+  //     return null;
+  //   }
+  // };
 
   let userName = hospital?.name ?? "사용자"
   // if (accessToken) {
@@ -101,7 +101,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white border border-gray-100 border-2 py-1">
+    <header className="bg-white border-gray-100 border-2 py-1">
       <div className="container mx-auto px-3 py-2 flex justify-between items-center">
         <div className="flex items-center cursor-pointer" onClick={goHome}>
           <FaPaw className="text-primary-500 text-2xl mr-2" />
