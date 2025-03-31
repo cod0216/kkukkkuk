@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/mnemonic_generation_view.dart';
@@ -37,14 +36,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   /// 인증 초기화 함수
   void _initializeAuth() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authControllerProvider).initializeAuth();
+      ref.read(authControllerProvider.notifier).initializeAuth();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final authStep = ref.watch(authCoordinatorProvider);
-    final controller = ref.watch(authControllerProvider);
+    final authStep = ref.watch(authControllerProvider);
+    final controller = ref.read(authControllerProvider.notifier);
     final mnemonicState = ref.watch(mnemonicWalletProvider);
 
     // 인증 완료시 홈 화면으로 이동

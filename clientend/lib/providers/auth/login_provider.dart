@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/create_wallet_from_mnemonic_usecase.dart';
-import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 
 /// 로그인 상태를 관리하는 클래스
@@ -48,13 +48,14 @@ class LoginNotifier extends StateNotifier<LoginState> {
       final privateKey = await _secureStorage.read(key: _privateKeyKey);
       final hasWallet = privateKey != null && privateKey.isNotEmpty;
 
+      final authController = ref.read(authControllerProvider.notifier);
       if (hasWallet) {
         // 개인키가 있으면 네트워크 연결 화면으로 이동
-        ref.read(authCoordinatorProvider.notifier).moveToNetworkConnection();
+        authController.moveToNetworkConnection();
       } else {
         // 개인키가 없으면 지갑 생성 화면으로 이동
         ref.read(mnemonicWalletProvider.notifier).reset();
-        ref.read(authCoordinatorProvider.notifier).moveToWalletSetup();
+        authController.moveToWalletSetup();
       }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: '로그인 실패: $e');

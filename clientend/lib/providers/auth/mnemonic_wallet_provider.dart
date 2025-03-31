@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
+import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/mnemonic/mnemonic_usecase_provider.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/wallet/wallet_usecase_providers.dart';
 
@@ -20,7 +20,8 @@ enum MnemonicWalletStatus {
 /// 니모닉 지갑 상태 관리 클래스
 class MnemonicWalletState {
   final MnemonicWalletStatus status;
-  final MnemonicWalletStatus? previousStatus; // Add this to track previous state
+  final MnemonicWalletStatus?
+  previousStatus; // Add this to track previous state
   final List<String>? mnemonicWords; // 니모닉 단어 목록
   final List<int>? selectedWordIndices; // 선택된 니모닉 단어 인덱스
   final String? walletAddress;
@@ -209,8 +210,8 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
         walletId: registeredWallet.toJson()['id'] ?? 0,
       );
 
-      // 네트워크 연결 단계로 이동
-      ref.read(authCoordinatorProvider.notifier).moveToNetworkConnection();
+      // 네트워크 연결 단계로 이동 (authCoordinatorProvider에서 authControllerProvider로 변경)
+      ref.read(authControllerProvider.notifier).moveToNetworkConnection();
     } catch (e) {
       state = state.copyWith(
         status: MnemonicWalletStatus.error,
@@ -293,15 +294,12 @@ class MnemonicWalletNotifier extends StateNotifier<MnemonicWalletState> {
       );
     }
   }
-  
+
   /// 이전 상태로 돌아가기
   void returnToPreviousState() {
     // If there's a previous state, go back to it
     if (state.previousStatus != null) {
-      state = state.copyWith(
-        status: state.previousStatus,
-        error: null,
-      );
+      state = state.copyWith(status: state.previousStatus, error: null);
     } else {
       // If no previous state is recorded, go to wallet choice
       state = state.copyWith(

@@ -28,7 +28,7 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
         success,
       ) {
         if (success) {
-          widget.controller.completeNetworkConnection();
+          widget.controller.completeAuth();
         }
       });
     });

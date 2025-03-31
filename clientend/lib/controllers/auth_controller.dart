@@ -1,18 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/providers/auth/auth_coordinator.dart';
 import 'package:kkuk_kkuk/providers/auth/login_provider.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/providers/network/network_connection_provider.dart';
 
+/// 인증 단계
+enum AuthStep {
+  login, // 로그인 단계
+  walletSetup, // 지갑 설정 단계
+  networkConnection, // 네트워크 연결 단계
+  completed, // 인증 완료
+  error, // 오류 발생
+}
+
 /// 인증 관련 작업을 처리하는 컨트롤러
-class AuthController {
+class AuthController extends StateNotifier<AuthStep> {
   final Ref ref;
 
-  AuthController(this.ref);
+  AuthController(this.ref) : super(AuthStep.login);
 
   /// 인증 초기화
-  Future<void> initializeAuth() async {
-    ref.read(authCoordinatorProvider.notifier).reset();
+  void initializeAuth() {
+    state = AuthStep.login;
   }
 
   /// 로그인 처리
@@ -21,10 +29,11 @@ class AuthController {
       await ref.read(loginProvider.notifier).signInWithKakao();
     } catch (e) {
       print('Login error in controller: $e');
-      ref.read(authCoordinatorProvider.notifier).handleError();
+      state = AuthStep.error;
     }
   }
 
+  /// 새 지갑 생성 처리
   void handleNewWallet() {
     ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
   }
@@ -50,9 +59,19 @@ class AuthController {
     await ref.read(mnemonicWalletProvider.notifier).confirmMnemonic();
   }
 
-  /// 네트워크 연결 완료 처리
-  void completeNetworkConnection() {
-    ref.read(authCoordinatorProvider.notifier).completeAuth();
+  /// 지갑 설정 화면으로 이동
+  void moveToWalletSetup() {
+    state = AuthStep.walletSetup;
+  }
+
+  /// 네트워크 연결 단계로 이동
+  void moveToNetworkConnection() {
+    state = AuthStep.networkConnection;
+  }
+
+  /// 인증 완료 처리
+  void completeAuth() {
+    state = AuthStep.completed;
   }
 
   /// 인증 흐름 초기화
@@ -60,7 +79,7 @@ class AuthController {
     ref.read(loginProvider.notifier).reset();
     ref.read(mnemonicWalletProvider.notifier).reset();
     ref.read(networkConnectionProvider.notifier).reset();
-    ref.read(authCoordinatorProvider.notifier).reset();
+    state = AuthStep.login;
   }
 
   /// 에러 발생 시 이전 상태로 돌아가기
@@ -70,6 +89,8 @@ class AuthController {
 }
 
 /// 인증 컨트롤러 프로바이더
-final authControllerProvider = Provider<AuthController>((ref) {
+final authControllerProvider = StateNotifierProvider<AuthController, AuthStep>((
+  ref,
+) {
   return AuthController(ref);
 });
