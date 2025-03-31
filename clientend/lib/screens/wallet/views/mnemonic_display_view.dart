@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 /// 니모닉 표시 화면
 class MnemonicDisplayView extends ConsumerWidget {
   final WalletState walletState;
-  final AuthController controller;
+  final AuthViewModel controller;
 
   const MnemonicDisplayView({
     super.key,
@@ -57,7 +57,9 @@ class MnemonicDisplayView extends ConsumerWidget {
 
           ElevatedButton(
             onPressed: () {
-              ref.read(walletProvider.notifier).startMnemonicConfirmation();
+              ref
+                  .read(walletViewModelProvider.notifier)
+                  .startMnemonicConfirmation();
             },
             child: const Text('니모닉 저장 완료'),
           ),

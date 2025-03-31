@@ -87,10 +87,10 @@ class WalletResult {
 }
 
 /// 니모닉 지갑 상태 관리 노티파이어
-class WalletNotifier extends StateNotifier<WalletState> {
+class WalletViewModel extends StateNotifier<WalletState> {
   final Ref ref;
 
-  WalletNotifier(this.ref) : super(WalletState());
+  WalletViewModel(this.ref) : super(WalletState());
 
   /// 니모닉 생성
   Future<void> generateMnemonic() async {
@@ -332,8 +332,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
 }
 
 /// 니모닉 지갑 프로바이더
-final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
-  ref,
-) {
-  return WalletNotifier(ref);
-});
+final walletViewModelProvider =
+    StateNotifierProvider<WalletViewModel, WalletState>((ref) {
+      return WalletViewModel(ref);
+    });

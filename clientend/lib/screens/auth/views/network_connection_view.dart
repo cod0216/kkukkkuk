@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/network/network_connection_provider.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 /// 네트워크 연결 화면
 class NetworkConnectionView extends ConsumerStatefulWidget {
-  final AuthController controller;
+  final AuthViewModel controller;
 
   const NetworkConnectionView({super.key, required this.controller});
 
@@ -24,9 +23,7 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
   /// 네트워크 연결 시도
   Future<void> _connectToNetwork() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(networkConnectionProvider.notifier).connectToNetwork().then((
-        success,
-      ) {
+      widget.controller.connectToNetwork().then((success) {
         if (success) {
           widget.controller.completeAuth();
         }
@@ -36,7 +33,7 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
 
   @override
   Widget build(BuildContext context) {
-    final networkState = ref.watch(networkConnectionProvider);
+    final authState = ref.watch(authViewModelProvider);
 
     return Center(
       child: Padding(
@@ -44,11 +41,11 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildStatusIcon(networkState.status),
+            _buildStatusIcon(authState.networkStatus),
             const SizedBox(height: 24),
-            _buildStatusText(context, networkState),
+            _buildStatusText(context, authState.networkStatus),
             const SizedBox(height: 32),
-            if (networkState.status == NetworkConnectionStatus.failed)
+            if (authState.networkStatus == NetworkConnectionStatus.failed)
               ElevatedButton(
                 onPressed: () => _connectToNetwork(),
                 child: const Text('다시 시도'),
@@ -82,10 +79,10 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
   }
 
   /// 상태 텍스트 표시
-  Widget _buildStatusText(BuildContext context, NetworkConnectionState state) {
+  Widget _buildStatusText(BuildContext context, NetworkConnectionStatus state) {
     String message;
 
-    switch (state.status) {
+    switch (state) {
       case NetworkConnectionStatus.connecting:
         message = '블록체인 네트워크에 연결 중입니다...\n잠시만 기다려주세요.';
         break;
@@ -93,7 +90,7 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
         message = '블록체인 네트워크에 연결되었습니다!\n메인 화면으로 이동합니다.';
         break;
       case NetworkConnectionStatus.failed:
-        message = '블록체인 네트워크 연결에 실패했습니다.\n${state.error ?? ""}';
+        message = '블록체인 네트워크 연결에 실패했습니다.\n다시 시도해주세요.';
         break;
       default:
         message = '블록체인 네트워크 연결 준비 중...';

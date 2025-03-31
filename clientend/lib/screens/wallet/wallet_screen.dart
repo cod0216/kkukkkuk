@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_display_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_confirmation_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/wallet_recovery_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 /// 지갑 설정 화면
 class WalletScreen extends ConsumerWidget {
-  final AuthController controller;
+  final AuthViewModel viewModel;
 
-  const WalletScreen({super.key, required this.controller});
+  const WalletScreen({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final walletState = ref.watch(walletProvider);
+    final walletState = ref.watch(walletViewModelProvider);
 
     // 초기 상태면 니모닉 생성 시작
     if (walletState.status == WalletStatus.initial) {
@@ -35,7 +35,7 @@ class WalletScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 상태에 따라 다른 내용 표시
-              _buildCurrentView(context, ref, walletState, controller),
+              _buildCurrentView(context, ref, walletState, viewModel),
 
               // 에러 메시지 표시
               if (walletState.error != null)
@@ -59,12 +59,12 @@ class WalletScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     WalletState walletState,
-    AuthController controller,
+    AuthViewModel viewModel,
   ) {
     switch (walletState.status) {
       case WalletStatus.initial:
       case WalletStatus.walletChoice:
-        return WalletChoiceView(controller: controller);
+        return WalletChoiceView(controller: viewModel);
 
       case WalletStatus.generatingMnemonic:
         return _buildGeneratingView();
@@ -72,17 +72,17 @@ class WalletScreen extends ConsumerWidget {
       case WalletStatus.mnemonicGenerated:
         return MnemonicDisplayView(
           walletState: walletState,
-          controller: controller,
+          controller: viewModel,
         );
 
       case WalletStatus.mnemonicConfirmation:
         return MnemonicConfirmationView(
           walletState: walletState,
-          controller: controller,
+          controller: viewModel,
         );
 
       case WalletStatus.recoveringWallet:
-        return WalletRecoveryView(controller: controller);
+        return WalletRecoveryView(controller: viewModel);
 
       case WalletStatus.creatingWallet:
       case WalletStatus.registeringWallet:
@@ -91,7 +91,7 @@ class WalletScreen extends ConsumerWidget {
       case WalletStatus.error:
         return ErrorView(
           message: walletState.error ?? '지갑 생성 중 오류가 발생했습니다.',
-          onRetry: () => controller.handleErrorRetry(),
+          onRetry: () => viewModel.handleErrorRetry(),
         );
 
       case WalletStatus.completed:

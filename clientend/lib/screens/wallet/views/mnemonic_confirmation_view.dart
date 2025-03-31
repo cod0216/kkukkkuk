@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 /// 니모닉 확인 화면
 class MnemonicConfirmationView extends ConsumerWidget {
   final WalletState walletState;
-  final AuthController controller;
+  final AuthViewModel controller;
 
   const MnemonicConfirmationView({
     super.key,
@@ -51,7 +51,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                     if (index ==
                         (walletState.selectedWordIndices?.length ?? 0) - 1) {
                       ref
-                          .read(walletProvider.notifier)
+                          .read(walletViewModelProvider.notifier)
                           .removeLastSelectedWord();
                     }
                   },
@@ -87,7 +87,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                           ? null
                           : () {
                             ref
-                                .read(walletProvider.notifier)
+                                .read(walletViewModelProvider.notifier)
                                 .selectMnemonicWord(index);
                           },
                   child: Container(

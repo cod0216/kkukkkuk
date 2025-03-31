@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
 import 'package:kkuk_kkuk/screens/main/main_screen.dart';
@@ -18,13 +17,13 @@ final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
-    
+
     // Add wallet creation route
     GoRoute(
       path: '/wallet-creation',
-      builder: (context, state) => WalletScreen(
-        controller: state.extra as AuthController,
-      ),
+      builder:
+          (context, state) =>
+              WalletScreen(viewModel: state.extra as AuthViewModel),
     ),
 
     StatefulShellRoute.indexedStack(

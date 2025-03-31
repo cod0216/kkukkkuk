@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 class WalletRecoveryView extends ConsumerStatefulWidget {
-  final AuthController controller;
+  final AuthViewModel controller;
 
   const WalletRecoveryView({super.key, required this.controller});
 
@@ -49,7 +49,7 @@ class _WalletRecoveryViewState extends ConsumerState<WalletRecoveryView> {
 
   @override
   Widget build(BuildContext context) {
-    final walletState = ref.watch(walletProvider);
+    final walletState = ref.watch(walletViewModelProvider);
 
     return Expanded(
       child: Column(
