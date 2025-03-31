@@ -21,10 +21,8 @@ import lombok.ToString;
  */
 
 @Getter
-@ToString
-@NoArgsConstructor
 public class DoctorUpdateRequest {
-    @Schema(description = "의사 이름", example = "권닥터")
     @NotBlank
+    @Schema(description = "의사 이름", example = "권닥터")
     private String name;
 }

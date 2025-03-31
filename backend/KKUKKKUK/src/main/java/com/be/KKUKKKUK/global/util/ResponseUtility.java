@@ -20,25 +20,13 @@ import java.util.Set;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 2025-03-14        haelim            최초생성<br>
- * 2025-03-16        haelim            final로 변경 및 상태 코드 커스텀 메소드 추가<br>
+ * 2025-03-16        haelim            final 로 변경 및 상태 코드 커스텀 메소드 추가<br>
  * 2025-03-29        haelim            emptyResponse 메소드 추가<br>
+ * 2025-03-31        haelim            안쓰는 메서드 정리, EMPTY MAP 싱글톤 처리 <br>
  *
  */
+// TODO : 싱글톤
 public final class ResponseUtility {
-
-    private static final Map<Object, Object> EMPTY_SET = Collections.emptyMap();
-
-
-    /**
-     * 요청이 성공했을 때 기본 메시지와 함께 200 OK 응답을 반환합니다.
-     *
-     * @param data 응답 데이터
-     * @param <T>  응답 데이터의 타입
-     * @return 200 OK 응답을 포함한 {@link ResponseEntity}
-     */
-    public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, "Request successful", data));
-    }
 
     /**
      * 요청이 성공했을 때 커스텀 메시지와 함께 200 OK 응답을 반환합니다.
@@ -53,37 +41,13 @@ public final class ResponseUtility {
     }
 
     /**
-     * 요청이 성공했을 때 커스텀 메시지와 특정 HTTP 상태 코드와 함께 응답을 반환합니다.
-     *
-     * @param message 응답 메시지
-     * @param data    응답 데이터
-     * @param status  HTTP 상태 코드
-     * @param <T>     응답 데이터의 타입
-     * @return 지정된 HTTP 상태 코드를 포함한 {@link ResponseEntity}
-     */
-    public static <T> ResponseEntity<ApiResponse<T>> success(String message, T data, HttpStatus status) {
-        return ResponseEntity.status(status).body(new ApiResponse<>(StatusEnum.SUCCESS, message, data));
-    }
-
-    /**
-     * 요청이 실패했을 때 특정 메시지와 HTTP 상태 코드와 함께 응답을 반환합니다.
-     *
-     * @param message 실패 메시지
-     * @param status  HTTP 상태 코드
-     * @return 지정된 HTTP 상태 코드를 포함한 {@link ResponseEntity}
-     */
-    public static ResponseEntity<ApiResponse<Object>> error(String message, HttpStatus status) {
-        return ResponseEntity.status(status).body(new ApiResponse<>(StatusEnum.FAILURE, message, null));
-    }
-
-    /**
      * 삭제 요청 시 No Content 대신 빈 객체를 반환합니다.
      *
      * @param message 응답 메시지
      * @return 200 OK 응답을 포함한 {@link ResponseEntity}, 빈 객체 반환
      */
     public static ResponseEntity<ApiResponse<Object>> emptyResponse(String message) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_SET));
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_MAP));
     }
 
     /**
@@ -92,4 +56,7 @@ public final class ResponseUtility {
     private ResponseUtility() {
         throw new UnsupportedOperationException("Utility Class");
     }
+
+    private static final  Map<Object, Object> EMPTY_MAP = Collections.emptyMap();
+
 }

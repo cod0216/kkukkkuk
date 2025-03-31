@@ -7,6 +7,8 @@ import com.be.KKUKKKUK.domain.pet.service.PetService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,9 +44,9 @@ public class PetController {
      */
     @Operation(summary = "반려동물 조회", description = "반려동물 ID를 이용하여 정보를 조회합니다.")
     @GetMapping("/{petId}")
-    public ResponseEntity<?> getPetInfoByPetId(
-            @AuthenticationPrincipal OwnerDetails ownerDetails,
-            @PathVariable Integer petId) {
+    public ResponseEntity<?> getPetInfoByPetId(@AuthenticationPrincipal OwnerDetails ownerDetails,
+                                               @PathVariable @Min(1) Integer petId
+    ) {
         return ResponseUtility.success("반려동물 조회에 성공했습니다.", petComplexService.getPetInfoByPetId(ownerDetails, petId));
     }
 
@@ -57,11 +59,10 @@ public class PetController {
      */
     @Operation(summary = "반려동물 수정", description = "반려동물 정보를 수정합니다.")
     @PatchMapping("/{petId}")
-    public ResponseEntity<?> updatePet(
-            @AuthenticationPrincipal OwnerDetails ownerDetails,
-            @PathVariable Integer petId,
-            @RequestBody PetUpdateRequest request
-            ){
+    public ResponseEntity<?> updatePet(@AuthenticationPrincipal OwnerDetails ownerDetails,
+                                       @PathVariable @Min(1) Integer petId,
+                                       @RequestBody @Valid PetUpdateRequest request
+    ){
         return ResponseUtility.success("반려동물 정보 수정에 성공했습니다.", petComplexService.updatePet(ownerDetails, petId, request));
     }
 

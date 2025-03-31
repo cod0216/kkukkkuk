@@ -22,12 +22,12 @@ import lombok.ToString;
 @Getter
 @ToString
 public class EmailVerificationRequest {
-    @Schema(description = "이메일 주소", example = "test@example.com")
     @Email
-    @NotBlank(message = "이메일은 필수로 입력해주세요")
+    @NotBlank
+    @Schema(description = "이메일 주소", example = "test@example.com")
     private String email;
 
+    @NotBlank
     @Schema(description = "인증 코드", example = "iu9MWx&nan!D305AzPzY")
-    @NotBlank(message = "필수로 입력해주세요")
     private String code;
 }

@@ -1,6 +1,5 @@
 package com.be.KKUKKKUK.domain.hospital.dto;
 
-
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.Getter;

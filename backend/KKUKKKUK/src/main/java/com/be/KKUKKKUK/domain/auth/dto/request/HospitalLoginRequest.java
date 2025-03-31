@@ -21,13 +21,13 @@ import lombok.ToString;
 @Getter
 @ToString
 public class HospitalLoginRequest {
+    @NotBlank
     @Schema(description = "계정", example = "ssafy1234")
-    @NotBlank(message = "계정은 필수로 입력해주세요.")
     @Pattern(regexp = "^[a-z0-9_]{5,10}$", message = "5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.")
     private String account;
 
+    @NotBlank
     @Schema(description = "비밀번호", example = "Apassword1234!")
-    @NotBlank(message = "비밀번호는 필수로 입력해주세요.")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&])[A-Za-z\\d!@#$%^&]{6,20}$",
             message = "6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.")
     private String password;

@@ -8,7 +8,6 @@ import com.be.KKUKKKUK.global.service.RedisService;
 import com.be.KKUKKKUK.global.util.JwtUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +48,10 @@ public class TokenService {
 
     private static final String BLACKLIST_ACCESS_PREFIX = "BLACKLIST:ACCESS:";
     private static final String BLACKLIST_REFRESH_PREFIX = "BLACKLIST:REFRESH:";
+
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String HEADER_BEARER = "Bearer ";
+    private static final int HEADER_BEARER_LENGTH = HEADER_BEARER.length();
 
     /**
      * 주어진 사용자 id 와 name, 사용자 타입을 기반으로 새로운 액세스 토큰과 리프레시 토큰을 생성합니다.
@@ -154,6 +157,7 @@ public class TokenService {
      * @param flagRefreshToken 리프레시 토큰 여부 (true: 리프레시, false: 액세스)
      * @return 블랙리스트에 있는 경우 TRUE, 아닌 경우 FALSE
      */
+    @Transactional(readOnly = true)
     public boolean checkBlacklisted(String token, boolean flagRefreshToken) {
         String key = (flagRefreshToken ? BLACKLIST_REFRESH_PREFIX : BLACKLIST_ACCESS_PREFIX) + token;
         return !Objects.isNull(redisService.getValues(key));
@@ -176,9 +180,9 @@ public class TokenService {
      * @return 추출된 토큰
      */
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
+        if (bearerToken != null && bearerToken.startsWith(HEADER_BEARER)) {
+            return bearerToken.substring(HEADER_BEARER_LENGTH);
         }
         throw new ApiException(ErrorCode.NO_AUTH_TOKEN);
     }

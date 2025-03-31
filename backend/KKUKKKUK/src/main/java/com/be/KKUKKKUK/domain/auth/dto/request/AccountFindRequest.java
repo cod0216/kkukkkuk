@@ -18,8 +18,8 @@ import lombok.Getter;
  */
 @Getter
 public class AccountFindRequest {
-    @Schema(description = "이메일 주소", example = "test@example.com")
     @Email
     @NotBlank(message = "이메일은 필수로 입력해주세요")
+    @Schema(description = "이메일 주소", example = "test@example.com")
     private String email;
 }

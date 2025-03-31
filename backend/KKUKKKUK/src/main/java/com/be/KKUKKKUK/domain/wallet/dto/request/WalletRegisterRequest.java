@@ -24,9 +24,9 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class WalletRegisterRequest {
-    @Schema(description = "지갑의 암호화된 개인키", example = "exampleprivatekey")
+public class WalletRegisterRequest { //TODO 각 String 변수들의 길이는 무제한 인가요?
     @NotBlank
+    @Schema(description = "지갑의 암호화된 개인키", example = "exampleprivatekey")
     private String privateKey;
 
     @NotBlank

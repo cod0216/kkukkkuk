@@ -57,7 +57,6 @@ public class DoctorService {
     public DoctorInfoResponse getDoctorInfoById(Integer hospitalId, Integer doctorId) {
         Doctor doctor = getDoctorById(doctorId);
 
-        // 수의사가 속한 병원이 아니면 조회 불가
         checkPermissionToDoctor(doctor, hospitalId);
 
         return doctorMapper.mapToDoctorInfo(doctor);
@@ -84,7 +83,6 @@ public class DoctorService {
     public void deleteDoctorOnHospital(Integer hospitalId, Integer doctorId) {
         Doctor doctor = getDoctorById(doctorId);
 
-        // 수의사가 속한 병원이 아니면 수정 불가
         checkPermissionToDoctor(doctor, hospitalId);
 
         doctorRepository.delete(doctor);
@@ -103,13 +101,12 @@ public class DoctorService {
         // 1. 수의사 조회
         Doctor doctor = getDoctorById(doctorId);
 
-        // 2. 수의사가 속한 병원이 아니면 수정 불가
+        // 2. 권한 체크
         checkPermissionToDoctor(doctor, hospitalId);
 
         // 3. 수의사 정보 수정
         doctor.setName(request.getName());
 
-        // 4. 저장
         return doctorMapper.mapToDoctorInfo(doctorRepository.save(doctor));
     }
 

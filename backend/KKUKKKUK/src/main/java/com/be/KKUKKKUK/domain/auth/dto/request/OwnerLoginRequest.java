@@ -1,6 +1,6 @@
 package com.be.KKUKKKUK.domain.auth.dto.request;
+
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,27 +29,27 @@ import java.time.LocalDate;
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OwnerLoginRequest {
-    @Schema(description = "보호자 이름", example = "김길동")
     @NotBlank
+    @Schema(description = "보호자 이름", example = "김길동")
     private String name;
 
-    @Schema(description = "이메일 주소", example = "test@example.com")
     @Email
     @NotBlank
+    @Schema(description = "이메일 주소", example = "test@example.com")
     private String email;
 
-    @Schema(description = "출생년도", example = "2000")
     @NotBlank
+    @Schema(description = "출생년도", example = "2000")
     @Pattern(regexp = "\\d{4}", message = "출생년도는 2000 형식이어야 합니다.")
     private String birthyear;
 
-    @Schema(description = "출생년도", example = "0310")
     @NotBlank
+    @Schema(description = "출생년도", example = "0310")
     @Pattern(regexp = "\\d{4}", message = "출생일은 0523 형식이어야 합니다.")
     private String birthday;
 
-    @Schema(description = "카카오 식별 ID", example = "123451243")
     @NotBlank
+    @Schema(description = "카카오 식별 ID", example = "123451243")
     private String providerId;
 
 

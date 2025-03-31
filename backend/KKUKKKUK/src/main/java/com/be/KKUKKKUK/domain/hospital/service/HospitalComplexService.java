@@ -73,7 +73,7 @@ public class HospitalComplexService {
      * @return 로그인 성공 시 병원 정보 및 토큰 반환
      */
     @Transactional
-    public HospitalLoginResponse login(HospitalLoginRequest request) {
+    public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
         // 1. Hospital 관련 요청은 hospitalService 에게 넘깁니다
         HospitalInfoResponse hospitalInfo = hospitalService.tryLogin(request);
 
