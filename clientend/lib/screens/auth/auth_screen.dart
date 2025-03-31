@@ -4,12 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
-import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_recovery_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
-import 'package:kkuk_kkuk/screens/wallet/views/wallet_choice_view.dart';
+import 'package:kkuk_kkuk/screens/wallet/wallet_screen.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
-import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_setup_view.dart';
 
 /// 인증 화면
 class AuthScreen extends ConsumerStatefulWidget {
@@ -105,45 +103,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         return LoginView(controller: controller);
 
       case AuthStep.walletSetup:
-        // 니모닉 지갑 상태에 따라 적절한 화면 표시
-        switch (mnemonicState.status) {
-          case MnemonicWalletStatus.initial:
-          case MnemonicWalletStatus.walletChoice:
-            return WalletChoiceView(controller: controller);
-
-          case MnemonicWalletStatus.recoveringWallet:
-            // 니모닉 복구 화면
-            return MnemonicRecoveryView(controller: controller);
-
-          // 통합된 니모닉 설정 뷰 사용
-          case MnemonicWalletStatus.generatingMnemonic:
-          case MnemonicWalletStatus.mnemonicGenerated:
-          case MnemonicWalletStatus.mnemonicConfirmation:
-          case MnemonicWalletStatus.creatingWallet:
-          case MnemonicWalletStatus.registeringWallet:
-            return MnemonicSetupView(controller: controller);
-
-          case MnemonicWalletStatus.error:
-            return ErrorView(
-              message: mnemonicState.error ?? '지갑 생성 중 오류가 발생했습니다.',
-              onRetry: () => controller.handleErrorRetry(),
-            );
-
-          case MnemonicWalletStatus.completed:
-            return const LoadingIndicator();
-        }
+        // 통합된 지갑 화면 사용
+        return WalletScreen(controller: controller);
 
       case AuthStep.networkConnection:
         return NetworkConnectionView(controller: controller);
 
-      case AuthStep.completed:
-        return const LoadingIndicator();
-
       case AuthStep.error:
         return ErrorView(
-          message: '오류가 발생했습니다.',
-          onRetry: () => controller.resetAuthFlow(),
+          message: '인증 중 오류가 발생했습니다.',
+          onRetry: () => controller.handleErrorRetry(),
         );
+
+      case AuthStep.completed:
+        return const Center(child: Text('인증이 완료되었습니다.'));
     }
   }
 }

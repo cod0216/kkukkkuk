@@ -9,19 +9,11 @@ class WalletChoiceView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            '지갑 설정',
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
           const Text(
             '새 지갑을 생성하거나 기존 지갑을 복구할 수 있습니다.',
             textAlign: TextAlign.center,
