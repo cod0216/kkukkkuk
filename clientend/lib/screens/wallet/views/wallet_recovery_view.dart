@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
-import 'dart:math' as math;
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 
-class MnemonicRecoveryView extends ConsumerStatefulWidget {
-  final AuthController controller;
+class WalletRecoveryView extends ConsumerStatefulWidget {
+  final WalletViewModel controller;
 
-  const MnemonicRecoveryView({super.key, required this.controller});
+  const WalletRecoveryView({super.key, required this.controller});
 
   @override
-  ConsumerState<MnemonicRecoveryView> createState() =>
-      _MnemonicRecoveryViewState();
+  ConsumerState<WalletRecoveryView> createState() => _WalletRecoveryViewState();
 }
 
-class _MnemonicRecoveryViewState extends ConsumerState<MnemonicRecoveryView> {
+class _WalletRecoveryViewState extends ConsumerState<WalletRecoveryView> {
   final List<TextEditingController> _wordControllers = List.generate(
     12,
     (_) => TextEditingController(),
@@ -51,20 +48,12 @@ class _MnemonicRecoveryViewState extends ConsumerState<MnemonicRecoveryView> {
 
   @override
   Widget build(BuildContext context) {
-    final walletState = ref.watch(mnemonicWalletProvider);
+    final walletState = ref.watch(walletViewModelProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            '니모닉 복구',
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
           const Text(
             '기존 니모닉 단어를 입력해주세요. 단어는 순서대로 입력하세요.',
             textAlign: TextAlign.center,
@@ -120,16 +109,14 @@ class _MnemonicRecoveryViewState extends ConsumerState<MnemonicRecoveryView> {
           // 복구 버튼
           ElevatedButton(
             onPressed:
-                walletState.status != MnemonicWalletStatus.creatingWallet &&
-                        walletState.status !=
-                            MnemonicWalletStatus.registeringWallet
+                walletState.status != WalletStatus.creatingWallet &&
+                        walletState.status != WalletStatus.registeringWallet
                     ? () =>
                         widget.controller.recoverWallet(_getMnemonicString())
                     : null,
             child:
-                walletState.status == MnemonicWalletStatus.creatingWallet ||
-                        walletState.status ==
-                            MnemonicWalletStatus.registeringWallet
+                walletState.status == WalletStatus.creatingWallet ||
+                        walletState.status == WalletStatus.registeringWallet
                     ? const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -147,17 +134,6 @@ class _MnemonicRecoveryViewState extends ConsumerState<MnemonicRecoveryView> {
                     )
                     : const Text('지갑 복구하기'),
           ),
-
-          // 에러 메시지
-          if (walletState.error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text(
-                walletState.error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-            ),
         ],
       ),
     );

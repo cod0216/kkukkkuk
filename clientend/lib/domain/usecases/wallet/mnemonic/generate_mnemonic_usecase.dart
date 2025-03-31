@@ -1,6 +1,6 @@
 import 'package:bip39_mnemonic/bip39_mnemonic.dart';
 
-class GenerateKoreanMnemonicUseCase {
+class GenerateMnemonicUseCase {
   /// 니모닉 단어 생성 (기본 12단어)
   Future<List<String>> execute({int strength = 128}) async {
     try {

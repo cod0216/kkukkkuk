@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
@@ -9,12 +10,22 @@ import 'package:kkuk_kkuk/screens/pet_profile/pet_profile_screen.dart';
 import 'package:kkuk_kkuk/screens/pet_register/pet_register_screen.dart';
 // QR 스캐너 라우트 import 추가
 import 'package:kkuk_kkuk/routes/qr_scanner_routes.dart';
+import 'package:kkuk_kkuk/screens/wallet/wallet_screen.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 
 final router = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
+
+    // Add wallet creation route
+    GoRoute(
+      path: '/wallet-creation',
+      builder: (context, state) => WalletScreen(
+        viewModel: state.extra as StateNotifierProvider<WalletViewModel, WalletState>,
+      ),
+    ),
 
     StatefulShellRoute.indexedStack(
       builder:
@@ -53,7 +64,7 @@ final router = GoRouter(
       path: '/pet-detail',
       builder: (context, state) => PetProfileScreen(pet: state.extra as Pet),
     ),
-    
+
     // QR 스캐너 라우트 추가
     ...qrScannerRoutes,
   ],

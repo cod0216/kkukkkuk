@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 
+/// 니모닉 확인 화면
 class MnemonicConfirmationView extends ConsumerWidget {
-  final AuthController controller;
+  final WalletState walletState;
+  final WalletViewModel controller;
 
-  const MnemonicConfirmationView({super.key, required this.controller});
+  const MnemonicConfirmationView({
+    super.key,
+    required this.walletState,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final walletState = ref.watch(mnemonicWalletProvider);
     final selectedCount = walletState.selectedWordIndices?.length ?? 0;
     final totalWords = walletState.mnemonicWords?.length ?? 0;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            '니모닉 단어 확인',
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
           Text(
             '니모닉 단어를 순서대로 선택해주세요. ($selectedCount/$totalWords)',
             textAlign: TextAlign.center,
@@ -33,7 +28,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // Selected words display
+          // 선택된 단어 표시
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -51,11 +46,11 @@ class MnemonicConfirmationView extends ConsumerWidget {
                     '${index + 1}. ${walletState.mnemonicWords?[walletState.selectedWordIndices?[index] ?? 0] ?? ""}',
                   ),
                   onDeleted: () {
-                    // Remove the last selected word only
+                    // 마지막 선택된 단어만 삭제 가능
                     if (index ==
                         (walletState.selectedWordIndices?.length ?? 0) - 1) {
                       ref
-                          .read(mnemonicWalletProvider.notifier)
+                          .read(walletViewModelProvider.notifier)
                           .removeLastSelectedWord();
                     }
                   },
@@ -66,7 +61,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Mnemonic word grid
+          // 니모닉 단어 그리드
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -91,7 +86,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                           ? null
                           : () {
                             ref
-                                .read(mnemonicWalletProvider.notifier)
+                                .read(walletViewModelProvider.notifier)
                                 .selectMnemonicWord(index);
                           },
                   child: Container(
@@ -105,7 +100,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      walletState.mnemonicWords?[index] ?? '',
+                      walletState.mnemonicWords![index],
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black,
                         fontWeight: FontWeight.w500,
@@ -122,15 +117,13 @@ class MnemonicConfirmationView extends ConsumerWidget {
           // 확인 버튼
           ElevatedButton(
             onPressed:
-                walletState.status != MnemonicWalletStatus.creatingWallet &&
-                        walletState.status !=
-                            MnemonicWalletStatus.registeringWallet
+                walletState.status != WalletStatus.creatingWallet &&
+                        walletState.status != WalletStatus.registeringWallet
                     ? () => controller.confirmMnemonic()
                     : null,
             child:
-                walletState.status == MnemonicWalletStatus.creatingWallet ||
-                        walletState.status ==
-                            MnemonicWalletStatus.registeringWallet
+                walletState.status == WalletStatus.creatingWallet ||
+                        walletState.status == WalletStatus.registeringWallet
                     ? const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -139,26 +132,17 @@ class MnemonicConfirmationView extends ConsumerWidget {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        SizedBox(width: 8),
                         Text('처리 중...'),
                       ],
                     )
-                    : const Text('확인 및 지갑 생성'),
+                    : const Text('확인'),
           ),
-
-          // 에러 메시지
-          if (walletState.error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text(
-                walletState.error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-            ),
         ],
       ),
     );
