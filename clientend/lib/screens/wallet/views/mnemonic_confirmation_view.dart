@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
 
 /// 니모닉 확인 화면
 class MnemonicConfirmationView extends ConsumerWidget {
-  final MnemonicWalletState walletState;
+  final WalletState walletState;
   final AuthController controller;
 
   const MnemonicConfirmationView({
@@ -51,7 +51,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                     if (index ==
                         (walletState.selectedWordIndices?.length ?? 0) - 1) {
                       ref
-                          .read(mnemonicWalletProvider.notifier)
+                          .read(walletProvider.notifier)
                           .removeLastSelectedWord();
                     }
                   },
@@ -82,20 +82,22 @@ class MnemonicConfirmationView extends ConsumerWidget {
                     );
 
                 return GestureDetector(
-                  onTap: isSelected
-                      ? null
-                      : () {
-                          ref
-                              .read(mnemonicWalletProvider.notifier)
-                              .selectMnemonicWord(index);
-                        },
+                  onTap:
+                      isSelected
+                          ? null
+                          : () {
+                            ref
+                                .read(walletProvider.notifier)
+                                .selectMnemonicWord(index);
+                          },
                   child: Container(
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.blue : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
-                      border: !isSelected && isNextInSequence
-                          ? Border.all(color: Colors.blue, width: 2)
-                          : null,
+                      border:
+                          !isSelected && isNextInSequence
+                              ? Border.all(color: Colors.blue, width: 2)
+                              : null,
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -115,30 +117,32 @@ class MnemonicConfirmationView extends ConsumerWidget {
 
           // 확인 버튼
           ElevatedButton(
-            onPressed: walletState.status != MnemonicWalletStatus.creatingWallet &&
-                    walletState.status != MnemonicWalletStatus.registeringWallet
-                ? () => controller.confirmMnemonic()
-                : null,
-            child: walletState.status == MnemonicWalletStatus.creatingWallet ||
-                    walletState.status == MnemonicWalletStatus.registeringWallet
-                ? const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+            onPressed:
+                walletState.status != WalletStatus.creatingWallet &&
+                        walletState.status != WalletStatus.registeringWallet
+                    ? () => controller.confirmMnemonic()
+                    : null,
+            child:
+                walletState.status == WalletStatus.creatingWallet ||
+                        walletState.status == WalletStatus.registeringWallet
+                    ? const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 8),
-                      Text('처리 중...'),
-                    ],
-                  )
-                : const Text('확인'),
+                        SizedBox(width: 8),
+                        Text('처리 중...'),
+                      ],
+                    )
+                    : const Text('확인'),
           ),
         ],
       ),

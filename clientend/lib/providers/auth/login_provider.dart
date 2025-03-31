@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_response.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
 
 /// 로그인 상태를 관리하는 클래스
 class LoginState {
@@ -53,7 +53,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
         authController.moveToNetworkConnection();
       } else {
         // 개인키가 없으면 지갑 생성 화면으로 이동
-        ref.read(mnemonicWalletProvider.notifier).reset();
+        ref.read(walletProvider.notifier).reset();
         authController.moveToWalletSetup();
       }
     } catch (e) {

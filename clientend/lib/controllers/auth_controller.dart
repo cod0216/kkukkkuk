@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/providers/auth/login_provider.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
 import 'package:kkuk_kkuk/providers/network/network_connection_provider.dart';
 
 /// 인증 단계
@@ -35,28 +35,28 @@ class AuthController extends StateNotifier<AuthStep> {
 
   /// 새 지갑 생성 처리
   void handleNewWallet() {
-    ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
+    ref.read(walletProvider.notifier).generateMnemonic();
   }
 
   /// 지갑 복구 화면으로 이동
   void handleWalletRecovery() {
-    ref.read(mnemonicWalletProvider.notifier).reset();
-    ref.read(mnemonicWalletProvider.notifier).startWalletRecovery();
+    ref.read(walletProvider.notifier).reset();
+    ref.read(walletProvider.notifier).startWalletRecovery();
   }
 
   /// 니모닉으로 지갑 복구 처리
   Future<void> recoverWallet(String mnemonic) async {
-    await ref.read(mnemonicWalletProvider.notifier).recoverWallet(mnemonic);
+    await ref.read(walletProvider.notifier).recoverWallet(mnemonic);
   }
 
   /// 니모닉 지갑 생성 처리
   void handleMnemonicGeneration() {
-    ref.read(mnemonicWalletProvider.notifier).generateMnemonic();
+    ref.read(walletProvider.notifier).generateMnemonic();
   }
 
   /// 니모닉 확인 처리
   Future<void> confirmMnemonic() async {
-    await ref.read(mnemonicWalletProvider.notifier).confirmMnemonic();
+    await ref.read(walletProvider.notifier).confirmMnemonic();
   }
 
   /// 지갑 설정 화면으로 이동
@@ -77,14 +77,14 @@ class AuthController extends StateNotifier<AuthStep> {
   /// 인증 흐름 초기화
   void resetAuthFlow() {
     ref.read(loginProvider.notifier).reset();
-    ref.read(mnemonicWalletProvider.notifier).reset();
+    ref.read(walletProvider.notifier).reset();
     ref.read(networkConnectionProvider.notifier).reset();
     state = AuthStep.login;
   }
 
   /// 에러 발생 시 이전 상태로 돌아가기
   void handleErrorRetry() {
-    ref.read(mnemonicWalletProvider.notifier).returnToPreviousState();
+    ref.read(walletProvider.notifier).returnToPreviousState();
   }
 }
 

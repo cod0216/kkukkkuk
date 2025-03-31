@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
 
 class WalletRecoveryView extends ConsumerStatefulWidget {
   final AuthController controller;
@@ -49,7 +49,7 @@ class _WalletRecoveryViewState extends ConsumerState<WalletRecoveryView> {
 
   @override
   Widget build(BuildContext context) {
-    final walletState = ref.watch(mnemonicWalletProvider);
+    final walletState = ref.watch(walletProvider);
 
     return Expanded(
       child: Column(
@@ -109,28 +109,31 @@ class _WalletRecoveryViewState extends ConsumerState<WalletRecoveryView> {
 
           // 복구 버튼
           ElevatedButton(
-            onPressed: walletState.status != MnemonicWalletStatus.creatingWallet &&
-                    walletState.status != MnemonicWalletStatus.registeringWallet
-                ? () => widget.controller.recoverWallet(_getMnemonicString())
-                : null,
-            child: walletState.status == MnemonicWalletStatus.creatingWallet ||
-                    walletState.status == MnemonicWalletStatus.registeringWallet
-                ? const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+            onPressed:
+                walletState.status != WalletStatus.creatingWallet &&
+                        walletState.status != WalletStatus.registeringWallet
+                    ? () =>
+                        widget.controller.recoverWallet(_getMnemonicString())
+                    : null,
+            child:
+                walletState.status == WalletStatus.creatingWallet ||
+                        walletState.status == WalletStatus.registeringWallet
+                    ? const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 10),
-                      Text('복구 중...'),
-                    ],
-                  )
-                : const Text('지갑 복구하기'),
+                        SizedBox(width: 10),
+                        Text('복구 중...'),
+                      ],
+                    )
+                    : const Text('지갑 복구하기'),
           ),
         ],
       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/auth_controller.dart';
-import 'package:kkuk_kkuk/providers/auth/mnemonic_wallet_provider.dart';
+import 'package:kkuk_kkuk/providers/wallet/wallet_provider.dart';
 import 'package:kkuk_kkuk/screens/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/screens/auth/views/network_connection_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/wallet_screen.dart';
@@ -41,7 +41,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     final authStep = ref.watch(authControllerProvider);
     final controller = ref.read(authControllerProvider.notifier);
-    final mnemonicState = ref.watch(mnemonicWalletProvider);
+    final mnemonicState = ref.watch(walletProvider);
 
     // 인증 완료시 홈 화면으로 이동
     if (authStep == AuthStep.completed) {
@@ -96,7 +96,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget _buildCurrentStep(
     AuthStep step,
     AuthController controller,
-    MnemonicWalletState mnemonicState,
+    WalletState mnemonicState,
   ) {
     switch (step) {
       case AuthStep.login:
