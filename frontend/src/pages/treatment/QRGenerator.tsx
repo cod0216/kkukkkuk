@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -31,6 +31,8 @@ interface QRGeneratorProps {
 }
 
 const QRGenerator: React.FC<QRGeneratorProps> = ({ visible, onClose, hospitalInfo }) => {
+  const qrContainerRef = useRef<HTMLDivElement>(null);
+  
   // Redux에서 토큰 가져오기
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   
@@ -68,18 +70,101 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ visible, onClose, hospitalInf
     did: hospitalDID
   });
 
+  // SVG를 이미지로 변환하는 함수
+  const svgToImage = (callback: (dataUrl: string) => void) => {
+    if (!qrContainerRef.current) return;
+    
+    const svg = qrContainerRef.current.querySelector('svg');
+    if (!svg) return;
+    
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // 해상도 향상을 위한 스케일 팩터 설정 (4배 더 높은 해상도)
+    const scaleFactor = 4;
+    
+    const img = new Image();
+    img.onload = () => {
+      // 원본 크기의 4배로 캔버스 크기 설정
+      canvas.width = img.width * scaleFactor;
+      canvas.height = img.height * scaleFactor;
+      
+      // 배경색 하얀색으로 설정 (더 선명한 QR코드를 위해)
+      if (ctx) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 이미지를 확대하여 그림
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+      
+      // 고품질 PNG로 변환 (품질 설정)
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      callback(dataUrl);
+    };
+    
+    // SVG 데이터를 Base64로 인코딩
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
   // QR 코드 다운로드 함수
   const handleDownload = () => {
-    const canvas = document.getElementById('qr-code') as HTMLCanvasElement;
-    if (canvas) {
-      const url = canvas.toDataURL('image/png');
+    svgToImage((dataUrl) => {
       const link = document.createElement('a');
       link.download = `hospital-qr-${actualHospitalName}.png`;
-      link.href = url;
+      link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
+    });
+  };
+  
+  // QR 코드 인쇄 함수
+  const handlePrint = () => {
+    svgToImage((dataUrl) => {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('팝업 차단을 해제해주세요.');
+        return;
+      }
+      
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>병원 QR 코드 인쇄</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+              .container { max-width: 400px; margin: 0 auto; }
+              .info { margin-top: 20px; text-align: left; padding: 10px; border: 1px solid #eee; }
+              h2 { margin-bottom: 20px; }
+              img { max-width: 100%; height: auto; }
+              .qr-wrapper { padding: 10px; border: 1px solid #eee; display: inline-block; margin-bottom: 15px; }
+              p { margin: 5px 0; }
+              @media print {
+                button { display: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h2>${actualHospitalName} QR 코드</h2>
+              <div class="qr-wrapper">
+                <img src="${dataUrl}" alt="병원 QR 코드" />
+              </div>
+              <div class="info">
+                <p><strong>병원명:</strong> ${actualHospitalName}</p>
+                <p><strong>주소:</strong> ${hospitalInfo.address}</p>
+                <p><strong>DID:</strong> ${hospitalDID}</p>
+              </div>
+              <button onclick="window.print();setTimeout(function(){window.close();},500);" style="margin-top: 20px; padding: 10px 20px; cursor: pointer;">인쇄하기</button>
+            </div>
+          </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+    });
   };
 
   if (!visible) return null;
@@ -104,9 +189,8 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ visible, onClose, hospitalInf
         <div className="p-6">
           <div className="flex flex-col space-y-6">
             {/* QR 코드 */}
-            <div className="flex justify-center p-4">
+            <div ref={qrContainerRef} className="flex justify-center p-4">
               <QRCodeSVG
-                id="qr-code"
                 value={qrData}
                 size={200}
                 level="H"
@@ -140,6 +224,15 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ visible, onClose, hospitalInf
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             QR 코드 다운로드
+          </button>
+          <button 
+            onClick={handlePrint}
+            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md text-sm flex items-center"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            인쇄하기
           </button>
           <button 
             onClick={onClose}

@@ -12,6 +12,7 @@ import { BlockChainRecord, BlockChainRecordResponse } from "@/interfaces/blockCh
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
+ * 2025-03-31        seonghun         Treatment 상태 타입 확장 
  */
 
 /**
@@ -19,9 +20,11 @@ import { BlockChainRecord, BlockChainRecordResponse } from "@/interfaces/blockCh
  * @enum {string}
  */
 export enum TreatmentState {
-    WAITING = "대기중",
+    WAITING = "진료전",
     IN_PROGRESS = "진료중",
     COMPLETED = "진료완료",
+    CANCELLED = "진료취소",
+    SHARED = "공유중",
     NONE = "",
 }
 
@@ -40,18 +43,21 @@ export interface GetTreatmentRequest {
  * @interface
  */
 export interface Treatment {
-  state: TreatmentState;
   id: number;
-  expireDate: string;
-  createdAt: string;
   petId: number;
-  petDid: string;
+  petDid?: string;
+  state: TreatmentState;
   name: string;
-  birth: string;
   age: number;
   gender: Gender;
-  flagNeutering: boolean;
   breedName: string;
+  birth?: string;
+  flagNeutering: boolean | string;
+  createdAt?: string;
+  expireDate?: string;
+  agreementInfo?: any;
+  calculatedState?: TreatmentState; // 블록체인 기반으로 계산된 진료 상태
+  isCancelled?: boolean; // 취소 여부
 }
 
 /**
