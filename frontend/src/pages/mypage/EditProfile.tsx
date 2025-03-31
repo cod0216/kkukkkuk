@@ -18,6 +18,7 @@ import { ApiResponse, ResponseStatus } from "@/types"
 import { HospitalDetail } from "@/interfaces"
 import { useDispatch } from "react-redux"
 import { setHospital } from "@/redux/store"
+import DeleteAccount from "./DeleteAccount"
 
 interface LocalHospital {
   id: number;
@@ -182,6 +183,7 @@ function EditProfile() {
           </button>
         </div>
       </form>
+      <DeleteAccount />
     </div>
   )
 }
