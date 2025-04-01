@@ -16,6 +16,7 @@ import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.28          haelim           treatment 관련 api 삭제 <br>
  */
 @Tag(name = "병원 API", description = "병원 정보 관리, 병원 소속 수의사, 병원의 진료 기록 등을 관리하는 API입니다.")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/hospitals")

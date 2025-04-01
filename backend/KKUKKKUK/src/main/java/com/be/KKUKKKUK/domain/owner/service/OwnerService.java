@@ -47,6 +47,7 @@ public class OwnerService {
 
     /**
      * 보호자 회원의 정보를 업데이트합니다.
+     * 수정 요청에 포함된 필드만 업데이트합니다.
      * @param ownerId 업데이트 요청한 보호자 ID
      * @param request 업데이트 요청
      * @return 업데이트된 보호자 정보
@@ -70,7 +71,6 @@ public class OwnerService {
     @Transactional(readOnly = true)
     public OwnerInfoResponse tryLoginOrSignUp(OwnerLoginRequest request) {
         Owner owner = ownerRepository.findOwnerByProviderId(request.getProviderId())
-                //.map(existingOwner -> updateOwnerInfoWithLogin(existingOwner, request))
                 .orElseGet(() -> signUpOwner(request));
 
         return ownerMapper.mapToOwnerInfo(owner);
@@ -78,7 +78,6 @@ public class OwnerService {
 
     /**
      * 새로운 보호자를 등록하는 메서드입니다.
-     *
      * @param request 회원가입 요청 정보
      * @return Owner 생성된 Owner 엔티티
      */
@@ -90,6 +89,7 @@ public class OwnerService {
      * 보호자 ID 로 보호자를 조회합니다.
      * @param ownerId 보호자 ID
      * @return 조회된 보호자 entity
+     * @throws ApiException ID 로 보호자 회원을 찾을 수 없는 경우 예외 발생
      */
     @Transactional(readOnly = true)
     public Owner getOwnerById(Integer ownerId){
@@ -97,6 +97,10 @@ public class OwnerService {
                 .orElseThrow(() -> new ApiException(ErrorCode.OWNER_NOT_FOUND));
     }
 
+    /**
+     * 보호자 ID 로 보호자 회원을 삭제합니다.
+     * @param ownerId 보호자 ID
+     */
     public void deleteOwner(Integer ownerId) {
         ownerRepository.deleteById(ownerId);
     }

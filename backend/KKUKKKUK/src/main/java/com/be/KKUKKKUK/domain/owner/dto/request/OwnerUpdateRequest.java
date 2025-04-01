@@ -1,8 +1,9 @@
 package com.be.KKUKKKUK.domain.owner.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -19,11 +20,12 @@ import java.time.LocalDate;
  * 25.03.24          haelim           swagger 작성<br>
  */
 @Getter
-@ToString
 public class OwnerUpdateRequest {
+    @Size(min = 1, max = 30)
     @Schema(description = "보호자 이름", example = "강길동")
     private String name;
 
+    @Past
     @Schema(description = "변경할 보호자 생년월일 (YYYY-MM-DD)", example = "2023-01-01")
     private LocalDate birth;
 }

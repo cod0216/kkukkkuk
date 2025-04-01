@@ -58,15 +58,16 @@ public class HospitalComplexService {
     /** 재발급 비밀번호 길이 **/
     private static final Integer PASSWORD_LENGTH = 20 ;
 
-    private final HospitalService hospitalService;
-    private final TokenService tokenService;
-    private final DoctorService doctorService;
-    private final EmailService mailService;
-    private final RedisService redisService;
-    private final PasswordEncoder passwordEncoder;
-
     @Value("${spring.mail.auth-code-expiration-millis}")
     private Long authCodeExpirationMillis;
+
+    private final EmailService mailService;
+    private final TokenService tokenService;
+    private final RedisService redisService;
+    private final DoctorService doctorService;
+    private final HospitalService hospitalService;
+
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 동물병원 로그인 기능.
@@ -75,9 +76,8 @@ public class HospitalComplexService {
      * @param request 로그인 요청 정보
      * @return 로그인 성공 시 병원 정보 및 토큰 반환
      */
-    @Transactional
     public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
-        HospitalInfoResponse hospitalInfo = hospitalService.tryLogin(request);
+        HospitalInfoResponse hospitalInfo = hospitalService.tryHospitalLogin(request);
 
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(hospitalInfo.getId(), hospitalInfo.getName(), RelatedType.HOSPITAL);
 
@@ -90,11 +90,10 @@ public class HospitalComplexService {
      * @return 회원가입 성공 시 병원 정보 반환
      * @throws ApiException 병원이 존재하지 않거나 중복된 계정 또는 라이센스일 경우 예외 발생
      */
-    @Transactional
     public HospitalSignupResponse hospitalSignup(HospitalSignupRequest request) {
         Hospital hospital = hospitalService.findHospitalById(request.getId());
 
-        HospitalSignupResponse response = hospitalService.trySignUp(hospital, request);
+        HospitalSignupResponse response = hospitalService.tryHospitalSignUp(hospital, request);
 
         DoctorRegisterRequest doctorRegisterRequest = new DoctorRegisterRequest(request.getDoctorName());
         doctorService.registerDoctor(hospital, doctorRegisterRequest);
@@ -173,7 +172,6 @@ public class HospitalComplexService {
      * @param request 비밀번호 초기화 요청
      * @throws ApiException 계정과 이메일 정보가 일치하지 않는 경우 예외처리
      */
-    @Transactional
     public void resetPassword(PasswordResetRequest request) {
         final String email = request.getEmail();
         Hospital hospital = hospitalService.findHospitalByAccount(request.getAccount());
