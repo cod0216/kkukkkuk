@@ -54,8 +54,9 @@ public class TokenService {
     private static final int HEADER_BEARER_LENGTH = HEADER_BEARER.length();
 
     /**
-     * 주어진 사용자 id 와 name, 사용자 타입을 기반으로 새로운 액세스 토큰과 리프레시 토큰을 생성합니다.
-     * 생성된 리프레시 토큰은 별도로 저장합니다.
+     * 주어진 사용자 id 와 name, 사용자 타입, UUID 를 기반으로 새로운 액세스 토큰과 리프레시 토큰을 생성합니다.
+     * token pair 는 같은 UUID 를 공유합니다.
+     * 생성된 리프레시 토큰은 Redis 에 저장됩니다.
      *
      * @param userId 사용자 ID
      * @param userName 사용자 Name
@@ -63,14 +64,11 @@ public class TokenService {
      * @return 생성된 JWT 토큰 페어 (액세스 토큰, 리프레시 토큰)
      */
     public JwtTokenPairResponse generateTokens(Integer userId, String userName, RelatedType type) {
-        // 1. UUID를 포함하여 액세스 토큰과 리프레시 토큰 생성
         String tokenUUID = UUID.randomUUID().toString();
 
-        // 2. 같은 UUID 를 공유하는 token pair 생성
         String accessToken = jwtUtility.createAccessToken(userId, userName, type, tokenUUID);
         String refreshToken = jwtUtility.createRefreshToken(userId, userName, type, tokenUUID);
 
-        // 3. 리프레시 토큰 저장
         saveRefreshToken(getTokenKey(userId, type, tokenUUID), refreshToken);
         return new JwtTokenPairResponse(accessToken, refreshToken);
     }
@@ -78,59 +76,57 @@ public class TokenService {
 
     /**
      * 리프레시 토큰으로 액세스 토큰, 리프레시 토큰을 재발급합니다.
-     * 한 번 사용한 리프레시 트큰은 블랙리스트에 등록합니다.
+     * 요청에서 리프레시 토큰의 유효성을 확인 후, 토큰의 유저 정보를 확인해서 새로운 토큰 pair 를 재발급합니다.
+     * 한 번 사용한 리프레시 토큰은 블랙리스트에 등록하여 무효화합니다.
+     *
      * @param request 토큰 재발급 요청
      * @return 새로운 JWT token pair
      */
     public JwtTokenPairResponse refreshAccessToken(HttpServletRequest request) {
-        // 1. 요청에서 리프레시 토큰 확인
         String refreshToken = resolveToken(request);
         if (!jwtUtility.validateToken(refreshToken) || checkBlacklisted(refreshToken, true)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
-        // 2. 토큰에서 유저 정보 확인
         Integer userId = jwtUtility.getUserId(refreshToken);
         RelatedType type = jwtUtility.getUserType(refreshToken);
         String userName = jwtUtility.getUserName(refreshToken);
 
-        // 3. 기존 리프레시 토큰 무효화
         blacklistToken(refreshToken, true);
 
         return generateTokens(userId, userName, type);
     }
 
     /**
-     * 로그아웃 시 해당 액세스 토큰에 맵핑된 리프레시 토큰만 블랙리스트에 추가하고 삭제합니다.
+     * 사용자의 로그아웃 요청을 처리합니다.
+     * 요청에서 토큰의 유효성을 확인 후 해당 사용자의 로그아웃을 처리합니다.
+     * 요청에 사용한 액세스 토큰으로부터 같은 pair 의 리프레시 토큰을 찾고, 블랙리스트에 등록하여 무효화합니다.
+     *
      * @param request 사용자의 요청
      */
     public void logout(HttpServletRequest request) {
-        // 1. 액세스 토큰 확인
         String accessToken = resolveToken(request);
         if (!jwtUtility.validateToken(accessToken) || checkBlacklisted(accessToken, false)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
-        // 2. 액세스 토큰에 맵핑된 리프레시 토큰 찾기
         Integer userId = jwtUtility.getUserId(accessToken);
         RelatedType userType = jwtUtility.getUserType(accessToken);
         String tokenUUID = jwtUtility.getUUID(accessToken);
 
         String storedRefreshToken = redisService.getValues(getTokenKey(userId, userType, tokenUUID));
-
-        // 3. 해당 리프레시 토큰을 블랙리스트에 추가
         blacklistToken(storedRefreshToken, true);
-
-        // 4. 사용한 액세스 토큰도 블랙리스트에 추가
         blacklistToken(accessToken, false);
     }
 
     /**
-     * 사용자의 모든 리프레시 토큰을 블랙리스트에 추가하고 삭제합니다.
+     * 사용자의 모든 기기에서 로그아웃합니다.
+     * 요청에서 토큰의 유효성을 확인 후 해당 사용자의 모든 기기에서 로그아웃을 처리합니다.
+     * 사용자가 사용하던 모든 리프레시 토큰을 블랙리스트에 등록하여 무효화합니다.
+     * 요청에 사용된 액세스 토큰도 블랙리스트에 등록합니다.
      * @param request 사용자의 요청
      */
     public void logoutAll(HttpServletRequest request) {
-        // 1. 액세스 토큰 확인
         String accessToken = resolveToken(request);
         if (!jwtUtility.validateToken(accessToken) || checkBlacklisted(accessToken, false)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
@@ -139,7 +135,6 @@ public class TokenService {
         Integer userId = jwtUtility.getUserId(accessToken);
         RelatedType type = jwtUtility.getUserType(accessToken);
 
-        // 2. 사용자 userID, type 에 해당하는 모든 리프레시 토큰 무효화
         Set<String> refreshTokenKeys = redisService.getKeys(getTokenFormat(userId, type));
 
         refreshTokenKeys.forEach(tokenKey -> {
@@ -147,7 +142,6 @@ public class TokenService {
             blacklistToken(refreshToken, true);
         });
 
-        // 3. 사용한 액세스 토큰도 블랙리스트에 추가
         blacklistToken(accessToken, false);
     }
 
@@ -165,6 +159,7 @@ public class TokenService {
 
     /**
      * 액세스 토큰 또는 리프레시 토큰을 블랙리스트에 추가합니다.
+     * 토큰의 유효시간 만큼만 블랙리스트에 저장합니다.
      * @param token 토큰
      * @param flagRefreshToken 리프레시 토큰 여부 (true: 리프레시, false: 액세스)
      */
@@ -178,6 +173,7 @@ public class TokenService {
      * HTTP 요청에서 토큰을 추출합니다.
      * @param request HTTP 요청
      * @return 추출된 토큰
+     * @throws ApiException 헤더에서 토큰을 추출하지 못하는 경우 예외 발생
      */
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
@@ -188,7 +184,7 @@ public class TokenService {
     }
 
     /**
-     * 리프레시 토큰을 Redis 에 저장합니다.
+     * 리프레시 토큰을 유효시간 만큼 Redis 에 저장합니다.
      */
     private void saveRefreshToken(String key, String refreshToken) {
         redisService.setValues(key, refreshToken, Duration.ofMillis(refreshTokenValidity));

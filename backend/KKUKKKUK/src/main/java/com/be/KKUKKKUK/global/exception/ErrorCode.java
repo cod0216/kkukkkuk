@@ -51,6 +51,7 @@ public enum ErrorCode {
 
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
     DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사에 대한 권한이 없습니다."),
+    DOCTOR_MINIMUM_LIMIT(HttpStatus.CONFLICT, "DOCTOR-003", "의사는 반드시 한 명 이상이어야 합니다."),
 
     WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
     WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "이미 등록된 지갑입니다."),

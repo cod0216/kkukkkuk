@@ -216,6 +216,7 @@ public class HospitalService {
      * @param email 확인할 이메일 주소
      * @throws ApiException 이미 가입한 회원이 있는 경우 예외 발생
      */
+    @Transactional(readOnly = true)
     public void checkEmailAvailable(String email) {
         findHospitalByEmailOptional(email)
                 .orElseThrow(() -> new ApiException(ErrorCode.EMAIL_DUPLICATED));
