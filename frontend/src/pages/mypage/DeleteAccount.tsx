@@ -9,6 +9,7 @@
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-31        sangmuk         최초 생성
+ * 2025-04-01        sangmuk         delete request password 추가
  */
 
 import { useState } from "react"
@@ -28,6 +29,12 @@ function DeleteAccount () {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [password, setPassword] = useState("")
+
+  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value)
+  }
+  
   const dispatch = useDispatch()
   const { goToLogin } = useAppNavigation()
 
@@ -35,16 +42,23 @@ function DeleteAccount () {
     setError(null)
     setIsModalOpen(true)
   }
-  const closeModal = () => setIsModalOpen(false)
-
+  const closeModal = () => {
+    setPassword("")
+    setIsModalOpen(false)
+  }
   /**
    * 회원탈퇴를 진행합니다.
    */
   const handleDeleteAccount = async () => {
+    if (!password) {
+      setError("비밀번호를 입력해주세요.")
+      return
+    }
+
     setLoading(true)
     setError(null)
 
-    const response = await request.delete("/api/hospitals/me")
+    const response = await request.delete("/api/hospitals/me", { password })
 
     if (response.status === ResponseStatus.SUCCESS) {
       dispatch(clearAccessToken())
@@ -71,9 +85,21 @@ function DeleteAccount () {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
-          <div className="bg-white p6 rounded-md shadow-xl max-w-md w-full p-4" onClick={handleContentClick}>
+          <div className="bg-white rounded-md shadow-xl max-w-md w-full p-4" onClick={handleContentClick}>
             <h4 className="text-lg font-bold mb-4">회원탈퇴</h4>
-            <p className="mb-4 text-md">정말 탈퇴하시겠습니까? 이 작업은 돌이킬 수 없습니다.</p>
+            <p className="mb-4 text-md">정말 탈퇴하시겠습니까?</p>
+            <div className="mb-4">
+              <input 
+                type="password"
+                id="password"
+                value={password}
+                onChange={handlePassword}
+                className="w-full px-3 py-2 border border-neutral-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                placeholder="비밀번호"
+                disabled={loading}
+              />
+            </div>
+
             <div className="flex justify-end space-x-2">
               <button
                 type="button"
@@ -87,7 +113,7 @@ function DeleteAccount () {
                 type="button"
                 onClick={handleDeleteAccount}
                 className="px-4 py-2 text-md bg-red-500 text-white rounded-md hover:bg-red-600"
-                disabled={loading}
+                disabled={loading || !password}
               >
                 {loading ? "탈퇴 처리 중.." : "탈퇴하기"}
               </button>
