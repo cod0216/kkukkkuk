@@ -37,7 +37,6 @@ class PetMedicalRecordRepository implements IPetMedicalRecordRepository {
       // TODO: 블록체인에서 특정 기간의 진료 기록 조회
       // TODO: 날짜 범위에 따른 필터링 로직 구현
       await Future.delayed(const Duration(seconds: 1));
-      final records = [];
       return [];
     } catch (e) {
       throw Exception('기간별 진료 기록 조회에 실패했습니다: $e');

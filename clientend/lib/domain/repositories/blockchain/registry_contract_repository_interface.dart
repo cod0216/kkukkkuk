@@ -1,35 +1,14 @@
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 레지스트리 컨트랙트 레포지토리 인터페이스
 ///
 /// 반려동물 DID 레지스트리 컨트랙트와 상호작용하기 위한 메서드를 정의합니다.
 abstract class IRegistryContractRepository {
-  /// 반려동물 목록 조회
-  Future<List<Pet>> getPetList(String address);
-
-  /// 반려동물 등록
-  Future<Pet> registerPet(EthPrivateKey credentials, Pet pet);
-
-  /// 반려동물 정보 수정
-  Future<Pet> updatePet(EthPrivateKey credentials, Pet pet);
-
-  /// 반려동물 삭제
-  Future<bool> deletePet(EthPrivateKey credentials, String petAddress);
-
   /// 반려동물 존재 여부 확인
   Future<bool> petExists(String petAddress);
 
   /// 반려동물 속성 조회
   Future<Map<String, dynamic>> getAllAttributes(String petAddress);
-
-  /// 반려동물 속성 설정
-  Future<String> setAttribute({
-    required Credentials credentials,
-    required String petAddress,
-    required String key,
-    required String value,
-  });
 
   /// 병원 추가 (공유 계약 생성)
   Future<String> addHospitalWithSharing({

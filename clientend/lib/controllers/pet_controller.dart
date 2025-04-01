@@ -30,8 +30,8 @@ class PetController {
   }
 
   /// 반려동물 삭제
-  Future<void> deletePet(int petId) async {
-    await ref.read(petProvider.notifier).deletePet(petId);
+  Future<void> deletePet(String petAddress) async {
+    await ref.read(petProvider.notifier).deletePet(petAddress);
   }
 
   /// 현재 반려동물 정보 설정

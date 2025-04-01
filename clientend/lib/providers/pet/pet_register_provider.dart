@@ -4,10 +4,8 @@ import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/register_pet_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/registry_usecase_providers.dart'
-    as registry_usecase_providers;
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 등록 단계
@@ -205,9 +203,7 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
 final petRegisterProvider =
     StateNotifierProvider<PetRegisterNotifier, PetRegisterState>((ref) {
       final getBreedsUseCase = ref.watch(getBreedsUseCaseProvider);
-      final registerPetUseCase = ref.watch(
-        registry_usecase_providers.registerPetUseCaseProvider,
-      );
+      final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
       final getSpeciesUseCase = ref.watch(getSpeciesUseCaseProvider);
 
       return PetRegisterNotifier(

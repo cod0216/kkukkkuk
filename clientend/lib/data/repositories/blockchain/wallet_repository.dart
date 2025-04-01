@@ -41,11 +41,9 @@ class WalletRepository implements IWalletRepository {
       rethrow;
     }
   }
-  
+
   @override
-  Future<WalletUpdateResponse> updateWallet(
-    WalletUpdateRequest request,
-  ) async {
+  Future<WalletUpdateResponse> updateWallet(WalletUpdateRequest request) async {
     try {
       final response = await _apiClient.put(
         '/api/wallets/me',
@@ -57,7 +55,7 @@ class WalletRepository implements IWalletRepository {
       rethrow;
     }
   }
-  
+
   @override
   Future<WalletDeleteResponse> deleteWallet() async {
     try {

@@ -1,8 +1,8 @@
-import 'package:kkuk_kkuk/domain/repositories/blockchain/registry_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
 class SetPetAttributeUseCase {
-  final IRegistryContractRepository _repository;
+  final IPetRepository _repository;
 
   SetPetAttributeUseCase(this._repository);
 
