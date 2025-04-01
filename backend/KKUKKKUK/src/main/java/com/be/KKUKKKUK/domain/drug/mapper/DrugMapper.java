@@ -24,7 +24,6 @@ import java.util.List;
 public interface DrugMapper {
 
     DrugResponse mapToDrugResponse(Drug drug);
-
     List<DrugResponse> mapDrugToDrugResponse(List<Drug> drugList);
 
 }

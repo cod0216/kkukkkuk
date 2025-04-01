@@ -17,10 +17,12 @@ import java.util.List;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.01          eunchang           최초생성<br>
+ * 25.04.02          eunchang           최초생성<br>
  * <br>
  */
 
 public interface DrugRepository extends JpaRepository<Drug, Integer> {
     List<Drug> findAll();
+    Drug findByNameKrOrNameEn(String kr, String en);
     List<Drug> findByNameKrContainingIgnoreCaseOrNameEnContainingIgnoreCase(String kr, String en);
 }
