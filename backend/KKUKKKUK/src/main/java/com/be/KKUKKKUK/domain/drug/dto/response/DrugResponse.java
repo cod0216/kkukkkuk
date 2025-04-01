@@ -1,5 +1,8 @@
 package com.be.KKUKKKUK.domain.drug.dto.response;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 /**
  * packageName    : com.be.KKUKKKUK.domain.drug.dto.response<br>
@@ -14,6 +17,8 @@ import lombok.Data;
  */
 
 @Data
+@AllArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DrugResponse {
     private Integer id;
     private String nameKr;
