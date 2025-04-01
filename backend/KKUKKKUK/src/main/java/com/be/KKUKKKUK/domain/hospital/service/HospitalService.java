@@ -56,17 +56,23 @@ public class HospitalService {
      */
     @Transactional
     public HospitalSignupResponse trySignUp(Hospital hospital, HospitalSignupRequest request) {
-        // 1. 계정, 라이센스 중복 여부 확인
         checkSignUpAvailable(hospital, request);
 
-        // 2. request -> entity 로 맵핑
         mapRequestToEntity(hospital, request);
 
-        // 3. 계정 등록 처리
         hospital.setFlagCertified(Boolean.TRUE);
 
-        // 4. Response 반환
         return hospitalMapper.mapToSignupResponse(saveHospital(hospital));
+    }
+
+    /**
+     * 회원가입 요청을 entity 로 맵핑시킵니다.
+     * @param hospital entity
+     * @param request 회원가입 요청
+     */
+    private void mapRequestToEntity(Hospital hospital, HospitalSignupRequest request) {
+        hospitalMapper.signupHospitalFromRequest(hospital, request);
+        hospital.setPassword(passwordEncoder.encode(request.getPassword()));
     }
 
     /**
@@ -81,11 +87,20 @@ public class HospitalService {
     public HospitalInfoResponse tryLogin(HospitalLoginRequest request) {
         Hospital hospital = findHospitalByAccount(request.getAccount());
 
-        if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {//TODO 이건 메서드 분리 안하는 이유가 있을까요? 어떤 기준을 가지고 메서드 분리를 하고 안하는지 궁금합니다.
-            throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
-        }
+        checkPasswordMatch(request, hospital);
 
         return hospitalMapper.mapToHospitalInfo(hospital);
+    }
+
+    /**
+     * 로그인 요청에서 비밀번호가 병원 정보와 일치하는지 확인합니다.
+     * @param request 로그인 요청
+     * @param hospital 동물병원 entity 객체
+     */
+    private void checkPasswordMatch(HospitalLoginRequest request, Hospital hospital) {
+        if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {
+            throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
     }
 
 
@@ -118,19 +133,19 @@ public class HospitalService {
 
     /**
      * 동물병원의 정보를 업데이트합니다.
-     * @param id      병원 ID
+     * @param hospitalId      병원 ID
      * @param request 업데이트 요청 정보
      * @return 업데이트된 병원 정보
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
     @Transactional
-    public HospitalInfoResponse updateHospital(Integer id, HospitalUpdateRequest request) { //TODO 변수명 단순 id 보다는 어떤 entity의 id 인지 명확하게 하는건 어떻게 생각하시나요?
-        Hospital hospital = findHospitalById(id);
+    public HospitalInfoResponse updateHospital(Integer hospitalId, HospitalUpdateRequest request) {
+        Hospital hospital = findHospitalById(hospitalId);
 
-        if (!Objects.isNull(request.getDid())) hospital.setDid(request.getDid()); //TODO 이런것도 메서드로 분리하는건 어떻게 생각하시나요
-        if (!Objects.isNull(request.getName())) hospital.setName(request.getName());
-        if (!Objects.isNull(request.getPhoneNumber())) hospital.setPhoneNumber(request.getPhoneNumber());
-        if (!Objects.isNull(request.getPassword())) hospital.setPassword(passwordEncoder.encode(request.getPassword()));
+        hospitalMapper.updateHospitalFromRequest(hospital, request);
+        if(Objects.nonNull(request.getPassword()) && !request.getPassword().isEmpty()){
+            hospital.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
 
         return hospitalMapper.mapToHospitalInfo(saveHospital(hospital));
     }
@@ -254,19 +269,6 @@ public class HospitalService {
         if (Boolean.FALSE.equals(checkAccountAvailable(request.getAccount()))) {
             throw new ApiException(ErrorCode.ACCOUNT_NOT_AVAILABLE);
         }
-    }
-
-    /**
-     * 회원가입 요청을 entity 로 맵핑시킵니다.
-     * @param hospital entity
-     * @param request 회원가입 요청
-     */
-    private void mapRequestToEntity(Hospital hospital, HospitalSignupRequest request) {
-        hospital.setAccount(request.getAccount());
-        hospital.setPassword(passwordEncoder.encode(request.getPassword()));
-        hospital.setDoctorName(request.getDoctorName());
-        hospital.setDid(request.getDid());
-        hospital.setEmail(request.getEmail());
     }
 
     /**

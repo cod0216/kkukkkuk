@@ -74,10 +74,8 @@ public class HospitalComplexService {
      */
     @Transactional
     public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
-        // 1. Hospital 관련 요청은 hospitalService 에게 넘깁니다
         HospitalInfoResponse hospitalInfo = hospitalService.tryLogin(request);
 
-        // 2. Token 관련 요청은 tokenService 에게 넘깁니다.
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(hospitalInfo.getId(), hospitalInfo.getName(), RelatedType.HOSPITAL);
 
         return new HospitalLoginResponse(hospitalInfo, tokenPair);
@@ -91,13 +89,10 @@ public class HospitalComplexService {
      */
     @Transactional
     public HospitalSignupResponse signup(HospitalSignupRequest request) {
-        // 1. ID 로 동물병원을 조회합니다.
         Hospital hospital = hospitalService.findHospitalById(request.getId());
 
-        // 2. 동물병원 관련 요청은 hospitalService 에게 넘깁니다.
         HospitalSignupResponse signupResponse = hospitalService.trySignUp(hospital, request);
 
-        // 3. 의사 관련 요청은 doctorService 에게 넘깁니다.
         DoctorRegisterRequest doctorRegisterRequest = new DoctorRegisterRequest(request.getDoctorName());
         doctorService.registerDoctor(hospital, doctorRegisterRequest);
 
@@ -139,16 +134,11 @@ public class HospitalComplexService {
     @Transactional
     public void sendEmailAuthCode(EmailSendRequest request) {
         String toEmail = request.getEmail();
-        // 1. 이메일 중복체크
         if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(toEmail))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
 
-        // 2. 인증코드 생성
         String authCode = RandomCodeUtility.generateCode(EMAIL_AUTH_CODE_LENGTH);
-
-        // 3. 인증 코드 발송
         mailService.sendVerificationEmail(toEmail, authCode);
 
-        // 4. 인증 번호 Redis에 저장
         redisService.setValues(EMAIL_AUTH_CODE_PREFIX + toEmail,
                 authCode, Duration.ofMillis(authCodeExpirationMillis));
     }
@@ -164,17 +154,13 @@ public class HospitalComplexService {
      */
     @Transactional(readOnly = true)
     public void checkEmailCodeValid(String email, String code) {
-        // 1. 이메일이 유효한지 체크, 중복이면 가입 불가하기 때문에 예외처리
         if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(email))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
 
-        // 2. Redis 에 저장된 인증 코드 조회
         String redisAuthCode = redisService.getValues(EMAIL_AUTH_CODE_PREFIX + email);
         if (Objects.isNull(redisAuthCode)) throw new ApiException(ErrorCode.AUTH_CODE_EXPIRED);
 
-        // 3. 사용자가 입력한 인증 코드와 저장된 인증 코드 비교
         if (!redisAuthCode.equals(code)) throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCHED);
 
-        // 4. 인증 완료한 인증코드 삭제
         redisService.deleteValues(EMAIL_AUTH_CODE_PREFIX + email);
     }
 
@@ -189,20 +175,15 @@ public class HospitalComplexService {
     @Transactional
     public void resetPassword(PasswordResetRequest request) {
         final String email = request.getEmail();
-        // 1. 계정 정보로 병원 entity 찾기
         Hospital hospital = hospitalService.findHospitalByAccount(request.getAccount());
 
-        // 2. 이메일 정보가 일치하지 않는 경우 예외처리
         if(!hospital.getEmail().equals(email)) throw new ApiException(ErrorCode.EMAIL_NOT_MATCHED);
 
-        // 3. 신규 비밀번호 생성
         String newPassword = RandomCodeUtility.generatePassword(PASSWORD_LENGTH);
 
-        // 4. 신규 비밀번호 저장
         hospital.setPassword(passwordEncoder.encode(newPassword));
         hospitalService.saveHospital(hospital);
 
-        // 5. 메일로 임시 비밀번호 발송
         mailService.sendPasswordResetEmail(email, newPassword);
     }
 

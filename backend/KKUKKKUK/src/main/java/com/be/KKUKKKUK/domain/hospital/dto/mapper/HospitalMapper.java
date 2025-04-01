@@ -1,12 +1,14 @@
 package com.be.KKUKKKUK.domain.hospital.dto.mapper;
 
+import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
+import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalDetailInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalMapInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
-import org.mapstruct.Mapper;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -34,5 +36,13 @@ public interface HospitalMapper {
     HospitalDetails mapToHospitalDetails(Hospital hospital);
 
     HospitalDetailInfoResponse mapToHospitalDetailInfoResponse(Hospital hospital);
+
+    @Mapping(target = "password", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateHospitalFromRequest(@MappingTarget Hospital hospital, HospitalUpdateRequest request);
+
+    @Mapping(target = "password", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void signupHospitalFromRequest(@MappingTarget Hospital hospital, HospitalSignupRequest request);
 }
 
