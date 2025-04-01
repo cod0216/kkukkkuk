@@ -32,7 +32,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
 
   // 동물 종류 및 품종 목록
   List<Breed> _speciesList = [];
-  List<String> _breedsList = [];
+  List<Breed> _breedsList = [];
   bool _isLoading = false;
 
   @override
@@ -64,7 +64,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   }
 
   // 품종 목록 로드
-  Future<void> _loadBreeds(String species) async {
+  Future<void> _loadBreeds(int species) async {
     setState(() => _isLoading = true);
     try {
       final breeds = await widget.controller.getBreeds(species);
@@ -86,7 +86,11 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
         _selectedBreed = null;
         _breedsList = [];
       });
-      _loadBreeds(value);
+      // species 매칭 ID
+      final speciesObj = _speciesList.firstWhere(
+        (species) => species.name == value,
+      );
+      _loadBreeds(speciesObj.id);
     }
   }
 
@@ -139,7 +143,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 label: '종류',
                 hint: 'ex) 개, 고양이...',
                 value: _selectedSpecies,
-                items: _speciesList.map((species) => species!.name).toList(),
+                items: _speciesList.map((species) => species.name).toList(),
                 onChanged: _onSpeciesChanged,
               ),
               const SizedBox(height: 16),
@@ -149,7 +153,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 label: '품종',
                 hint: 'ex) 삼, 스핑크스...',
                 value: _selectedBreed,
-                items: _breedsList,
+                items: _breedsList.map((breed) => breed.name).toList(),
                 onChanged: (value) => setState(() => _selectedBreed = value),
                 enabled: _selectedSpecies != null,
               ),

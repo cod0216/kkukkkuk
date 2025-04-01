@@ -1,3 +1,4 @@
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 
 class GetBreedsUseCase {
@@ -5,7 +6,7 @@ class GetBreedsUseCase {
 
   GetBreedsUseCase(this._repository);
 
-  Future<List<String>> execute(int speciesId) async {
+  Future<List<Breed>> execute(int speciesId) async {
     try {
       return await _repository.getBreeds(speciesId);
     } catch (e) {

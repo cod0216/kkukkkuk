@@ -13,15 +13,6 @@ import 'package:web3dart/web3dart.dart';
 class PetRepository implements IPetRepository {
   final ApiClient _apiClient;
 
-  final List<String> _breedsMap = [
-    '골든 리트리버',
-    '말티즈',
-    '시바견',
-    '비숑',
-    '포메라니안',
-    '치와와',
-  ];
-
   PetRepository(this._apiClient);
 
   @override
@@ -151,13 +142,28 @@ class PetRepository implements IPetRepository {
   }
 
   @override
-  Future<List<String>> getBreeds(int? species) async {
+  Future<List<Breed>> getBreeds(int species) async {
     try {
-      // TODO: 서버에서 동물 조회 API 호출 로직 추가
-      await Future.delayed(const Duration(milliseconds: 100));
-      return _breedsMap;
+      // API 호출
+      final response = await _apiClient.get('/api/breeds/$species');
+
+      // 응답 파싱
+      final speciesResponse = BreedsResponse.fromJson(response.data);
+
+      if (speciesResponse.status != 'SUCCESS') {
+        throw Exception('동물 종류 목록 조회 실패: ${speciesResponse.message}');
+      }
+
+      // 목록 추출
+      final List<Breed> speciesList =
+          speciesResponse.data
+              .map((species) => Breed(name: species.name, id: species.id))
+              .toList();
+
+      return speciesList;
     } catch (e) {
-      throw Exception('Failed to get breeds: $e');
+      print('동물 종류 목록 조회 실패: $e');
+      rethrow;
     }
   }
 

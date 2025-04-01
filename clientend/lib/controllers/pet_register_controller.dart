@@ -50,8 +50,8 @@ class PetRegisterController {
   }
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(String species) {
-    return ref.read(petRegisterProvider.notifier).getBreeds(1);
+  Future<List<Breed>> getBreeds(int species) {
+    return ref.read(petRegisterProvider.notifier).getBreeds(species);
   }
 
   /// 반려동물 등록 처리

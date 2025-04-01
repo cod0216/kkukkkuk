@@ -150,7 +150,7 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
   }
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(int speciesId) async {
+  Future<List<Breed>> getBreeds(int speciesId) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
