@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaPaw, FaStethoscope, FaDog, FaCat, FaCalendarAlt, FaTimes } from "react-icons/fa";
 import { Treatment, Gender, TreatmentState } from "@/interfaces/index";
 import { markAppointmentAsCancelled } from "@/services/blockchainAgreementService";
+import { determinePetTypeSync } from "@/services/petTypeService";
 /**
  * @module TreatmentHeader
  * @file TreatmentHeader.tsx
@@ -18,6 +19,7 @@ import { markAppointmentAsCancelled } from "@/services/blockchainAgreementServic
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         선택한 동물 정보 표시 추가
  * 2025-03-31        seonghun         진료취소 버튼 추가, 공유계약 상세정보 추가, 동물별 아이콘 추가
+ * 2025-04-01        assistant        품종 타입 판별 함수를 petTypeService로 이동
  */
 
 /**
@@ -30,61 +32,6 @@ interface TreatmentHeaderProps {
   isFormVisible: boolean;
   onCancelled?: () => void; // 취소 처리 후 콜백
 }
-
-/**
- * 품종명을 기반으로 반려동물 타입(강아지/고양이)을 판별합니다.
- * @param breedName 반려동물 품종명
- * @returns 'dog' | 'cat' | 'unknown'
- */
-const determinePetType = (breedName: string): 'dog' | 'cat' | 'unknown' => {
-  if (!breedName) return 'unknown';
-  
-  const lowerBreed = breedName.toLowerCase();
-  
-  // 강아지 품종 키워드
-  const dogKeywords = [
-    '테리어', '리트리버', '셰퍼드', '푸들', '불독', '시츄', '말티즈', '치와와', '포메라니안', 
-    '진돗개', '보더콜리', '비숑', '닥스훈트', '허스키', '리트리버', '골든', '래브라도', '코기', 
-    '웰시', '저먼', '셰퍼드', '비글', '달마티안', '그레이하운드', '프렌치불독', '요크셔', '퍼그',
-    'terrier', 'retriever', 'shepherd', 'poodle', 'bulldog', 'shih tzu', 'maltese', 'chihuahua',
-    'pomeranian', 'collie', 'bichon', 'dachshund', 'husky', 'golden', 'labrador', 'corgi',
-    'welsh', 'german', 'beagle', 'dalmatian', 'greyhound', 'french', 'yorkshire', 'pug'
-  ];
-  
-  // 고양이 품종 키워드
-  const catKeywords = [
-    '페르시안', '샴', '먼치킨', '러시안블루', '스핑크스', '뱅갈', '브리티시', '스코티시', 
-    '메인쿤', '아비시니안', '버만', '시베리안', '노르웨이', '랙돌', '터키시앙고라', '봄베이',
-    'persian', 'siamese', 'munchkin', 'russian blue', 'sphynx', 'bengal', 'british',
-    'scottish', 'maine coon', 'abyssinian', 'birman', 'siberian', 'norwegian', 'ragdoll',
-    'turkish angora', 'bombay', 'shorthair', '쇼트헤어', 'longhair', '롱헤어'
-  ];
-  
-  // 특정 동물 종류 이름이 포함된 경우 직접 판별
-  if (lowerBreed.includes('강아지') || lowerBreed.includes('개') || lowerBreed.includes('dog')) {
-    return 'dog';
-  }
-  
-  if (lowerBreed.includes('고양이') || lowerBreed.includes('cat')) {
-    return 'cat';
-  }
-  
-  // 품종 키워드로 판별
-  for (const keyword of dogKeywords) {
-    if (lowerBreed.includes(keyword.toLowerCase())) {
-      return 'dog';
-    }
-  }
-  
-  for (const keyword of catKeywords) {
-    if (lowerBreed.includes(keyword.toLowerCase())) {
-      return 'cat';
-    }
-  }
-  
-  // 판별 불가능한 경우
-  return 'unknown';
-};
 
 /**
  * 남은 계약 일수를 계산합니다.
@@ -155,7 +102,7 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({
   onCancelled,
 }) => {
   // 반려동물 타입 판별
-  const petType = treatment ? determinePetType(treatment.breedName) : 'unknown';
+  const petType = treatment ? determinePetTypeSync(treatment.breedName) : 'unknown';
   
   // 공유 계약 정보 확인
   const hasAgreementInfo = treatment && !!treatment.agreementInfo;
@@ -301,17 +248,17 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({
         {/* 오른쪽 버튼 */}
         {isFormVisible && treatment && hasAgreementInfo && (
           <div className="flex flex-col gap-2">
-            {!isCancelled && (
+            {!isCancelled && calculatedState !== TreatmentState.COMPLETED && (
               <button 
                 onClick={onSelected}
                 className="bg-primary-500 hover:bg-primary-700 text-white text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1 transition"
               >
                 <FaStethoscope className="text-white text-xs" />
-                <span>진료 시작</span>
+                <span>{calculatedState === TreatmentState.IN_PROGRESS ? '추가 진료' : '진료 시작'}</span>
               </button>
             )}
             
-            {!isCancelled && (
+            {!isCancelled && calculatedState !== TreatmentState.COMPLETED && (
               <button 
                 onClick={handleRevokeClick}
                 disabled={isRevoking}

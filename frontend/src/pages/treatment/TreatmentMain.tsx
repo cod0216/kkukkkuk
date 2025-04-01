@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import TreatmentHeader from "@/pages/treatment/layout/TreatmentHeader";
-import TreatmentSidebar from "@/pages/treatment/layout/TreatmentSidebar";
+import TreatmentSidebar, { TreatmentSidebarRef } from "@/pages/treatment/layout/TreatmentSidebar";
 import TreatmentForm from "@/pages/treatment/form/TreatmentForm";
-import { getTreatments } from "@/services/treatmentService";
 import { ApiResponse, ResponseStatus } from "@/types";
 import {
   Treatment,
   TreatmentState,
-  TreatmentResponse,
   Doctor,
 } from "@/interfaces";
 import { getDoctors } from "@/services/doctorService";
-import TreatmentHistoryList from "@/pages/treatment/history/TreatmentHistoryList";
+import TreatmentHistoryList, { TreatmentHistoryListRef } from "@/pages/treatment/history/TreatmentHistoryList";
 import { connectWallet } from "@/services/blockchainAuthService";
 
 /**
@@ -35,22 +33,19 @@ import { connectWallet } from "@/services/blockchainAuthService";
  * 진단 페이지의 메인 컴포넌트
  */
 const TreatmentMain: React.FC = () => {
-  const [treatments, setTreatments] = useState<Treatment[]>([]);
+  const [treatments] = useState<Treatment[]>([]);
   const [blockchainPets, setBlockchainPets] = useState<Treatment[]>([]);
-  const [allPets, setAllPets] = useState<Treatment[]>([]);
-  const [selectedPetId, setSelectedPetId] = useState<string>('');
-  const [isFormVisible, setIsFormVisible] = useState(true);
+  const [_allPets, setAllPets] = useState<Treatment[]>([]);
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
+  const [selectedPet, setSelectedPet] = useState<Treatment | null>(null);
+  const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   
-  // 선택된 반려동물 정보
-  const selectedPet = allPets.find(pet => {
-    if (pet.petDid) {
-      return pet.petDid === selectedPetId;
-    } else {
-      return pet.id.toString() === selectedPetId;
-    }
-  });
+  // Sidebar ref 추가
+  const sidebarRef = useRef<TreatmentSidebarRef>(null);
+  // 히스토리 목록 ref 추가
+  const historyListRef = useRef<TreatmentHistoryListRef>(null);
 
   /**
    * 블록체인 네트워크 연결을 시도합니다.
@@ -77,26 +72,6 @@ const TreatmentMain: React.FC = () => {
       const response: ApiResponse<Doctor[]> = await getDoctors();
       if (response.status === ResponseStatus.SUCCESS && response.data) {
         setDoctors(response.data);
-      }
-    };
-    fetchData();
-  }, []);
-
-  /**
-   * 진료중인 동물 목록을 조회합니다.
-   */
-  useEffect(() => {
-    const fetchData = async () => {
-      const response: ApiResponse<TreatmentResponse> = await getTreatments({
-        expired: "",
-        petId: "",
-        state: "",
-      });
-      if (
-        response.status === ResponseStatus.SUCCESS &&
-        response.data?.treatments
-      ) {
-        setTreatments(response.data.treatments);
       }
     };
     fetchData();
@@ -140,13 +115,30 @@ const TreatmentMain: React.FC = () => {
    * 취소 처리가 완료된 후 호출되는 함수입니다.
    */
   const handleCancellationComplete = useCallback(() => {
-    if (!selectedPet?.petDid) return;
-    
-    // 선택된 반려동물 상태를 취소로 변경
-    handlePetStateChanged(selectedPet.petDid, TreatmentState.CANCELLED, true);
-    
-    // 추가 작업이 필요한 경우 여기에 작성
-  }, [selectedPet, handlePetStateChanged]);
+    // 취소된 상태로 설정
+    if (selectedPet) {
+      // 현재 선택된 반려동물이 있으면 상태를 강제로 갱신
+      if (selectedPet.petDid && sidebarRef.current) {
+        // 선택된 반려동물의 상태만 새로고침
+        sidebarRef.current.refreshPetState(selectedPet.petDid);
+        console.log(`진료 취소 완료 후 ${selectedPet.name} 상태 새로고침`);
+      } else {
+        // 전체 목록 새로고침 (fallback)
+        if (sidebarRef.current) {
+          console.log('진료 취소 완료 후 전체 목록 새로고침');
+          sidebarRef.current.fetchPetsData();
+        }
+      }
+      
+      // 의료 기록 목록 새로고침
+      if (historyListRef.current) {
+        setTimeout(() => {
+          historyListRef.current?.refreshRecords();
+          console.log('진료 취소 완료 후 의료 기록 목록 새로고침');
+        }, 1000); // 블록체인 상태 업데이트 시간을 고려해 약간의 지연 추가
+      }
+    }
+  }, [selectedPet]);
 
   /**
    * 동물 상태에 따라 화면에 보여줄 스타일을 반환합니다.
@@ -192,8 +184,30 @@ const TreatmentMain: React.FC = () => {
    * 현재 진료기록의 상태에 따라 필요한 CSS 요소를 반환합니다.
    * @returns {string} state 상태에 따른 CSS 태그
    */
-  const handleSaveTreatment = (): void => {
+  const handleSaveTreatment = (record: any): void => {
+    console.log('진료 기록 저장 완료:', record);
+    
+    // 진료 저장 후 폼 숨기고 기록 목록 표시
     setIsFormVisible(true);
+
+    // 사이드바에서 현재 선택된 반려동물의 상태 새로고침
+    if (selectedPet?.petDid && sidebarRef.current) {
+      // 선택된 반려동물의 상태만 새로고침
+      sidebarRef.current.refreshPetState(selectedPet.petDid);
+      console.log(`진료 저장 완료 후 ${selectedPet.name} 상태 새로고침`);
+    } else if (sidebarRef.current) {
+      // 전체 목록 새로고침 (fallback)
+      console.log('진료 저장 완료 후 전체 목록 새로고침');
+      sidebarRef.current.fetchPetsData();
+    }
+    
+    // 의료 기록 목록 새로고침
+    if (historyListRef.current) {
+      setTimeout(() => {
+        historyListRef.current?.refreshRecords();
+        console.log('진료 저장 완료 후 의료 기록 목록 새로고침');
+      }, 1000); // 블록체인 상태 업데이트 시간을 고려해 약간의 지연 추가
+    }
   };
 
   /**
@@ -202,6 +216,16 @@ const TreatmentMain: React.FC = () => {
   const onSelected = (): void => {
     setIsFormVisible((before) => !before);
   };
+
+  // selectedPetId가 변경될 때 selectedPet 업데이트
+  useEffect(() => {
+    if (selectedPetId) {
+      const pet = blockchainPets.find(pet => pet.petDid === selectedPetId);
+      setSelectedPet(pet || null);
+    } else {
+      setSelectedPet(null);
+    }
+  }, [selectedPetId, blockchainPets]);
 
   // 연결 오류 표시
   if (connectionError) {
@@ -264,21 +288,24 @@ const TreatmentMain: React.FC = () => {
   return (
     <div className="w-full py-5 px-4 mx-auto sm:px-6 lg:px-8 flex">
       {/* 사이드바 */}
-      <TreatmentSidebar
-        treatments={treatments}
-        getStateBadgeColor={getStateBadgeColor}
-        getStateColor={getStateColor}
-        selectedPetId={selectedPetId}
-        setSelectedPetId={setSelectedPetId}
-        onBlockchainPetsLoad={handleBlockchainPetsLoad}
-        onStateChanged={handlePetStateChanged}
-      />
+      <div className="flex">
+        <TreatmentSidebar
+          ref={sidebarRef}
+          treatments={treatments}
+          selectedPetId={selectedPetId || ''}
+          setSelectedPetId={setSelectedPetId}
+          getStateColor={getStateColor}
+          getStateBadgeColor={getStateBadgeColor}
+          onBlockchainPetsLoad={handleBlockchainPetsLoad}
+          onStateChanged={handlePetStateChanged}
+        />
+      </div>
 
       {/* 메인 */}
       <div className="flex flex-1">
         <div className="flex flex-col flex-1">
           <TreatmentHeader
-            treatment={selectedPet}
+            treatment={selectedPet || undefined}
             getStateBadgeColor={getStateBadgeColor}
             isFormVisible={isFormVisible}
             onSelected={onSelected}
@@ -286,7 +313,10 @@ const TreatmentMain: React.FC = () => {
           />
 
           {isFormVisible ? (
-            <TreatmentHistoryList selectedPetDid={selectedPet?.petDid} />
+            <TreatmentHistoryList 
+              ref={historyListRef}
+              selectedPetDid={selectedPet?.petDid} 
+            />
           ) : (
             <TreatmentForm
               doctors={doctors}

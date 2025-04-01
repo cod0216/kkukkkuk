@@ -16,7 +16,7 @@ import { RootState } from '@/redux/store';
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         antd 의존성 제거 및 기본 HTML/CSS로 구현
- * 2025-03-28        seonghun         로그인 토큰에서 병원명 가져오기 추가
+ * 2025-04-01        seonghun         Redux 스토어에서 병원 정보 가져오기
  */
 
 
@@ -33,31 +33,11 @@ interface QRGeneratorProps {
 const QRGenerator: React.FC<QRGeneratorProps> = ({ visible, onClose, hospitalInfo }) => {
   const qrContainerRef = useRef<HTMLDivElement>(null);
   
-  // Redux에서 토큰 가져오기
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  // Redux에서 병원 정보 가져오기
+  const { hospital } = useSelector((state: RootState) => state.auth);
   
-  // 토큰에서 병원명 추출
-  const getHospitalNameFromToken = (token: string) => {
-    try {
-      const payloadBase64 = token.split(".")[1];
-      const decoded = decodeURIComponent(
-        atob(payloadBase64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      const payload = JSON.parse(decoded);
-      return payload.name || hospitalInfo.name;
-    } catch (error) {
-      console.error("토큰 디코딩 실패", error);
-      return hospitalInfo.name;
-    }
-  };
-
-  // 실제 병원명 가져오기 (토큰에서 가져오거나 props로 받은 값 사용)
-  const actualHospitalName = accessToken 
-    ? getHospitalNameFromToken(accessToken) 
-    : hospitalInfo.name;
+  // 실제 병원명 가져오기 (Redux 스토어에서 가져오거나 props로 받은 값 사용)
+  const actualHospitalName = hospital?.name || hospitalInfo.name;
   
   // 병원 DID 형식 생성
   const hospitalDID = `did:hospital:${hospitalInfo.address}`;
