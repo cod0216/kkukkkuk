@@ -84,7 +84,6 @@ public class WalletComplexService {
         return petInfos;
     }
 
-
     /**
      * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
      * 지갑이 없다면 빈 리스트를 반환합니다.
@@ -113,7 +112,6 @@ public class WalletComplexService {
         return walletMapper.mapToWalletInfoResponse(wallet, ownerInfos, petInfos);
     }
 
-
     /**
      * 보호자에게 지갑을 신규 등록합니다.
      * 기존에 등록된 address 가 있다면 기존 지갑과 연결됩니다.
@@ -126,6 +124,7 @@ public class WalletComplexService {
         Owner owner = ownerService.getOwnerById(ownerId);
         Wallet wallet = walletService.getWalletOptionalByWalletAddress(request.getAddress())
                 .orElseGet(() -> walletService.saveWallet(request.toWalletEntity()));
+
         walletOwnerService.connectWalletAndOwner(owner, wallet);
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(wallet.getId());

@@ -3,10 +3,7 @@ package com.be.KKUKKKUK.domain.pet.dto.mapper;
 import com.be.KKUKKKUK.domain.pet.dto.request.PetUpdateRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -31,5 +28,5 @@ public interface PetMapper {
     List<PetInfoResponse> mapToPetInfoList(List<Pet> pets);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updatePetFromRequest(Pet pet, PetUpdateRequest request);
+    void updatePetFromRequest(@MappingTarget Pet pet, PetUpdateRequest request);
 }

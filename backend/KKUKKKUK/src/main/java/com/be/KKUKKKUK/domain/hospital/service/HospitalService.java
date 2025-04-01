@@ -240,7 +240,6 @@ public class HospitalService {
         if (Boolean.TRUE.equals(hospital.getFlagCertified())) {
             throw new ApiException(ErrorCode.HOSPITAL_DUPLICATED);
         }
-        // 사용가능하지 않으면 예외 처리
         if (Boolean.FALSE.equals(checkAccountAvailable(request.getAccount()))) {
             throw new ApiException(ErrorCode.ACCOUNT_NOT_AVAILABLE);
         }
