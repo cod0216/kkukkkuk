@@ -14,6 +14,9 @@ class PetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug print to check the image URL
+    print('Pet card building for: ${pet.name}, imageUrl: ${pet.imageUrl}');
+    
     return GestureDetector(
       onTap: () => onTap(pet),
       child: Container(
@@ -29,26 +32,14 @@ class PetCard extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          // Fix: Replace Column with SizedBox + Stack to avoid flex layout issues
           child: SizedBox(
-            height: 200, // Fixed height for the card
+            height: 200,
             width: double.infinity,
             child: Stack(
               children: [
                 // Pet image (or placeholder)
                 Positioned.fill(
-                  child: Image.network(
-                    pet.imageUrl ?? 'https://via.placeholder.com/150',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: Icon(Icons.pets, size: 64, color: Colors.grey),
-                        ),
-                      );
-                    },
-                  ),
+                  child: _buildPetImage(),
                 ),
                 // Pet info at the bottom
                 Positioned(
@@ -65,6 +56,42 @@ class PetCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPetImage() {
+    // Check if the URL is valid and not empty
+    if (pet.imageUrl != null && pet.imageUrl!.isNotEmpty) {
+      return Image.network(
+        pet.imageUrl!,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded / 
+                    loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading image for ${pet.name}: $error');
+          return _buildPlaceholder();
+        },
+      );
+    } else {
+      return _buildPlaceholder();
+    }
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: Colors.grey.shade200,
+      child: const Center(
+        child: Icon(Icons.pets, size: 64, color: Colors.grey),
       ),
     );
   }

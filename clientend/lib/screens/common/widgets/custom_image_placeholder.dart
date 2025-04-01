@@ -1,9 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class CustomImagePlaceholder extends StatelessWidget {
   final bool hasImage;
+  final File? imageFile;
 
-  const CustomImagePlaceholder({super.key, required this.hasImage});
+  const CustomImagePlaceholder({
+    super.key,
+    required this.hasImage,
+    this.imageFile,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +22,17 @@ class CustomImagePlaceholder extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
       ),
       child:
-          hasImage
+          imageFile != null
+              ? ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  imageFile!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              )
+              : hasImage
               ? const Center(
                 child: Icon(Icons.check_circle, size: 64, color: Colors.green),
               )
