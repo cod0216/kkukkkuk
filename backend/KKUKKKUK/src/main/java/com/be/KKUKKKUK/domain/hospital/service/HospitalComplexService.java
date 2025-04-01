@@ -9,6 +9,7 @@ import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.doctor.dto.request.DoctorRegisterRequest;
 import com.be.KKUKKKUK.domain.doctor.dto.response.DoctorInfoResponse;
 import com.be.KKUKKKUK.domain.doctor.service.DoctorService;
+import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUnsubscribeRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.global.service.EmailService;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -43,6 +45,7 @@ import java.util.*;
  * 25.03.19          haelim           진료기록 관련 api 추가 <br>
  * 25.03.27          haelim           계정 찾기 api 추가 <br>
  * 25.03.28          haelim           진료 기록 관련 api 삭제 <br>
+ * 25.04.04          haelim           동물병원 회원 탈퇴 api 추가 <br>
  */
 @Service
 @Transactional
@@ -196,4 +199,40 @@ public class HospitalComplexService {
         return hospitalService.findHospitalAccount(request);
     }
 
+    /**
+     * 동물병원 회원을 탈퇴합니다.
+     * 비밀번호가 일치하지 않으면 탈퇴할 수 없습니다.
+     * 동물 병원에 가입된 의사 정보는 모두 영구적으로 삭제됩니다.
+     * @param hospitalId 탈퇴할 동물병원 ID
+     * @param request 삭제 요청
+     */
+    public void unSubscribeHospital(Integer hospitalId, HospitalUnsubscribeRequest request) {
+        Hospital hospital = hospitalService.findHospitalById(hospitalId);
+
+        hospitalService.checkPasswordMatch(request.getPassword(), hospital);
+
+        doctorService.deleteDoctorsAllFromHospital(hospitalId);
+
+        resetHospital(hospital);
+
+        hospitalService.saveHospital(hospital);
+    }
+
+    /**
+     * 동물병원 회원 계정을 가입 전으로 초기화합니다.
+     * 초기화된 시점을 기준으로 DeleteDate 가 설정됩니다.
+     * @param hospital 초기화할 동물병원 entity
+     */
+    private void resetHospital(Hospital hospital){
+        hospital.setFlagCertified(false);
+
+        hospital.setAccount(null);
+        hospital.setPassword(null);
+        hospital.setEmail(null);
+        hospital.setDoctorName(null);
+        hospital.setDid(null);
+        hospital.setPublicKey(null);
+
+        hospital.setDeleteDate(LocalDate.now());
+    }
 }

@@ -5,6 +5,7 @@ import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.AccountFindResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
+import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUnsubscribeRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalDetailInfoResponse;
@@ -40,6 +41,7 @@ import java.util.Optional;
  */
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class HospitalService {
     private final HospitalRepository hospitalRepository;
@@ -54,7 +56,6 @@ public class HospitalService {
      * @param request 회원가입 시도 요청
      * @return 회원가입된 병원 정보
      */
-    @Transactional
     public HospitalSignupResponse trySignUp(Hospital hospital, HospitalSignupRequest request) {
         checkSignUpAvailable(hospital, request);
 
@@ -83,22 +84,21 @@ public class HospitalService {
      * @return 로그인된 병원 정보
      * @throws ApiException 비밀번호가 일치하지 않는 경우 예외처리
      */
-    @Transactional
     public HospitalInfoResponse tryLogin(HospitalLoginRequest request) {
         Hospital hospital = findHospitalByAccount(request.getAccount());
 
-        checkPasswordMatch(request, hospital);
+        checkPasswordMatch(request.getPassword(), hospital);
 
         return hospitalMapper.mapToHospitalInfo(hospital);
     }
 
     /**
      * 로그인 요청에서 비밀번호가 병원 정보와 일치하는지 확인합니다.
-     * @param request 로그인 요청
+     * @param requestPassword 로그인 요청
      * @param hospital 동물병원 entity 객체
      */
-    private void checkPasswordMatch(HospitalLoginRequest request, Hospital hospital) {
-        if (!passwordEncoder.matches(request.getPassword(), hospital.getPassword())) {
+    void checkPasswordMatch(String requestPassword, Hospital hospital) {
+        if (!passwordEncoder.matches(requestPassword, hospital.getPassword())) {
             throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
     }
@@ -156,7 +156,6 @@ public class HospitalService {
      * @return 병원 정보
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
-    @Transactional(readOnly = true)
     public HospitalDetailInfoResponse getHospitalDetailInfoById(Integer id) {
         Hospital hospital = findHospitalById(id);
         return hospitalMapper.mapToHospitalDetailInfoResponse(hospital);
@@ -218,7 +217,6 @@ public class HospitalService {
      * @param email 확인할 이메일 주소
      * @return 사용 가능 여부( 사용 가능하면 TRUE, 중복이면 FALSE )
      */
-    @Transactional(readOnly = true)
     public Boolean checkEmailAvailable(String email) {
         return findHospitalByEmailOptional(email).isEmpty();
     }
@@ -250,7 +248,6 @@ public class HospitalService {
      * @param hospital 저장할 entity
      * @return 저장된 entity
      */
-    @Transactional
     public Hospital saveHospital(Hospital hospital){
         return hospitalRepository.save(hospital);
     }
