@@ -98,7 +98,7 @@ public class DrugService {
      * 단어가 포함된 Drug 데이터를 조회힙니다.
      * @param keyword 검색된 단어
      * @return 던어가 포함된 Drug Entity 리스트
-     * @throws ApiException 조회된 데이터가 없는 경우 예외 발생
+     * @throws ApiException 조회된 약품이 없는 경우 예외 발생
      */
     @Transactional(readOnly = true)
     public List<DrugResponse> searchDrugResponses(String keyword) {
@@ -109,6 +109,13 @@ public class DrugService {
     }
 
 
+    /**
+     * 검색한 단어로 약품을 조회입니다.
+     *
+     * @param name 약품 이름
+     * @return 해당 약품 Entity
+     * @throws ApiException 검색한 약품이 없는 경우 예외 발생
+     */
     @Transactional(readOnly = true)
     public DrugResponse getDrug(String name){
         Drug drug = Optional.ofNullable(drugRepository.findByNameKrOrNameEn(name, name))
