@@ -12,9 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,6 +42,7 @@ public class HospitalController {
 
     /**
      * 인허가 번호로 동물병원을 조회합니다.
+     * 인허가 번호는 18자리 숫자로 이루어져 있습니다. ( ^[0-9]{18}$ )
      * @param authorizationNumber 조회할 인허가 번호
      * @return 조회된 병원 정보
      */
@@ -52,7 +51,7 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/authorization-number/{authorizationNumber}")
-    public ResponseEntity<?> getHospitalByAuthorizationNumber(@PathVariable String authorizationNumber) {
+    public ResponseEntity<?> getHospitalByAuthorizationNumber(@PathVariable @Pattern(regexp = "^[0-9]{18}$") String authorizationNumber) {
         return ResponseUtility.success("인허가번호로 조회한 동물병원 정보입니다.", hospitalService.getHospitalByAuthorizationNumber(authorizationNumber));
     }
 
@@ -66,12 +65,13 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/name/{name}")
-    public ResponseEntity<?> getHospitalsByName(@PathVariable String name) {
+    public ResponseEntity<?> getHospitalsByName(@PathVariable @Size(min = 1, max = 30) String name) {
         return ResponseUtility.success("이름으로 조회한 동물병원 정보입니다.", hospitalService.getHospitalListByName(name));
     }
 
     /**
      * 동물병원 계정 사용 가능 여부를 조회합니다.
+     * 계정은 5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다. ( ^[a-z0-9_]{5,10} )
      * @param account 조회할 계정
      * @return 사용 가능 여부 true / false
      */
@@ -80,7 +80,7 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/account/{account}")
-    public ResponseEntity<?> checkAccountAvailable(@PathVariable String account) {
+    public ResponseEntity<?> checkAccountAvailable(@PathVariable @NotBlank @Pattern(regexp = "^[a-z0-9_]{5,10}$") String account) {
         Boolean flagAvailable = hospitalService.checkAccountAvailable(account);
         return ResponseUtility.success( flagAvailable ? "사용 가능한 계정입니다." : "사용할 수 없는 계정입니다.", flagAvailable);
     }
@@ -108,7 +108,8 @@ public class HospitalController {
      */
     @Operation(summary = "내 병원 정보 수정", description = "현재 로그인한 병원의 정보를 수정합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "수정 성공")
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PatchMapping("/me")
     public ResponseEntity<?> updateHospitalInfoMine(@AuthenticationPrincipal HospitalDetails hospitalDetails,
@@ -118,7 +119,7 @@ public class HospitalController {
         return ResponseUtility.success( "동물병원 정보가 성공적으로 수정되었습니다.", hospitalService.updateHospital(hospitalId, request));
     }
 
-    @Operation(summary = "병원 탈퇴", description = "")
+    @Operation(summary = "동물병원 회원 탈퇴", description = "동물 병원 회원이 서비스에서 탈퇴합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "탈퇴 성공")
     })
@@ -132,11 +133,6 @@ public class HospitalController {
     }
 
 
-
-
-
-
-
     /**
      * 새로운 수의사를 동물 병원에 등록합니다.
      * @param hospitalDetails 인증된 병원 계정 정보
@@ -144,7 +140,8 @@ public class HospitalController {
      */
     @Operation(summary = "병원에 수의사 등록", description = "현재 로그인한 병원에 새로운 수의사를 등록합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "등록 성공")
+            @ApiResponse(responseCode = "200", description = "등록 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PostMapping("/me/doctors")
     public ResponseEntity<?> registerDoctorOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails,

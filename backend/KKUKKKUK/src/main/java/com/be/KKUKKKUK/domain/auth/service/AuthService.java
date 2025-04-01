@@ -56,7 +56,7 @@ public class AuthService {
      * @return 동물병원 회원가입 응답 객체
      */
     public HospitalSignupResponse hospitalSignup(HospitalSignupRequest request) {
-        return hospitalComplexService.signup(request);
+        return hospitalComplexService.hospitalSignup(request);
     }
 
     /**
@@ -115,6 +115,6 @@ public class AuthService {
      * @return 사용자의 계정 찾기 응답 객체
      */
     public AccountFindResponse findAccount(AccountFindRequest request) {
-        return hospitalComplexService.findAccount(request);
+        return hospitalComplexService.findHospitalAccount(request);
     }
 }

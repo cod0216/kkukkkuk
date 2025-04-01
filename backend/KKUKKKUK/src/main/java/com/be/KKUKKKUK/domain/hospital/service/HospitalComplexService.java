@@ -91,17 +91,16 @@ public class HospitalComplexService {
      * @throws ApiException 병원이 존재하지 않거나 중복된 계정 또는 라이센스일 경우 예외 발생
      */
     @Transactional
-    public HospitalSignupResponse signup(HospitalSignupRequest request) {
+    public HospitalSignupResponse hospitalSignup(HospitalSignupRequest request) {
         Hospital hospital = hospitalService.findHospitalById(request.getId());
 
-        HospitalSignupResponse signupResponse = hospitalService.trySignUp(hospital, request);
+        HospitalSignupResponse response = hospitalService.trySignUp(hospital, request);
 
         DoctorRegisterRequest doctorRegisterRequest = new DoctorRegisterRequest(request.getDoctorName());
         doctorService.registerDoctor(hospital, doctorRegisterRequest);
 
-        return signupResponse;
+        return response;
     }
-
 
     /**
      * 특정 동물병원에 수의사를 신규 등록합니다.
@@ -110,7 +109,6 @@ public class HospitalComplexService {
      * @param request 등록할 수의사 정보
      * @return 등록된 수의사 정보
      */
-    @Transactional
     public DoctorInfoResponse registerDoctor(Integer hospitalId, DoctorRegisterRequest request) {
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
         return doctorService.registerDoctor(hospital, request);
@@ -126,7 +124,6 @@ public class HospitalComplexService {
         return doctorService.getDoctorsByHospitalId(hospitalId);
     }
 
-
     /**
      * 회원가입 시, 이메일 인증을 위해 인증 코드를 발송합니다.
      * 랜덤 숫자로 이루어진 인증코드를 생성해서, 인증할 이메일로 코드를 발송합니다.
@@ -134,10 +131,9 @@ public class HospitalComplexService {
      * @param request 이메일 전송 요청
      * @throws ApiException 이미 해당 이메일로 가입할 계정이 있는 경우 예외처리
      */
-    @Transactional
     public void sendEmailAuthCode(EmailSendRequest request) {
         String toEmail = request.getEmail();
-        if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(toEmail))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
+        hospitalService.checkEmailAvailable(toEmail);
 
         String authCode = RandomCodeUtility.generateCode(EMAIL_AUTH_CODE_LENGTH);
         mailService.sendVerificationEmail(toEmail, authCode);
@@ -151,18 +147,20 @@ public class HospitalComplexService {
      * 사용자에게 이메일로 전송한 인증코드와 사용자가 입력한 코드를 비교해서 인증 성공 여부를 반환합니다.
      * @param email 인증할 이메일
      * @param code 사용자가 입력한 인증코드
-     * @throws ApiException 이미 해당 이메일로 가입한 계정이 있는 경우 예외처리
      * @throws ApiException 인증 코드가 만료된 경우 예외처리
      * @throws ApiException 인증 코드가 일치하지 않는 경우 예외처리
      */
     @Transactional(readOnly = true)
     public void checkEmailCodeValid(String email, String code) {
-        if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(email))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
+        hospitalService.checkEmailAvailable(email);
 
         String redisAuthCode = redisService.getValues(EMAIL_AUTH_CODE_PREFIX + email);
-        if (Objects.isNull(redisAuthCode)) throw new ApiException(ErrorCode.AUTH_CODE_EXPIRED);
-
-        if (!redisAuthCode.equals(code)) throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCHED);
+        if (Objects.isNull(redisAuthCode)) {
+            throw new ApiException(ErrorCode.AUTH_CODE_EXPIRED);
+        }
+        if (!redisAuthCode.equals(code)) {
+            throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCHED);
+        }
 
         redisService.deleteValues(EMAIL_AUTH_CODE_PREFIX + email);
     }
@@ -180,7 +178,9 @@ public class HospitalComplexService {
         final String email = request.getEmail();
         Hospital hospital = hospitalService.findHospitalByAccount(request.getAccount());
 
-        if(!hospital.getEmail().equals(email)) throw new ApiException(ErrorCode.EMAIL_NOT_MATCHED);
+        if(!hospital.getEmail().equals(email)) {
+            throw new ApiException(ErrorCode.EMAIL_NOT_MATCHED);
+        }
 
         String newPassword = RandomCodeUtility.generatePassword(PASSWORD_LENGTH);
 
@@ -195,7 +195,7 @@ public class HospitalComplexService {
      * @param request 계정 찾기 요청
      * @return 조회된 계정 정보
      */
-    public AccountFindResponse findAccount(AccountFindRequest request) {
+    public AccountFindResponse findHospitalAccount(AccountFindRequest request) {
         return hospitalService.findHospitalAccount(request);
     }
 

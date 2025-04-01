@@ -214,10 +214,11 @@ public class HospitalService {
     /**
      * 해당 이메일로 가입한 동물병원 회원이 있는지 확인합니다.
      * @param email 확인할 이메일 주소
-     * @return 사용 가능 여부( 사용 가능하면 TRUE, 중복이면 FALSE )
+     * @throws ApiException 이미 가입한 회원이 있는 경우 예외 발생
      */
-    public Boolean checkEmailAvailable(String email) {
-        return findHospitalByEmailOptional(email).isEmpty();
+    public void checkEmailAvailable(String email) {
+        findHospitalByEmailOptional(email)
+                .orElseThrow(() -> new ApiException(ErrorCode.EMAIL_DUPLICATED));
     }
 
     
