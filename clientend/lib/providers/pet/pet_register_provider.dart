@@ -62,6 +62,15 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
   ) : super(PetRegisterState());
 
   /// 반려동물 기본 정보 설정
+  /// 이미지 URL 설정
+  void setImageUrl(String imageUrl) {
+    final currentPet = state.pet;
+    if (currentPet == null) return;
+
+    final updatedPet = currentPet.copyWith(imageUrl: imageUrl);
+    state = state.copyWith(pet: updatedPet);
+  }
+
   void setBasicInfo({
     required String name,
     String? species,

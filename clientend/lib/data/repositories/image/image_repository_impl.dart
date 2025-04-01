@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
-import 'package:kkuk_kkuk/data/dtos/image/image_upload_response.dart';
 import 'package:kkuk_kkuk/domain/repositories/image_repository.dart';
 
 /// 이미지 저장소 구현체
@@ -30,15 +29,14 @@ class ImageRepositoryImpl implements ImageRepository {
       );
 
       // 응답 처리
-      if (response.statusCode == 200) {
-        // API 응답이 직접 URL 문자열을 반환하는 경우
-        if (response.data is String) {
-          return response.data;
+      // 서버는 201 상태 코드와 함께 직접 URL을 텍스트로 반환함
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        if (response.data == null) {
+          throw Exception('서버 응답이 없습니다.');
         }
 
-        // API 응답이 JSON 객체인 경우
-        final imageResponse = ImageUploadResponse.fromJson(response.data);
-        return imageResponse.data;
+        // 응답이 직접 URL 문자열인 경우 (text/plain)
+        return response.data.toString();
       } else {
         throw Exception('이미지 업로드 실패: ${response.statusCode}');
       }

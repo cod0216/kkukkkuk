@@ -48,12 +48,25 @@ class ApiClient {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters = const {},
+    Options? options,
   }) {
+    final defaultOptions = Options(
+      contentType: 'multipart/form-data',
+      responseType: ResponseType.plain,
+    );
+
+    final mergedOptions =
+        options?.copyWith(
+          contentType: options.contentType ?? defaultOptions.contentType,
+          responseType: options.responseType ?? defaultOptions.responseType,
+        ) ??
+        defaultOptions;
+
     return _dio.post(
       path,
       data: data,
       queryParameters: queryParameters,
-      options: Options(contentType: 'multipart/form-data'),
+      options: mergedOptions,
     );
   }
 }
