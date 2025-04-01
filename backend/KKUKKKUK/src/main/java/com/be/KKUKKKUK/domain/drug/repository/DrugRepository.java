@@ -9,16 +9,18 @@ import java.util.List;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.drug.repository<br>
- * fileName       : PetRepository.java<br>
+ * fileName       : DrugRepository.java<br>
  * author         : eunchang <br>
- * date           : 2025-03-19<br>
+ * date           : 2025-04-01<br>
  * description    : Drug entity 의 repository 클래스입니다. <br>
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
- * 25.03.19          eunchang           최초생성<br>
+ * 25.04.01          eunchang           최초생성<br>
  * <br>
  */
+
 public interface DrugRepository extends JpaRepository<Drug, Integer> {
     List<Drug> findAll();
+    List<Drug> findByNameKrContainingIgnoreCaseOrNameEnContainingIgnoreCase(String kr, String en);
 }
