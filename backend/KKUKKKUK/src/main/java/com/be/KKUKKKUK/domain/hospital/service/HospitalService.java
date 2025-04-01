@@ -5,7 +5,6 @@ import com.be.KKUKKKUK.domain.auth.dto.request.HospitalLoginRequest;
 import com.be.KKUKKKUK.domain.auth.dto.request.HospitalSignupRequest;
 import com.be.KKUKKKUK.domain.auth.dto.response.AccountFindResponse;
 import com.be.KKUKKKUK.domain.auth.dto.response.HospitalSignupResponse;
-import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUnsubscribeRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalDetailInfoResponse;

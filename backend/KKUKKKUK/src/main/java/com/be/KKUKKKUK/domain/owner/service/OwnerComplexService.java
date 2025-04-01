@@ -91,4 +91,13 @@ public class OwnerComplexService {
         String image = s3Service.uploadImage(ownerId, RelatedType.OWNER, imageFile);
         return new OwnerImageResponse(image);
     }
+
+    /**
+     * 보호자 계정을 탈퇴합니다.
+     * @param ownerId 탈퇴할 보호자 ID
+     */
+    public void unsubscribeOwner(Integer ownerId) {
+        s3Service.deleteImage(ownerId, RelatedType.OWNER);
+        ownerService.deleteOwner(ownerId);
+    }
 }

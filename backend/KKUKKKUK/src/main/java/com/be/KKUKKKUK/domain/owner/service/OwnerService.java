@@ -28,6 +28,7 @@ import java.util.Objects;
  * 25.03.17          haelim           OwnerComplexService 와 계층화<br>
  */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class OwnerService {
     private final OwnerRepository ownerRepository;
@@ -50,7 +51,6 @@ public class OwnerService {
      * @param request 업데이트 요청
      * @return 업데이트된 보호자 정보
      */
-    @Transactional
     public OwnerInfoResponse updateOwnerInfo(Integer ownerId, OwnerUpdateRequest request) {
         Owner owner = getOwnerById(ownerId);
 
@@ -82,7 +82,6 @@ public class OwnerService {
      * @param request 회원가입 요청 정보
      * @return Owner 생성된 Owner 엔티티
      */
-    @Transactional
     public Owner signUpOwner(OwnerLoginRequest request){
         return ownerRepository.save(request.toOwnerEntity());
     }
@@ -96,5 +95,9 @@ public class OwnerService {
     public Owner getOwnerById(Integer ownerId){
         return ownerRepository.findOwnerById(ownerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.OWNER_NOT_FOUND));
+    }
+
+    public void deleteOwner(Integer ownerId) {
+        ownerRepository.deleteById(ownerId);
     }
 }
