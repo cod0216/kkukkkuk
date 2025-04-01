@@ -26,6 +26,7 @@ import { ResponseCode } from "@/types";
  * -----------------------------------------------------------
  * 2025-03-26        eunchang         최초 생성
  * 2025-03-27        eunchang         401 토큰 재발행 및 재요청
+ * 2025-04-01        sangmuk          interceptor axios log 추가(dev  모드일 때에만 log 기록)
  */
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL;
@@ -58,6 +59,13 @@ const apiClient = axios.create({
  */
 apiClient.interceptors.request.use(
   (config) => {
+    if (import.meta.env.DEV) {
+      console.log(
+        `요청: ${config.method?.toUpperCase()} ${config.url}`,
+        config.data ? `\nData: ${JSON.stringify(config.data)}` : ""
+      )
+    }
+
     if (config.url && config.url.includes("/api/auths/refresh")) {
       return config;
     }
@@ -68,7 +76,15 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error: AxiosError) => Promise.reject(error)
+  (error: AxiosError) => {
+    if (import.meta.env.DEV) {
+      console.error(
+        `요청 에러: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+        error
+      )
+    }
+    return Promise.reject(error)
+  }
 );
 
 /**
@@ -138,12 +154,26 @@ async function refreshAccessToken(
  */
 apiClient.interceptors.response.use(
   (response) => {
+    if (import.meta.env.DEV) {
+      console.log(
+        `응답: ${response.config.method?.toUpperCase()} ${response.config.url } - Status ${response.status}`,
+        response.data ? `\nData: ${JSON.stringify(response.data)}` : ""
+      )
+    }
+
     if (response.data) {
       response.data = convertKeysToCamelCase(response.data);
     }
     return response;
   },
   async (error: AxiosError) => {
+    if (import.meta.env.DEV) {
+      console.error(
+        `응답 에러: ${error.config?.method?.toUpperCase()} ${error.config?.url} - Status ${error.response?.status}`,
+        error.response?.data || error.message,
+      )
+    }
+
     const originalRequest = error.config as CustomAxiosRequestConfig;
     if (
       error.response &&
