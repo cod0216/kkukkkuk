@@ -10,13 +10,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -41,7 +41,6 @@ public class HospitalController {
     private final HospitalComplexService hospitalComplexService;
     private final HospitalService hospitalService;
 
-
     /**
      * 인허가 번호로 동물병원을 조회합니다.
      * @param authorizationNumber 조회할 인허가 번호
@@ -52,8 +51,7 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/authorization-number/{authorizationNumber}")
-    public ResponseEntity<?> getHospitalByAuthorizationNumber(
-            @PathVariable String authorizationNumber) {
+    public ResponseEntity<?> getHospitalByAuthorizationNumber(@PathVariable String authorizationNumber) {
         return ResponseUtility.success("인허가번호로 조회한 동물병원 정보입니다.", hospitalService.getHospitalByAuthorizationNumber(authorizationNumber));
     }
 
@@ -67,8 +65,7 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/name/{name}")
-    public ResponseEntity<?> getHospitalsByName(
-            @PathVariable String name) {
+    public ResponseEntity<?> getHospitalsByName(@PathVariable String name) {
         return ResponseUtility.success("이름으로 조회한 동물병원 정보입니다.", hospitalService.getHospitalListByName(name));
     }
 
@@ -113,9 +110,9 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "수정 성공")
     })
     @PatchMapping("/me")
-    public ResponseEntity<?> updateHospitalInfoMine(
-            @AuthenticationPrincipal HospitalDetails hospitalDetails,
-            @Validated @RequestBody HospitalUpdateRequest request) {
+    public ResponseEntity<?> updateHospitalInfoMine(@AuthenticationPrincipal HospitalDetails hospitalDetails,
+                                                    @RequestBody @Valid HospitalUpdateRequest request
+    ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         return ResponseUtility.success( "동물병원 정보가 성공적으로 수정되었습니다.", hospitalService.updateHospital(hospitalId, request));
     }
@@ -130,9 +127,8 @@ public class HospitalController {
             @ApiResponse(responseCode = "200", description = "등록 성공")
     })
     @PostMapping("/me/doctors")
-    public ResponseEntity<?> registerDoctorOnHospital(
-            @AuthenticationPrincipal HospitalDetails hospitalDetails,
-            @RequestBody DoctorRegisterRequest request
+    public ResponseEntity<?> registerDoctorOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails,
+                                                      @RequestBody @Valid DoctorRegisterRequest request
     ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         return ResponseUtility.success("수의사 등록이 정상적으로 완료되었습니다.", hospitalComplexService.registerDoctor(hospitalId, request));
@@ -157,6 +153,7 @@ public class HospitalController {
 
     /**
      * TODO : service 구현 끝내기
+     *
      * 요청된 위치 좌표(xAxis, yAxis) 주변의 동물병원 목록을 조회합니다.
      * @param xAxis 기준 x좌표
      * @param yAxis 기준 y좌표

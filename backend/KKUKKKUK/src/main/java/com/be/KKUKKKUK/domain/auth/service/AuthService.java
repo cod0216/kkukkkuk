@@ -2,13 +2,10 @@ package com.be.KKUKKKUK.domain.auth.service;
 
 import com.be.KKUKKKUK.domain.auth.dto.request.*;
 import com.be.KKUKKKUK.domain.auth.dto.response.*;
-import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerComplexService;
-import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
@@ -49,7 +46,7 @@ public class AuthService {
      * @return 동물병원 로그인 응답 객체
      */
     public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
-        return hospitalComplexService.login(request);
+        return hospitalComplexService.hospitalLogin(request);
     }
 
     /**
@@ -61,7 +58,6 @@ public class AuthService {
     public HospitalSignupResponse hospitalSignup(HospitalSignupRequest request) {
         return hospitalComplexService.signup(request);
     }
-
 
     /**
      * 액세스 토큰을 갱신합니다.

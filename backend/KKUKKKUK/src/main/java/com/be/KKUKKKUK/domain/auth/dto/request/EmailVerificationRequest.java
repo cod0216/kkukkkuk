@@ -3,7 +3,6 @@ package com.be.KKUKKKUK.domain.auth.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -22,12 +21,12 @@ import lombok.ToString;
 @Getter
 @ToString
 public class EmailVerificationRequest {
-    @Schema(description = "이메일 주소", example = "test@example.com")
     @Email
-    @NotBlank(message = "이메일은 필수로 입력해주세요")
+    @NotBlank
+    @Schema(description = "이메일 주소", example = "test@example.com")
     private String email;
 
+    @NotBlank
     @Schema(description = "인증 코드", example = "iu9MWx&nan!D305AzPzY")
-    @NotBlank(message = "필수로 입력해주세요")
     private String code;
 }

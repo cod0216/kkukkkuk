@@ -1,10 +1,8 @@
 package com.be.KKUKKKUK.domain.wallet.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -24,7 +22,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class WalletUpdateRequest {
+public class WalletUpdateRequest {//TODO 각 String 변수들의 길이는 무제한 인가요?, 여기는 null, 빈칸와도 상관이 없는 데이터인가요?
     @Schema(description = "지갑의 암호화된 개인키", example = "exampleprivatekey")
     private String privateKey;
 

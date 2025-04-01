@@ -1,10 +1,7 @@
 package com.be.KKUKKKUK.domain.wallet.dto.response;
 
-import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.wallet.dto<br>

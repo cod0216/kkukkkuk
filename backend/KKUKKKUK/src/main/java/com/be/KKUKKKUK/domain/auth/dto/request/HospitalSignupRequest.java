@@ -27,31 +27,31 @@ import lombok.ToString;
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class HospitalSignupRequest {
-    @Schema(description = "계정", example = "ssafy1234")
     @NotBlank
+    @Schema(description = "계정", example = "ssafy1234")
     @Pattern(regexp = "^[a-z0-9_]{5,10}$", message = "5~10자의 영문 소문자, 숫자, 밑줄(_)만 허용됩니다.")
     private String account;
 
-    @Schema(description = "비밀번호", example = "Apassword1234!")
     @NotBlank
+    @Schema(description = "비밀번호", example = "Apassword1234!")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&])[A-Za-z\\d!@#$%^&]{6,20}$",
             message = "6~20자의 영문 대소문자, 숫자, 특수문자(!@#$%^&) 조합이어야 합니다.")
     private String password;
 
-    @Schema(description = "동물병원 고유 식별번호", example = "1")
     @NotNull
+    @Schema(description = "동물병원 고유 식별번호", example = "1")
     private Integer id;
 
+    //    @NotBlank
     @Schema(description = "동물병원 DID", example = "hospital:0xexemplehospitaldid")
-//    @NotBlank
     private String did;
 
-    @Schema(description = "의사 이름", example = "김닥터")
     @NotBlank
+    @Schema(description = "의사 이름", example = "김닥터")
     private String doctorName;
 
-    @Schema(description = "이메일 주소", example = "test@example.com")
     @Email
-    @NotBlank(message = "이메일은 필수로 입력해주세요")
+    @NotBlank
+    @Schema(description = "이메일 주소", example = "test@example.com")
     private String email;
 }

@@ -86,14 +86,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException I/O 예외
      */
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain ) throws ServletException, IOException {
 
         String uri = request.getRequestURI();
 
         // 1. 허용된 URL에 대해서는 인증 필터 통과
-        if (checkAllowedUrl(uri, request, response)) {
+        if (checkAllowedUrl(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -204,11 +204,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 허용된 URL인지 확인하고, 예외적으로 인증이 필요한 경우 인증을 수행합니다.
      *
      * @param uri 요청된 URI
-     * @param request 요청 객체
-     * @param response 응답 객체
      * @return 허용된 URL이면 true, 인증이 필요하면 false
      */
-    private boolean checkAllowedUrl(String uri, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean checkAllowedUrl(String uri) {
         boolean flagAllowed = Arrays.stream(ALLOWED_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri));
         boolean flagException = Arrays.stream(NOT_ALLOWED_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri));
 

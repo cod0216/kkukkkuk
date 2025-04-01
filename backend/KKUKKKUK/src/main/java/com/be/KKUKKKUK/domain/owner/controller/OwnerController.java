@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,9 @@ public class OwnerController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PatchMapping("/me")
-    public ResponseEntity<?> updateMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails, @RequestBody OwnerUpdateRequest request) {
+    public ResponseEntity<?> updateMyInfo(@AuthenticationPrincipal OwnerDetails ownerDetails,
+                                          @RequestBody @Valid OwnerUpdateRequest request
+    ) {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("계정 정보가 성공적으로 업데이트되었습니다.", ownerService.updateOwnerInfo(ownerId, request));
     }
@@ -79,9 +82,8 @@ public class OwnerController {
             @ApiResponse(responseCode = "500", description = "서버 오류"),
     })
     @PostMapping(path = "/me/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> updateOwnerImage(
-            @AuthenticationPrincipal OwnerDetails ownerDetails,
-            @RequestParam("image") MultipartFile imageFile
+    public ResponseEntity<?> updateOwnerImage(@AuthenticationPrincipal OwnerDetails ownerDetails,
+                                              @RequestParam("image") MultipartFile imageFile
     ){
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("계정 프로필이 성공적으로 업데이트되었습니다.", ownerComplexService.updateOwnerImage(ownerId, imageFile));

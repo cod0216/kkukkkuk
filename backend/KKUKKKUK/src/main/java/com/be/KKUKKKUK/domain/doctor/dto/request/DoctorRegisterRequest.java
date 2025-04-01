@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.doctor.dto.request<br>
@@ -22,11 +21,10 @@ import lombok.ToString;
  */
 
 @Getter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class DoctorRegisterRequest {
-    @Schema(description = "의사 이름", example = "권닥터")
     @NotBlank
+    @Schema(description = "의사 이름", example = "권닥터")
     private String name;
 }

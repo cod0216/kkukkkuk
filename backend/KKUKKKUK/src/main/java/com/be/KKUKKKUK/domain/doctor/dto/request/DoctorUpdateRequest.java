@@ -3,8 +3,6 @@ package com.be.KKUKKKUK.domain.doctor.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 
 /**
@@ -21,10 +19,8 @@ import lombok.ToString;
  */
 
 @Getter
-@ToString
-@NoArgsConstructor
 public class DoctorUpdateRequest {
-    @Schema(description = "의사 이름", example = "권닥터")
     @NotBlank
+    @Schema(description = "의사 이름", example = "권닥터")
     private String name;
 }

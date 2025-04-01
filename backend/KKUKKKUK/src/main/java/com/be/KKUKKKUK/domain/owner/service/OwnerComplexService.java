@@ -41,10 +41,10 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class OwnerComplexService {
+    private final S3Service s3Service;
     private final OwnerService ownerService;
     private final TokenService tokenService;
     private final WalletOwnerService walletOwnerService;
-    private final S3Service s3Service;
 
     /**
      * 특정 보호자(Owner)의 정보를 보호자의 지갑 정보와 함께 조회합니다.
@@ -56,7 +56,6 @@ public class OwnerComplexService {
         OwnerInfoResponse ownerInfo = ownerService.getOwnerInfo(ownerId);
         ownerInfo.setImage(s3Service.getImage(ownerId, RelatedType.OWNER));
         List<WalletShortInfoResponse> walletInfo = walletOwnerService.getWalletShortInfoByOwnerId(ownerId);
-
 
         return new OwnerDetailInfoResponse(ownerInfo, walletInfo);
     }
@@ -92,6 +91,4 @@ public class OwnerComplexService {
         String image = s3Service.uploadImage(ownerId, RelatedType.OWNER, imageFile);
         return new OwnerImageResponse(image);
     }
-
-
 }

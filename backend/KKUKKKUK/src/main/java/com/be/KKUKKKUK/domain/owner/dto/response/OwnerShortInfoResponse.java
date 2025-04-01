@@ -3,8 +3,6 @@ package com.be.KKUKKKUK.domain.owner.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 /**
  * packageName    : com.be.KKUKKKUK.domain.owner.dto<br>
  * fileName       : OwnerShortInfoResponse.java<br>

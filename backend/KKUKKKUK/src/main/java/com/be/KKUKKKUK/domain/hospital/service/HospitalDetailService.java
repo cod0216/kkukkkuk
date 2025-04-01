@@ -8,8 +8,7 @@ import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.hospital.service<br>
@@ -23,15 +22,15 @@ import org.springframework.stereotype.Component;
  * 25.03.13          haerim           최초생성<br>
  * <br>
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class HospitalDetailService implements UserDetailsService {
     private final HospitalRepository hospitalRepository;
     private final HospitalMapper hospitalMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String id) {
-        Hospital hospital = hospitalRepository.findById(Integer.parseInt(id))
+    public UserDetails loadUserByUsername(String hospitalId) {
+        Hospital hospital = hospitalRepository.findById(Integer.parseInt(hospitalId))
                 .orElseThrow(() -> new ApiException(ErrorCode.INVALID_TOKEN));
 
         return hospitalMapper.mapToHospitalDetails(hospital);

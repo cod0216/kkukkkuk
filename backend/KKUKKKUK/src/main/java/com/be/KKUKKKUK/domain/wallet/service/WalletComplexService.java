@@ -8,7 +8,6 @@ import com.be.KKUKKKUK.domain.owner.service.OwnerService;
 import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
-import com.be.KKUKKKUK.domain.pet.service.PetComplexService;
 import com.be.KKUKKKUK.domain.pet.service.PetService;
 import com.be.KKUKKKUK.domain.s3.service.S3Service;
 import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
@@ -41,6 +40,7 @@ import java.util.Objects;
  * 25.03.28          haelim           지갑 여러 개 관리, WalletOwnerService 추가 <br>
  */
 
+// TODO : mapper 설정
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -193,7 +193,6 @@ public class WalletComplexService {
     public void deleteWalletByWalletId(Integer ownerId, Integer walletId) {
         walletOwnerService.disconnectWalletAndOwner(ownerId, walletId);
     }
-
 
 }
 

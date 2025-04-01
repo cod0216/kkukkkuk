@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,7 +47,9 @@ public class DoctorController {
             @ApiResponse(responseCode = "403", description = "접근 권한 없음")
     })
     @GetMapping("/{doctorId}")
-    public ResponseEntity<?> getDoctorById(@AuthenticationPrincipal HospitalDetails hospitalDetails, @PathVariable Integer doctorId) {
+    public ResponseEntity<?> getDoctorById(@AuthenticationPrincipal HospitalDetails hospitalDetails,
+                                           @PathVariable @Min(1) Integer doctorId
+    ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         return ResponseUtility.success("수의사 정보가 성공적으로 조회되었습니다.", doctorService.getDoctorInfoById(hospitalId, doctorId));
     }
@@ -64,8 +68,8 @@ public class DoctorController {
     })
     @PutMapping("/{doctorId}")
     public ResponseEntity<?> updateDoctor(@AuthenticationPrincipal HospitalDetails hospitalDetails,
-                                          @PathVariable Integer doctorId,
-                                          @RequestBody DoctorUpdateRequest request
+                                          @PathVariable @Min(1) Integer doctorId,
+                                          @RequestBody @Valid DoctorUpdateRequest request
     ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         return ResponseUtility.success("수의사 정보가 성공적으로 업데이트되었습니다.", doctorService.updateDoctorOnHospital(hospitalId, doctorId, request));
@@ -84,7 +88,9 @@ public class DoctorController {
             @ApiResponse(responseCode = "403", description = "접근 권한 없음")
     })
     @DeleteMapping("/{doctorId}")
-    public ResponseEntity<?> deleteDoctorOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails, @PathVariable Integer doctorId) {
+    public ResponseEntity<?> deleteDoctorOnHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails,
+                                                    @PathVariable @Min(1) Integer doctorId
+    ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         doctorService.deleteDoctorOnHospital(hospitalId, doctorId);
         return ResponseUtility.emptyResponse("수의사가 정상적으로 삭제되었습니다.");
