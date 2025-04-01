@@ -28,6 +28,8 @@ export interface BlockChainRecord {
   isDeleted: boolean;  // 삭제 여부
   pictures?: string[];  // 첨부 이미지 (base64)
   expireDate?: number;  // 유효기간 만료일 (Unix 타임스탬프)
+  petDid?: string;  // 반려동물 DID 주소
+  previousRecord?: string; // 이전 기록 ID (수정 기능에서 사용)
 }
 
 /**
@@ -120,4 +122,16 @@ export interface VaccinationTreatment {
   type: string; // 접종 종류 
   key?: string; // 키 (내부 식별자)
   value: string; // 차수
+}
+
+/**
+ * 진료 기록 수정 내역 항목
+ * @interface
+ */
+export interface RecordHistoryItem {
+  id: string;
+  timestamp: number;
+  userName: string;
+  action: string;
+  changes: string[];
 }
