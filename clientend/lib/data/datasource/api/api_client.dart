@@ -43,6 +43,19 @@ class ApiClient {
   }) {
     return _dio.delete(path, data: data, queryParameters: queryParameters);
   }
+
+  Future<Response> multipartPost(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters = const {},
+  }) {
+    return _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: Options(contentType: 'multipart/form-data'),
+    );
+  }
 }
 
 final dioProvider = Provider<Dio>((ref) {
