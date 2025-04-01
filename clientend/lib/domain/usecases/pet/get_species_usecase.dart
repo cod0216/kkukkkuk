@@ -1,11 +1,13 @@
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
+
 
 class GetSpeciesUseCase {
   final IPetRepository _repository;
 
   GetSpeciesUseCase(this._repository);
 
-  Future<List<String>> execute() async {
+  Future<List<Breed>> execute() async {
     try {
       return await _repository.getSpecies();
     } catch (e) {

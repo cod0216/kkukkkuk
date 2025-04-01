@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_register_provider.dart';
 
 /// 반려동물 등록 프로세스를 관리하는 컨트롤러
@@ -44,7 +45,7 @@ class PetRegisterController {
   }
 
   /// 동물 종류 목록 조회
-  Future<List<String>> getSpecies() {
+  Future<List<Breed>> getSpecies() {
     return ref.read(petRegisterProvider.notifier).getSpecies();
   }
 

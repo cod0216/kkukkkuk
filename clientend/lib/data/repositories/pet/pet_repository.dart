@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
+import 'package:kkuk_kkuk/data/dtos/pet/breed/breeds_response.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_delete_response.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_list_response.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/pet_registration_response.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:web3dart/web3dart.dart';
 
 class PetRepository implements IPetRepository {
@@ -19,8 +21,6 @@ class PetRepository implements IPetRepository {
     '포메라니안',
     '치와와',
   ];
-
-  final List<String> _tempSpecies = ['강아지', '고양이'];
 
   PetRepository(this._apiClient);
 
@@ -162,13 +162,28 @@ class PetRepository implements IPetRepository {
   }
 
   @override
-  Future<List<String>> getSpecies() async {
+  Future<List<Breed>> getSpecies() async {
     try {
-      // TODO: 서버에서 동물 조회 API 호출 로직 추가
-      await Future.delayed(const Duration(milliseconds: 100));
-      return _tempSpecies;
+      // API 호출
+      final response = await _apiClient.get('/api/breeds');
+
+      // 응답 파싱
+      final speciesResponse = BreedsResponse.fromJson(response.data);
+
+      if (speciesResponse.status != 'SUCCESS') {
+        throw Exception('동물 종류 목록 조회 실패: ${speciesResponse.message}');
+      }
+
+      // 목록 추출
+      final List<Breed> speciesList =
+          speciesResponse.data
+              .map((species) => Breed(name: species.name, id: species.id))
+              .toList();
+
+      return speciesList;
     } catch (e) {
-      throw Exception('Failed to get breeds: $e');
+      print('동물 종류 목록 조회 실패: $e');
+      rethrow;
     }
   }
 }

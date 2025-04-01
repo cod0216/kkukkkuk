@@ -1,4 +1,5 @@
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 레포지토리 인터페이스
@@ -21,5 +22,5 @@ abstract class IPetRepository {
   Future<List<String>> getBreeds(int speciesId);
 
   /// 품종 목록 조회
-  Future<List<String>> getSpecies();
+  Future<List<Breed>> getSpecies();
 }

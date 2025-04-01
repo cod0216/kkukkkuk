@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/pet_register_controller.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_register_provider.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_dropdown_field.dart';
 import 'package:kkuk_kkuk/screens/pet_register/widgets/pet_gender_selector.dart';
@@ -30,7 +31,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   String _selectedGender = 'MALE'; // 기본값 수컷
 
   // 동물 종류 및 품종 목록
-  List<String> _speciesList = [];
+  List<Breed> _speciesList = [];
   List<String> _breedsList = [];
   bool _isLoading = false;
 
@@ -138,7 +139,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 label: '종류',
                 hint: 'ex) 개, 고양이...',
                 value: _selectedSpecies,
-                items: _speciesList,
+                items: _speciesList.map((species) => species!.name).toList(),
                 onChanged: _onSpeciesChanged,
               ),
               const SizedBox(height: 16),

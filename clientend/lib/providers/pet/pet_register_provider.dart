@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
@@ -134,7 +135,7 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
   }
 
   /// 동물 종류 목록 조회
-  Future<List<String>> getSpecies() async {
+  Future<List<Breed>> getSpecies() async {
     try {
       final species = await _getSpeciesUseCase.execute();
       state = state.copyWith(isLoading: false);
