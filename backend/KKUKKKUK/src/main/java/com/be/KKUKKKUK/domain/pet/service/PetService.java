@@ -33,12 +33,12 @@ public class PetService {
     private final PetRepository petRepository;
     private final PetMapper petMapper;
 
-
     /**
      * Repository 에서 특정 지갑에 속한 반려동물 목록을 조회합니다.
      * @param walletId 지갑 ID
      * @return 지갑에 속한 반려동물 목록
      */
+    @Transactional(readOnly = true)
     public List<PetInfoResponse> findPetsByWalletId(Integer walletId) {
         return petMapper.mapToPetInfoList(petRepository.findByWalletId(walletId));
     }
@@ -82,5 +82,4 @@ public class PetService {
     public PetInfoResponse savePetInfo(Pet pet) {
         return petMapper.mapToPetInfoResponse(savePet(pet));
     }
-
 }

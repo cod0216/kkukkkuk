@@ -4,6 +4,10 @@ import com.be.KKUKKKUK.global.enumeration.Gender;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -23,9 +27,12 @@ import java.time.LocalDate;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PetUpdateRequest {
+    @Size(min = 1, max = 255)
     @Schema(description = "반려동물 DID", example = "pet:0xtestpetdid")
     private String did;
 
+    @NotBlank
+    @Size(min = 1, max = 30)
     @Schema(description = "반려동물 이름", example = "권깡통")
     private String name;
 
@@ -35,9 +42,11 @@ public class PetUpdateRequest {
     @Schema(description = "중성화 여부", example = "true")
     private Boolean flagNeutering;
 
+    @Past
     @Schema(description = "반려동물 생년월일 (YYYY-MM-DD)", example = "2023-01-01")
     private LocalDate birth;
 
+    @Min(1)
     @Schema(description = "반려동물 품종의 식별 ID", example = "5")
     private Integer breedId;
 }
