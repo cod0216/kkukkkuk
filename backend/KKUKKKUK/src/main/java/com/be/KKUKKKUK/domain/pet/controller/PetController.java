@@ -93,7 +93,7 @@ public class PetController {
     public ResponseEntity<?> uploadPetImage(
             @AuthenticationPrincipal OwnerDetails ownerDetails,
             @PathVariable Integer petId,
-            @RequestParam MultipartFile imageFile
+            @RequestParam("image") MultipartFile imageFile
     ) {
         return ResponseUtility.success("반려동물 프로필 업로드에 성공했습니다.", petComplexService.updatePetImage(ownerDetails, petId, imageFile));
     }
