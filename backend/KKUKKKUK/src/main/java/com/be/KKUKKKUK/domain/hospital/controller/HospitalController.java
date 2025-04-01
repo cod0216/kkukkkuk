@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.hospital.controller;
 
 import com.be.KKUKKKUK.domain.doctor.dto.request.DoctorRegisterRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
+import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUnsubscribeRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUpdateRequest;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalComplexService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
@@ -117,6 +118,25 @@ public class HospitalController {
         return ResponseUtility.success( "동물병원 정보가 성공적으로 수정되었습니다.", hospitalService.updateHospital(hospitalId, request));
     }
 
+    @Operation(summary = "병원 탈퇴", description = "")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "탈퇴 성공")
+    })
+    @DeleteMapping("/me")
+    public ResponseEntity<?> unsubscribeHospital(@AuthenticationPrincipal HospitalDetails hospitalDetails,
+                                                    @RequestBody @Valid HospitalUnsubscribeRequest request
+    ) {
+        Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
+        hospitalComplexService.unSubscribeHospital(hospitalId, request);
+        return ResponseUtility.emptyResponse( "동물병원 계정이 정상적으로 탈퇴되었습니다.");
+    }
+
+
+
+
+
+
+
     /**
      * 새로운 수의사를 동물 병원에 등록합니다.
      * @param hospitalDetails 인증된 병원 계정 정보
@@ -150,10 +170,8 @@ public class HospitalController {
         return ResponseUtility.success( "동물 병원의 수의사 목록입니다.", hospitalComplexService.getAllDoctorsOnHospital(hospitalId));
     }
 
-
     /**
      * TODO : service 구현 끝내기
-     *
      * 요청된 위치 좌표(xAxis, yAxis) 주변의 동물병원 목록을 조회합니다.
      * @param xAxis 기준 x좌표
      * @param yAxis 기준 y좌표

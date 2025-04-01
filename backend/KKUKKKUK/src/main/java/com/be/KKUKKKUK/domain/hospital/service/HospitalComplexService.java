@@ -9,6 +9,7 @@ import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.doctor.dto.request.DoctorRegisterRequest;
 import com.be.KKUKKKUK.domain.doctor.dto.response.DoctorInfoResponse;
 import com.be.KKUKKKUK.domain.doctor.service.DoctorService;
+import com.be.KKUKKKUK.domain.hospital.dto.request.HospitalUnsubscribeRequest;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import com.be.KKUKKKUK.global.service.EmailService;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -43,6 +45,7 @@ import java.util.*;
  * 25.03.19          haelim           진료기록 관련 api 추가 <br>
  * 25.03.27          haelim           계정 찾기 api 추가 <br>
  * 25.03.28          haelim           진료 기록 관련 api 삭제 <br>
+ * 25.04.04          haelim           동물병원 회원 탈퇴 api 추가 <br>
  */
 @Service
 @Transactional
@@ -74,10 +77,8 @@ public class HospitalComplexService {
      */
     @Transactional
     public HospitalLoginResponse hospitalLogin(HospitalLoginRequest request) {
-        // 1. Hospital 관련 요청은 hospitalService 에게 넘깁니다
         HospitalInfoResponse hospitalInfo = hospitalService.tryLogin(request);
 
-        // 2. Token 관련 요청은 tokenService 에게 넘깁니다.
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(hospitalInfo.getId(), hospitalInfo.getName(), RelatedType.HOSPITAL);
 
         return new HospitalLoginResponse(hospitalInfo, tokenPair);
@@ -91,13 +92,10 @@ public class HospitalComplexService {
      */
     @Transactional
     public HospitalSignupResponse signup(HospitalSignupRequest request) {
-        // 1. ID 로 동물병원을 조회합니다.
         Hospital hospital = hospitalService.findHospitalById(request.getId());
 
-        // 2. 동물병원 관련 요청은 hospitalService 에게 넘깁니다.
         HospitalSignupResponse signupResponse = hospitalService.trySignUp(hospital, request);
 
-        // 3. 의사 관련 요청은 doctorService 에게 넘깁니다.
         DoctorRegisterRequest doctorRegisterRequest = new DoctorRegisterRequest(request.getDoctorName());
         doctorService.registerDoctor(hospital, doctorRegisterRequest);
 
@@ -139,16 +137,11 @@ public class HospitalComplexService {
     @Transactional
     public void sendEmailAuthCode(EmailSendRequest request) {
         String toEmail = request.getEmail();
-        // 1. 이메일 중복체크
         if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(toEmail))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
 
-        // 2. 인증코드 생성
         String authCode = RandomCodeUtility.generateCode(EMAIL_AUTH_CODE_LENGTH);
-
-        // 3. 인증 코드 발송
         mailService.sendVerificationEmail(toEmail, authCode);
 
-        // 4. 인증 번호 Redis에 저장
         redisService.setValues(EMAIL_AUTH_CODE_PREFIX + toEmail,
                 authCode, Duration.ofMillis(authCodeExpirationMillis));
     }
@@ -164,17 +157,13 @@ public class HospitalComplexService {
      */
     @Transactional(readOnly = true)
     public void checkEmailCodeValid(String email, String code) {
-        // 1. 이메일이 유효한지 체크, 중복이면 가입 불가하기 때문에 예외처리
         if(Boolean.FALSE.equals(hospitalService.checkEmailAvailable(email))) throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
 
-        // 2. Redis 에 저장된 인증 코드 조회
         String redisAuthCode = redisService.getValues(EMAIL_AUTH_CODE_PREFIX + email);
         if (Objects.isNull(redisAuthCode)) throw new ApiException(ErrorCode.AUTH_CODE_EXPIRED);
 
-        // 3. 사용자가 입력한 인증 코드와 저장된 인증 코드 비교
         if (!redisAuthCode.equals(code)) throw new ApiException(ErrorCode.AUTH_CODE_NOT_MATCHED);
 
-        // 4. 인증 완료한 인증코드 삭제
         redisService.deleteValues(EMAIL_AUTH_CODE_PREFIX + email);
     }
 
@@ -189,20 +178,15 @@ public class HospitalComplexService {
     @Transactional
     public void resetPassword(PasswordResetRequest request) {
         final String email = request.getEmail();
-        // 1. 계정 정보로 병원 entity 찾기
         Hospital hospital = hospitalService.findHospitalByAccount(request.getAccount());
 
-        // 2. 이메일 정보가 일치하지 않는 경우 예외처리
         if(!hospital.getEmail().equals(email)) throw new ApiException(ErrorCode.EMAIL_NOT_MATCHED);
 
-        // 3. 신규 비밀번호 생성
         String newPassword = RandomCodeUtility.generatePassword(PASSWORD_LENGTH);
 
-        // 4. 신규 비밀번호 저장
         hospital.setPassword(passwordEncoder.encode(newPassword));
         hospitalService.saveHospital(hospital);
 
-        // 5. 메일로 임시 비밀번호 발송
         mailService.sendPasswordResetEmail(email, newPassword);
     }
 
@@ -215,4 +199,40 @@ public class HospitalComplexService {
         return hospitalService.findHospitalAccount(request);
     }
 
+    /**
+     * 동물병원 회원을 탈퇴합니다.
+     * 비밀번호가 일치하지 않으면 탈퇴할 수 없습니다.
+     * 동물 병원에 가입된 의사 정보는 모두 영구적으로 삭제됩니다.
+     * @param hospitalId 탈퇴할 동물병원 ID
+     * @param request 삭제 요청
+     */
+    public void unSubscribeHospital(Integer hospitalId, HospitalUnsubscribeRequest request) {
+        Hospital hospital = hospitalService.findHospitalById(hospitalId);
+
+        hospitalService.checkPasswordMatch(request.getPassword(), hospital);
+
+        doctorService.deleteDoctorsAllFromHospital(hospitalId);
+
+        resetHospital(hospital);
+
+        hospitalService.saveHospital(hospital);
+    }
+
+    /**
+     * 동물병원 회원 계정을 가입 전으로 초기화합니다.
+     * 초기화된 시점을 기준으로 DeleteDate 가 설정됩니다.
+     * @param hospital 초기화할 동물병원 entity
+     */
+    private void resetHospital(Hospital hospital){
+        hospital.setFlagCertified(false);
+
+        hospital.setAccount(null);
+        hospital.setPassword(null);
+        hospital.setEmail(null);
+        hospital.setDoctorName(null);
+        hospital.setDid(null);
+        hospital.setPublicKey(null);
+
+        hospital.setDeleteDate(LocalDate.now());
+    }
 }

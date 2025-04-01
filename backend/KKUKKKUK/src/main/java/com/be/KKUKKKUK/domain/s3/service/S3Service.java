@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.s3.service<br>
@@ -63,6 +64,16 @@ public class S3Service {
                 .orElse(null);
     }
 
-
-
+    /**
+     * 연관된 이미지를 삭제합니다.
+     * @param relativeId 식별자 ID
+     * @param relatedType 연관된 테이블 타입(Owner, Hospital, Pet...)
+     */
+    public void deleteImage(Integer relativeId, RelatedType relatedType) {
+        String s3Image = getImage(relativeId, relatedType);
+        if(Objects.nonNull(s3Image)) {
+            s3Uploader.deleteImage(s3Image);
+        }
+        s3Repository.deleteByRelatedIdAndRelatedType(relativeId, relatedType);
+    }
 }

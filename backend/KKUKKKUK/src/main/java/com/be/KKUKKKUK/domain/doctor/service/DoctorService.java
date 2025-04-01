@@ -30,6 +30,7 @@ import java.util.List;
  */
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class DoctorService {
     private final DoctorRepository doctorRepository;
@@ -37,19 +38,17 @@ public class DoctorService {
 
     /**
      * 특정 동물병원에 수의사를 등록합니다.
-     *
      * @param hospital 조회 요청한 동물병원
      * @param request 등록할 수의사 정보
      * @return 등록 완료된 수의사 정보
      */
-    @Transactional
     public DoctorInfoResponse registerDoctor(Hospital hospital, DoctorRegisterRequest request) {
         return doctorMapper.mapToDoctorInfo(doctorRepository.save(new Doctor(request.getName(), hospital)));
     }
 
     /**
      * 특정 동물병원에 등록된 수의사 전체 목록을 조회합니다.
-     *
+     * 수의사가 속한 동물병원 계정만 의사 정보를 조회할 수 있습니다.
      * @param hospitalId 조회 요청한 동물병원 ID
      * @return 조회된 수의사 정보
      */
@@ -75,7 +74,7 @@ public class DoctorService {
 
     /**
      * 등록된 수의사 정보를 삭제합니다.
-     *
+     * 수의사가 속한 동물병원 계정만 의사 정보를 삭제할 수 있습니다.
      * @param hospitalId 삭제 요청한 동물병원 ID
      * @param doctorId 삭제할 수의사 ID
      */
@@ -90,6 +89,7 @@ public class DoctorService {
 
     /**
      * 등록된 수의사의 정보를 업데이트합니다.
+     * 수의사가 속한 동물병원 계정만 의사 정보를 수정할 수 있습니다.
      *
      * @param hospitalId 수정 요청한 동물병원 ID
      * @param doctorId 수정할 수의사 ID
@@ -98,13 +98,8 @@ public class DoctorService {
      */
     @Transactional
     public DoctorInfoResponse updateDoctorOnHospital(Integer hospitalId, Integer doctorId, DoctorUpdateRequest request) {
-        // 1. 수의사 조회
         Doctor doctor = getDoctorById(doctorId);
-
-        // 2. 권한 체크
         checkPermissionToDoctor(doctor, hospitalId);
-
-        // 3. 수의사 정보 수정
         doctor.setName(request.getName());
 
         return doctorMapper.mapToDoctorInfo(doctorRepository.save(doctor));
@@ -134,4 +129,11 @@ public class DoctorService {
         }
     }
 
+    /**
+     * 특정 동물 병원에 속한 의사 정보를 모두 삭제합니다.
+     * @param hospitalId 동물병원 ID
+     */
+    public void deleteDoctorsAllFromHospital(Integer hospitalId) {
+        doctorRepository.deleteByHospitalId(hospitalId);
+    }
 }

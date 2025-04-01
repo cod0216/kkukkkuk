@@ -42,7 +42,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PostMapping("/owners/kakao/login")
-    public ResponseEntity<?> ownerLogin(@Valid @RequestBody OwnerLoginRequest request) {
+    public ResponseEntity<?> ownerLogin(@RequestBody @Valid OwnerLoginRequest request) {
         return ResponseUtility.success("현재 로그인한 보호자 회원의 토큰 정보입니다.", authService.ownerLogin(request));
     }
 
@@ -54,7 +54,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PostMapping("/hospitals/login")
-    public ResponseEntity<?> hospitalLogin(@Valid @RequestBody HospitalLoginRequest request) {
+    public ResponseEntity<?> hospitalLogin(@RequestBody @Valid HospitalLoginRequest request) {
         return ResponseUtility.success("동물병원 로그인이 완료되었습니다.", authService.hospitalLogin(request));
     }
 
@@ -66,7 +66,7 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "가입할 수 없는 계정 / 이메일 / 병원"),
     })
     @PostMapping("/hospitals/signup")
-    public ResponseEntity<?> hospitalSignup(@Valid @RequestBody HospitalSignupRequest request) {
+    public ResponseEntity<?> hospitalSignup(@RequestBody @Valid HospitalSignupRequest request) {
         return ResponseUtility.success("동물병원 회원가입이 완료되었습니다.", authService.hospitalSignup(request));
     }
 

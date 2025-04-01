@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @Tag(name = "수의사 관리 API", description = "병원에서 수의사 정보를 조회, 수정, 삭제할 수 있는 API입니다.")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/doctors")
