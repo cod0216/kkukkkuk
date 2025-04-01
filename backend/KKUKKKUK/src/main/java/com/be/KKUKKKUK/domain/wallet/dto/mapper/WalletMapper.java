@@ -2,8 +2,11 @@ package com.be.KKUKKKUK.domain.wallet.dto.mapper;
 
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
+import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
+import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
+import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -30,5 +33,8 @@ public interface WalletMapper {
     @Mapping(target = "name", source = "owner.name")
     OwnerShortInfoResponse mapOwnerToOwnerShortInfo(Owner owner);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateWalletFromRequest(@MappingTarget Wallet wallet, WalletUpdateRequest request);
 
+    WalletInfoResponse mapToWalletInfoResponse(Wallet wallet, List<OwnerShortInfoResponse> owners, List<PetInfoResponse> pets);
 }

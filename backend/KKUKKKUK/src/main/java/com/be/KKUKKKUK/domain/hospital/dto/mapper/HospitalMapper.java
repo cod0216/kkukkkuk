@@ -8,9 +8,7 @@ import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalDetailInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.dto.response.HospitalMapInfoResponse;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -40,9 +38,11 @@ public interface HospitalMapper {
     HospitalDetailInfoResponse mapToHospitalDetailInfoResponse(Hospital hospital);
 
     @Mapping(target = "password", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateHospitalFromRequest(@MappingTarget Hospital hospital, HospitalUpdateRequest request);
 
     @Mapping(target = "password", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void signupHospitalFromRequest(@MappingTarget Hospital hospital, HospitalSignupRequest request);
 }
 
