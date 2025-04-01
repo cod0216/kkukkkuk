@@ -18,5 +18,8 @@ abstract class IPetRepository {
   Future<bool> deletePet(EthPrivateKey credentials, int petId);
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(String? species);
+  Future<List<String>> getBreeds(int speciesId);
+
+  /// 품종 목록 조회
+  Future<List<String>> getSpecies();
 }

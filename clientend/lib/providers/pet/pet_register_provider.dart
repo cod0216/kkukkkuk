@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/registry_usecase_providers.dart'
     as registry_usecase_providers;
@@ -52,10 +53,14 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
       const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
 
   final GetBreedsUseCase _getBreedsUseCase;
+  final GetSpeciesUseCase _getSpeciesUseCase;
   final RegisterPetUseCase _registerPetUseCase;
 
-  PetRegisterNotifier(this._getBreedsUseCase, this._registerPetUseCase)
-    : super(PetRegisterState());
+  PetRegisterNotifier(
+    this._getBreedsUseCase,
+    this._registerPetUseCase,
+    this._getSpeciesUseCase,
+  ) : super(PetRegisterState());
 
   /// 반려동물 기본 정보 설정
   void setBasicInfo({
@@ -130,16 +135,25 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
 
   /// 동물 종류 목록 조회
   Future<List<String>> getSpecies() async {
-    // 임시 데이터 (실제로는 API 호출 필요)
-    return ['강아지', '고양이'];
+    try {
+      final species = await _getSpeciesUseCase.execute();
+      state = state.copyWith(isLoading: false);
+      return species;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: '품종 목록을 불러오는데 실패했습니다: ${e.toString()}',
+      );
+      return [];
+    }
   }
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(String species) async {
+  Future<List<String>> getBreeds(int speciesId) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final breeds = await _getBreedsUseCase.execute(species);
+      final breeds = await _getBreedsUseCase.execute(speciesId);
       state = state.copyWith(isLoading: false);
       return breeds;
     } catch (e) {
@@ -193,6 +207,11 @@ final petRegisterProvider =
       final registerPetUseCase = ref.watch(
         registry_usecase_providers.registerPetUseCaseProvider,
       );
+      final getSpeciesUseCase = ref.watch(getSpeciesUseCaseProvider);
 
-      return PetRegisterNotifier(getBreedsUseCase, registerPetUseCase);
+      return PetRegisterNotifier(
+        getBreedsUseCase,
+        registerPetUseCase,
+        getSpeciesUseCase,
+      );
     });

@@ -11,10 +11,14 @@ import 'package:web3dart/web3dart.dart';
 class PetRepository implements IPetRepository {
   final ApiClient _apiClient;
 
-  final Map<String, List<String>> _breedsMap = {
-    '강아지': ['골든 리트리버', '말티즈', '시바견', '비숑', '포메라니안', '치와와'],
-    '고양이': ['페르시안', '샴', '러시안 블루', '스코티시 폴드', '뱅갈', '아비시니안'],
-  };
+  final List<String> _breedsMap = [
+    '골든 리트리버',
+    '말티즈',
+    '시바견',
+    '비숑',
+    '포메라니안',
+    '치와와',
+  ];
 
   final List<String> _tempSpecies = ['강아지', '고양이'];
 
@@ -147,11 +151,22 @@ class PetRepository implements IPetRepository {
   }
 
   @override
-  Future<List<String>> getBreeds(String? species) async {
+  Future<List<String>> getBreeds(int? species) async {
     try {
       // TODO: 서버에서 동물 조회 API 호출 로직 추가
       await Future.delayed(const Duration(milliseconds: 100));
-      return _breedsMap[species] ?? _tempSpecies;
+      return _breedsMap;
+    } catch (e) {
+      throw Exception('Failed to get breeds: $e');
+    }
+  }
+
+  @override
+  Future<List<String>> getSpecies() async {
+    try {
+      // TODO: 서버에서 동물 조회 API 호출 로직 추가
+      await Future.delayed(const Duration(milliseconds: 100));
+      return _tempSpecies;
     } catch (e) {
       throw Exception('Failed to get breeds: $e');
     }
