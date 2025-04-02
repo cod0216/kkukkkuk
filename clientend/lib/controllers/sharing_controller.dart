@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/models/sharing_state.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/grant_hospital_access_usecase.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
 import 'package:kkuk_kkuk/data/datasource/contracts/registry_contract.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/breed/breeds_response.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:web3dart/web3dart.dart';
@@ -90,12 +90,10 @@ class PetRepository implements IPetRepository {
             breedName: breedName,
             birth: birth,
             flagNeutering: flagNeutering,
-            age: age,
             // 이미지 URL은 별도 저장 필요
             imageUrl: '',
             // 종류는 품종명에서 유추 가능하나 정확한 정보는 별도 저장 필요
             species: '',
-            breedId: '',
           );
 
           pets.add(pet);

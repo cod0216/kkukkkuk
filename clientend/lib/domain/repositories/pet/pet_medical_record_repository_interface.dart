@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
 
 abstract class IPetMedicalRecordRepository {
   Future<List<PetMedicalRecord>> getMedicalRecords(int petId);

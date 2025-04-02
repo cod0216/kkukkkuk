@@ -7,7 +7,7 @@ import 'package:kkuk_kkuk/screens/qr_scanner/views/qr_scanner_view.dart';
 import 'package:kkuk_kkuk/screens/qr_scanner/views/hospital_qr_result_view.dart';
 import 'package:kkuk_kkuk/screens/qr_scanner/views/pet_selection_view.dart';
 import 'package:kkuk_kkuk/screens/qr_scanner/views/sharing_result_view.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 
 final List<RouteBase> qrScannerRoutes = [
   GoRoute(

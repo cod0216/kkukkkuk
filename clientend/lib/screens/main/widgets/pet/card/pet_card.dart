@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_info.dart';
 
 class PetCard extends StatelessWidget {
   final Pet pet;
   final Function(Pet) onTap;
 
-  const PetCard({
-    super.key,
-    required this.pet,
-    required this.onTap,
-  });
+  const PetCard({super.key, required this.pet, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     // Debug print to check the image URL
     print('Pet card building for: ${pet.name}, imageUrl: ${pet.imageUrl}');
-    
+
     return GestureDetector(
       onTap: () => onTap(pet),
       child: Container(
@@ -38,9 +34,7 @@ class PetCard extends StatelessWidget {
             child: Stack(
               children: [
                 // Pet image (or placeholder)
-                Positioned.fill(
-                  child: _buildPetImage(),
-                ),
+                Positioned.fill(child: _buildPetImage()),
                 // Pet info at the bottom
                 Positioned(
                   bottom: 0,
@@ -48,7 +42,7 @@ class PetCard extends StatelessWidget {
                   right: 0,
                   child: PetCardInfo(
                     name: pet.name,
-                    age: pet.age,
+                    age: pet.age?.toString() ?? '0',
                     breed: pet.breedName.isNotEmpty ? pet.breedName : '믹스',
                   ),
                 ),
@@ -70,10 +64,11 @@ class PetCard extends StatelessWidget {
           if (loadingProgress == null) return child;
           return Center(
             child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / 
-                    loadingProgress.expectedTotalBytes!
-                  : null,
+              value:
+                  loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
             ),
           );
         },

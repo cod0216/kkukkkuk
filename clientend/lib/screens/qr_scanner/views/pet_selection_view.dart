@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_provider.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card.dart';
@@ -49,42 +49,40 @@ class _PetSelectionViewState extends ConsumerState<PetSelectionView> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('반려동물 선택')),
-      body: petState.isLoading
-          ? const LoadingIndicator(message: '반려동물 목록을 불러오는 중입니다')
-          : petState.error != null
+      body:
+          petState.isLoading
+              ? const LoadingIndicator(message: '반려동물 목록을 불러오는 중입니다')
+              : petState.error != null
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('오류: ${petState.error}'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          _isInitialized = false;
-                          _loadPets();
-                        },
-                        child: const Text('다시 시도'),
-                      ),
-                    ],
-                  ),
-                )
-              : petState.pets.isEmpty
-                  ? const Center(child: Text('등록된 반려동물이 없습니다.'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: petState.pets.length,
-                      itemBuilder: (context, index) {
-                        final pet = petState.pets[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          // Fix: Update the onTap callback to match the expected signature
-                          child: PetCard(
-                            pet: pet,
-                            onTap: _selectPet,
-                          ),
-                        );
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('오류: ${petState.error}'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _isInitialized = false;
+                        _loadPets();
                       },
+                      child: const Text('다시 시도'),
                     ),
+                  ],
+                ),
+              )
+              : petState.pets.isEmpty
+              ? const Center(child: Text('등록된 반려동물이 없습니다.'))
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: petState.pets.length,
+                itemBuilder: (context, index) {
+                  final pet = petState.pets[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    // Fix: Update the onTap callback to match the expected signature
+                    child: PetCard(pet: pet, onTap: _selectPet),
+                  );
+                },
+              ),
     );
   }
 }

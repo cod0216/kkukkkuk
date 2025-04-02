@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_by_date_range_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/pet_medical_record_usecase_providers.dart';

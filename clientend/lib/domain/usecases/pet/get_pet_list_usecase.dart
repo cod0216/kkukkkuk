@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 
 /// 반려동물 목록 조회 UseCase

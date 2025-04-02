@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:web3dart/web3dart.dart';
 

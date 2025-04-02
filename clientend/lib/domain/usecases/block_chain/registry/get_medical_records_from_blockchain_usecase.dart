@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:kkuk_kkuk/domain/entities/pet_medical_record.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
 import 'package:kkuk_kkuk/domain/repositories/blockchain/registry_contract_repository_interface.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스

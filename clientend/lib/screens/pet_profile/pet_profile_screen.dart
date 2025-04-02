@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/medical_record_query_controller.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/get_medical_records_from_blockchain_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/registry_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_medical_record_provider.dart';
@@ -59,7 +59,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
     });
     // 기존 DB에서 진료 기록 조회
     Future.microtask(() async {
-      await _controller.getAllRecords(widget.pet.id ?? 1);
+      // await _controller.getAllRecords(1);
 
       // DB 조회 후 블록체인 데이터 조회
       if (widget.pet.did != null && widget.pet.did!.isNotEmpty) {

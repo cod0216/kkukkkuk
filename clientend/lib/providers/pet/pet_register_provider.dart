@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
@@ -82,22 +82,20 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
     final currentPet =
         state.pet ??
         Pet(
+          flagNeutering: false,
           name: '',
           gender: '',
-          breedId: '',
           breedName: '',
-          age: '',
           species: '',
         );
 
     final updatedPet = currentPet.copyWith(
       name: name,
-      species: species,
-      breedId: breed,
-      breedName: breed,
-      age: age != null ? '$age세' : null,
-      gender: gender,
-      flagNeutering: flagNeutering,
+      species: species ?? currentPet.species,
+      breedName: breed ?? currentPet.breedName,
+      age: age,
+      gender: gender ?? currentPet.gender,
+      flagNeutering: flagNeutering ?? currentPet.flagNeutering,
     );
 
     state = state.copyWith(pet: updatedPet);
