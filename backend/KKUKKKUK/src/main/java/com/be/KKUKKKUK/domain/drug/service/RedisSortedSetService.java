@@ -23,7 +23,7 @@ import java.util.Set;
 public class RedisSortedSetService {
     private final RedisTemplate<String, String> redisTemplate;
     private String key = "autocorrect";
-    private int score = 0;
+    private int score = 0; //TODO score 가 뭔지 잘 모르겠습니다.
 
 
     /**
@@ -52,6 +52,6 @@ public class RedisSortedSetService {
      * @return 키워드로 시작하는 단어 최대 200개 반환
      */
     public Set<String> findAllValuesAfterIndexFromSortedSet(Long index) {
-        return redisTemplate.opsForZSet().range(key, index, index + 200);
+        return redisTemplate.opsForZSet().range(key, index, index + 200); //TODO 200 이라는 값도 상수로 관리하는 건 어떨까요?
     }
 }

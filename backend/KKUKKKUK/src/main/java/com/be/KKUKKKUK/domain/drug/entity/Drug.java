@@ -26,7 +26,7 @@ public class Drug {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name_kr")
+    @Column(name = "name_kr") //TODO  해당 칼럼에 대한 조건은 없나요?
     private String nameKr;
 
     @Column(name = "name_en")

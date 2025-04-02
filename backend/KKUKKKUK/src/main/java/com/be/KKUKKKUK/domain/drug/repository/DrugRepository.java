@@ -22,7 +22,7 @@ import java.util.List;
  */
 
 public interface DrugRepository extends JpaRepository<Drug, Integer> {
-    List<Drug> findAll();
-    Drug findByNameKrOrNameEn(String kr, String en);
+    List<Drug> findAll(); //TODO 이미 JpaRepository 에서 정의가 되어 있는데 여기에 다시 정의한 이유가 있을까요?
+    Drug findByNameKrOrNameEn(String kr, String en); //TODO 만약 Drug 가 null 이면 어떤식으로 대처 할건가요?
     List<Drug> findByNameKrContainingIgnoreCaseOrNameEnContainingIgnoreCase(String kr, String en);
 }
