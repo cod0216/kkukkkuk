@@ -323,6 +323,38 @@ class PetRepository implements IPetRepository {
       throw Exception('반려동물 속성 설정에 실패했습니다: $e');
     }
   }
+
+  @override
+  Future<String> addHospitalWithSharing({
+    required Credentials credentials,
+    required String petAddress,
+    required String hospitalAddress,
+    required String scope,
+    required int sharingPeriod,
+  }) async {
+    try {
+      return await _registryContract.addHospitalWithSharing(
+        credentials: credentials,
+        petAddress: petAddress,
+        hospitalAddress: hospitalAddress,
+        scope: scope,
+        sharingPeriod: sharingPeriod,
+      );
+    } catch (e) {
+      print('병원 추가 및 공유 계약 생성 오류: $e');
+      throw Exception('병원 추가 및 공유 계약 생성에 실패했습니다: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getAllAttributes(String petAddress) async {
+    try {
+      return await _registryContract.getAllAttributes(petAddress);
+    } catch (e) {
+      print('반려동물 속성 조회 오류: $e');
+      throw Exception('반려동물 속성 조회에 실패했습니다: $e');
+    }
+  }
 }
 
 final petRepositoryProvider = Provider<PetRepository>((ref) {

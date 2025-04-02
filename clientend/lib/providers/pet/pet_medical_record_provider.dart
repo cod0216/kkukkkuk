@@ -1,8 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/get_medical_records_by_date_range_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/pet_medical_record_usecase_providers.dart';
 
 /// 진료 기록 조회 상태 관리 클래스
 class MedicalRecordQueryState {
@@ -41,39 +38,11 @@ class MedicalRecordQueryState {
 /// 진료 기록 조회 상태 관리 노티파이어
 class MedicalRecordQueryNotifier
     extends StateNotifier<MedicalRecordQueryState> {
-  final GetMedicalRecordsUseCase _getMedicalRecordsUseCase;
-  final GetMedicalRecordsByDateRangeUseCase
-  _getMedicalRecordsByDateRangeUseCase;
-
-  MedicalRecordQueryNotifier(
-    this._getMedicalRecordsUseCase,
-    this._getMedicalRecordsByDateRangeUseCase,
-  ) : super(MedicalRecordQueryState());
+  MedicalRecordQueryNotifier() : super(MedicalRecordQueryState());
 
   /// 진료 기록 상태 초기화
   void clearRecords() {
     state = MedicalRecordQueryState();
-  }
-
-  /// 전체 진료 기록 조회
-  Future<void> getMedicalRecords(int petId) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final records = await _getMedicalRecordsUseCase.execute(petId);
-      // Keep existing blockchain records when updating from API
-      final allRecords = [...state.records, ...records];
-      state = state.copyWith(
-        records: allRecords,
-        isLoading: false,
-        lastQueryDate: DateTime.now(),
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '진료 기록을 불러오는데 실패했습니다: $e',
-      );
-    }
   }
 
   /// 블록체인에서 조회한 진료 기록 추가
@@ -118,17 +87,9 @@ class MedicalRecordQueryNotifier
 }
 
 /// 진료 기록 조회 프로바이더
-final medicalRecordQueryProvider = StateNotifierProvider<
-  MedicalRecordQueryNotifier,
-  MedicalRecordQueryState
->((ref) {
-  final getMedicalRecordsUseCase = ref.watch(getMedicalRecordsUseCaseProvider);
-  final getMedicalRecordsByDateRangeUseCase = ref.watch(
-    getMedicalRecordsByDateRangeUseCaseProvider,
-  );
-
-  return MedicalRecordQueryNotifier(
-    getMedicalRecordsUseCase,
-    getMedicalRecordsByDateRangeUseCase,
-  );
-});
+final medicalRecordQueryProvider =
+    StateNotifierProvider<MedicalRecordQueryNotifier, MedicalRecordQueryState>((
+      ref,
+    ) {
+      return MedicalRecordQueryNotifier();
+    });

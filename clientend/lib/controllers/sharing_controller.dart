@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/models/sharing_state.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/grant_hospital_access_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet_medical_record/pet_medical_record_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/add_hospital_with_sharing_usecase.dart';
 
 final sharingProvider = StateNotifierProvider<SharingController, SharingState>(
   (ref) => SharingController(ref.read(grantHospitalAccessUseCaseProvider)),
 );
 
 class SharingController extends StateNotifier<SharingState> {
-  final GrantHospitalAccessUseCase _grantHospitalAccessUseCase;
+  final AddHospitalWithSharingUseCase _grantHospitalAccessUseCase;
 
   SharingController(this._grantHospitalAccessUseCase)
     : super(SharingState.initial());

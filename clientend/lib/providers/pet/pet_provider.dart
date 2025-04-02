@@ -3,8 +3,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet/update_pet_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/pet/delete_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -46,15 +44,9 @@ class PetNotifier extends StateNotifier<PetState> {
       const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
   final GetPetListUseCase _getPetListUseCase;
   final RegisterPetUseCase _registerPetUseCase;
-  final UpdatePetUseCase _updatePetUseCase;
-  final DeletePetUseCase _deletePetUseCase;
 
-  PetNotifier(
-    this._getPetListUseCase,
-    this._registerPetUseCase,
-    this._updatePetUseCase,
-    this._deletePetUseCase,
-  ) : super(PetState());
+  PetNotifier(this._getPetListUseCase, this._registerPetUseCase)
+    : super(PetState());
 
   /// 반려동물 목록 조회
   Future<void> getPetList() async {
@@ -104,27 +96,6 @@ class PetNotifier extends StateNotifier<PetState> {
     }
   }
 
-  /// 반려동물 정보 수정
-  Future<void> updatePet(Pet pet) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      // TODO: 반려동물 정보 수정 로직 구현
-      Exception('updatePet is Not implemented');
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '반려동물 정보 수정에 실패했습니다: ${e.toString()}',
-      );
-    }
-  }
-
-  /// 반려동물 삭제
-  Future<void> deletePet(String petAddress) async {
-    //TODO: 반려동물 삭제 로직 구현
-    Exception('deletePet is Not implemented');
-  }
-
   /// 현재 반려동물 정보 설정
   void setCurrentPet({
     required String name,
@@ -161,13 +132,6 @@ class PetNotifier extends StateNotifier<PetState> {
 final petProvider = StateNotifierProvider<PetNotifier, PetState>((ref) {
   final getPetListUseCase = ref.watch(getPetListUseCaseProvider);
   final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
-  final updatePetUseCase = ref.watch(updatePetUseCaseProvider);
-  final deletePetUseCase = ref.watch(deletePetUseCaseProvider);
 
-  return PetNotifier(
-    getPetListUseCase,
-    registerPetUseCase,
-    updatePetUseCase,
-    deletePetUseCase,
-  );
+  return PetNotifier(getPetListUseCase, registerPetUseCase);
 });

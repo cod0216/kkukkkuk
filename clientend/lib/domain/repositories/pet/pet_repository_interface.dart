@@ -24,11 +24,23 @@ abstract class IPetRepository {
   /// 반려동물 삭제
   Future<bool> deletePet(EthPrivateKey credentials, String petAddress);
 
+  /// 반려동물 속성 조회
+  Future<Map<String, dynamic>> getAllAttributes(String petAddress);
+
   /// 반려동물 속성 설정
   Future<String> setAttribute({
     required Credentials credentials,
     required String petAddress,
     required String key,
     required String value,
+  });
+
+  /// 병원 추가 (공유 계약 생성)
+  Future<String> addHospitalWithSharing({
+    required Credentials credentials,
+    required String petAddress,
+    required String hospitalAddress,
+    required String scope,
+    required int sharingPeriod,
   });
 }

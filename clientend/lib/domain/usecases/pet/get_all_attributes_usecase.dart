@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
-import 'package:kkuk_kkuk/domain/repositories/blockchain/registry_contract_repository_interface.dart';
+import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스
 ///
 /// 반려동물 주소를 입력받아 블록체인에 저장된 진료 기록을 조회합니다.
-class GetMedicalRecordsFromBlockchainUseCase {
-  final IRegistryContractRepository _repository;
+class GetAllAtributesUseCase {
+  final IPetRepository _repository;
 
-  GetMedicalRecordsFromBlockchainUseCase(this._repository);
+  GetAllAtributesUseCase(this._repository);
 
   /// 블록체인에서 반려동물 진료 기록을 조회합니다.
   ///
