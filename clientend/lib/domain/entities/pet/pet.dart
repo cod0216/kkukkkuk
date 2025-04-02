@@ -10,7 +10,7 @@ abstract class Pet with _$Pet {
     required String gender, // 성별
     required String species, // 종
     required String breedName, // 품종
-    DateTime? birth, // 생일
+    DateTime? birth, // 생일 'yyyy-MM-dd'
     int? age, // 나이 (생일 date 에서 계산)
     required bool flagNeutering, // 중성화 여부
     String? imageUrl, // 이미지 URL

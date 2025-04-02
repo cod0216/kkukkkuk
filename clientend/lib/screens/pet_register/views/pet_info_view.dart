@@ -23,7 +23,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   // 폼 및 입력 컨트롤러
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _ageController = TextEditingController();
+  DateTime? _selectedBirthDate;
 
   // 선택된 값들 상태 관리
   String? _selectedSpecies;
@@ -44,7 +44,6 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   @override
   void dispose() {
     _nameController.dispose();
-    _ageController.dispose();
     super.dispose();
   }
 
@@ -102,16 +101,46 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
     Navigator.of(context).pop();
   }
 
+  // 생년월일 선택
+  Future<void> _selectBirthDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedBirthDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedBirthDate) {
+      setState(() {
+        _selectedBirthDate = picked;
+      });
+    }
+  }
+
+  // 나이 계산
+  String _calculateAge() {
+    if (_selectedBirthDate == null) return '';
+
+    final now = DateTime.now();
+    final years = now.year - _selectedBirthDate!.year;
+    if (years > 0) {
+      return '$years세';
+    } else {
+      final months =
+          now.month -
+          _selectedBirthDate!.month +
+          (now.year - _selectedBirthDate!.year) * 12;
+      return '$months개월';
+    }
+  }
+
   // 다음 단계로 이동
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
-      final age = int.tryParse(_ageController.text);
-
       widget.controller.setBasicInfo(
         name: _nameController.text,
         species: _selectedSpecies,
         breed: _selectedBreed,
-        age: age,
+        birth: _selectedBirthDate,
         gender: _selectedGender,
         flagNeutering: false, // TODO: 중성화 여부 입력 기능 추가
       );
@@ -168,14 +197,43 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
               ),
               const SizedBox(height: 16),
 
-              // 나이 입력
-              CustomTextField(
-                label: '나이',
-                hint: '나이를 입력하세요',
-                controller: _ageController,
-                keyboardType: TextInputType.number,
-                isRequired: false,
-                // TODO: 나이 유효성 검사 추가 (음수, 너무 큰 수 방지)
+              // 생년월일 선택
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '생년월일',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: _selectBirthDate,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedBirthDate != null
+                                ? '${_selectedBirthDate!.year}년 ${_selectedBirthDate!.month}월 ${_selectedBirthDate!.day}일 (${_calculateAge()})'
+                                : '생년월일을 선택하세요',
+                            style: TextStyle(
+                              color:
+                                  _selectedBirthDate != null
+                                      ? Colors.black
+                                      : Colors.grey,
+                            ),
+                          ),
+                          const Icon(Icons.calendar_today),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 

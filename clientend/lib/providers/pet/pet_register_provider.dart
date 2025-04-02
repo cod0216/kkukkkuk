@@ -75,7 +75,7 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
     required String name,
     String? species,
     String? breed,
-    int? age,
+    DateTime? birth,
     String? gender,
     bool? flagNeutering,
   }) {
@@ -93,7 +93,7 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
       name: name,
       species: species ?? currentPet.species,
       breedName: breed ?? currentPet.breedName,
-      age: age,
+      birth: birth,
       gender: gender ?? currentPet.gender,
       flagNeutering: flagNeutering ?? currentPet.flagNeutering,
     );

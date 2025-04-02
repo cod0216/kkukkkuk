@@ -18,7 +18,7 @@ class PetRegisterController {
     required String name,
     String? species,
     String? breed,
-    int? age,
+    DateTime? birth,
     String? gender,
     bool? flagNeutering,
   }) {
@@ -28,7 +28,7 @@ class PetRegisterController {
           name: name,
           species: species,
           breed: breed,
-          age: age,
+          birth: birth,
           gender: gender,
           flagNeutering: flagNeutering,
         );
