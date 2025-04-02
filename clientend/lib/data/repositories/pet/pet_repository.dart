@@ -135,6 +135,8 @@ class PetRepository implements IPetRepository {
           breedName: pet.breedName,
           birth: pet.birth?.toIso8601String() ?? '',
           flagNeutering: pet.flagNeutering,
+          speciesName: pet.species,
+          profileUrl: pet.imageUrl ?? '',
         );
 
         print('반려동물 등록 트랜잭션: $txHash');
