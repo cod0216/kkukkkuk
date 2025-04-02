@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_breeds_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/register_pet_usecase.dart';
-import 'package:kkuk_kkuk/domain/usecases/block_chain/registry/registry_usecase_providers.dart'
-    as registry_usecase_providers;
+import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 등록 단계
@@ -52,39 +52,50 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
       const FlutterSecureStorage(); // TODO: SecureStorageProvider로 변경
 
   final GetBreedsUseCase _getBreedsUseCase;
+  final GetSpeciesUseCase _getSpeciesUseCase;
   final RegisterPetUseCase _registerPetUseCase;
 
-  PetRegisterNotifier(this._getBreedsUseCase, this._registerPetUseCase)
-    : super(PetRegisterState());
+  PetRegisterNotifier(
+    this._getBreedsUseCase,
+    this._registerPetUseCase,
+    this._getSpeciesUseCase,
+  ) : super(PetRegisterState());
 
   /// 반려동물 기본 정보 설정
+  /// 이미지 URL 설정
+  void setImageUrl(String imageUrl) {
+    final currentPet = state.pet;
+    if (currentPet == null) return;
+
+    final updatedPet = currentPet.copyWith(imageUrl: imageUrl);
+    state = state.copyWith(pet: updatedPet);
+  }
+
   void setBasicInfo({
     required String name,
     String? species,
     String? breed,
-    int? age,
+    DateTime? birth,
     String? gender,
     bool? flagNeutering,
   }) {
     final currentPet =
         state.pet ??
         Pet(
+          flagNeutering: false,
           name: '',
           gender: '',
-          breedId: '',
           breedName: '',
-          age: '',
           species: '',
         );
 
     final updatedPet = currentPet.copyWith(
       name: name,
-      species: species,
-      breedId: breed,
-      breedName: breed,
-      age: age != null ? '$age세' : null,
-      gender: gender,
-      flagNeutering: flagNeutering,
+      species: species ?? currentPet.species,
+      breedName: breed ?? currentPet.breedName,
+      birth: birth,
+      gender: gender ?? currentPet.gender,
+      flagNeutering: flagNeutering ?? currentPet.flagNeutering,
     );
 
     state = state.copyWith(pet: updatedPet);
@@ -129,17 +140,26 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
   }
 
   /// 동물 종류 목록 조회
-  Future<List<String>> getSpecies() async {
-    // 임시 데이터 (실제로는 API 호출 필요)
-    return ['강아지', '고양이'];
+  Future<List<Breed>> getSpecies() async {
+    try {
+      final species = await _getSpeciesUseCase.execute();
+      state = state.copyWith(isLoading: false);
+      return species;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: '품종 목록을 불러오는데 실패했습니다: ${e.toString()}',
+      );
+      return [];
+    }
   }
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(String species) async {
+  Future<List<Breed>> getBreeds(int speciesId) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final breeds = await _getBreedsUseCase.execute(species);
+      final breeds = await _getBreedsUseCase.execute(speciesId);
       state = state.copyWith(isLoading: false);
       return breeds;
     } catch (e) {
@@ -190,9 +210,12 @@ class PetRegisterNotifier extends StateNotifier<PetRegisterState> {
 final petRegisterProvider =
     StateNotifierProvider<PetRegisterNotifier, PetRegisterState>((ref) {
       final getBreedsUseCase = ref.watch(getBreedsUseCaseProvider);
-      final registerPetUseCase = ref.watch(
-        registry_usecase_providers.registerPetUseCaseProvider,
-      );
+      final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
+      final getSpeciesUseCase = ref.watch(getSpeciesUseCaseProvider);
 
-      return PetRegisterNotifier(getBreedsUseCase, registerPetUseCase);
+      return PetRegisterNotifier(
+        getBreedsUseCase,
+        registerPetUseCase,
+        getSpeciesUseCase,
+      );
     });

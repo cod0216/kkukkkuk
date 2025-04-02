@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/pet_register_controller.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_register_provider.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_dropdown_field.dart';
 import 'package:kkuk_kkuk/screens/pet_register/widgets/pet_gender_selector.dart';
@@ -22,16 +23,17 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   // 폼 및 입력 컨트롤러
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _ageController = TextEditingController();
+  DateTime? _selectedBirthDate;
 
   // 선택된 값들 상태 관리
   String? _selectedSpecies;
   String? _selectedBreed;
   String _selectedGender = 'MALE'; // 기본값 수컷
+  bool _isNeutered = false; // 중성화 여부 추가
 
   // 동물 종류 및 품종 목록
-  List<String> _speciesList = [];
-  List<String> _breedsList = [];
+  List<Breed> _speciesList = [];
+  List<Breed> _breedsList = [];
   bool _isLoading = false;
 
   @override
@@ -43,7 +45,6 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   @override
   void dispose() {
     _nameController.dispose();
-    _ageController.dispose();
     super.dispose();
   }
 
@@ -63,7 +64,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   }
 
   // 품종 목록 로드
-  Future<void> _loadBreeds(String species) async {
+  Future<void> _loadBreeds(int species) async {
     setState(() => _isLoading = true);
     try {
       final breeds = await widget.controller.getBreeds(species);
@@ -85,7 +86,11 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
         _selectedBreed = null;
         _breedsList = [];
       });
-      _loadBreeds(value);
+      // species 매칭 ID
+      final speciesObj = _speciesList.firstWhere(
+        (species) => species.name == value,
+      );
+      _loadBreeds(speciesObj.id);
     }
   }
 
@@ -97,18 +102,48 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
     Navigator.of(context).pop();
   }
 
+  // 생년월일 선택
+  Future<void> _selectBirthDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedBirthDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedBirthDate) {
+      setState(() {
+        _selectedBirthDate = picked;
+      });
+    }
+  }
+
+  // 나이 계산
+  String _calculateAge() {
+    if (_selectedBirthDate == null) return '';
+
+    final now = DateTime.now();
+    final years = now.year - _selectedBirthDate!.year;
+    if (years > 0) {
+      return '$years세';
+    } else {
+      final months =
+          now.month -
+          _selectedBirthDate!.month +
+          (now.year - _selectedBirthDate!.year) * 12;
+      return '$months개월';
+    }
+  }
+
   // 다음 단계로 이동
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
-      final age = int.tryParse(_ageController.text);
-
       widget.controller.setBasicInfo(
         name: _nameController.text,
         species: _selectedSpecies,
         breed: _selectedBreed,
-        age: age,
+        birth: _selectedBirthDate,
         gender: _selectedGender,
-        flagNeutering: false, // TODO: 중성화 여부 입력 기능 추가
+        flagNeutering: _isNeutered, // 중성화 여부 전달
       );
 
       widget.controller.moveToNextStep();
@@ -138,7 +173,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 label: '종류',
                 hint: 'ex) 개, 고양이...',
                 value: _selectedSpecies,
-                items: _speciesList,
+                items: _speciesList.map((species) => species.name).toList(),
                 onChanged: _onSpeciesChanged,
               ),
               const SizedBox(height: 16),
@@ -148,7 +183,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 label: '품종',
                 hint: 'ex) 삼, 스핑크스...',
                 value: _selectedBreed,
-                items: _breedsList,
+                items: _breedsList.map((breed) => breed.name).toList(),
                 onChanged: (value) => setState(() => _selectedBreed = value),
                 enabled: _selectedSpecies != null,
               ),
@@ -163,14 +198,43 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
               ),
               const SizedBox(height: 16),
 
-              // 나이 입력
-              CustomTextField(
-                label: '나이',
-                hint: '나이를 입력하세요',
-                controller: _ageController,
-                keyboardType: TextInputType.number,
-                isRequired: false,
-                // TODO: 나이 유효성 검사 추가 (음수, 너무 큰 수 방지)
+              // 생년월일 선택
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '생년월일',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: _selectBirthDate,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedBirthDate != null
+                                ? '${_selectedBirthDate!.year}년 ${_selectedBirthDate!.month}월 ${_selectedBirthDate!.day}일 (${_calculateAge()})'
+                                : '생년월일을 선택하세요',
+                            style: TextStyle(
+                              color:
+                                  _selectedBirthDate != null
+                                      ? Colors.black
+                                      : Colors.grey,
+                            ),
+                          ),
+                          const Icon(Icons.calendar_today),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 
@@ -179,7 +243,38 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 selectedGender: _selectedGender,
                 onGenderChanged: _onGenderChanged,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+
+              // 중성화 여부 선택
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '중성화 여부',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Switch(
+                        value: _isNeutered,
+                        onChanged: (value) {
+                          setState(() {
+                            _isNeutered = value;
+                          });
+                        },
+                      ),
+                      Text(
+                        _isNeutered ? '중성화 완료' : '중성화 안함',
+                        style: TextStyle(
+                          color: _isNeutered ? Colors.blue : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
               // 이전/다음 버튼
               DualButtons(

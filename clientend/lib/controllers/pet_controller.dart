@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_provider.dart';
 
 /// 반려동물 관련 작업을 처리하는 컨트롤러
@@ -22,16 +21,6 @@ class PetController {
   /// 반려동물 등록
   Future<void> registerPet() async {
     await ref.read(petProvider.notifier).registerPet();
-  }
-
-  /// 반려동물 정보 수정
-  Future<void> updatePet(Pet pet) async {
-    await ref.read(petProvider.notifier).updatePet(pet);
-  }
-
-  /// 반려동물 삭제
-  Future<void> deletePet(int petId) async {
-    await ref.read(petProvider.notifier).deletePet(petId);
   }
 
   /// 현재 반려동물 정보 설정

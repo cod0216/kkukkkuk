@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_register_provider.dart';
 
 /// 반려동물 등록 프로세스를 관리하는 컨트롤러
@@ -17,7 +18,7 @@ class PetRegisterController {
     required String name,
     String? species,
     String? breed,
-    int? age,
+    DateTime? birth,
     String? gender,
     bool? flagNeutering,
   }) {
@@ -27,7 +28,7 @@ class PetRegisterController {
           name: name,
           species: species,
           breed: breed,
-          age: age,
+          birth: birth,
           gender: gender,
           flagNeutering: flagNeutering,
         );
@@ -44,12 +45,12 @@ class PetRegisterController {
   }
 
   /// 동물 종류 목록 조회
-  Future<List<String>> getSpecies() {
+  Future<List<Breed>> getSpecies() {
     return ref.read(petRegisterProvider.notifier).getSpecies();
   }
 
   /// 품종 목록 조회
-  Future<List<String>> getBreeds(String species) {
+  Future<List<Breed>> getBreeds(int species) {
     return ref.read(petRegisterProvider.notifier).getBreeds(species);
   }
 

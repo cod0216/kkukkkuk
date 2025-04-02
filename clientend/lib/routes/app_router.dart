@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/screens/splash_screen.dart';
 import 'package:kkuk_kkuk/screens/main/main_screen.dart';
 import 'package:kkuk_kkuk/screens/main/views/pets_view.dart';
@@ -22,9 +22,12 @@ final router = GoRouter(
     // Add wallet creation route
     GoRoute(
       path: '/wallet-creation',
-      builder: (context, state) => WalletScreen(
-        viewModel: state.extra as StateNotifierProvider<WalletViewModel, WalletState>,
-      ),
+      builder:
+          (context, state) => WalletScreen(
+            viewModel:
+                state.extra
+                    as StateNotifierProvider<WalletViewModel, WalletState>,
+          ),
     ),
 
     StatefulShellRoute.indexedStack(

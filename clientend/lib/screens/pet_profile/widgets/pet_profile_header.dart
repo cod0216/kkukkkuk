@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/domain/entities/pet_model.dart';
+import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_image.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card_info.dart';
 
@@ -36,7 +36,7 @@ class PetProfileHeader extends StatelessWidget {
                 PetCardTitle(text: pet.name),
                 const SizedBox(height: 4),
                 // ID
-                PetCardSubtitle(text: 'ID:${pet.id ?? "미등록"}'),
+                PetCardSubtitle(text: 'ID:${pet.did ?? "미등록"}'),
                 const SizedBox(height: 8),
                 // 품종
                 PetCardSubtitle(
@@ -44,7 +44,7 @@ class PetProfileHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 // 나이
-                PetCardSubtitle(text: pet.age),
+                PetCardSubtitle(text: pet.ageString),
               ],
             ),
           ),

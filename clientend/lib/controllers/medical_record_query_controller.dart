@@ -7,24 +7,6 @@ class MedicalRecordQueryController {
 
   MedicalRecordQueryController(this.ref);
 
-  /// 전체 진료 기록 조회
-  Future<void> getAllRecords(int petId) async {
-    await ref
-        .read(medicalRecordQueryProvider.notifier)
-        .getMedicalRecords(petId);
-  }
-
-  /// 기간별 진료 기록 조회
-  Future<void> getRecordsByDateRange(
-    int petId,
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
-    await null;
-    // TODO: Implement getRecordsByDateRange method
-    //ref.read(medicalRecordQueryProvider.notifier).getRecordsByDateRange(petId, startDate, endDate);
-  }
-
   /// 현재 상태 조회
   MedicalRecordQueryState getState() {
     return ref.read(medicalRecordQueryProvider);

@@ -6,7 +6,7 @@ import 'package:kkuk_kkuk/data/datasource/contracts/blockchain_client.dart';
 
 class RegistryContract {
   static const String contractAddress =
-      '0xE3B7abcB7cdd4c483ee891757Bc827592b1B151b';
+      '0x4dF9845a5608d4C461e4dc5a2171d2D83EA71E04';
 
   final BlockchainClient _blockchainClient;
   late final DeployedContract _contract;
@@ -41,8 +41,7 @@ class RegistryContract {
   Future<void> initialize() async {
     try {
       final abiString = await rootBundle.loadString('assets/registryABI.json');
-      final abiJson = jsonDecode(abiString);
-      final abi = abiJson['registryABI'];
+      final abi = jsonDecode(abiString);
 
       _contract = DeployedContract(
         ContractAbi.fromJson(jsonEncode(abi), 'PetRegistry'),
@@ -53,13 +52,13 @@ class RegistryContract {
       _registerPetWithAttributes = _contract.function(
         'registerPetWithAttributes',
       );
-      _registerPetOwnership = _contract.function('registerPetOwnership');
+      _registerPetOwnership = _contract.function('_registerPetOwnership');
       _changeOwner = _contract.function('changeOwner');
       _setAttribute = _contract.function('setAttribute');
       _getAttribute = _contract.function('getAttribute');
       _getAllAttributes = _contract.function('getAllAttributes');
-      _addHospital = _contract.function('addHospital');
-      _removeHospital = _contract.function('removeHospital');
+      _addHospital = _contract.function('_addHospital');
+      _removeHospital = _contract.function('_removeHospital');
       _addMedicalRecord = _contract.function('addMedicalRecord');
       _appendMedicalRecord = _contract.function('appendMedicalRecord');
       _softDeleteMedicalRecord = _contract.function('softDeleteMedicalRecord');
@@ -90,6 +89,8 @@ class RegistryContract {
     required String breedName,
     required String birth,
     required bool flagNeutering,
+    required String speciesName,
+    required String profileUrl,
   }) async {
     final transaction = Transaction.callContract(
       contract: _contract,
@@ -101,6 +102,8 @@ class RegistryContract {
         breedName,
         birth,
         flagNeutering,
+        speciesName,
+        profileUrl,
       ],
     );
 
@@ -318,9 +321,15 @@ class RegistryContract {
     required Credentials credentials,
     required String petAddress,
     required String diagnosis,
-    required String treatment,
+    required String hospitalName,
     required String doctorName,
     required String notes,
+    required String examinationsJson,
+    required String medicationsJson,
+    required String vaccinationsJson,
+    required String picturesJson,
+    required String status,
+    required bool flagCertificated,
   }) async {
     final transaction = Transaction.callContract(
       contract: _contract,
@@ -328,9 +337,15 @@ class RegistryContract {
       parameters: [
         EthereumAddress.fromHex(petAddress),
         diagnosis,
-        treatment,
+        hospitalName,
         doctorName,
         notes,
+        examinationsJson,
+        medicationsJson,
+        vaccinationsJson,
+        picturesJson,
+        status,
+        flagCertificated,
       ],
     );
 
@@ -346,9 +361,15 @@ class RegistryContract {
     required String petAddress,
     required String previousRecordKey,
     required String diagnosis,
-    required String treatment,
+    required String hospitalName,
     required String doctorName,
     required String notes,
+    required String examinationsJson,
+    required String medicationsJson,
+    required String vaccinationsJson,
+    required String picturesJson,
+    required String status,
+    required bool flagCertificated,
   }) async {
     final transaction = Transaction.callContract(
       contract: _contract,
@@ -357,9 +378,15 @@ class RegistryContract {
         EthereumAddress.fromHex(petAddress),
         previousRecordKey,
         diagnosis,
-        treatment,
+        hospitalName,
         doctorName,
         notes,
+        examinationsJson,
+        medicationsJson,
+        vaccinationsJson,
+        picturesJson,
+        status,
+        flagCertificated,
       ],
     );
 
