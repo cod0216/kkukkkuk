@@ -21,8 +21,8 @@ class SharingController extends StateNotifier<SharingState> {
     required HospitalQRData hospital,
   }) async {
     try {
-      // 기본 만료일 설정 (30일)
-      final expiryDate = DateTime.now().add(const Duration(days: 30));
+      // 기본 만료일 설정 (1일)
+      final expiryDate = DateTime.now().add(const Duration(days: 1));
 
       // 처리 중 상태로 변경
       state = SharingState.processing(
