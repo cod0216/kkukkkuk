@@ -42,8 +42,8 @@ class PetCard extends StatelessWidget {
                   right: 0,
                   child: PetCardInfo(
                     name: pet.name,
-                    age: pet.age?.toString() ?? '0',
-                    breed: pet.breedName.isNotEmpty ? pet.breedName : '믹스',
+                    age: pet.ageString,
+                    breed: pet.breedName.isNotEmpty ? pet.breedName : '미등록',
                   ),
                 ),
               ],

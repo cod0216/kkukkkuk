@@ -44,7 +44,7 @@ class PetProfileHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 // 나이
-                PetCardSubtitle(text: pet.age?.toString() ?? '나이 미상'),
+                PetCardSubtitle(text: pet.ageString),
               ],
             ),
           ),

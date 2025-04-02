@@ -47,6 +47,7 @@ class PetRepository implements IPetRepository {
           // 속성에서 필요한 정보 추출
           final name = attributes['name']?['value'] as String? ?? '이름 없음';
           final gender = attributes['gender']?['value'] as String? ?? '';
+          final speices = attributes['speciesName']?['value'] as String? ?? '';
           final breedName = attributes['breedName']?['value'] as String? ?? '';
           final birthStr = attributes['birth']?['value'] as String? ?? '';
           final flagNeuteringStr =
@@ -69,18 +70,17 @@ class PetRepository implements IPetRepository {
           }
 
           // 나이 계산
-          String age = '알 수 없음';
           if (birth != null) {
             final now = DateTime.now();
             final years = now.year - birth.year;
             if (years > 0) {
-              age = '$years세';
             } else {
               final months =
                   now.month - birth.month + (now.year - birth.year) * 12;
-              age = '$months개월';
             }
           }
+
+          final imageUrl = attributes['profileUrl']?['value'] as String? ?? '';
 
           // 반려동물 객체 생성
           final pet = Pet(
@@ -91,9 +91,9 @@ class PetRepository implements IPetRepository {
             birth: birth,
             flagNeutering: flagNeutering,
             // 이미지 URL은 별도 저장 필요
-            imageUrl: '',
+            imageUrl: imageUrl,
             // 종류는 품종명에서 유추 가능하나 정확한 정보는 별도 저장 필요
-            species: '',
+            species: speices,
           );
 
           pets.add(pet);

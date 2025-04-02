@@ -119,7 +119,6 @@ class PetNotifier extends StateNotifier<PetState> {
       name: name,
       species: species ?? currentPet.species,
       breedName: breed ?? currentPet.breedName,
-      age: age,
       gender: gender ?? currentPet.gender,
       flagNeutering: flagNeutering ?? currentPet.flagNeutering,
     );
