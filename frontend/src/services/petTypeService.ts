@@ -23,8 +23,8 @@ let allBreeds: Record<string, 'dog' | 'cat' | 'unknown'> = {};
 let isInitialized = false;
 
 // 개와 고양이의 ID
-let DOG_ID: number | null = null;
-let CAT_ID: number | null = null;
+let dogId: number | null = null;
+let catId: number | null = null;
 
 /**
  * 모든 최상위 종(강아지, 고양이 등)을 가져옵니다.
@@ -38,8 +38,8 @@ export const getTopLevelBreeds = async (): Promise<BreedType[]> => {
       
       // 강아지와 고양이 ID 저장
       topLevelBreeds.forEach(breed => {
-        if (breed.name === '강아지') DOG_ID = breed.id;
-        if (breed.name === '고양이') CAT_ID = breed.id;
+        if (breed.name === '강아지') dogId = breed.id;
+        if (breed.name === '고양이') catId = breed.id;
       });
       
       console.log(`최상위 품종 ${topLevelBreeds.length}개 로드 완료: ${response.message}`);
@@ -301,6 +301,42 @@ const fallbackDeterminePetType = (breedName: string): 'dog' | 'cat' | 'unknown' 
   // 판별 불가능한 경우
   return 'unknown';
 };
+
+/**
+ * 반려동물 타입 초기화
+ */
+export const initializePetTypes = async () => {
+  try {
+    const response = await request.get<BreedType[]>('/api/breeds');
+    if (!response.data) {
+      throw new Error('반려동물 타입 데이터를 가져오는데 실패했습니다.');
+    }
+    
+    const types = response.data;
+    
+    // 개와 고양이 ID 찾기
+    const dog = types.find((type: BreedType) => type.name === '강아지');
+    const cat = types.find((type: BreedType) => type.name === '고양이');
+    
+    if (dog) dogId = dog.id;
+    if (cat) catId = cat.id;
+    
+    return types;
+  } catch (error) {
+    console.error('반려동물 타입 초기화 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 개 타입 ID 가져오기
+ */
+export const getDogId = () => dogId;
+
+/**
+ * 고양이 타입 ID 가져오기
+ */
+export const getCatId = () => catId;
 
 // 앱 시작 시 데이터 미리 로드
 initializeBreedData()
