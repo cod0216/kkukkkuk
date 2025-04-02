@@ -84,6 +84,7 @@ public class DoctorController {
      * @return 성공 여부
      */
     @Operation(summary = "수의사 삭제", description = "특정 수의사를 동물 병원에서 삭제합니다.")
+
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수의사 삭제 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),

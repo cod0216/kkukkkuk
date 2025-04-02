@@ -20,6 +20,7 @@ import java.time.LocalDate;
  * 25.03.14          haelim             licenseNumber, doctorName 필드 추가
  * 25.03.14          haelim             licenseNumber, 필드 삭제
  */
+
 @Entity
 @Table(name = "hospital")
 @Getter
