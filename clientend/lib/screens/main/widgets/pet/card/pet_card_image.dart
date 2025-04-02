@@ -7,9 +7,6 @@ class PetCardImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Debug print to check the image URL
-    print('PetCardImage building with imageUrl: $imageUrl');
-    
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       return Image.network(
         imageUrl!,
@@ -18,10 +15,11 @@ class PetCardImage extends StatelessWidget {
           if (loadingProgress == null) return child;
           return Center(
             child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / 
-                    loadingProgress.expectedTotalBytes!
-                  : null,
+              value:
+                  loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
             ),
           );
         },

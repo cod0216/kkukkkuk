@@ -10,9 +10,6 @@ class PetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Debug print to check the image URL
-    print('Pet card building for: ${pet.name}, imageUrl: ${pet.imageUrl}');
-
     return GestureDetector(
       onTap: () => onTap(pet),
       child: Container(

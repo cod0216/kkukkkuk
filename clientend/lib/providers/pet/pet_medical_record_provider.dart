@@ -49,9 +49,6 @@ class MedicalRecordQueryNotifier
   void addBlockchainRecords(List<PetMedicalRecord> blockchainRecords) {
     if (blockchainRecords.isEmpty) return;
 
-    print('Adding blockchain records: $blockchainRecords');
-    print('Current state records: ${state.records}');
-
     // Preserve existing records and add new ones
     final allRecords = [...state.records, ...blockchainRecords];
 
@@ -72,17 +69,12 @@ class MedicalRecordQueryNotifier
     // Sort by date (descending)
     uniqueRecords.sort((a, b) => b.treatmentDate.compareTo(a.treatmentDate));
 
-    print('Final unique records count: ${uniqueRecords.length}');
-
     // Update state while preserving other fields
     state = state.copyWith(
       records: uniqueRecords,
       lastQueryDate: DateTime.now(),
       isLoading: false, // Ensure loading is false
     );
-
-    // Verify state update
-    print('State updated - record count: ${state.records.length}');
   }
 }
 

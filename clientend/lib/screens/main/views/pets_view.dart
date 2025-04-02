@@ -47,15 +47,11 @@ class _PetsScreenState extends ConsumerState<PetsView>
   void initState() {
     super.initState();
     _controller = ref.read(petControllerProvider);
-    // 반려동물 목록 가져오기
-    _refreshPetList();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 다른 화면에서 돌아올 때
-    print('PetsScreen: didChangeDependencies');
     _refreshPetList();
   }
 

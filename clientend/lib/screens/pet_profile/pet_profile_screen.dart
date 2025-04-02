@@ -78,11 +78,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
       if (!mounted) return;
 
       if (records.isNotEmpty) {
-        // 상태 업데이트 전에 현재 상태 확인
-        print(
-          '현재 상태의 레코드 수: ${ref.read(medicalRecordQueryProvider).records.length}',
-        );
-
         // 블록체인에서 조회한 진료 기록을 상태에 추가
         ref
             .read(medicalRecordQueryProvider.notifier)
@@ -103,9 +98,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
     // 상태 변화를 감지하기 위해 watch 사용
     final medicalRecordState = ref.watch(medicalRecordQueryProvider);
     final records = medicalRecordState.records;
-
-    print('빌드 시 레코드 수: ${records.length}');
-    print('레코드 내용: $records');
 
     return Scaffold(
       appBar: AppBar(
