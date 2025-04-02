@@ -49,7 +49,7 @@ public final class ResponseUtility {
      * @return 200 OK 응답을 포함한 {@link ResponseEntity}
      */
     public static ResponseEntity<ApiResponse<Object>> emptyResponse(String message) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, getEmptyResponse()));
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, Collections.emptyMap()));
     }
 
     /**
@@ -57,13 +57,5 @@ public final class ResponseUtility {
      */
     private ResponseUtility() {
         throw new UnsupportedOperationException("Utility Class");
-    }
-
-    private static class ResponseData {
-        private static final Map<Object, Object> EMPTY_RESPONSE = Collections.emptyMap();
-    }
-
-    private static Map<Object, Object> getEmptyResponse() {
-        return ResponseData.EMPTY_RESPONSE;
     }
 }
