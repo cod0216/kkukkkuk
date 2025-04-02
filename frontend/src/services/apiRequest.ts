@@ -16,6 +16,7 @@ import { AxiosError } from "axios";
  * -----------------------------------------------------------
  * 2025-03-26        eunchang         최초 생성
  * 2025-03-30        sangmuk          request patch method 추가
+ * 2025-04-01        sangmuk          delete parameter data 추가
  */
 
 /**
@@ -96,9 +97,9 @@ export const request = {
   /**
    * DELETE Request
    */
-  delete: async <T>(url: string): Promise<ApiResponse<T>> => {
+  delete: async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
     try {
-      const response = await apiClient.delete<ApiResponse<T>>(url);
+      const response = await apiClient.delete<ApiResponse<T>>(url, { data: data });
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
