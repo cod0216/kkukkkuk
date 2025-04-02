@@ -29,6 +29,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   String? _selectedSpecies;
   String? _selectedBreed;
   String _selectedGender = 'MALE'; // 기본값 수컷
+  bool _isNeutered = false; // 중성화 여부 추가
 
   // 동물 종류 및 품종 목록
   List<Breed> _speciesList = [];
@@ -142,7 +143,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
         breed: _selectedBreed,
         birth: _selectedBirthDate,
         gender: _selectedGender,
-        flagNeutering: false, // TODO: 중성화 여부 입력 기능 추가
+        flagNeutering: _isNeutered, // 중성화 여부 전달
       );
 
       widget.controller.moveToNextStep();
@@ -242,7 +243,38 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
                 selectedGender: _selectedGender,
                 onGenderChanged: _onGenderChanged,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+
+              // 중성화 여부 선택
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '중성화 여부',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Switch(
+                        value: _isNeutered,
+                        onChanged: (value) {
+                          setState(() {
+                            _isNeutered = value;
+                          });
+                        },
+                      ),
+                      Text(
+                        _isNeutered ? '중성화 완료' : '중성화 안함',
+                        style: TextStyle(
+                          color: _isNeutered ? Colors.blue : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
               // 이전/다음 버튼
               DualButtons(
