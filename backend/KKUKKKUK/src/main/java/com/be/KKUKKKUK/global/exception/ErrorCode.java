@@ -65,7 +65,9 @@ public enum ErrorCode {
     PET_NOT_FOUND(HttpStatus.NOT_FOUND, "PET-001", "해당 반려동물을 찾을 수 없습니다."),
     PET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PET-002", "반려동물에 대한 권한이 없습니다."),
 
-    BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다.");
+    BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다."),
+
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "OCR-001", "많은 요청을 보내고 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
