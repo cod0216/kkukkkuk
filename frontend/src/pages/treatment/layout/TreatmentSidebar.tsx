@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FaSearch, FaSortAmountDown, FaSortAmountUp, FaFilter } from 'react-icons/fa';
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { FaSearch, FaSortAmountDown, FaSortAmountUp, FaFont, FaCalendarAlt, FaTimesCircle } from 'react-icons/fa';
 import PetListItem from '@/pages/treatment/layout/PetListItem';
 import { Treatment, TreatmentState } from '@/interfaces';
 import { getHospitalPetsWithRecords, hasTreatmentRecords, getPetBasicInfo } from '@/services/treatmentService';
@@ -42,6 +42,11 @@ import {
 type SortDirection = 'asc' | 'desc';
 
 /**
+ * 정렬 기준 타입
+ */
+type SortBy = 'state' | 'name' | 'date';
+
+/**
  * TreatmentSidebar 컴포넌트의 Props 타입 정의
  */
 interface SidebarProps {
@@ -54,12 +59,19 @@ interface SidebarProps {
     onStateChanged?: (petId: string, newState: TreatmentState, isCancelled: boolean) => void; // 상태 변경 시 호출되는 콜백
 }
 
+/**
+ * 외부에서 접근 가능한 함수들의 타입 정의
+ */
+export interface TreatmentSidebarRef {
+  fetchPetsData: () => Promise<void>;
+  refreshPetState: (petDid: string) => Promise<void>;
+}
 
 /**
  * 진단 페이지 내부의 좌측 사이드바 역할을 수행합니다. 
  * 병원에 진료했던 반려동물를 출력하는 UI 컴포넌트입니다.  
  */
-const TreatmentSidebar: React.FC<SidebarProps> = ({
+const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
     treatments,
     selectedPetId,
     setSelectedPetId,
@@ -67,7 +79,7 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
     getStateColor,
     onBlockchainPetsLoad,
     onStateChanged,
-}) => {
+}, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [dateRange, setDateRange] = useState({
       start: '',
@@ -85,53 +97,21 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
     // 새로운 알림 표시 상태
     const [newNotification, setNewNotification] = useState<{message: string, timestamp: number} | null>(null);
     
-    // 정렬 방향 상태 (기본값: 내림차순 - 최신순)
-    const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+    // 정렬 방향 상태 (기본값: 오름차순)
+    const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+    
+    // 정렬 기준 상태 (기본값: 진료 상태)
+    const [sortBy, setSortBy] = useState<SortBy>('state');
     
     // 필터 적용 여부
     const [isFilterApplied, setIsFilterApplied] = useState(false);
     
-
-    // 브라우저 알림 권한 요청
-    useEffect(() => {
-      // 브라우저 알림 지원 여부 확인
-      if ("Notification" in window) {
-        // 알림 권한이 'default'인 경우 권한 요청
-        if (Notification.permission === "default") {
-          Notification.requestPermission();
-        }
-      }
-    }, []);
+    // 날짜 유효성 검사 메시지
+    const [dateError, setDateError] = useState<string | null>(null);
     
-    // 브라우저 알림 표시 함수
-    const showNotification = (title: string, body: string) => {
-      // 브라우저 알림 지원 여부 확인
-      if (!("Notification" in window)) {
-        console.log("이 브라우저는 알림을 지원하지 않습니다.");
-        return;
-      }
-      
-      // 알림 권한 확인
-      if (Notification.permission === "granted") {
-        // 알림 생성
-        const notification = new Notification(title, {
-          body: body,
-          icon: "/favicon.ico"
-        });
-        
-        // 알림 클릭 시 현재 페이지로 포커스
-        notification.onclick = () => {
-          window.focus();
-        };
-      } else if (Notification.permission !== "denied") {
-        // 권한이 거부되지 않았다면 권한 요청
-        Notification.requestPermission().then(permission => {
-          if (permission === "granted") {
-            showNotification(title, body);
-          }
-        });
-      }
-    };
+    // 상태 표시 여부 (기본값: 진료완료와 진료취소 숨김)
+    const [showCompleted, setShowCompleted] = useState(false);
+    const [showCancelled, setShowCancelled] = useState(false);
 
     // 병원 정보 가져오기
     useEffect(() => {
@@ -181,12 +161,6 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                   
                   // 목록 새로고침
                   fetchPetsData();
-                  
-                  // 브라우저 알림 표시
-                  showNotification(
-                    '새로운 공유 계약',
-                    `새로운 반려동물 "${petName}"이(가) 공유되었습니다.`
-                  );
                 } catch (error) {
                   console.error('반려동물 정보 조회 중 오류:', error);
                   // 기본 메시지로 표시
@@ -197,11 +171,6 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                   
                   setUnreadPets(prev => new Set([...prev, petAddress]));
                   fetchPetsData();
-                  
-                  showNotification(
-                    '새로운 공유 계약',
-                    '새로운 반려동물이 공유되었습니다.'
-                  );
                 }
               }
             });
@@ -225,12 +194,6 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                   
                   // 목록 새로고침
                   fetchPetsData();
-                  
-                  // 브라우저 알림 표시
-                  showNotification(
-                    '공유 계약 취소',
-                    `반려동물 "${petName}"의 공유가 취소되었습니다.`
-                  );
                 } catch (error) {
                   console.error('반려동물 정보 조회 중 오류:', error);
                   // 기본 메시지로 표시
@@ -240,11 +203,6 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                   });
                   
                   fetchPetsData();
-                  
-                  showNotification(
-                    '공유 계약 취소',
-                    '반려동물의 공유가 취소되었습니다.'
-                  );
                 }
               }
             });
@@ -304,7 +262,24 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                         pet.agreementInfo.expireDate
                     );
                     
-                    // 3. 상태 결정 로직
+                    // 3. 가장 최근 진료 기록의 상태 확인 (API 호출 추가 필요)
+                    let latestRecordStatus: 'ongoing' | 'completed' | null = null;
+                    
+                    try {
+                        // 블록체인 또는 API에서 가장 최근 진료 기록 상태 조회
+                        // 임시 Mock 데이터: 실제로는 API 호출로 대체되어야 함
+                        const { getLatestTreatmentStatus } = await import('@/services/treatmentService');
+                        const statusResult = await getLatestTreatmentStatus(pet.petDid);
+                        
+                        if (statusResult.success) {
+                            latestRecordStatus = statusResult.status;
+                        }
+                    } catch (statusError) {
+                        console.error('최근 진료 상태 조회 중 오류:', statusError);
+                        // 오류 시 기본값 사용 (null)
+                    }
+                    
+                    // 4. 상태 결정 로직 (개선된 버전)
                     let newState: TreatmentState;
                     let isCancelled = false;
                     
@@ -315,15 +290,31 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                     } else if (cancellationResult.hasNewSharingAfterCancellation) {
                         // 취소 후 새 계약
                         isCancelled = false;
+                        
                         if (recordsResult.success && recordsResult.hasTreatment) {
-                            newState = TreatmentState.COMPLETED;
+                            // 진료 기록이 있는 경우
+                            if (latestRecordStatus === 'completed') {
+                                // 마지막 진료가 완료 상태면 전체 완료
+                                newState = TreatmentState.COMPLETED;
+                            } else {
+                                // 그렇지 않으면 진행 중
+                                newState = TreatmentState.IN_PROGRESS;
+                            }
                         } else {
+                            // 진료 기록이 없는 경우 대기 중
                             newState = TreatmentState.WAITING;
                         }
                     } else if (recordsResult.success && recordsResult.hasTreatment) {
-                        // 취소 없이 진료 완료
+                        // 취소 없이 진료 기록이 있는 경우
                         isCancelled = false;
-                        newState = TreatmentState.COMPLETED;
+                        
+                        if (latestRecordStatus === 'completed') {
+                            // 마지막 진료가 완료 상태면 전체 완료
+                            newState = TreatmentState.COMPLETED;
+                        } else {
+                            // 그렇지 않으면 진행 중 (추가 진료 가능)
+                            newState = TreatmentState.IN_PROGRESS;
+                        }
                     } else {
                         // 취소 없이 진료 전
                         isCancelled = false;
@@ -339,7 +330,8 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                     return {
                         ...pet,
                         calculatedState: newState,
-                        isCancelled
+                        isCancelled,
+                        latestTreatmentStatus: latestRecordStatus // 디버깅 및 UI 표시용으로 추가
                     };
                 } catch (error) {
                     console.error('진료 상태 계산 중 오류:', error);
@@ -356,16 +348,29 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
       setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
     };
     
-    // 필터 적용
-    const applyFilter = () => {
+    // 정렬 기준 변경
+    const changeSortBy = (newSortBy: SortBy) => {
+      if (sortBy === newSortBy) {
+        // 이미 선택된 기준이면 기본 정렬(상태)로 초기화
+        setSortBy('state');
+      } else {
+        // 새로운 정렬 기준 적용
+        setSortBy(newSortBy);
+      }
+    };
+    
+    // 날짜 필터 적용
+    const applyDateFilter = () => {
+      // 시작일이 종료일보다 뒤인 경우 확인
+      if (dateRange.start && dateRange.end && new Date(dateRange.start) > new Date(dateRange.end)) {
+        setDateError('시작일은 종료일보다 빠른 날짜여야 합니다.');
+        return;
+      }
+      
+      setDateError(null);
       setIsFilterApplied(true);
     };
     
-    // 필터 초기화
-    const resetFilter = () => {
-      setDateRange({ start: '', end: '' });
-      setIsFilterApplied(false);
-    };
     
     // 진료 상태의 우선순위를 반환합니다.
     const getStatePriority = (state: TreatmentState): number => {
@@ -422,17 +427,50 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
         ) : true
       );
 
+      // 상태에 따른 필터링 (상태별 포함/제외)
+      filteredPets = filteredPets.filter(pet => {
+        const state = pet.calculatedState || (pet.agreementInfo ? TreatmentState.SHARED : pet.state);
+        
+        // 진료완료 상태 필터링
+        if (state === TreatmentState.COMPLETED && !showCompleted) {
+          return false; // 진료완료 숨김
+        }
+        
+        // 진료취소 상태 필터링
+        if (state === TreatmentState.CANCELLED && !showCancelled) {
+          return false; // 진료취소 숨김
+        }
+        
+        return true; // 나머지 상태는 항상 표시
+      });
+
       // 날짜 범위로 필터링
       if (isFilterApplied && (dateRange.start || dateRange.end)) {
         filteredPets = filteredPets.filter(pet => {
-          const createdAt = pet.agreementInfo?.createdAt || pet.createdAt;
-          if (!createdAt) return false;
+          const createdAtValue = pet.agreementInfo?.createdAt || pet.createdAt;
+          if (!createdAtValue) return false;
           
-          const petDate = new Date(createdAt);
+          // createdAt 값을 Date 객체로 변환
+          let petDate: Date;
+          
+          if (typeof createdAtValue === 'number') {
+            // Unix 타임스탬프(초 단위)인 경우 1000을 곱해 밀리초로 변환
+            petDate = new Date(createdAtValue * 1000);
+          } else if (typeof createdAtValue === 'string') {
+            // ISO 문자열인 경우 직접 Date 객체로 변환
+            petDate = new Date(createdAtValue);
+          } else {
+            console.error('Unexpected createdAt format:', createdAtValue);
+            return false;
+          }
+          
+          // 시작일과 종료일 Date 객체 생성
           const startDate = dateRange.start ? new Date(dateRange.start) : null;
           const endDate = dateRange.end ? new Date(dateRange.end) : null;
           
+          // 날짜 범위 필터링
           if (startDate && endDate) {
+            // 종료일은 해당 일의 마지막 시간으로 설정 (23:59:59.999)
             endDate.setHours(23, 59, 59, 999);
             return petDate >= startDate && petDate <= endDate;
           } else if (startDate) {
@@ -446,8 +484,64 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
         });
       }
 
-      // 상태와 접수일 기준으로 정렬
-      return sortByStateAndDate(filteredPets);
+      // 정렬 기준에 따라 정렬
+      let sortedPets: Treatment[];
+      
+      switch (sortBy) {
+        case 'name':
+          // 이름 기준 정렬
+          sortedPets = [...filteredPets].sort((a, b) => {
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            
+            if (sortDirection === 'asc') {
+              return nameA.localeCompare(nameB);
+            } else {
+              return nameB.localeCompare(nameA);
+            }
+          });
+          break;
+          
+        case 'date':
+          // 접수일 기준 정렬
+          sortedPets = [...filteredPets].sort((a, b) => {
+            // 값 자체를 비교하는 대신 Date 객체를 생성하여 비교
+            const dateAValue = a.agreementInfo?.createdAt || a.createdAt || 0;
+            const dateBValue = b.agreementInfo?.createdAt || b.createdAt || 0;
+            
+            let dateATime: number;
+            let dateBTime: number;
+            
+            // dateAValue가 숫자(Unix 타임스탬프)인 경우 1000을 곱해 밀리초로 변환
+            if (typeof dateAValue === 'number') {
+              dateATime = dateAValue * 1000;
+            } else {
+              dateATime = new Date(dateAValue).getTime();
+            }
+            
+            // dateBValue가 숫자(Unix 타임스탬프)인 경우 1000을 곱해 밀리초로 변환
+            if (typeof dateBValue === 'number') {
+              dateBTime = dateBValue * 1000;
+            } else {
+              dateBTime = new Date(dateBValue).getTime();
+            }
+            
+            if (sortDirection === 'asc') {
+              return dateATime - dateBTime; // 오름차순 (과거 → 최신)
+            } else {
+              return dateBTime - dateATime; // 내림차순 (최신 → 과거)
+            }
+          });
+          break;
+          
+        case 'state':
+        default:
+          // 상태와 접수일 기준으로 정렬 (기본 정렬)
+          sortedPets = sortByStateAndDate(filteredPets);
+          break;
+      }
+      
+      return sortedPets;
     };
     
     // 필터링 및 정렬된 반려동물 목록
@@ -552,6 +646,65 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
         setIsLoading(false);
       }
     };
+
+    // 특정 반려동물 상태 갱신 함수
+    const refreshPetState = async (petDid: string) => {
+      if (!petDid || !currentHospitalAddress.current) {
+        console.warn('반려동물 ID 또는 병원 주소가 없습니다.');
+        return;
+      }
+      
+      try {
+        // 해당 반려동물의 최신 정보 조회
+        const petWithAgreement = await getPetWithAgreementInfo(
+          petDid, 
+          currentHospitalAddress.current
+        );
+        
+        if (!petWithAgreement) {
+          console.warn(`반려동물 정보 조회 실패(${petDid})`);
+          return;
+        }
+        
+        // Treatment 형식으로 변환
+        const updatedPet = convertPetToTreatment(petWithAgreement, 0);
+        
+        // 진료 상태 계산
+        const updatedPets = await updatePetTreatmentState([updatedPet]);
+        const updatedPet2 = updatedPets[0];
+        
+        // 블록체인 펫 목록에서 해당 반려동물 찾아 교체
+        setBlockchainPets(prev => {
+          const index = prev.findIndex(p => p.petDid === petDid);
+          if (index === -1) {
+            console.log(`새로운 반려동물 정보 추가(${petDid})`);
+            return sortByStateAndDate([...prev, updatedPet2]);
+          } else {
+            console.log(`기존 반려동물 정보 업데이트(${petDid})`);
+            const newPets = [...prev];
+            newPets[index] = updatedPet2;
+            return sortByStateAndDate(newPets);
+          }
+        });
+        
+        console.log(`반려동물 상태 갱신 완료(${petDid}): ${updatedPet2.calculatedState}`);
+      } catch (error) {
+        console.error(`반려동물 상태 갱신 중 오류(${petDid}):`, error);
+      }
+    };
+    
+    // 외부에서 호출 가능한 함수들 노출
+    useImperativeHandle(ref, () => ({
+      // 전체 목록 새로고침
+      fetchPetsData: async () => {
+        await fetchPetsData();
+      },
+      
+      // 특정 반려동물 상태 갱신
+      refreshPetState: async (petDid: string) => {
+        await refreshPetState(petDid);
+      }
+    }));
     
   return (
     <>
@@ -573,7 +726,7 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                   className="bg-primary-50 hover:bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded"
                   title="목록 새로고침"
                 >
-                  {isLoading ? '로딩중' : '새로고침'}
+                  새로고침
                 </button>
               </div>
               
@@ -593,73 +746,115 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                   </p>
                 </div>
               )}
-              
               {/* 날짜 필터링 */}
               <div className="flex flex-col gap-2 mb-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-700">접수일시 필터</span>
-                  
-                  <div className="flex items-center gap-1">
-                    {/* 정렬 방향 토글 버튼 */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                  <input
+                  type="date"
+                      value={dateRange.start}
+                      onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                      className={`text-xs py-1 px-2 bg-gray-50 border rounded-md flex-1 ${dateError ? 'border-red-500' : ''}`}
+                      placeholder="시작일"
+                    />
+                    <span className="text-xs text-gray-500">~</span>
+                  <input
+                  type="date"
+                      value={dateRange.end}
+                      onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                      className={`text-xs py-1 px-2 bg-gray-50 border rounded-md flex-1 ${dateError ? 'border-red-500' : ''}`}
+                      placeholder="종료일"
+                  />
+              </div>
+
+                  {/* 버튼 그룹 */}
+                  <div className="flex items-center gap-2">
+                    {/* 기간 검색 버튼 */}
                     <button
-                      onClick={toggleSortDirection}
-                      className="text-xs p-1 text-gray-600 hover:text-primary-600"
-                      title={sortDirection === 'asc' ? '오름차순 (과거→최신)' : '내림차순 (최신→과거)'}
+                      onClick={applyDateFilter}
+                      className={`flex-1 h-[26px] text-xs px-2 py-1 rounded-md flex items-center justify-center gap-1 ${
+                        isFilterApplied 
+                          ? 'bg-primary-100 text-primary-700' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                      title="기간 검색"
                     >
-                      {sortDirection === 'asc' ? (
-                        <FaSortAmountUp className="h-3 w-3" />
-                      ) : (
-                        <FaSortAmountDown className="h-3 w-3" />
-                      )}
+                      <FaSearch className="h-3 w-3" />
+                      <span>기간 검색</span>
                     </button>
                     
-                    {/* 필터 초기화 버튼 */}
-                    {isFilterApplied && (
-                      <button
-                        onClick={resetFilter}
-                        className="text-xs p-1 text-gray-600 hover:text-red-600"
-                        title="필터 초기화"
-                      >
-                        ×
-                      </button>
-                    )}
+                    {/* 기간 설정 초기화 버튼 */}
+                    <button
+                      onClick={() => {
+                        setDateRange({ start: '', end: '' });
+                        setIsFilterApplied(false);
+                        setDateError(null);
+                      }}
+                      className="flex-1 h-[26px] text-xs px-2 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-1"
+                      title="기간 설정 초기화"
+                    >
+                      <FaTimesCircle className="h-3 w-3" />
+                      <span>기간 설정 초기화</span>
+                    </button>
                   </div>
                 </div>
+                {/* 날짜 에러 메시지 */}
+                {dateError && (
+                  <p className="text-xs text-red-500 mt-1">{dateError}</p>
+                )}
+              </div>
+              
+              {/* 정렬 버튼 그룹 */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-medium text-gray-700 mr-1">정렬:</span>
                 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    value={dateRange.start}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                    className="text-xs py-1 px-2 bg-gray-50 border rounded-md flex-1"
-                    placeholder="시작일"
-                  />
-                  <span className="text-xs text-gray-500">~</span>
-                  <input
-                    type="date"
-                    value={dateRange.end}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                    className="text-xs py-1 px-2 bg-gray-50 border rounded-md flex-1"
-                    placeholder="종료일"
-                  />
-                  
-                  {/* 필터 적용 버튼 */}
-                  <button
-                    onClick={applyFilter}
-                    className={`text-xs px-2 py-1 rounded ${
-                      isFilterApplied 
-                        ? 'bg-primary-100 text-primary-700' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    title="필터 적용"
-                  >
-                    <FaFilter className="h-3 w-3" />
-                  </button>
-                </div>
+                {/* 이름 정렬 버튼 */}
+                <button
+                  onClick={() => changeSortBy('name')}
+                  className={`text-xs px-2 py-1 rounded flex items-center ${
+                    sortBy === 'name' 
+                      ? 'bg-primary-100 text-primary-700' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  title="이름 기준 정렬"
+                >
+                  <FaFont className="h-3 w-3 mr-1" /> 이름
+                </button>
+                
+                {/* 접수일 정렬 버튼 */}
+                <button
+                  onClick={() => changeSortBy('date')}
+                  className={`text-xs px-2 py-1 rounded flex items-center ${
+                    sortBy === 'date' 
+                      ? 'bg-primary-100 text-primary-700' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  title="접수일 기준 정렬"
+                >
+                  <FaCalendarAlt className="h-3 w-3 mr-1" /> 접수일
+                </button>
+                
+                {/* 정렬 방향 토글 버튼 */}
+                <button
+                  onClick={toggleSortDirection}
+                  disabled={sortBy === 'state'}
+                  className={`text-xs px-2 py-1 rounded flex items-center ${
+                    sortBy !== 'state'
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+                      : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                  }`}
+                  title={sortDirection === 'asc' ? '오름차순' : '내림차순'}
+                >
+                  {sortDirection === 'asc' ? (
+                    <><FaSortAmountUp className="h-3 w-3 mr-1" /> 오름차순</>
+                  ) : (
+                    <><FaSortAmountDown className="h-3 w-3 mr-1" /> 내림차순</>
+                  )}
+                </button>
               </div>
           </div>
 
-          {/* 제목과 QR 코드 버튼 */}
+          {/* 제목과 토글 버튼 */}
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-semibold text-gray-700">
               목록 
@@ -667,6 +862,47 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
                 ({filteredAndSortedPets.length}건)
               </span>
             </h2>
+            
+            {/* 상태 표시 토글 버튼 */}
+            <div className="flex items-center gap-3">
+              {/* 진료완료 포함 */}
+              <div className="flex items-center">
+                <span className="text-xs text-gray-600 mr-1">진료완료</span>
+                <label className="relative inline-block w-8 h-4" title="진료완료 상태 포함/제외">
+                  <input
+                    type="checkbox"
+                    className="opacity-0 w-0 h-0"
+                    checked={showCompleted}
+                    onChange={() => setShowCompleted(prev => !prev)}
+                  />
+                  <span className={`absolute cursor-pointer inset-0 rounded-full transition-colors duration-200 ${showCompleted ? 'bg-primary-500' : 'bg-gray-300'}`}>
+                    <span 
+                      className={`absolute w-3 h-3 rounded-full bg-white transition-transform duration-200 transform ${showCompleted ? 'translate-x-4' : 'translate-x-1'}`} 
+                      style={{top: '2px'}}
+                    />
+                  </span>
+                </label>
+              </div>
+              
+              {/* 진료취소 포함 */}
+              <div className="flex items-center">
+                <span className="text-xs text-gray-600 mr-1">진료취소</span>
+                <label className="relative inline-block w-8 h-4" title="진료취소 상태 포함/제외">
+                  <input
+                    type="checkbox"
+                    className="opacity-0 w-0 h-0"
+                    checked={showCancelled}
+                    onChange={() => setShowCancelled(prev => !prev)}
+                  />
+                  <span className={`absolute cursor-pointer inset-0 rounded-full transition-colors duration-200 ${showCancelled ? 'bg-primary-500' : 'bg-gray-300'}`}>
+                    <span 
+                      className={`absolute w-3 h-3 rounded-full bg-white transition-transform duration-200 transform ${showCancelled ? 'translate-x-4' : 'translate-x-1'}`} 
+                      style={{top: '2px'}}
+                    />
+                  </span>
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* 로딩 상태 표시 */}
@@ -684,20 +920,20 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
           )}
 
           {/* 동물 목록 List */}
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-320px)]">
+          <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-370px)]">
             {filteredAndSortedPets.length > 0 ? (
               filteredAndSortedPets.map((treatment) => {
                 const petId = getPetIdentifier(treatment);
                 return (
-                  <PetListItem
+                <PetListItem
                     key={petId}
-                    treatment={treatment}
+                  treatment={treatment}
                     isSelected={selectedPetId === petId}
                     onSelect={() => handlePetSelect(petId)}
-                    getStateColor={getStateColor}
-                    getStateBadgeColor={getStateBadgeColor}
+                  getStateColor={getStateColor}
+                  getStateBadgeColor={getStateBadgeColor}
                     isUnread={treatment.petDid ? unreadPets.has(treatment.petDid) : false}
-                  />
+                />
                 );
               })
             ) : (
@@ -707,9 +943,9 @@ const TreatmentSidebar: React.FC<SidebarProps> = ({
             )}
           </div>
       </div>
-          </>
+    </>
   );
-};
+});
 
 export default TreatmentSidebar;
 

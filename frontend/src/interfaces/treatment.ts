@@ -28,15 +28,7 @@ export enum TreatmentState {
     NONE = "",
 }
 
-/**
- * 치료 정보 요청을 위한 인터페이스
- * @interface
- */
-export interface GetTreatmentRequest {
-  expired: boolean | "";
-  petId: number | "";
-  state: TreatmentState | "";
-}
+
 
 /**
  * 개별 치료 정보를 나타내는 인터페이스

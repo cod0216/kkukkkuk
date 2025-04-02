@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BlockChainRecord } from '@/interfaces';
+import RecordHistory from './RecordHistory';
+import { FaChevronDown, FaChevronUp, FaEdit } from 'react-icons/fa';
+import { getAccountAddress } from '@/services/blockchainAuthService';
 
 /**
  * @component RecordDetail
@@ -15,6 +18,7 @@ import { BlockChainRecord } from '@/interfaces';
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         처방 정보 표시 필드 수정 (type → key)
+ * 2025-04-02        assistant        수정 내역 기능 및 진료 기록 수정 기능 추가
  */
 
 /**
@@ -23,13 +27,35 @@ import { BlockChainRecord } from '@/interfaces';
  */
 interface RecordDetailProps {
   record: BlockChainRecord;
+  onEditRecord?: (record: BlockChainRecord) => void;
+  blockchainRecords?: BlockChainRecord[];
 }
 
 /**
  * 특정 반려동물의 진료 기록을 표시하는 컴포넌트입니다.
  */
-export const RecordDetail: React.FC<RecordDetailProps> = ({ record }) => {
+export const RecordDetail: React.FC<RecordDetailProps> = ({ 
+  record,
+  onEditRecord,
+  blockchainRecords = []
+}) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [currentUserAddress, setCurrentUserAddress] = useState<string | null>(null);
+  
+  // 현재 사용자 주소 가져오기
+  useEffect(() => {
+    const fetchUserAddress = async () => {
+      const address = await getAccountAddress();
+      setCurrentUserAddress(address);
+    };
+    
+    fetchUserAddress();
+  }, []);
+  
+  // 현재 사용자가 작성한 기록인지 확인
+  const isOwnRecord = currentUserAddress && record.hospitalAddress && 
+    currentUserAddress.toLowerCase() === record.hospitalAddress.toLowerCase();
 
   // 이미지 확대 모달 표시
   const showImageModal = (imageUrl: string) => {
@@ -39,6 +65,13 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({ record }) => {
   // 이미지 확대 모달 닫기
   const closeImageModal = () => {
     setSelectedImage(null);
+  };
+  
+  // 수정 버튼 클릭 핸들러
+  const handleEditClick = () => {
+    if (onEditRecord && record) {
+      onEditRecord(record);
+    }
   };
   
   // Unix timestamp를 날짜 형식으로 변환
@@ -60,18 +93,31 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({ record }) => {
   };
 
   return (
-    <div className="w-[350px] bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm">
+    <div className="w-[350px] bg-white rounded-md border border-gray-200 h-full flex flex-col">
       {/* 상단 요약 정보 */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="font-semibold text-gray-800">{record.diagnosis}</div>
+      <div className="p-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex justify-between items-center">
+          <div className="font-semibold text-gray-800">
+            {record.diagnosis}
+          </div>
+          {isOwnRecord && (
+            <button 
+              onClick={handleEditClick}
+              className="text-primary-600 hover:text-primary-800 p-1 rounded-full hover:bg-primary-50"
+              title="진료 기록 수정"
+            >
+              <FaEdit className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         <div className="text-xs text-gray-500">
           {record.timestamp ? formatDate(record.timestamp) : record.createdAt}
         </div>
         <div className="text-xs text-gray-600 font-medium mt-1">{record.hospitalName}</div>
       </div>
 
-      {/* 상세 정보 */}
-      <div className="p-4">
+      {/* 상세 정보 (정상 진료 기록) */}
+      <div className="p-4 overflow-y-auto flex-1">
         {/* 담당의 정보 */}
         <div className="mb-4 flex justify-between text-xs">
           <div className="text-gray-600">담당의: {record.doctorName}</div>
@@ -165,6 +211,23 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({ record }) => {
               </div>
             </div>
           )}
+          
+          {/* 아코디언 메뉴 - 수정 내역 */}
+          <div className="border border-gray-200 rounded-md overflow-hidden">
+            <button 
+              className="w-full flex justify-between items-center p-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              <span>수정 내역</span>
+              {showHistory ? <FaChevronUp className="h-3 w-3" /> : <FaChevronDown className="h-3 w-3" />}
+            </button>
+            
+            {showHistory && (
+              <div className="p-2 bg-white border-t border-gray-200">
+                <RecordHistory record={record} allRecords={blockchainRecords} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

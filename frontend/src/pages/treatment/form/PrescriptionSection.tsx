@@ -64,6 +64,8 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                 updatedPrescriptions.vaccinations.push(newPrescription as VaccinationTreatment);
             }
 
+            console.log('처방 추가:', newPrescription, '업데이트된 처방:', updatedPrescriptions);
+            
             // 상태 업데이트 및 입력값 초기화
             setPrescriptions(updatedPrescriptions);
             setPrescriptionType('');
@@ -90,81 +92,84 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     };
 
     return (
-        <div className="flex gap-2 flex-col">
+        <div className="flex gap-2 flex-col w-full">
             {/* 처방 입력 필드 */}
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-1 items-center w-full">
                 {/* 치료 유형 선택 */}
-                <select
-                    value={treatmentType}
-                    onChange={(e) => setTreatmentType(e.target.value as TreatmentType)}
-                    className="text-sm border rounded w-24 py-1 px-2"
-                >
-                    {Object.values(TreatmentType).map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </select>
+                <div className="flex-1 min-w-16 max-w-20">
+                    <select
+                        value={treatmentType}
+                        onChange={(e) => setTreatmentType(e.target.value as TreatmentType)}
+                        className="text-xs border rounded py-1 px-1 w-full"
+                    >
+                        {Object.values(TreatmentType).map((type) => (
+                            <option key={type} value={type}>{type}</option>
+                        ))}
+                    </select>
+                </div>
 
                 {/* 처방 항목명 입력 */}
-                <input
-                    type="text"
-                    value={prescriptionType}
-                    onChange={(e) => setPrescriptionType(e.target.value)}
-                    placeholder="약물"
-                    className="flex-1 border rounded px-2 py-1 text-sm max-w-40"
-                />
+                <div className="flex-1 min-w-20">
+                    <input
+                        type="text"
+                        value={prescriptionType}
+                        onChange={(e) => setPrescriptionType(e.target.value)}
+                        placeholder="항목명"
+                        className="border rounded px-2 py-1 text-xs w-full"
+                    />
+                </div>
 
                 {/* 처방 용량 입력 */}
-                <input
-                    type="text"
-                    value={prescriptionDosage}
-                    onChange={(e) => setPrescriptionDosage(e.target.value)}
-                    placeholder="용량"
-                    className="flex-1 border rounded px-2 py-1 text-sm max-w-40"
-                />
+                <div className="flex-1 min-w-20">
+                    <input
+                        type="text"
+                        value={prescriptionDosage}
+                        onChange={(e) => setPrescriptionDosage(e.target.value)}
+                        placeholder="용량/결과"
+                        className="border rounded px-2 py-1 text-xs w-full"
+                    />
+                </div>
 
                 {/* 처방 추가 버튼 */}
                 <button
                     onClick={addPrescription}
-                    className="p-1 text-xs text-gray-500 h-7 w-7"
+                    className="p-1 text-xs text-gray-500 h-6 w-6 flex-shrink-0"
                 >
                     <PlusCircle className="w-4 h-4" />
                 </button>
             </div>
 
             {/* 기존 처방 목록 표시 */}
-            <div className="flex gap-1 flex-col text-sm mr-9 p-2">
+            <div className="flex gap-1 flex-col text-xs p-2 w-full">
                 {prescriptions.examinations.length > 0 && (
-                    <div className="font-bold text-md mt-2">검사</div>
+                    <div className="font-bold text-xs mt-1">검사</div>
                 )}
                 {prescriptions.examinations.map((item: any, index: number) => (
-                    <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
-                        {/* <div>{item.type}</div> */}
-                        <div>{item.key}</div>
-                        <div>{item.value}</div>
-                        <button onClick={() => removePrescription(index, TreatmentType.EXAMINATION)} className="text-primary-500 text-xs">x</button>
+                    <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg">
+                        <div className="truncate mr-1 max-w-[40%]">{item.key}</div>
+                        <div className="truncate mr-1 max-w-[40%]">{item.value}</div>
+                        <button onClick={() => removePrescription(index, TreatmentType.EXAMINATION)} className="text-primary-500 text-xs flex-shrink-0">x</button>
                     </div>
                 ))}
 
                 {prescriptions.medications.length > 0 && (
-                    <div className="font-bold text-md">약물</div>
+                    <div className="font-bold text-xs mt-1">약물</div>
                 )}
                 {prescriptions.medications.map((item: any, index: number) => (
-                    <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
-                        {/* <div>{item.type}</div> */}
-                        <div>{item.key}</div>
-                        <div>{item.value}</div>
-                        <button onClick={() => removePrescription(index, TreatmentType.MEDICATION)} className="text-primary-500 text-xs">x</button>
+                    <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg">
+                        <div className="truncate mr-1 max-w-[40%]">{item.key}</div>
+                        <div className="truncate mr-1 max-w-[40%]">{item.value}</div>
+                        <button onClick={() => removePrescription(index, TreatmentType.MEDICATION)} className="text-primary-500 text-xs flex-shrink-0">x</button>
                     </div>
                 ))}
                 {prescriptions.vaccinations.length > 0 && (
-                    <div className="font-bold text-md mt-2">접종</div>
+                    <div className="font-bold text-xs mt-1">접종</div>
                 )}
                 {prescriptions.vaccinations.map((item: any, index: number) => (
-                    <div key={index} className="flex gap-2 justify-between py-1 px-2 bg-primary-50 rounded-lg">
-                        {/* <div>{item.type}</div> */}
-                        <div>{item.key}</div>
-                        <div>{item.value}</div>
-                        <button onClick={() => removePrescription(index, TreatmentType.VACCINATION)} className="text-primary-500 text-xs">x</button>
+                    <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg">
+                        <div className="truncate mr-1 max-w-[40%]">{item.key}</div>
+                        <div className="truncate mr-1 max-w-[40%]">{item.value}</div>
+                        <button onClick={() => removePrescription(index, TreatmentType.VACCINATION)} className="text-primary-500 text-xs flex-shrink-0">x</button>
                     </div>
                 ))}
             </div>

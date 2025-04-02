@@ -30,7 +30,8 @@ import { getAccountAddress } from '@/services/blockchainAuthService';
  * 2025-03-28        eunchang         토큰 name으로 사용자 이름 표시
  * 2025-03-30        sangmuk          헤더 병원 이름 클릭 시 마이페이지로 이동하도록 수정
  * 2025-03-31        sangmuk          회원정보 수정 시 헤더의 병원 이름이 같이 변경되도록 수정
- * 2025-03-31        seonghun         QR 보기 버튼 로그아웃 버튼 우측으로 이동동
+ * 2025-03-31        seonghun         QR 보기 버튼 로그아웃 버튼 우측으로 이동
+ * 2025-04-01        seonghun         QR 보기 버튼 높이 너비 조정
  */
 
 const Header: React.FC = () => {
@@ -152,7 +153,7 @@ const Header: React.FC = () => {
             <>
               <button
                 onClick={openQrModal}
-                className="bg-primary-500 hover:bg-primary-600 text-white text-xs rounded-md p-2 flex items-center"
+                className="px-2 py-1 border rounded-md text-xs font-medium text-nowrap w-20 justify-center bg-primary-500 hover:bg-primary-600 text-white flex items-center"
                 title="병원 QR 코드 보기"
               >
                 <FaQrcode className="mr-1" /> QR 보기

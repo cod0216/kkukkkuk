@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, Save, Loader, ArrowLeft } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Doctor, BlockChainRecord, TreatmentType } from '@/interfaces';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
 import { createBlockchainTreatment } from '@/services/treatmentService';
+import { getAccountAddress } from '@/services/blockchainAuthService';
 /**
  * @module TreatmentForm
  * @file TreatmentForm.tsx
@@ -50,36 +51,48 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
   petDID,
   hospitalName = '샘플 동물병원' 
 }) => {
-  // Redux에서 토큰 가져오기
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  // 폼 상태 관리
+  const [formData, setFormData] = useState({
+    diagnosis: '',
+    doctorName: '',
+    notes: '',
+    examinations: [''],
+    medications: [''],
+    vaccinations: [''],
+    pictures: [],
+    hospitalAddress: ''
+  });
 
-  // 토큰에서 병원명 추출
-  const getHospitalNameFromToken = (token: string) => {
-    try {
-      const payloadBase64 = token.split(".")[1];
-      const decoded = decodeURIComponent(
-        atob(payloadBase64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      const payload = JSON.parse(decoded);
-      return payload.name || hospitalName;
-    } catch (error) {
-      console.error("토큰 디코딩 실패", error);
-      return hospitalName;
-    }
-  };
+  // Redux에서 병원 정보 가져오기
+  const { hospital } = useSelector((state: RootState) => state.auth);
+  
+  // 계정 주소 가져오기
+  useEffect(() => {
+    const fetchAccountAddress = async () => {
+      try {
+        const address = await getAccountAddress();
+        if (address) {
+          setFormData(prev => ({
+            ...prev,
+            hospitalAddress: address
+          }));
+        }
+      } catch (error) {
+        console.error('계정 주소 가져오기 실패:', error);
+      }
+    };
+    
+    fetchAccountAddress();
+  }, []);
 
-  // 실제 병원명 가져오기 (토큰에서 가져오거나 props로 받은 값 사용)
-  const actualHospitalName = accessToken 
-    ? getHospitalNameFromToken(accessToken) 
-    : hospitalName;
+  // Redux 스토어에서 병원명 가져오기
+  const actualHospitalName = hospital?.name || hospitalName;
     
   const [notes, setNotes] = useState('');
   const [prescriptionType, setPrescriptionType] = useState('');
   const [prescriptionDosage, setPrescriptionDosage] = useState('');
   const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
+  const [isFinalTreatment, setIsFinalTreatment] = useState(false);
   const [prescriptions, setPrescriptions] = useState({
     examinations: [],
     medications: [],
@@ -162,8 +175,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
         diagnosis,
         treatments: prescriptions,
         doctorName: doctorName,
-        notes: notes,
-        hospitalAddress: '',
+        notes: isFinalTreatment ? `[최종진료] ${notes}` : notes,
+        hospitalAddress: formData.hospitalAddress,
         hospitalName: actualHospitalName,
         createdAt: new Date().toISOString(),
         isDeleted: false,
@@ -213,6 +226,11 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     if (onCancel) {
       onCancel();
     }
+  };
+
+  // 노트 내용 변경 핸들러
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
   };
 
   return (
@@ -283,10 +301,31 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
             <textarea
               className="w-full border p-2 text-sm h-24 rounded-md"
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={handleNotesChange}
               disabled={loading}
               placeholder="증상에 대한 메모를 입력하세요"
-            />
+            ></textarea>
+          </div>
+          
+          {/* 최종 진료 체크박스 */}
+          <div className="mb-4">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isFinalTreatment}
+                onChange={() => setIsFinalTreatment(prev => !prev)}
+                className="mr-2 h-4 w-4 text-primary-500 focus:ring-primary-400 border-gray-300 rounded"
+                disabled={loading}
+              />
+              <span className="text-sm font-medium text-gray-700">
+                이번 진료를 장기 치료의 마지막 진료로 표시 (치료 완료)
+              </span>
+            </label>
+            {isFinalTreatment && (
+              <p className="text-xs text-gray-500 mt-1 ml-6">
+                * 이 옵션을 선택하면 해당 진료가 완료된 것으로 처리되며, 더 이상 추가 진료가 필요하지 않음을 의미합니다.
+              </p>
+            )}
           </div>
 
           {/* 사진 업로드 */}
