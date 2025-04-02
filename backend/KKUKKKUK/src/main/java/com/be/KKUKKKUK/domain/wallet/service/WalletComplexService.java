@@ -1,15 +1,8 @@
 package com.be.KKUKKKUK.domain.wallet.service;
 
-import com.be.KKUKKKUK.domain.breed.entity.Breed;
-import com.be.KKUKKKUK.domain.breed.service.BreedService;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
-import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
-import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
-import com.be.KKUKKKUK.domain.pet.entity.Pet;
-import com.be.KKUKKKUK.domain.pet.service.PetService;
-import com.be.KKUKKKUK.domain.s3.service.S3Service;
 import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
@@ -17,7 +10,6 @@ import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
-import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,47 +34,13 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class WalletComplexService {
-    private final S3Service s3Service;
-    private final PetService petService;
     private final OwnerService ownerService;
-    private final BreedService breedService;
     private final WalletService walletService;
     private final WalletOwnerService walletOwnerService;
 
     private final WalletMapper walletMapper;
 
-    /**
-     * 특정 지갑에 반려동물을 신규로 등록합니다.
-     * @param ownerId 로그인한 사용자 ID
-     * @param request 반려동물 신규 등록 요청
-     * @return 등록된 반려동물 정보
-     */
-    public PetInfoResponse registerPet(Integer ownerId, Integer walletId, PetRegisterRequest request) {
-        Pet pet = request.toPetEntity();
 
-        Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
-        pet.setWallet(wallet);
-
-        Breed breed = breedService.getBreedById(request.getBreedId());
-        pet.setBreed(breed);
-
-        return petService.savePetInfo(pet);
-    }
-
-    /**
-     * 특정 회원 지갑의 모든 반려동물 목록을 조회합니다.
-     * @param ownerId 현재 로그인한 회원 계정 ID
-     * @return 조회된 반려동물 목록
-     */
-    @Transactional(readOnly = true)
-    public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
-        Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
-
-        List<PetInfoResponse> petInfos = petService.findPetsByWalletId(wallet.getId());
-        petInfos.forEach(pet -> pet.setImage(s3Service.getImage(pet.getId(), RelatedType.PET)));
-
-        return petInfos;
-    }
 
     /**
      * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
@@ -107,9 +65,8 @@ public class WalletComplexService {
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-        List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, walletId);
 
-        return walletMapper.mapToWalletInfoResponse(wallet, ownerInfos, petInfos);
+        return walletMapper.mapToWalletInfoResponse(wallet, ownerInfos);
     }
 
     /**
@@ -129,9 +86,8 @@ public class WalletComplexService {
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(wallet.getId());
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-        List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, wallet.getId());
 
-        return  walletMapper.mapToWalletInfoResponse(wallet, ownerInfos, petInfos);
+        return  walletMapper.mapToWalletInfoResponse(wallet, ownerInfos);
     }
 
     /**
@@ -149,9 +105,8 @@ public class WalletComplexService {
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-        List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, walletId);
 
-        return  walletMapper.mapToWalletInfoResponse(updateWallet, ownerInfos, petInfos);
+        return  walletMapper.mapToWalletInfoResponse(updateWallet, ownerInfos);
     }
 
     /**

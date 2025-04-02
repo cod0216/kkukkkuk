@@ -1,7 +1,6 @@
 package com.be.KKUKKKUK.domain.wallet.controller;
 
 import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
-import com.be.KKUKKKUK.domain.pet.dto.request.PetRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
 import com.be.KKUKKKUK.domain.wallet.service.WalletComplexService;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.20          haelim           최초 생성, 지갑 CRUD, 지갑에 대한 반려동물 등록, 조회 api <br>
  * 25.03.22          haelim           swagger 작성 <br>
  * 25.03.28          haelim           wallet 여러 개 등록 가능하도록 수정 <br>
+ * 25.04.01          haelim           pet 조회 api 삭제 <br>
  */
 @Tag(name = "디지털 지갑 API", description = "지갑 정보를 등록, 조회, 수정, 삭제, 복구, 지갑에 반려동물을 추가 / 조회할 수 있는 API입니다.")
 @Validated
@@ -133,39 +133,5 @@ public class WalletController {
         return ResponseUtility.emptyResponse("지갑 정보가 정상적으로 삭제되었습니다.");
     }
 
-    /**
-     * 로그인된 사용자 지갑에 새로운 반려동물을 등록합니다.
-     * @param ownerDetails 인증된 보호자 회원
-     * @param request      반려동물 등록 요청
-     * @return 등록된 반려동물 정보
-     */
-    @Operation(summary = "반려동물 등록", description = "로그인된 사용자 지갑에 새로운 반려동물을 등록합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "반려동물 등록 성공")
-    })
-    @PostMapping("/{walletId}/pets")
-    public ResponseEntity<?> registerPet(@AuthenticationPrincipal OwnerDetails ownerDetails,
-                                         @PathVariable @Min(1) Integer walletId,
-                                         @RequestBody @Valid PetRegisterRequest request
-    ) {
-        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
-        return ResponseUtility.success("반려동물 등록에 성공했습니다.", walletComplexService.registerPet(ownerId, walletId, request));
-    }
 
-    /**
-     * 특정 지갑에 있는 반려동물 목록을 조회합니다.
-     * @param ownerDetails 인증된 보호자 회원
-     * @return 조회된 반려동물 목록
-     */
-    @Operation(summary = "반려동물 목록 조회", description = "로그인된 사용자 지갑에 있는 반려동물 목록을 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "반려동물 목록 조회 성공")
-    })
-    @GetMapping("/{walletId}/pets")
-    public ResponseEntity<?> getPetInfoList(@AuthenticationPrincipal OwnerDetails ownerDetails,
-                                            @PathVariable @Min(1) Integer walletId
-    ) {
-        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
-        return ResponseUtility.success("반려동물 전체 목록 조회에 성공했습니다.", walletComplexService.getPetInfoListByWalletId(ownerId, walletId));
-    }
 }

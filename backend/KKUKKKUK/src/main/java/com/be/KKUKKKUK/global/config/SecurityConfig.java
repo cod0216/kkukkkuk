@@ -74,7 +74,7 @@ public class SecurityConfig {
      * OWNER 만 접근 가능한 URL 경로를 설정합니다.
      */
     private static final String[] ROLE_OWNER_URLS = {
-            "/api/owners/**", "/api/pets/**", "/api/wallets/**"
+            "/api/owners/**", "/api/wallets/**"
     };
 
     /**

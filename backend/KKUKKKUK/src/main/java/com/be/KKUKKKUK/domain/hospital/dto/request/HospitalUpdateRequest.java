@@ -23,10 +23,6 @@ import lombok.*;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class HospitalUpdateRequest {
-    @Size(max = 255)
-    @Schema(description = "동물병원 DID", example = "hospital:0xtesthospitaldid")
-    private String did;
-
     @Size(max = 100)
     @Schema(description = "동물병원 이름", example = "KKUK KKUK 동물병원")
     private String name;

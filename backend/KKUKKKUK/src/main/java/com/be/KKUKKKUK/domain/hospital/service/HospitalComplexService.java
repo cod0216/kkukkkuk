@@ -229,7 +229,6 @@ public class HospitalComplexService {
         hospital.setEmail(null);
         hospital.setDoctorName(null);
         hospital.setDid(null);
-        hospital.setPublicKey(null);
 
         hospital.setDeleteDate(LocalDate.now());
     }
