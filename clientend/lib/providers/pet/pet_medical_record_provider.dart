@@ -49,16 +49,14 @@ class MedicalRecordQueryNotifier
   void addBlockchainRecords(List<PetMedicalRecord> blockchainRecords) {
     if (blockchainRecords.isEmpty) return;
 
-    // Preserve existing records and add new ones
     final allRecords = [...state.records, ...blockchainRecords];
 
-    // Remove duplicates based on treatment date and details
+    // Remove duplicates based on treatment date and diagnosis
     final uniqueRecords = <PetMedicalRecord>[];
     final recordKeys = <String>{};
 
     for (final record in allRecords) {
-      final key =
-          '${record.treatmentDate.toIso8601String()}_${record.treatmentDetails}';
+      final key = record.treatmentDate.toIso8601String();
 
       if (!recordKeys.contains(key)) {
         recordKeys.add(key);
@@ -69,11 +67,10 @@ class MedicalRecordQueryNotifier
     // Sort by date (descending)
     uniqueRecords.sort((a, b) => b.treatmentDate.compareTo(a.treatmentDate));
 
-    // Update state while preserving other fields
     state = state.copyWith(
       records: uniqueRecords,
       lastQueryDate: DateTime.now(),
-      isLoading: false, // Ensure loading is false
+      isLoading: false,
     );
   }
 }

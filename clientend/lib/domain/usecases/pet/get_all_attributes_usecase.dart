@@ -87,7 +87,7 @@ class GetAllAtributesUseCase {
     Map<String, dynamic> recordData,
     String recordKey,
   ) {
-    // 타임스탬프 추출 (recordKey에서 medical_record_TIMESTAMP_ 형식)
+    // Extract timestamp from recordKey
     int timestamp = 0;
     try {
       final parts = recordKey.split('_');
@@ -98,40 +98,51 @@ class GetAllAtributesUseCase {
       print('타임스탬프 추출 오류: $e');
     }
 
-    // 타임스탬프로부터 날짜 생성 (초 단위)
-    final treatmentDate =
-        timestamp > 0
-            ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
-            : DateTime.now();
+    final treatmentDate = timestamp > 0
+        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
+        : DateTime.now();
 
-    // 약물 정보 추출
-    List<String> medications = [];
-    if (recordData['treatments'] != null &&
-        recordData['treatments']['medications'] != null) {
-      medications = List<String>.from(recordData['treatments']['medications']);
+    // Convert examinations
+    final List<Examination> examinations = [];
+    if (recordData['treatments']?['examinations'] != null) {
+      for (final exam in recordData['treatments']['examinations']) {
+        examinations.add(Examination(
+          type: exam['type'] ?? '',
+          key: exam['key'] ?? '',
+          value: exam['value'] ?? '',
+        ));
+      }
     }
 
-    // 예방접종 정보 추출
-    List<String> vaccinations = [];
-    if (recordData['treatments'] != null &&
-        recordData['treatments']['vaccinations'] != null) {
-      vaccinations = List<String>.from(
-        recordData['treatments']['vaccinations'],
-      );
+    // Extract medications and vaccinations
+    final List<String> medications = [];
+    final List<String> vaccinations = [];
+    
+    if (recordData['treatments']?['medications'] != null) {
+      for (final med in recordData['treatments']['medications']) {
+        medications.add('${med['key']}: ${med['value']}');
+      }
+    }
+
+    if (recordData['treatments']?['vaccinations'] != null) {
+      for (final vac in recordData['treatments']['vaccinations']) {
+        vaccinations.add('${vac['key']}: ${vac['value']}');
+      }
     }
 
     return PetMedicalRecord(
       treatmentDate: treatmentDate,
-      recordType: '진료', // 기본값
-      medication: medications.isNotEmpty ? medications.join(', ') : null,
-      vaccination: vaccinations.isNotEmpty ? vaccinations.join(', ') : null,
-      xRayUrl: null, // 블록체인 데이터에 X-ray URL이 없음
+      diagnosis: recordData['diagnosis'] ?? '',
       veterinarian: recordData['doctorName'] ?? '',
-      petName: '', // 블록체인 데이터에 펫 이름이 없음
-      petGender: '', // 블록체인 데이터에 펫 성별이 없음
-      guardianName: '', // 블록체인 데이터에 보호자 이름이 없음
-      treatmentDetails: recordData['diagnosis'] ?? '',
+      hospitalName: recordData['hospitalName'] ?? '',
+      hospitalAddress: recordData['hospitalAddress'] ?? '',
+      examinations: examinations,
+      medications: medications,
+      vaccinations: vaccinations,
       memo: recordData['notes'],
+      status: recordData['status'] ?? 'UNKNOWN',
+      flagCertificated: recordData['flagCertificated'] ?? false,
+      pictures: List<String>.from(recordData['pictures'] ?? []),
     );
   }
 }
