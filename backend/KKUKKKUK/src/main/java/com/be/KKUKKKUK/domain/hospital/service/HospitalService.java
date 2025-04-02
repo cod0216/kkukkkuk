@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -101,7 +102,6 @@ public class HospitalService {
     @Transactional(readOnly = true)
     public List<HospitalMapInfoResponse> getHospitalListByName(String name) {
         List<Hospital> hospitalList = hospitalRepository.findHospitalListByNameContaining(name);
-
         return hospitalMapper.mapToHospitalMapInfoList(hospitalList);
     }
 
@@ -118,11 +118,6 @@ public class HospitalService {
         Hospital hospital = findHospitalById(hospitalId);
 
         hospitalMapper.updateHospitalFromRequest(hospital, request);
-
-
-
-
-
         if(Objects.nonNull(request.getPassword()) && !request.getPassword().isEmpty()){
             hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -142,18 +137,15 @@ public class HospitalService {
     }
 
     /**
-     * TODO : 요청된 위치 좌표(xAxis, yAxis) 주변의 동물병원 목록을 조회합니다.
-     *
      * @param xAxis 기준 x좌표
      * @param yAxis 기준 y좌표
      * @param radius 조회 반경
      * @return 주변 동물 병원 목록
      */
-    public List<HospitalMapInfoResponse>  getAllHospital(Double xAxis, Double yAxis, Integer radius) {
-
-        return null;
+    public List<HospitalMapInfoResponse> getHospitalsWithinRadius(BigDecimal xAxis, BigDecimal yAxis, Integer radius) {
+        List<Hospital> hospitals = hospitalRepository.findHospitalsWithinRadius(xAxis, yAxis, radius);
+        return hospitalMapper.mapToHospitalMapInfoList(hospitals);
     }
-
 
     /**
      * 동물병원용 계정의 사용 가능 여부를 확인합니다.
@@ -165,7 +157,6 @@ public class HospitalService {
     public Boolean checkAccountAvailable(String account) {
         return hospitalRepository.findByAccount(account).isEmpty();
     }
-
 
     /**
      * 동물병원 account 를 기반으로 동물병원 entity 를 조회합니다.
@@ -202,7 +193,6 @@ public class HospitalService {
                 .orElseThrow(() -> new ApiException(ErrorCode.EMAIL_DUPLICATED));
     }
 
-    
     /**
      * email 로 동물 병원 회원을 조회합니다.
      * @param email 확인할 email
@@ -221,7 +211,8 @@ public class HospitalService {
      */
     @Transactional(readOnly = true)
     public Hospital findHospitalByEmail(String email) {
-        return findHospitalByEmailOptional(email).orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
+        return findHospitalByEmailOptional(email)
+                .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
     }
     
     /**

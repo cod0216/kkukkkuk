@@ -2,15 +2,9 @@ package com.be.KKUKKKUK.global.util;
 
 import com.be.KKUKKKUK.global.api.ApiResponse;
 import com.be.KKUKKKUK.global.api.StatusEnum;
-import com.be.KKUKKKUK.global.exception.ApiException;
-import com.be.KKUKKKUK.global.exception.ErrorCode;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.security.SecureRandom;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * packageName    : com.be.KKUKKKUK.global.util<br>
@@ -32,7 +26,6 @@ public final class ResponseUtility {
 
     /**
      * 요청이 성공했을 때 커스텀 메시지와 함께 200 OK 응답을 반환합니다.
-     *
      * @param message 응답 메시지
      * @param data    응답 데이터
      * @param <T>     응답 데이터의 타입
@@ -44,7 +37,6 @@ public final class ResponseUtility {
 
     /**
      * 삭제 요청 시 No Content 대신 빈 객체를 반환합니다.
-     *
      * @param message 응답 메시지
      * @return 200 OK 응답을 포함한 {@link ResponseEntity}
      */

@@ -19,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 /**
  * packageName    : com.be.KKUKKKUK.domain.hospital.controller<br>
  * fileName       : HospitalController.java<br>
@@ -170,30 +172,25 @@ public class HospitalController {
     }
 
     /**
-     * TODO : service 구현 끝내기
      * 요청된 위치 좌표(xAxis, yAxis) 주변의 동물병원 목록을 조회합니다.
      * @param xAxis 기준 x좌표
      * @param yAxis 기준 y좌표
      * @param radius 조회 반경
      * @return 주변 동물 병원 목록
      */
-    //@GetMapping("/")
-    public ResponseEntity<?> getAllHospitalsByAxis(
-            @RequestParam @NotNull(message = "xAxis 값은 필수입니다.")
-            @Min(value = -180, message = "xAxis(경도)는 -180 이상이어야 합니다.")
-            @Max(value = 180, message = "xAxis(경도)는 180 이하여야 합니다.")
-            Double xAxis,
+    @GetMapping
+    public ResponseEntity<?> getAllHospitalsByAxis(@RequestParam @NotNull
+                                                   @Min(value = -180, message = "xAxis(경도)는 -180 이상이어야 합니다.")
+                                                   @Max(value = 180, message = "xAxis(경도)는 180 이하여야 합니다.") BigDecimal xAxis,
 
-            @RequestParam @NotNull(message = "yAxis 값은 필수입니다.")
-            @Min(value = -90, message = "yAxis(위도)는 -90 이상이어야 합니다.")
-            @Max(value = 90, message = "yAxis(위도)는 90 이하여야 합니다.")
-            Double yAxis,
+                                                   @RequestParam @NotNull
+                                                   @Min(value = -90, message = "yAxis(위도)는 -90 이상이어야 합니다.")
+                                                   @Max(value = 90, message = "yAxis(위도)는 90 이하여야 합니다.") BigDecimal yAxis,
 
-            @RequestParam @NotNull(message = "radius 값은 필수입니다.")
-            @Min(value = 1, message = "반경(radius)은 1 이상이어야 합니다.")
-            Integer radius
+                                                   @RequestParam
+                                                   @Min(value = 1, message = "반경(radius)은 1 이상이어야 합니다.") Integer radius
     )
     {
-        return ResponseUtility.success( "조회된 동물병원 목록입니다.", hospitalService.getAllHospital(xAxis, yAxis, radius));
+        return ResponseUtility.success( "조회된 동물병원 목록입니다.", hospitalService.getHospitalsWithinRadius(xAxis, yAxis, radius));
     }
 }

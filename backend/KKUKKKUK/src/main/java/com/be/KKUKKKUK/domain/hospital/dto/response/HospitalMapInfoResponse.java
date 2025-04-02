@@ -1,9 +1,11 @@
 package com.be.KKUKKKUK.domain.hospital.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -20,17 +22,19 @@ import java.math.BigDecimal;
  */
 @Data
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class HospitalMapInfoResponse {
     private Integer id;
 
     private String name;
 
+    @JsonProperty("phone_number")
     private String phoneNumber;
 
     private String address;
 
+    @JsonProperty("x_axis")
     private BigDecimal xAxis;
 
+    @JsonProperty("y_axis")
     private BigDecimal yAxis;
 }
