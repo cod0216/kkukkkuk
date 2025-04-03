@@ -12,6 +12,7 @@ import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_card.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/pet_profile_header.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/last_treatment_date.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_image_picker.dart';
+import 'package:kkuk_kkuk/services/ocr_service.dart';
 
 class PetProfileScreen extends ConsumerStatefulWidget {
   final Pet pet;
@@ -91,9 +92,50 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
     }
   }
 
-  void _handleImageSelected(File image) {
-    // TODO: OCR 기능 추가
-    print('Selected image: ${image.path}');
+  final OcrService _ocrService = OcrService();
+
+  Future<void> _handleImageSelected(File image) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => WillPopScope(
+              onWillPop: () async => false,
+              child: const AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('진료기록을 분석하는 중입니다...\n잠시만 기다려주세요.'),
+                  ],
+                ),
+              ),
+            ),
+      );
+
+      // Process image with OCR
+      final medicalData = await _ocrService.processImage(image);
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      // TODO: Send to server (Step 4)
+      print('OCR 결과: $medicalData');
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('진료기록 분석이 완료되었습니다.')));
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('진료기록 분석 중 오류가 발생했습니다: $e')));
+    }
   }
 
   @override
