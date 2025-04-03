@@ -11,9 +11,9 @@ _WalletInfoResponse _$WalletInfoResponseFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String,
       message: json['message'] as String,
       data:
-          json['data'] == null
-              ? null
-              : WalletInfoData.fromJson(json['data'] as Map<String, dynamic>),
+          (json['data'] as List<dynamic>)
+              .map((e) => WalletInfo.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
 
 Map<String, dynamic> _$WalletInfoResponseToJson(_WalletInfoResponse instance) =>
@@ -23,16 +23,15 @@ Map<String, dynamic> _$WalletInfoResponseToJson(_WalletInfoResponse instance) =>
       'data': instance.data,
     };
 
-_WalletInfoData _$WalletInfoDataFromJson(Map<String, dynamic> json) =>
-    _WalletInfoData(
-      walletId: (json['wallet-id'] as num).toInt(),
-      walletDid: json['wallet-did'] as String,
-      walletAddress: json['wallet-address'] as String,
-    );
+_WalletInfo _$WalletInfoFromJson(Map<String, dynamic> json) => _WalletInfo(
+  id: (json['id'] as num).toInt(),
+  name: json['name'] as String?,
+  address: json['address'] as String,
+);
 
-Map<String, dynamic> _$WalletInfoDataToJson(_WalletInfoData instance) =>
+Map<String, dynamic> _$WalletInfoToJson(_WalletInfo instance) =>
     <String, dynamic>{
-      'wallet-id': instance.walletId,
-      'wallet-did': instance.walletDid,
-      'wallet-address': instance.walletAddress,
+      'id': instance.id,
+      'name': instance.name,
+      'address': instance.address,
     };

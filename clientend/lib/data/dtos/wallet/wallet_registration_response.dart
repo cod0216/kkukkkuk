@@ -21,10 +21,24 @@ abstract class WalletRegistrationResponse with _$WalletRegistrationResponse {
 abstract class WalletData with _$WalletData {
   const factory WalletData({
     required int id,
-    required String did,
     required String address,
+    required String name,
+    required List<WalletOwner> owners,
   }) = _WalletData;
 
   factory WalletData.fromJson(Map<String, dynamic> json) =>
       _$WalletDataFromJson(json);
+}
+
+/// 지갑 소유자 정보 DTO
+@freezed
+abstract class WalletOwner with _$WalletOwner {
+  const factory WalletOwner({
+    required int id,
+    required String name,
+    String? image,
+  }) = _WalletOwner;
+
+  factory WalletOwner.fromJson(Map<String, dynamic> json) =>
+      _$WalletOwnerFromJson(json);
 }

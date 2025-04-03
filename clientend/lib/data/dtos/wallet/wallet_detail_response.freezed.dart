@@ -4,7 +4,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'wallet_update_response.dart';
+part of 'wallet_detail_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,22 +14,22 @@ part of 'wallet_update_response.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$WalletUpdateResponse {
+mixin _$WalletDetailResponse {
 
- String get status; String get message; WalletData get data;
-/// Create a copy of WalletUpdateResponse
+ String get status; String get message; WalletDetailData get data;
+/// Create a copy of WalletDetailResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$WalletUpdateResponseCopyWith<WalletUpdateResponse> get copyWith => _$WalletUpdateResponseCopyWithImpl<WalletUpdateResponse>(this as WalletUpdateResponse, _$identity);
+$WalletDetailResponseCopyWith<WalletDetailResponse> get copyWith => _$WalletDetailResponseCopyWithImpl<WalletDetailResponse>(this as WalletDetailResponse, _$identity);
 
-  /// Serializes this WalletUpdateResponse to a JSON map.
+  /// Serializes this WalletDetailResponse to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletUpdateResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletDetailResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -38,49 +38,49 @@ int get hashCode => Object.hash(runtimeType,status,message,data);
 
 @override
 String toString() {
-  return 'WalletUpdateResponse(status: $status, message: $message, data: $data)';
+  return 'WalletDetailResponse(status: $status, message: $message, data: $data)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $WalletUpdateResponseCopyWith<$Res>  {
-  factory $WalletUpdateResponseCopyWith(WalletUpdateResponse value, $Res Function(WalletUpdateResponse) _then) = _$WalletUpdateResponseCopyWithImpl;
+abstract mixin class $WalletDetailResponseCopyWith<$Res>  {
+  factory $WalletDetailResponseCopyWith(WalletDetailResponse value, $Res Function(WalletDetailResponse) _then) = _$WalletDetailResponseCopyWithImpl;
 @useResult
 $Res call({
- String status, String message, WalletData data
+ String status, String message, WalletDetailData data
 });
 
 
-$WalletDataCopyWith<$Res> get data;
+$WalletDetailDataCopyWith<$Res> get data;
 
 }
 /// @nodoc
-class _$WalletUpdateResponseCopyWithImpl<$Res>
-    implements $WalletUpdateResponseCopyWith<$Res> {
-  _$WalletUpdateResponseCopyWithImpl(this._self, this._then);
+class _$WalletDetailResponseCopyWithImpl<$Res>
+    implements $WalletDetailResponseCopyWith<$Res> {
+  _$WalletDetailResponseCopyWithImpl(this._self, this._then);
 
-  final WalletUpdateResponse _self;
-  final $Res Function(WalletUpdateResponse) _then;
+  final WalletDetailResponse _self;
+  final $Res Function(WalletDetailResponse) _then;
 
-/// Create a copy of WalletUpdateResponse
+/// Create a copy of WalletDetailResponse
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? message = null,Object? data = null,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as WalletData,
+as WalletDetailData,
   ));
 }
-/// Create a copy of WalletUpdateResponse
+/// Create a copy of WalletDetailResponse
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$WalletDataCopyWith<$Res> get data {
+$WalletDetailDataCopyWith<$Res> get data {
   
-  return $WalletDataCopyWith<$Res>(_self.data, (value) {
+  return $WalletDetailDataCopyWith<$Res>(_self.data, (value) {
     return _then(_self.copyWith(data: value));
   });
 }
@@ -90,28 +90,28 @@ $WalletDataCopyWith<$Res> get data {
 /// @nodoc
 @JsonSerializable()
 
-class _WalletUpdateResponse implements WalletUpdateResponse {
-  const _WalletUpdateResponse({required this.status, required this.message, required this.data});
-  factory _WalletUpdateResponse.fromJson(Map<String, dynamic> json) => _$WalletUpdateResponseFromJson(json);
+class _WalletDetailResponse implements WalletDetailResponse {
+  const _WalletDetailResponse({required this.status, required this.message, required this.data});
+  factory _WalletDetailResponse.fromJson(Map<String, dynamic> json) => _$WalletDetailResponseFromJson(json);
 
 @override final  String status;
 @override final  String message;
-@override final  WalletData data;
+@override final  WalletDetailData data;
 
-/// Create a copy of WalletUpdateResponse
+/// Create a copy of WalletDetailResponse
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$WalletUpdateResponseCopyWith<_WalletUpdateResponse> get copyWith => __$WalletUpdateResponseCopyWithImpl<_WalletUpdateResponse>(this, _$identity);
+_$WalletDetailResponseCopyWith<_WalletDetailResponse> get copyWith => __$WalletDetailResponseCopyWithImpl<_WalletDetailResponse>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$WalletUpdateResponseToJson(this, );
+  return _$WalletDetailResponseToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletUpdateResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletDetailResponse&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -120,50 +120,50 @@ int get hashCode => Object.hash(runtimeType,status,message,data);
 
 @override
 String toString() {
-  return 'WalletUpdateResponse(status: $status, message: $message, data: $data)';
+  return 'WalletDetailResponse(status: $status, message: $message, data: $data)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$WalletUpdateResponseCopyWith<$Res> implements $WalletUpdateResponseCopyWith<$Res> {
-  factory _$WalletUpdateResponseCopyWith(_WalletUpdateResponse value, $Res Function(_WalletUpdateResponse) _then) = __$WalletUpdateResponseCopyWithImpl;
+abstract mixin class _$WalletDetailResponseCopyWith<$Res> implements $WalletDetailResponseCopyWith<$Res> {
+  factory _$WalletDetailResponseCopyWith(_WalletDetailResponse value, $Res Function(_WalletDetailResponse) _then) = __$WalletDetailResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String status, String message, WalletData data
+ String status, String message, WalletDetailData data
 });
 
 
-@override $WalletDataCopyWith<$Res> get data;
+@override $WalletDetailDataCopyWith<$Res> get data;
 
 }
 /// @nodoc
-class __$WalletUpdateResponseCopyWithImpl<$Res>
-    implements _$WalletUpdateResponseCopyWith<$Res> {
-  __$WalletUpdateResponseCopyWithImpl(this._self, this._then);
+class __$WalletDetailResponseCopyWithImpl<$Res>
+    implements _$WalletDetailResponseCopyWith<$Res> {
+  __$WalletDetailResponseCopyWithImpl(this._self, this._then);
 
-  final _WalletUpdateResponse _self;
-  final $Res Function(_WalletUpdateResponse) _then;
+  final _WalletDetailResponse _self;
+  final $Res Function(_WalletDetailResponse) _then;
 
-/// Create a copy of WalletUpdateResponse
+/// Create a copy of WalletDetailResponse
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? message = null,Object? data = null,}) {
-  return _then(_WalletUpdateResponse(
+  return _then(_WalletDetailResponse(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as WalletData,
+as WalletDetailData,
   ));
 }
 
-/// Create a copy of WalletUpdateResponse
+/// Create a copy of WalletDetailResponse
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$WalletDataCopyWith<$Res> get data {
+$WalletDetailDataCopyWith<$Res> get data {
   
-  return $WalletDataCopyWith<$Res>(_self.data, (value) {
+  return $WalletDetailDataCopyWith<$Res>(_self.data, (value) {
     return _then(_self.copyWith(data: value));
   });
 }
@@ -171,22 +171,22 @@ $WalletDataCopyWith<$Res> get data {
 
 
 /// @nodoc
-mixin _$WalletData {
+mixin _$WalletDetailData {
 
  int get id; String get address; String get name; List<WalletOwner> get owners;
-/// Create a copy of WalletData
+/// Create a copy of WalletDetailData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$WalletDataCopyWith<WalletData> get copyWith => _$WalletDataCopyWithImpl<WalletData>(this as WalletData, _$identity);
+$WalletDetailDataCopyWith<WalletDetailData> get copyWith => _$WalletDetailDataCopyWithImpl<WalletDetailData>(this as WalletDetailData, _$identity);
 
-  /// Serializes this WalletData to a JSON map.
+  /// Serializes this WalletDetailData to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletData&&(identical(other.id, id) || other.id == id)&&(identical(other.address, address) || other.address == address)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.owners, owners));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletDetailData&&(identical(other.id, id) || other.id == id)&&(identical(other.address, address) || other.address == address)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.owners, owners));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -195,15 +195,15 @@ int get hashCode => Object.hash(runtimeType,id,address,name,const DeepCollection
 
 @override
 String toString() {
-  return 'WalletData(id: $id, address: $address, name: $name, owners: $owners)';
+  return 'WalletDetailData(id: $id, address: $address, name: $name, owners: $owners)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $WalletDataCopyWith<$Res>  {
-  factory $WalletDataCopyWith(WalletData value, $Res Function(WalletData) _then) = _$WalletDataCopyWithImpl;
+abstract mixin class $WalletDetailDataCopyWith<$Res>  {
+  factory $WalletDetailDataCopyWith(WalletDetailData value, $Res Function(WalletDetailData) _then) = _$WalletDetailDataCopyWithImpl;
 @useResult
 $Res call({
  int id, String address, String name, List<WalletOwner> owners
@@ -214,14 +214,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$WalletDataCopyWithImpl<$Res>
-    implements $WalletDataCopyWith<$Res> {
-  _$WalletDataCopyWithImpl(this._self, this._then);
+class _$WalletDetailDataCopyWithImpl<$Res>
+    implements $WalletDetailDataCopyWith<$Res> {
+  _$WalletDetailDataCopyWithImpl(this._self, this._then);
 
-  final WalletData _self;
-  final $Res Function(WalletData) _then;
+  final WalletDetailData _self;
+  final $Res Function(WalletDetailData) _then;
 
-/// Create a copy of WalletData
+/// Create a copy of WalletDetailData
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? address = null,Object? name = null,Object? owners = null,}) {
   return _then(_self.copyWith(
@@ -239,9 +239,9 @@ as List<WalletOwner>,
 /// @nodoc
 @JsonSerializable()
 
-class _WalletData implements WalletData {
-  const _WalletData({required this.id, required this.address, required this.name, required final  List<WalletOwner> owners}): _owners = owners;
-  factory _WalletData.fromJson(Map<String, dynamic> json) => _$WalletDataFromJson(json);
+class _WalletDetailData implements WalletDetailData {
+  const _WalletDetailData({required this.id, required this.address, required this.name, required final  List<WalletOwner> owners}): _owners = owners;
+  factory _WalletDetailData.fromJson(Map<String, dynamic> json) => _$WalletDetailDataFromJson(json);
 
 @override final  int id;
 @override final  String address;
@@ -254,20 +254,20 @@ class _WalletData implements WalletData {
 }
 
 
-/// Create a copy of WalletData
+/// Create a copy of WalletDetailData
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$WalletDataCopyWith<_WalletData> get copyWith => __$WalletDataCopyWithImpl<_WalletData>(this, _$identity);
+_$WalletDetailDataCopyWith<_WalletDetailData> get copyWith => __$WalletDetailDataCopyWithImpl<_WalletDetailData>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$WalletDataToJson(this, );
+  return _$WalletDetailDataToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletData&&(identical(other.id, id) || other.id == id)&&(identical(other.address, address) || other.address == address)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other._owners, _owners));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletDetailData&&(identical(other.id, id) || other.id == id)&&(identical(other.address, address) || other.address == address)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other._owners, _owners));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -276,15 +276,15 @@ int get hashCode => Object.hash(runtimeType,id,address,name,const DeepCollection
 
 @override
 String toString() {
-  return 'WalletData(id: $id, address: $address, name: $name, owners: $owners)';
+  return 'WalletDetailData(id: $id, address: $address, name: $name, owners: $owners)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$WalletDataCopyWith<$Res> implements $WalletDataCopyWith<$Res> {
-  factory _$WalletDataCopyWith(_WalletData value, $Res Function(_WalletData) _then) = __$WalletDataCopyWithImpl;
+abstract mixin class _$WalletDetailDataCopyWith<$Res> implements $WalletDetailDataCopyWith<$Res> {
+  factory _$WalletDetailDataCopyWith(_WalletDetailData value, $Res Function(_WalletDetailData) _then) = __$WalletDetailDataCopyWithImpl;
 @override @useResult
 $Res call({
  int id, String address, String name, List<WalletOwner> owners
@@ -295,17 +295,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$WalletDataCopyWithImpl<$Res>
-    implements _$WalletDataCopyWith<$Res> {
-  __$WalletDataCopyWithImpl(this._self, this._then);
+class __$WalletDetailDataCopyWithImpl<$Res>
+    implements _$WalletDetailDataCopyWith<$Res> {
+  __$WalletDetailDataCopyWithImpl(this._self, this._then);
 
-  final _WalletData _self;
-  final $Res Function(_WalletData) _then;
+  final _WalletDetailData _self;
+  final $Res Function(_WalletDetailData) _then;
 
-/// Create a copy of WalletData
+/// Create a copy of WalletDetailData
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? address = null,Object? name = null,Object? owners = null,}) {
-  return _then(_WalletData(
+  return _then(_WalletDetailData(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
