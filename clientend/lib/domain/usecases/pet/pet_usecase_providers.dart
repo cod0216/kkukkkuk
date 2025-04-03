@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/repositories/pet/pet_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/add_hospital_with_sharing_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
@@ -49,3 +50,10 @@ final grantHospitalAccessUseCaseProvider =
       final repository = ref.watch(petRepositoryProvider);
       return AddHospitalWithSharingUseCase(repository);
     });
+
+final addMedicalRecordUseCaseProvider = Provider<AddMedicalRecordUseCase>((
+  ref,
+) {
+  final repository = ref.watch(petRepositoryProvider);
+  return AddMedicalRecordUseCase(repository);
+});

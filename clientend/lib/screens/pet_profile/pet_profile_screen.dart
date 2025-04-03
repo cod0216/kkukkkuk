@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/medical_record_query_controller.dart';
+import 'package:kkuk_kkuk/controllers/medical_record_register_controller.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_medical_record_provider.dart';
+import 'package:kkuk_kkuk/providers/pet/pet_medical_record_register_provider.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/empty_medical_records.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_card.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/pet_profile_header.dart';
@@ -95,29 +97,19 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 상태 변화를 감지하기 위해 watch 사용
     final medicalRecordState = ref.watch(medicalRecordQueryProvider);
     final records = medicalRecordState.records;
+    final registerState = ref.watch(medicalRecordRegisterProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('반려동물 프로필'),
-        // TODO: 프로필 편집 버튼 추가
-        // TODO: 설정 메뉴 추가
-        // TODO: 공유 버튼 추가
-      ),
+      appBar: AppBar(title: const Text('반려동물 프로필')),
       body: Column(
         children: [
-          // 반려동물 기본 정보 헤더
           PetProfileHeader(pet: widget.pet),
-
-          // 최근 진료일 정보
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: LastTreatmentDate(records: records),
           ),
-
-          // 진료 기록 목록
           Expanded(
             child:
                 medicalRecordState.isLoading
@@ -127,9 +119,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
                     : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: records.length,
-                      // TODO: 무한 스크롤 구현
-                      // TODO: 스크롤 위치 저장 및 복원
-                      // TODO: 진료 기록 카드 애니메이션 효과 추가
                       itemBuilder: (context, index) {
                         return MedicalRecordCard(record: records[index]);
                       },
@@ -137,8 +126,76 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
           ),
         ],
       ),
-      // TODO: FAB 추가 (새로운 진료 기록 추가)
-      // TODO: 하단 네비게이션 바 추가 (필요한 경우)
+      floatingActionButton: FloatingActionButton(
+        onPressed:
+            registerState.isLoading
+                ? null
+                : () async {
+                  if (widget.pet.did == null || widget.pet.did!.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('반려동물 DID가 없습니다.')),
+                    );
+                    return;
+                  }
+
+                  // Show loading dialog
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder:
+                        (context) => WillPopScope(
+                          onWillPop: () async => false,
+                          child: const AlertDialog(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text('진료 기록을 등록하는 중입니다...\n잠시만 기다려주세요.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                  );
+
+                  try {
+                    await ref
+                        .read(medicalRecordRegisterControllerProvider)
+                        .registerMedicalRecord(widget.pet.did!);
+
+                    if (!mounted) return;
+
+                    // Close loading dialog
+                    Navigator.of(context).pop();
+
+                    final error = ref.read(medicalRecordRegisterProvider).error;
+                    if (error != null) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('등록 실패: $error')));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('진료 기록이 등록되었습니다.')),
+                      );
+                      // Refresh medical records
+                      _loadMedicalRecords();
+                    }
+                  } catch (e) {
+                    if (!mounted) return;
+
+                    // Close loading dialog
+                    Navigator.of(context).pop();
+
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('등록 중 오류 발생: $e')));
+                  }
+                },
+        child:
+            registerState.isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.add),
+      ),
     );
   }
 }
