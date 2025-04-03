@@ -4,8 +4,28 @@ import com.be.KKUKKKUK.domain.ocr.client.OpenAiApiClient;
 import com.be.KKUKKKUK.domain.ocr.dto.mapper.OcrMapper;
 import com.be.KKUKKKUK.domain.ocr.dto.request.OcrRequest;
 import com.be.KKUKKKUK.domain.ocr.dto.response.OcrResponse;
+import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.net.http.HttpRequest;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * packageName    : com.be.KKUKKKUK.domain.ocr.service<br>
+ * fileName       : OcrService.java<br>
+ * author         : eunchang<br>
+ * date           : 2025-04-02<br>
+ * description    : Ocr Service 클래스 입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.02          eunchang           최초 생성<br>
+ */
+
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +57,9 @@ public class OcrService {
                     "5) 약물이나 접종 관련 내용이 구체적으로 드러나지 않으면, medications와 vaccinations는 빈 배열([])로 둬라.\n" +
                     "6) 출력은 반드시 순수 JSON 형식만을 사용하고, 추가적인 설명이나 문장은 포함하지 마라.\n\n" +
                     "예시 출력 (참고용, 실제 데이터가 없으면 채우지 말 것):\n" +
+                    "7) 입력 데이터에서 '내복약', '주사', '약' 등과 같이 약물을 나타내는 단어가 발견되면, 이를 medications 배열에 추가하라. " +
+                    "   - 예를 들어, '내복약 (-20kg)-진소염제'가 있다면, key는 '내복약'으로, value는 '(-20kg)-진소염제'로 처리하라.\n"
+                    +
                     "{\n" +
                     "  \"date\": \"2023-01-31\",\n" +
                     "  \"diagnosis\": \"\",\n" +
@@ -55,31 +78,40 @@ public class OcrService {
     /**
      * 의료 기록 전문 지식을 바탕으로 입력 데이터를 정제하여 반환합니다.
      *
-     * @param request OcrRequest - OCR 결과 문자열을 담은 요청 DTO
-     * @return OcrResponse - GPT API 결과를 매핑한 응답 DTO
+     * @param request OcrRequest OCR 결과 문자열을 담은 요청 DTO
+     * @return OcrResponse GPT API 결과를 매핑한 응답 DTO
+     * @throws ApiException 입력한 데이터가 올바르지 않은 경우
+     * @throws ApiException GTP 결과가 올바르지 않거나 error처리가 된 경우
      */
-    public OcrResponse getOcrResult(OcrRequest request) {
-        // 1. 입력 데이터가 존재하는지 확인합니다.
-        String text = request.getText();
-        if (text == null || text.trim().isEmpty()) {
-            throw new IllegalArgumentException("입력 데이터가 제공되지 않았습니다.");
+    public OcrResponse getOcrResult(Map<String, String> request) {
+        String text = combineText(request);
+        if (Objects.isNull(text) || text.trim().isEmpty()) {
+            throw new ApiException(ErrorCode.GPT_INPUT_ERROR);
         }
 
-        // 2. 프롬프트와 입력 데이터를 결합합니다.
         String fullPrompt = prompt + "\n\n입력 데이터:\n" + text;
-        System.out.println("fullPrompt = " + fullPrompt);
-
-        // 3. GPT API 호출
         String gptResult = openAiApiClient.sendPrompt(fullPrompt);
+
         System.out.println("gptResult = " + gptResult);
 
-        // 4. GPT API 응답에 에러 메시지가 있는지 체크합니다.
         if (gptResult.contains("\"error\"")) {
-            throw new RuntimeException("GPT API 오류 발생: " + gptResult);
+            throw new ApiException(ErrorCode.GPT_API_ERROR);
         }
-
-        // 5. 정상적인 응답인 경우 OcrResponse 객체로 매핑하여 반환합니다.
         return ocrMapper.toOcrResponse(gptResult);
     }
 
+    /**
+     * 파라미터로 들어온 키-벨류 값들을 정제해서 하나의 택스트로 결합합니다.
+     *
+     * @param requestMap 모바일에서 Json 형식으로 요청한 값
+     */
+    public String combineText(Map<String, String> requestMap){
+        StringBuilder combinedText = new StringBuilder();
+        requestMap.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith("word_"))
+                .sorted(Comparator.comparingInt(e -> Integer.parseInt(e.getKey().substring(5))))
+                .forEach(entry -> combinedText.append(entry.getValue()).append(" "));
+
+       return combinedText.toString().trim();
+    }
 }

@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Comparator;
+import java.util.Map;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.ocr.dto.request<br>

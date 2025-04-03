@@ -10,7 +10,7 @@ import java.util.List;
  * fileName       : OcrResponse.java<br>
  * author         : eunchang<br>
  * date           : 2025-04-02<br>
- * description    : Ocr파싱 결과를 반환하는 response DTO 클래스입니다.<br>
+ * description    : Ocr파싱 결과를 반환하는 상위 response DTO 클래스입니다.<br>
  * ===========================================================<br>
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
