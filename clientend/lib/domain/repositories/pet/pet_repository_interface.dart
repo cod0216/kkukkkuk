@@ -59,4 +59,8 @@ abstract class IPetRepository {
     required String status,
     required bool flagCertificated,
   });
+
+  Future<Map<String, dynamic>> processMedicalRecordImage(
+    Map<String, dynamic> ocrData,
+  );
 }

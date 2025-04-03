@@ -34,33 +34,46 @@ class MedicalRecordRegisterNotifier
   MedicalRecordRegisterNotifier(this._addMedicalRecordUseCase)
     : super(const MedicalRecordRegisterState());
 
-  Future<void> registerMedicalRecord(String petDid) async {
+  Future<void> registerMedicalRecord(
+    String petDid,
+    Map<String, dynamic> data,
+  ) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      // 더미 데이터 생성
-      final dummyRecord = PetMedicalRecord(
-        treatmentDate: DateTime.now(),
-        diagnosis: '감기 증상',
-        veterinarian: '김수의사',
-        hospitalName: '행복동물병원',
+      final record = PetMedicalRecord(
+        treatmentDate: DateTime.parse(data['date']),
+        diagnosis: data['diagnosis'],
+        veterinarian: data['doctorName'],
+        hospitalName: data['hospitalName'],
         hospitalAddress: '',
-        examinations: [
-          Examination(type: '체온', key: 'temperature', value: '38.5°C'),
-        ],
-        medications: [Medication(key: '감기약', value: '1일 2회')],
-        vaccinations: [],
-        memo: '3일간 경과 관찰 필요',
+        examinations:
+            (data['examinations'] as List)
+                .map(
+                  (e) => Examination(
+                    type: e['type'],
+                    key: e['key'],
+                    value: e['value'],
+                  ),
+                )
+                .toList(),
+        medications:
+            (data['medications'] as List)
+                .map((e) => Medication(key: e['key'], value: e['value']))
+                .toList(),
+        vaccinations:
+            (data['vaccinations'] as List)
+                .map((e) => Vaccination(key: e['key'], value: e['value']))
+                .toList(),
+        memo: data['notes'],
         status: 'NONE',
         flagCertificated: false,
-        pictures: [
-          "https://s3.ap-northeast-2.amazonaws.com/kkukkkuk/pet/7cb6f0ff-2587-41a2-b43a-e81f7097b5bc.jpg",
-        ],
+        pictures: [],
       );
 
       final txHash = await _addMedicalRecordUseCase.execute(
         petDid: petDid,
-        record: dummyRecord,
+        record: record,
       );
 
       state = state.copyWith(isLoading: false, transactionHash: txHash);

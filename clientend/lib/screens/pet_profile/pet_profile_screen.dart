@@ -117,24 +117,57 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
       );
 
       // Process image with OCR
-      final medicalData = await _ocrService.processImage(image);
+      final ocrData = await _ocrService.processImage(image);
+
+      // Process OCR data with server
+      final processedData = await ref
+          .read(processMedicalRecordImageUseCaseProvider)
+          .execute(ocrData);
 
       if (!mounted) return;
-      Navigator.of(context).pop(); // Close loading dialog
+      Navigator.of(context).pop();
 
-      // TODO: Send to server (Step 4)
-      print('OCR 결과: $medicalData');
+      // Show registration dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => WillPopScope(
+              onWillPop: () async => false,
+              child: const AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('진료기록을 등록하는 중입니다...\n잠시만 기다려주세요.'),
+                  ],
+                ),
+              ),
+            ),
+      );
+
+      // Register medical record with processed data
+      await ref
+          .read(medicalRecordRegisterProvider.notifier)
+          .registerMedicalRecord(widget.pet.did!, processedData);
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('진료기록 분석이 완료되었습니다.')));
+      ).showSnackBar(const SnackBar(content: Text('진료기록이 등록되었습니다.')));
+
+      // Refresh medical records
+      _loadMedicalRecords();
     } catch (e) {
       if (!mounted) return;
-      Navigator.of(context).pop(); // Close loading dialog
+      Navigator.of(context).pop();
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('진료기록 분석 중 오류가 발생했습니다: $e')));
+      ).showSnackBar(SnackBar(content: Text('진료기록 처리 중 오류가 발생했습니다: $e')));
     }
   }
 

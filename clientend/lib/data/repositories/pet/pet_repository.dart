@@ -383,6 +383,38 @@ class PetRepository implements IPetRepository {
       throw Exception('진료 기록 추가에 실패했습니다: $e');
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> processMedicalRecordImage(
+    Map<String, dynamic> ocrData,
+  ) async {
+    // TODO: 실제 서버 API 엔드포인트 연동
+    // TODO: API 요청/응답 모델 정의
+    // TODO: API 에러 처리 추가
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+
+    // Dummy response
+    return {
+      "diagnosis": "감기",
+      "notes": "목이 부었음",
+      "doctorName": "김닥터",
+      "hospitalName": "일곡동물병원",
+      "examinations": [
+        {"type": "검사", "key": "혈액검사", "value": "백혈구수치130"},
+        {"type": "검사", "key": "xray검사", "value": "골절상"},
+      ],
+      "medications": [
+        {"type": "약물", "key": "타이레놀", "value": "350ml"},
+        {"type": "약물", "key": "이부부로펜", "value": "40ml"},
+      ],
+      "vaccinations": [
+        {"type": "접종", "key": "파상풍주사", "value": "1차"},
+        {"type": "접종", "key": "예방접종", "value": "2차"},
+      ],
+      "date": DateTime.now().toIso8601String().split('T')[0],
+    };
+  }
 }
 
 final petRepositoryProvider = Provider<PetRepository>((ref) {

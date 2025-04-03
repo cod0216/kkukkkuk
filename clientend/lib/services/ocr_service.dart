@@ -14,12 +14,11 @@ class OcrService {
       );
       Map<String, dynamic> result = {};
 
+      // Extract text and organize it for server processing
       int wordIndex = 0;
       for (TextBlock block in recognizedText.blocks) {
         for (TextLine line in block.lines) {
-          for (TextElement element in line.elements) {
-            result['word_${wordIndex++}'] = element.text;
-          }
+          result['line_${wordIndex++}'] = line.text;
         }
       }
 
