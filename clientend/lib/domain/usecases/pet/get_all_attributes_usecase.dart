@@ -54,7 +54,7 @@ class GetAllAtributesUseCase {
     print('attributes: $attributes');
     // 속성에서 진료 기록 데이터 추출 및 변환
     attributes.forEach((key, value) {
-      if (key.startsWith('medical_record_')) {
+      if (key.startsWith('medical_')) {
         try {
           print('value: $value');
           // 블록체인에서 반환된 값은 Map 형태이므로 'value' 키에서 JSON 문자열을 추출

@@ -49,26 +49,10 @@ class MedicalRecordQueryNotifier
   void addBlockchainRecords(List<PetMedicalRecord> blockchainRecords) {
     if (blockchainRecords.isEmpty) return;
 
-    final allRecords = [...state.records, ...blockchainRecords];
-
-    // Remove duplicates based on treatment date and diagnosis
-    final uniqueRecords = <PetMedicalRecord>[];
-    final recordKeys = <String>{};
-
-    for (final record in allRecords) {
-      final key = record.treatmentDate.toIso8601String();
-
-      if (!recordKeys.contains(key)) {
-        recordKeys.add(key);
-        uniqueRecords.add(record);
-      }
-    }
-
-    // Sort by date (descending)
-    uniqueRecords.sort((a, b) => b.treatmentDate.compareTo(a.treatmentDate));
+    // TODO: hash[medicalKey] = set<medical> 2차원구조로 최신 데이터를 가져올수있도록함
 
     state = state.copyWith(
-      records: uniqueRecords,
+      records: blockchainRecords,
       lastQueryDate: DateTime.now(),
       isLoading: false,
     );
