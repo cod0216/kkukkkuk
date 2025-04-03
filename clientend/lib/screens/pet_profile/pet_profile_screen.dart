@@ -1,7 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/medical_record_query_controller.dart';
-import 'package:kkuk_kkuk/controllers/medical_record_register_controller.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
@@ -11,8 +11,8 @@ import 'package:kkuk_kkuk/screens/pet_profile/widgets/empty_medical_records.dart
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_card.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/pet_profile_header.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/last_treatment_date.dart';
+import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_image_picker.dart';
 
-/// 반려동물 프로필 화면
 class PetProfileScreen extends ConsumerStatefulWidget {
   final Pet pet;
 
@@ -26,12 +26,10 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   late final MedicalRecordQueryController _controller;
   late final GetAllAtributesUseCase _getMedicalRecordsFromBlockchainUseCase;
 
-  // TODO: 화면 새로고침 기능 추가
+  // TODO: 화면 새로고침 기능 추가 (진료기록을 아래로 스크롤하면 새로 로드)
   // TODO: 진료 기록 정렬 기능 추가 (최신순/과거순)
   // TODO: 진료 기록 필터링 기능 추가 (진료 유형별)
   // TODO: 진료 기록 검색 기능 추가
-  // TODO: 진료 기록 공유 기능 추가
-  // TODO: 블록체인 데이터 검증 기능 추가
 
   @override
   void initState() {
@@ -72,7 +70,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   /// 블록체인에서 진료 기록 데이터 로드
   Future<void> _loadMedicalRecordsFromBlockchain(String petAddress) async {
     try {
-      // 블록체인에서 진료 기록 조회
       final records = await _getMedicalRecordsFromBlockchainUseCase.execute(
         petAddress,
       );
@@ -80,7 +77,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
       if (!mounted) return;
 
       if (records.isNotEmpty) {
-        // 블록체인에서 조회한 진료 기록을 상태에 추가
         ref
             .read(medicalRecordQueryProvider.notifier)
             .addBlockchainRecords(records);
@@ -93,6 +89,11 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
         ).showSnackBar(SnackBar(content: Text('블록체인 데이터 조회 실패: $e')));
       }
     }
+  }
+
+  void _handleImageSelected(File image) {
+    // TODO: OCR 기능 추가
+    print('Selected image: ${image.path}');
   }
 
   @override
@@ -138,58 +139,12 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
                     return;
                   }
 
-                  // Show loading dialog
-                  showDialog(
+                  // Use the new image picker
+                  final imagePicker = MedicalRecordImagePicker(
                     context: context,
-                    barrierDismissible: false,
-                    builder:
-                        (context) => WillPopScope(
-                          onWillPop: () async => false,
-                          child: const AlertDialog(
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircularProgressIndicator(),
-                                SizedBox(height: 16),
-                                Text('진료 기록을 등록하는 중입니다...\n잠시만 기다려주세요.'),
-                              ],
-                            ),
-                          ),
-                        ),
+                    onImageSelected: _handleImageSelected,
                   );
-
-                  try {
-                    await ref
-                        .read(medicalRecordRegisterControllerProvider)
-                        .registerMedicalRecord(widget.pet.did!);
-
-                    if (!mounted) return;
-
-                    // Close loading dialog
-                    Navigator.of(context).pop();
-
-                    final error = ref.read(medicalRecordRegisterProvider).error;
-                    if (error != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('등록 실패: $error')));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('진료 기록이 등록되었습니다.')),
-                      );
-                      // Refresh medical records
-                      _loadMedicalRecords();
-                    }
-                  } catch (e) {
-                    if (!mounted) return;
-
-                    // Close loading dialog
-                    Navigator.of(context).pop();
-
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('등록 중 오류 발생: $e')));
-                  }
+                  imagePicker.showImageSourceDialog();
                 },
         child:
             registerState.isLoading
