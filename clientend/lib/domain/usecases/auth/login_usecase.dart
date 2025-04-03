@@ -1,5 +1,6 @@
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_request.dart';
 import 'package:kkuk_kkuk/domain/entities/user.dart';
+import 'package:kkuk_kkuk/domain/entities/wallet.dart';
 import 'package:kkuk_kkuk/domain/repositories/auth/auth_repository_interface.dart';
 
 class LoginWithKakaoUseCase {
@@ -7,7 +8,7 @@ class LoginWithKakaoUseCase {
 
   LoginWithKakaoUseCase(this._authRepository);
 
-  Future<bool> execute(User user) async {
+  Future<User> execute(User user) async {
     try {
       final request = AuthenticateRequest(
         name: user.name,
@@ -18,9 +19,35 @@ class LoginWithKakaoUseCase {
         providerId: user.providerId.toString(),
       );
 
-      await _authRepository.authenticateWithKakao(request);
+      final response = await _authRepository.authenticateWithKakao(request);
       print('Backend authentication successful');
-      return true;
+
+      // Map the response to User entity
+      final ownerInfo = response.data.owner;
+      final wallets =
+          response.data.wallets
+              ?.map(
+                (walletInfo) => Wallet(
+                  address: walletInfo.address,
+                  did: walletInfo.did,
+                  publicKey: '', // This field is not in the response
+                ),
+              )
+              .toList();
+
+      return User(
+        id: ownerInfo.id,
+        name: ownerInfo.name,
+        email: ownerInfo.email,
+        birthYear:
+            user.birthYear, // Keep original value as it might not be in response
+        birthDay: ownerInfo.birth ?? user.birthDay,
+        gender:
+            user.gender, // Keep original value as it might not be in response
+        providerId: user.providerId,
+        profileImage: ownerInfo.image,
+        wallets: wallets ?? [],
+      );
     } catch (e) {
       print('Failed to login with Kakao: $e');
       throw Exception('Failed to login with Kakao: $e');
