@@ -38,16 +38,16 @@ class PermissionManager {
       name: '카메라',
       description: '사진 및 동영상 촬영을 위해 카메라 접근 권한이 필요합니다.',
     ),
+    PermissionInfo(
+      permission: Permission.photos,
+      name: '사진',
+      description: '사진 접근 권한이 필요합니다.',
+    ),
     // PermissionInfo(
     //   permission: Permission.location,
     //   name: '위치',
     //   description: '현재 위치 기반 서비스 제공을 위해 위치 접근 권한이 필요합니다.',
     // ),
-    PermissionInfo(
-      permission: Permission.storage,
-      name: '저장소',
-      description: '파일 저장 및 불러오기 위해 저장소 접근 권한이 필요합니다.',
-    ),
   ];
 
   /// 모든 권한의 상태를 확인합니다.
