@@ -70,7 +70,7 @@ class AuthRepository implements IAuthRepository {
       return authResponse;
     } catch (e) {
       print('Authentication failed: $e');
-      rethrow;
+      throw Exception('Authentication failed: $e');
     }
   }
 }

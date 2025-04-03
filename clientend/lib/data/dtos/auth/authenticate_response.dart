@@ -57,8 +57,7 @@ abstract class TokenInfo with _$TokenInfo {
 abstract class WalletInfo with _$WalletInfo {
   const factory WalletInfo({
     required int id,
-    required String name,
-    required String did,
+    String? name,
     required String address,
   }) = _WalletInfo;
 

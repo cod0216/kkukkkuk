@@ -6,6 +6,7 @@ import 'package:kkuk_kkuk/screens/wallet/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_display_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/mnemonic_confirmation_view.dart';
 import 'package:kkuk_kkuk/screens/wallet/views/wallet_recovery_view.dart';
+import 'package:kkuk_kkuk/screens/wallet/views/wallet_naming_view.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/screens/common/error_view.dart';
 
@@ -89,6 +90,9 @@ class WalletScreen extends ConsumerWidget {
       case WalletStatus.recoveringWallet:
         return WalletRecoveryView(controller: viewModel);
 
+      case WalletStatus.namingWallet:
+        return WalletNamingView(controller: viewModel);
+
       case WalletStatus.creatingWallet:
       case WalletStatus.registeringWallet:
         return _buildCreatingWalletView();
@@ -129,6 +133,8 @@ class WalletScreen extends ConsumerWidget {
         return '니모닉 단어 확인';
       case WalletStatus.recoveringWallet:
         return '지갑 복구';
+      case WalletStatus.namingWallet:
+        return '지갑 이름 설정';
       case WalletStatus.creatingWallet:
       case WalletStatus.registeringWallet:
         return '지갑 생성 중';

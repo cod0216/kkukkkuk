@@ -173,7 +173,7 @@ $WalletDataCopyWith<$Res> get data {
 /// @nodoc
 mixin _$WalletData {
 
- int get id; String get address; String get name; List<WalletOwner> get owners;
+ int get id; String get address; String? get name; List<WalletOwner> get owners;
 /// Create a copy of WalletData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -206,7 +206,7 @@ abstract mixin class $WalletDataCopyWith<$Res>  {
   factory $WalletDataCopyWith(WalletData value, $Res Function(WalletData) _then) = _$WalletDataCopyWithImpl;
 @useResult
 $Res call({
- int id, String address, String name, List<WalletOwner> owners
+ int id, String address, String? name, List<WalletOwner> owners
 });
 
 
@@ -223,12 +223,12 @@ class _$WalletDataCopyWithImpl<$Res>
 
 /// Create a copy of WalletData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? address = null,Object? name = null,Object? owners = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? address = null,Object? name = freezed,Object? owners = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,owners: null == owners ? _self.owners : owners // ignore: cast_nullable_to_non_nullable
+as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,owners: null == owners ? _self.owners : owners // ignore: cast_nullable_to_non_nullable
 as List<WalletOwner>,
   ));
 }
@@ -240,12 +240,12 @@ as List<WalletOwner>,
 @JsonSerializable()
 
 class _WalletData implements WalletData {
-  const _WalletData({required this.id, required this.address, required this.name, required final  List<WalletOwner> owners}): _owners = owners;
+  const _WalletData({required this.id, required this.address, this.name, required final  List<WalletOwner> owners}): _owners = owners;
   factory _WalletData.fromJson(Map<String, dynamic> json) => _$WalletDataFromJson(json);
 
 @override final  int id;
 @override final  String address;
-@override final  String name;
+@override final  String? name;
  final  List<WalletOwner> _owners;
 @override List<WalletOwner> get owners {
   if (_owners is EqualUnmodifiableListView) return _owners;
@@ -287,7 +287,7 @@ abstract mixin class _$WalletDataCopyWith<$Res> implements $WalletDataCopyWith<$
   factory _$WalletDataCopyWith(_WalletData value, $Res Function(_WalletData) _then) = __$WalletDataCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String address, String name, List<WalletOwner> owners
+ int id, String address, String? name, List<WalletOwner> owners
 });
 
 
@@ -304,12 +304,12 @@ class __$WalletDataCopyWithImpl<$Res>
 
 /// Create a copy of WalletData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? address = null,Object? name = null,Object? owners = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? address = null,Object? name = freezed,Object? owners = null,}) {
   return _then(_WalletData(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,owners: null == owners ? _self._owners : owners // ignore: cast_nullable_to_non_nullable
+as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,owners: null == owners ? _self._owners : owners // ignore: cast_nullable_to_non_nullable
 as List<WalletOwner>,
   ));
 }

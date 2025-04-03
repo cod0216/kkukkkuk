@@ -28,9 +28,9 @@ class LoginWithKakaoUseCase {
           response.data.wallets
               ?.map(
                 (walletInfo) => Wallet(
+                  id: walletInfo.id,
                   address: walletInfo.address,
-                  did: walletInfo.did,
-                  publicKey: '', // This field is not in the response
+                  name: walletInfo.name ?? '',
                 ),
               )
               .toList();

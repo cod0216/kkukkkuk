@@ -71,8 +71,7 @@ Map<String, dynamic> _$TokenInfoToJson(_TokenInfo instance) =>
 
 _WalletInfo _$WalletInfoFromJson(Map<String, dynamic> json) => _WalletInfo(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
-  did: json['did'] as String,
+  name: json['name'] as String?,
   address: json['address'] as String,
 );
 
@@ -80,6 +79,5 @@ Map<String, dynamic> _$WalletInfoToJson(_WalletInfo instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'did': instance.did,
       'address': instance.address,
     };

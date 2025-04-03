@@ -16,7 +16,7 @@ class RegisterWalletUseCase {
       return await _walletRepository.registerWallet(request);
     } catch (e) {
       print('지갑 등록 실패: $e');
-      throw Exception('지갑 등록에 실패했습니다: $e');
+      rethrow;
     }
   }
 }

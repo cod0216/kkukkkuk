@@ -22,7 +22,7 @@ abstract class WalletData with _$WalletData {
   const factory WalletData({
     required int id,
     required String address,
-    required String name,
+    String? name,
     required List<WalletOwner> owners,
   }) = _WalletData;
 

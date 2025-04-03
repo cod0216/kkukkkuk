@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/usecases/wallet/mnemonic/mnemonic_usecase_provider.dart';
 import 'package:kkuk_kkuk/domain/usecases/wallet/wallet_usecase_providers.dart';
+import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 
 /// 니모닉 지갑 생성 및 설정 단계
 enum WalletStatus {
@@ -11,6 +12,7 @@ enum WalletStatus {
   mnemonicConfirmation, // 니모닉 확인 중
   recoveringWallet, // 지갑 복구 중
   creatingWallet, // 지갑 생성 중
+  namingWallet, // 지갑 이름 설정 중
   registeringWallet, // 지갑 등록 중
   completed, // 모든 과정 완료
   error, // 오류 발생
@@ -29,6 +31,7 @@ class WalletState {
   final int? walletId;
   final String? error;
   final int accountIndex;
+  final String? walletName; // 지갑 이름 추가
 
   WalletState({
     this.status = WalletStatus.initial,
@@ -41,6 +44,7 @@ class WalletState {
     this.walletId,
     this.error,
     this.accountIndex = 0,
+    this.walletName,
   });
 
   // 기존 copyWith 메서드 유지
@@ -55,6 +59,7 @@ class WalletState {
     int? walletId,
     String? error,
     int? accountIndex,
+    String? walletName,
   }) {
     return WalletState(
       status: status ?? this.status,
@@ -67,6 +72,7 @@ class WalletState {
       walletId: walletId ?? this.walletId,
       error: error ?? this.error,
       accountIndex: accountIndex ?? this.accountIndex,
+      walletName: walletName ?? this.walletName,
     );
   }
 }
@@ -77,12 +83,14 @@ class WalletResult {
   final String? error;
   final int? walletId;
   final String? walletAddress;
+  final bool needsNaming; // 이름 설정 필요 여부 추가
 
   WalletResult({
     required this.success,
     this.error,
     this.walletId,
     this.walletAddress,
+    this.needsNaming = false,
   });
 }
 
@@ -210,29 +218,38 @@ class WalletViewModel extends StateNotifier<WalletState> {
         did: wallet['did'],
       );
 
-      state = state.copyWith(status: WalletStatus.registeringWallet);
+      // 사용자의 지갑 목록에서 중복 확인
+      final authState = ref.read(authViewModelProvider);
+      final userWallets = authState.user?.wallets;
 
-      // 지갑 등록
-      final registerWalletUseCase = ref.read(registerWalletUseCaseProvider);
-      final registeredWallet = await registerWalletUseCase.execute(
-        did: wallet['did'] ?? '',
-        address: wallet['address'] ?? '',
-        encryptedPrivateKey: '',
-        publicKey: wallet['publicKey'] ?? '',
-      );
+      // 중복 지갑 확인
+      if (userWallets != null && userWallets.isNotEmpty) {
+        final isDuplicate = userWallets.any(
+          (existingWallet) =>
+              existingWallet.address.toLowerCase() ==
+                  wallet['address']?.toLowerCase() ||
+              existingWallet.name.toLowerCase() == wallet['did']?.toLowerCase(),
+        );
 
-      final walletId = registeredWallet.toJson()['id'] ?? 0;
+        if (isDuplicate) {
+          // 이미 등록된 지갑이 있으면 등록 과정 건너뛰기
+          print('이미 등록된 지갑입니다. 서버 등록 과정을 건너뜁니다.');
+          state = state.copyWith(status: WalletStatus.completed);
+          return WalletResult(success: true, walletAddress: wallet['address']);
+        }
+      }
 
+      // 지갑 이름 설정 단계로 진행
       state = state.copyWith(
-        status: WalletStatus.completed,
-        walletId: walletId,
+        status: WalletStatus.namingWallet,
+        previousStatus: state.status,
       );
 
-      // AuthController 직접 참조 대신 결과 반환
+      // 이름 설정이 필요함을 알리는 결과 반환
       return WalletResult(
         success: true,
-        walletId: walletId,
         walletAddress: wallet['address'],
+        needsNaming: true,
       );
     } catch (e) {
       state = state.copyWith(
@@ -240,6 +257,50 @@ class WalletViewModel extends StateNotifier<WalletState> {
         error: '지갑 생성 및 등록에 실패했습니다: $e',
       );
       return WalletResult(success: false, error: '지갑 생성 및 등록에 실패했습니다: $e');
+    }
+  }
+
+  /// 지갑 이름 설정 및 등록
+  Future<WalletResult> setWalletNameAndRegister(String walletName) async {
+    if (walletName.isEmpty) {
+      state = state.copyWith(
+        status: WalletStatus.error,
+        error: '지갑 이름을 입력해주세요.',
+      );
+      return WalletResult(success: false, error: '지갑 이름을 입력해주세요.');
+    }
+
+    try {
+      state = state.copyWith(
+        status: WalletStatus.registeringWallet,
+        walletName: walletName,
+      );
+
+      // 지갑 등록
+      final registerWalletUseCase = ref.read(registerWalletUseCaseProvider);
+      final registeredWallet = await registerWalletUseCase.execute(
+        name: walletName,
+        address: state.walletAddress ?? '',
+      );
+
+      final walletId = registeredWallet.data.id;
+
+      state = state.copyWith(
+        status: WalletStatus.completed,
+        walletId: walletId,
+      );
+
+      return WalletResult(
+        success: true,
+        walletId: walletId,
+        walletAddress: state.walletAddress,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        status: WalletStatus.error,
+        error: '지갑 등록에 실패했습니다: $e',
+      );
+      return WalletResult(success: false, error: '지갑 등록에 실패했습니다: $e');
     }
   }
 
@@ -321,10 +382,54 @@ class WalletViewModel extends StateNotifier<WalletState> {
         );
       }
 
-      state = state.copyWith(status: WalletStatus.creatingWallet);
+      // 복구하려는 지갑 정보 미리 확인
+      final createWalletFromMnemonicUseCase = ref.read(
+        createWalletFromMnemonicUseCaseProvider,
+      );
+      final wallet = await createWalletFromMnemonicUseCase.execute(
+        mnemonic,
+        accountIndex: state.accountIndex,
+      );
 
-      // 지갑 생성 및 등록 진행
-      return await createAndRegisterWallet(mnemonic);
+      // 사용자의 지갑 목록에서 중복 확인
+      final authState = ref.read(authViewModelProvider);
+      final userWallets = authState.user?.wallets;
+
+      // 중복 지갑 확인
+      if (userWallets != null && userWallets.isNotEmpty) {
+        final isDuplicate = userWallets.any(
+          (existingWallet) =>
+              existingWallet.address.toLowerCase() ==
+                  wallet['address']?.toLowerCase() ||
+              existingWallet.name.toLowerCase() == wallet['did']?.toLowerCase(),
+        );
+
+        if (isDuplicate) {
+          // 이미 등록된 지갑이 있으면 등록 과정 건너뛰기
+          print('이미 등록된 지갑입니다. 서버 등록 과정을 건너뜁니다.');
+          state = state.copyWith(status: WalletStatus.completed);
+          return WalletResult(success: true, walletAddress: wallet['address']);
+        }
+      }
+
+      // 지갑 이름 설정 단계로 진행
+      state = state.copyWith(
+        status: WalletStatus.namingWallet,
+        previousStatus: state.status,
+        walletAddress: wallet['address'], // 지갑 주소 정보 유지
+        publicKey: wallet['publicKey'], // 공개키 정보 유지
+        did: wallet['did'], // DID 정보 유지
+      );
+
+      // 이름 설정이 필요함을 알리는 결과 반환
+      return WalletResult(
+        success: true,
+        walletAddress: wallet['address'],
+        needsNaming: true,
+      );
+
+      // 아래 코드는 실행되지 않는 불필요한 코드
+      // return await createAndRegisterWallet(mnemonic);
     } catch (e) {
       state = state.copyWith(
         status: WalletStatus.error,

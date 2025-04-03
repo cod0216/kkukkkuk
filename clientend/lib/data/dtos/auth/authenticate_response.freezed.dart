@@ -640,7 +640,7 @@ as String,
 /// @nodoc
 mixin _$WalletInfo {
 
- int get id; String get name; String get did; String get address;
+ int get id; String? get name; String get address;
 /// Create a copy of WalletInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -653,16 +653,16 @@ $WalletInfoCopyWith<WalletInfo> get copyWith => _$WalletInfoCopyWithImpl<WalletI
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.did, did) || other.did == did)&&(identical(other.address, address) || other.address == address));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,did,address);
+int get hashCode => Object.hash(runtimeType,id,name,address);
 
 @override
 String toString() {
-  return 'WalletInfo(id: $id, name: $name, did: $did, address: $address)';
+  return 'WalletInfo(id: $id, name: $name, address: $address)';
 }
 
 
@@ -673,7 +673,7 @@ abstract mixin class $WalletInfoCopyWith<$Res>  {
   factory $WalletInfoCopyWith(WalletInfo value, $Res Function(WalletInfo) _then) = _$WalletInfoCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String did, String address
+ int id, String? name, String address
 });
 
 
@@ -690,12 +690,11 @@ class _$WalletInfoCopyWithImpl<$Res>
 
 /// Create a copy of WalletInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? did = null,Object? address = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = freezed,Object? address = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,did: null == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
-as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -707,12 +706,11 @@ as String,
 @JsonSerializable()
 
 class _WalletInfo implements WalletInfo {
-  const _WalletInfo({required this.id, required this.name, required this.did, required this.address});
+  const _WalletInfo({required this.id, this.name, required this.address});
   factory _WalletInfo.fromJson(Map<String, dynamic> json) => _$WalletInfoFromJson(json);
 
 @override final  int id;
-@override final  String name;
-@override final  String did;
+@override final  String? name;
 @override final  String address;
 
 /// Create a copy of WalletInfo
@@ -728,16 +726,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.did, did) || other.did == did)&&(identical(other.address, address) || other.address == address));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,did,address);
+int get hashCode => Object.hash(runtimeType,id,name,address);
 
 @override
 String toString() {
-  return 'WalletInfo(id: $id, name: $name, did: $did, address: $address)';
+  return 'WalletInfo(id: $id, name: $name, address: $address)';
 }
 
 
@@ -748,7 +746,7 @@ abstract mixin class _$WalletInfoCopyWith<$Res> implements $WalletInfoCopyWith<$
   factory _$WalletInfoCopyWith(_WalletInfo value, $Res Function(_WalletInfo) _then) = __$WalletInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String did, String address
+ int id, String? name, String address
 });
 
 
@@ -765,12 +763,11 @@ class __$WalletInfoCopyWithImpl<$Res>
 
 /// Create a copy of WalletInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? did = null,Object? address = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = freezed,Object? address = null,}) {
   return _then(_WalletInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,did: null == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
-as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
