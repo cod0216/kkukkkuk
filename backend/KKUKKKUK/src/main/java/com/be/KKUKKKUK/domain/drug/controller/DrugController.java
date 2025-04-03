@@ -52,7 +52,7 @@ public class DrugController {
             @ApiResponse(responseCode = "200", description = "약품 검색 성공")
     })
     @GetMapping("/{search}")
-    public ResponseEntity<?> autocompleteDrugs(@PathVariable String search) {
+    public ResponseEntity<?> autoCompleteDrugs(@PathVariable String search) {
         List<DrugResponse> responses = drugService.searchDrugResponses(search);
         return ResponseUtility.success("검색어에 따른 약품 목록입니다.", responses);
     }
@@ -61,8 +61,8 @@ public class DrugController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "약품 자동완성 조회 성공")
     })
-    @GetMapping("/autocorrect")
-    public ResponseEntity<?> autocorrectDrugs(@RequestParam("search") String search) {
+    @GetMapping("/auto-correct")
+    public ResponseEntity<?> autoCorrectDrugs(@RequestParam("search") String search) {
         return ResponseUtility.success("검색어에 따른 약품 자동완성 목록입니다.", drugAutoCorrectService.autocorrectKeyword(search));
     }
 }
