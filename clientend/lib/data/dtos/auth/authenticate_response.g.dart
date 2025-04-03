@@ -26,17 +26,17 @@ _AuthenticateData _$AuthenticateDataFromJson(Map<String, dynamic> json) =>
     _AuthenticateData(
       owner: OwnerInfo.fromJson(json['owner'] as Map<String, dynamic>),
       tokens: TokenInfo.fromJson(json['tokens'] as Map<String, dynamic>),
-      wallet:
-          json['wallet'] == null
-              ? null
-              : WalletInfo.fromJson(json['wallet'] as Map<String, dynamic>),
+      wallets:
+          (json['wallets'] as List<dynamic>?)
+              ?.map((e) => WalletInfo.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
 
 Map<String, dynamic> _$AuthenticateDataToJson(_AuthenticateData instance) =>
     <String, dynamic>{
       'owner': instance.owner,
       'tokens': instance.tokens,
-      'wallet': instance.wallet,
+      'wallets': instance.wallets,
     };
 
 _OwnerInfo _$OwnerInfoFromJson(Map<String, dynamic> json) => _OwnerInfo(
@@ -44,6 +44,8 @@ _OwnerInfo _$OwnerInfoFromJson(Map<String, dynamic> json) => _OwnerInfo(
   did: json['did'] as String?,
   name: json['name'] as String,
   email: json['email'] as String,
+  birth: json['birth'] as String?,
+  image: json['image'] as String?,
 );
 
 Map<String, dynamic> _$OwnerInfoToJson(_OwnerInfo instance) =>
@@ -52,6 +54,8 @@ Map<String, dynamic> _$OwnerInfoToJson(_OwnerInfo instance) =>
       'did': instance.did,
       'name': instance.name,
       'email': instance.email,
+      'birth': instance.birth,
+      'image': instance.image,
     };
 
 _TokenInfo _$TokenInfoFromJson(Map<String, dynamic> json) => _TokenInfo(
@@ -67,6 +71,7 @@ Map<String, dynamic> _$TokenInfoToJson(_TokenInfo instance) =>
 
 _WalletInfo _$WalletInfoFromJson(Map<String, dynamic> json) => _WalletInfo(
   id: (json['id'] as num).toInt(),
+  name: json['name'] as String,
   did: json['did'] as String,
   address: json['address'] as String,
 );
@@ -74,6 +79,7 @@ _WalletInfo _$WalletInfoFromJson(Map<String, dynamic> json) => _WalletInfo(
 Map<String, dynamic> _$WalletInfoToJson(_WalletInfo instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'name': instance.name,
       'did': instance.did,
       'address': instance.address,
     };
