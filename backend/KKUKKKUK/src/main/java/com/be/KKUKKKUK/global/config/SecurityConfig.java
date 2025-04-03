@@ -81,7 +81,7 @@ public class SecurityConfig {
      * HOSPITAL 만 접근 가능한 URL 경로를 설정합니다.
      */
     private static final String[] ROLE_HOSPITAL_URLS = {
-            "/api/hospitals/**", "/api/doctors/**"
+            "/api/hospitals/**", "/api/doctors/**", "/api/drugs/**"
     };
 
     /**

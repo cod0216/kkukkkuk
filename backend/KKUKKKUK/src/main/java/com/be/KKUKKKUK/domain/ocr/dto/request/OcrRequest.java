@@ -2,8 +2,10 @@ package com.be.KKUKKKUK.domain.ocr.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -19,6 +21,8 @@ import lombok.Getter;
  */
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OcrRequest {
     private String text;
 }

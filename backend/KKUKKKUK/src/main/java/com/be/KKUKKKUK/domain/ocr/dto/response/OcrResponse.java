@@ -3,6 +3,8 @@ package com.be.KKUKKKUK.domain.ocr.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * packageName    : com.be.KKUKKKUK.domain.ocr.dto.response<br>
  * fileName       : OcrResponse.java<br>
@@ -21,6 +23,10 @@ import lombok.Data;
 public class OcrResponse {
     private String date;
     private String diagnosis;
-    private String prescription;
-    private String symptoms;
+    private String notes;
+    private String doctorName;
+    private String hospitalName;
+    private List<OcrDetail> examinations;
+    private List<OcrDetail> medications;
+    private List<OcrDetail> vaccinations;
 }

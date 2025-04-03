@@ -1,85 +1,74 @@
 package com.be.KKUKKKUK.domain.ocr.client;
 
-import com.be.KKUKKKUK.global.exception.ApiException;
-import com.be.KKUKKKUK.global.exception.ErrorCode;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.util.retry.Retry;
+import org.springframework.web.client.RestTemplate;
 
-import javax.swing.*;
-import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class OpenAiApiClient {
 
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
     @Value("${openai.api.key}")
     private String apiKey;
 
-    private final ObjectMapper objectMapper;
-
-    private final WebClient webClient = WebClient.builder()
-            .baseUrl("https://api.openai.com/v1/chat/completions")
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
+    // OpenAI Chat API 엔드포인트 (예시)
+    private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     /**
-     * 주어진 프롬프트를 사용하여 OpenAI API를 호출하고 응답 텍스트를 반환합니다.
+     * GPT에게 프롬프트를 전달하고 응답 내용을 문자열로 반환합니다.
      *
-     * @param prompt OpenAI에게 전달할 프롬프트
-     * @return OpenAI가 생성한 응답 텍스트
+     * @param fullPrompt GPT에 전달할 전체 프롬프트 메시지
+     * @return GPT의 응답 내용 문자열
      */
-    public String callOpenAi(String prompt) {
-        Collections.emptyList();
+    public String sendPrompt(String fullPrompt) {
+        // 요청 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
+
+        // 요청 바디 구성 (ChatGPT 모델 기준)
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", "gpt-3.5-turbo"); // 사용 모델 설정 (필요 시 변경)
+
+        // 메시지 리스트 구성 (단일 user 메시지)
+        List<Map<String, String>> messages = new ArrayList<>();
+        Map<String, String> userMessage = new HashMap<>();
+        userMessage.put("role", "user");
+        userMessage.put("content", fullPrompt);
+        messages.add(userMessage);
+
+        requestBody.put("messages", messages);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        // API 호출
+        ResponseEntity<String> response = restTemplate.postForEntity(OPENAI_API_URL, entity, String.class);
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("OpenAI API 호출 실패: " + response.getStatusCode());
+        }
 
         try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("model", "gpt-4");
-
-            Map<String, String> systemMessage = Map.of(
-                    "role", "system",
-                    "content", "You are a helpful assistant."
-            );
-            Map<String, String> userMessage = Map.of(
-                    "role", "user",
-                    "content", prompt
-            );
-            payload.put("messages", new Map[]{systemMessage, userMessage});
-
-            String responseBody = webClient.post()
-                    .header("Authorization", "Bearer " + apiKey)
-                    .bodyValue(payload)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .retryWhen(
-                            Retry.backoff(3, Duration.ofSeconds(2))  // 최대 3회 재시도, 2초 간격
-                                    .filter(throwable ->
-                                            throwable instanceof WebClientResponseException.TooManyRequests
-                                    )
-                    )
-                    .block();
-
-            JsonNode root = objectMapper.readTree(responseBody);
+            // 응답 JSON에서 choices 배열 내 첫번째 메시지의 content를 추출합니다.
+            JsonNode root = objectMapper.readTree(response.getBody());
             JsonNode choices = root.path("choices");
             if (choices.isArray() && choices.size() > 0) {
-                return choices.get(0).path("message").path("content").asText();
+                JsonNode messageNode = choices.get(0).path("message").path("content");
+                return messageNode.asText();
+            } else {
+                throw new RuntimeException("응답 형식이 올바르지 않습니다.");
             }
-            return "";
-
-        } catch (WebClientResponseException.TooManyRequests | JsonProcessingException e) {
-            throw new ApiException(ErrorCode.TOO_MANY_REQUESTS);
+        } catch (Exception e) {
+            throw new RuntimeException("OpenAI API 응답 파싱 실패", e);
         }
     }
 }
