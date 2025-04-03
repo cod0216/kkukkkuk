@@ -9,10 +9,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
  * 25.03.22          haelim           swagger 작성<br>
  */
 @Tag(name = "반려동물 API", description = "반려동물 정보를 조회, 수정, 삭제할 수 있는 API입니다.")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pets")
@@ -74,9 +77,8 @@ public class PetController {
      */
     @Operation(summary = "반려동물 삭제", description = "반려동물을 지갑에서 삭제합니다.")
     @DeleteMapping("/{petId}")
-    public ResponseEntity<?> deletePet(
-            @AuthenticationPrincipal OwnerDetails ownerDetails,
-            @PathVariable Integer petId
+    public ResponseEntity<?> deletePet(@AuthenticationPrincipal OwnerDetails ownerDetails,
+                                       @PathVariable @Min(1) Integer petId
     ){
         petComplexService.deletePetFromWallet(ownerDetails, petId);
         return ResponseUtility.emptyResponse("반려동물 삭제에 성공했습니다.");
@@ -90,10 +92,9 @@ public class PetController {
      */
     @Operation(summary = "반려동물 프로필 이미지 변경", description = "반려동물 프로필 이미지를 업로드합니다.")
     @PostMapping(path = "/{petId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> uploadPetImage(
-            @AuthenticationPrincipal OwnerDetails ownerDetails,
-            @PathVariable Integer petId,
-            @RequestParam("image") MultipartFile imageFile
+    public ResponseEntity<?> uploadPetImage(@AuthenticationPrincipal OwnerDetails ownerDetails,
+                                            @PathVariable @Min(1) Integer petId,
+                                            @RequestParam("image") @NotNull MultipartFile imageFile
     ) {
         return ResponseUtility.success("반려동물 프로필 업로드에 성공했습니다.", petComplexService.updatePetImage(ownerDetails, petId, imageFile));
     }

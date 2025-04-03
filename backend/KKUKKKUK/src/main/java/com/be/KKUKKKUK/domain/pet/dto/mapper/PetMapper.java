@@ -1,9 +1,9 @@
 package com.be.KKUKKKUK.domain.pet.dto.mapper;
 
+import com.be.KKUKKKUK.domain.pet.dto.request.PetUpdateRequest;
 import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.pet.entity.Pet;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -26,4 +26,7 @@ public interface PetMapper {
 
     @Mapping(target = "breedId", source = "pet.breed.id")
     List<PetInfoResponse> mapToPetInfoList(List<Pet> pets);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updatePetFromRequest(@MappingTarget Pet pet, PetUpdateRequest request);
 }

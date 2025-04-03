@@ -6,11 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.security.core.parameters.P;
 
 import java.time.LocalDate;
 
@@ -30,10 +29,13 @@ import java.time.LocalDate;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PetRegisterRequest {
     @NotBlank
+    @Size(min = 1, max = 255)
     @Schema(description = "반려동물 DID", example = "pet:0xtestpetdid")
     private String did;
 
+
     @NotBlank
+    @Size(min = 1, max = 30)
     @Schema(description = "반려동물 이름", example = "권깡통")
     private String name;
 
@@ -45,6 +47,7 @@ public class PetRegisterRequest {
     @Schema(description = "중성화 여부", example = "true")
     private Boolean flagNeutering;
 
+    @Past
     @NotNull
     @Schema(description = "반려동물 생년월일 (YYYY-MM-DD)", example = "2023-01-01")
     private LocalDate birth;

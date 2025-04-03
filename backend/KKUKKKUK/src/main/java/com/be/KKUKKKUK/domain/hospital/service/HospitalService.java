@@ -43,65 +43,40 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 public class HospitalService {
-    private final HospitalRepository hospitalRepository;
     private final HospitalMapper hospitalMapper;
     private final PasswordEncoder passwordEncoder;
+    private final HospitalRepository hospitalRepository;
 
     /**
-     *
      * 전체 회원가입 과정 중, Hospital 관련 회원가입 시도를 위한 메소드입니다.
      * 요청의 유효성을 검사하고(계정, 비밀번호) 회원가입된 병원 정보를 조회합니다.
      * @param hospital 회원가입 시도한 hospital
      * @param request 회원가입 시도 요청
      * @return 회원가입된 병원 정보
      */
-    public HospitalSignupResponse trySignUp(Hospital hospital, HospitalSignupRequest request) {
+    public HospitalSignupResponse tryHospitalSignUp(Hospital hospital, HospitalSignupRequest request) {
         checkSignUpAvailable(hospital, request);
 
-        mapRequestToEntity(hospital, request);
-
+        hospitalMapper.signupHospitalFromRequest(hospital, request);
+        hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         hospital.setFlagCertified(Boolean.TRUE);
 
         return hospitalMapper.mapToSignupResponse(saveHospital(hospital));
     }
 
     /**
-     * 회원가입 요청을 entity 로 맵핑시킵니다.
-     * @param hospital entity
-     * @param request 회원가입 요청
-     */
-    private void mapRequestToEntity(Hospital hospital, HospitalSignupRequest request) {
-        hospitalMapper.signupHospitalFromRequest(hospital, request);
-        hospital.setPassword(passwordEncoder.encode(request.getPassword()));
-    }
-
-    /**
-     *
      * 전체 로그인 과정 중, Hospital 관련 로그인 시도를 위한 메소드입니다.
      * 요청의 유효성을 검사하고(계정, 비밀번호) 로그인된 병원 정보를 조회합니다.
      * @param request 로그인 시도 요청
      * @return 로그인된 병원 정보
-     * @throws ApiException 비밀번호가 일치하지 않는 경우 예외처리
      */
-    public HospitalInfoResponse tryLogin(HospitalLoginRequest request) {
+    public HospitalInfoResponse tryHospitalLogin(HospitalLoginRequest request) {
         Hospital hospital = findHospitalByAccount(request.getAccount());
 
         checkPasswordMatch(request.getPassword(), hospital);
 
         return hospitalMapper.mapToHospitalInfo(hospital);
     }
-
-    /**
-     * 로그인 요청에서 비밀번호가 병원 정보와 일치하는지 확인합니다.
-     * @param requestPassword 로그인 요청
-     * @param hospital 동물병원 entity 객체
-     */
-    void checkPasswordMatch(String requestPassword, Hospital hospital) {
-        if (!passwordEncoder.matches(requestPassword, hospital.getPassword())) {
-            throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
-        }
-    }
-
 
     /**
      * 동물병원의 인허가 번호로 동물병원을 조회합니다.
@@ -132,6 +107,7 @@ public class HospitalService {
 
     /**
      * 동물병원의 정보를 업데이트합니다.
+     * 요청에 포함된 값들만 업데이트됩니다.
      * @param hospitalId      병원 ID
      * @param request 업데이트 요청 정보
      * @return 업데이트된 병원 정보
@@ -150,16 +126,15 @@ public class HospitalService {
     }
 
     /**
-     * ID를 기반으로 병원 상세 정보를 조회합니다.
-     * @param id 병원 ID
+     * 동물병원 ID를 기반으로 병원 상세 정보를 조회합니다.
+     * @param hospitalId 병원 ID
      * @return 병원 정보
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
-    public HospitalDetailInfoResponse getHospitalDetailInfoById(Integer id) {
-        Hospital hospital = findHospitalById(id);
+    public HospitalDetailInfoResponse getHospitalDetailInfoById(Integer hospitalId) {
+        Hospital hospital = findHospitalById(hospitalId);
         return hospitalMapper.mapToHospitalDetailInfoResponse(hospital);
     }
-
 
     /**
      * TODO : 요청된 위치 좌표(xAxis, yAxis) 주변의 동물병원 목록을 조회합니다.
@@ -201,23 +176,25 @@ public class HospitalService {
 
     /**
      * 동물병원 ID를 기반으로 동물병원 entity 를 조회합니다.
-     * @param id 동물병원 ID
+     * @param hospitalId 동물병원 ID
      * @return 동물병원 entity
      * @throws ApiException 병원을 찾을 수 없는 경우 예외 발생
      */
     @Transactional(readOnly = true)
-    public Hospital findHospitalById(Integer id) {
-        return hospitalRepository.findById(id)
+    public Hospital findHospitalById(Integer hospitalId) {
+        return hospitalRepository.findById(hospitalId)
                 .orElseThrow(() -> new ApiException(ErrorCode.HOSPITAL_NOT_FOUND));
     }
     
     /**
      * 해당 이메일로 가입한 동물병원 회원이 있는지 확인합니다.
      * @param email 확인할 이메일 주소
-     * @return 사용 가능 여부( 사용 가능하면 TRUE, 중복이면 FALSE )
+     * @throws ApiException 이미 가입한 회원이 있는 경우 예외 발생
      */
-    public Boolean checkEmailAvailable(String email) {
-        return findHospitalByEmailOptional(email).isEmpty();
+    @Transactional(readOnly = true)
+    public void checkEmailAvailable(String email) {
+        findHospitalByEmailOptional(email)
+                .orElseThrow(() -> new ApiException(ErrorCode.EMAIL_DUPLICATED));
     }
 
     
@@ -253,17 +230,30 @@ public class HospitalService {
 
     /**
      * 회원가입 요청의 유효성을 검사합니다.
-     * 동물병원 회원이 이미 등록되었는지, 사용 가능한 계정인지, 사용 가능한 라이센스인지 검증합니다.
+     * 동물병원 회원이 이미 등록되었는지, 사용 가능한 계정인지 검증합니다.
      * @param hospital 가입 요청한 동물병원
      * @param request 가입 요청
+     * @throws ApiException 이미 등록된 동물병원 회원이면 예외 발생
+     * @throws ApiException 중복된 동물병원 계정이면 예외 발생
      */
     private void checkSignUpAvailable(Hospital hospital, HospitalSignupRequest request) {
         if (Boolean.TRUE.equals(hospital.getFlagCertified())) {
             throw new ApiException(ErrorCode.HOSPITAL_DUPLICATED);
         }
-        // 사용가능하지 않으면 예외 처리
         if (Boolean.FALSE.equals(checkAccountAvailable(request.getAccount()))) {
             throw new ApiException(ErrorCode.ACCOUNT_NOT_AVAILABLE);
+        }
+    }
+
+    /**
+     * 로그인 요청에서 비밀번호가 병원 정보와 일치하는지 확인합니다.
+     * @param requestPassword 로그인 요청
+     * @param hospital 동물병원 entity 객체
+     * @throws ApiException 비밀번호가 일치하지 않는 경우 예외처리
+     */
+    void checkPasswordMatch(String requestPassword, Hospital hospital) {
+        if (!passwordEncoder.matches(requestPassword, hospital.getPassword())) {
+            throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
     }
 

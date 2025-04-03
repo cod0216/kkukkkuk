@@ -20,7 +20,10 @@ import java.util.Optional;
  */
 public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
     Optional<Hospital> findHospitalByAuthorizationNumber(String authorizationNumber);
+
     List<Hospital> findHospitalListByNameContaining(String name);
+
     Optional<Hospital> findByAccount(String account);
+
     Optional<Hospital> findByEmail(String email);
 }

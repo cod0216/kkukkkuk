@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
  * 25.03.28          haelim           wallet 여러 개 등록 가능하도록 수정 <br>
  */
 @Tag(name = "디지털 지갑 API", description = "지갑 정보를 등록, 조회, 수정, 삭제, 복구, 지갑에 반려동물을 추가 / 조회할 수 있는 API입니다.")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/wallets")
@@ -39,7 +41,6 @@ public class WalletController {
 
     /**
      * 현재 로그인된 사용자의 지갑 정보를 등록합니다.
-     *
      * @param owner   인증된 보호자 계정 정보
      * @param request 지갑 등록 요청
      * @return 등록 완료된 지갑의 정보
@@ -50,9 +51,8 @@ public class WalletController {
             @ApiResponse(responseCode = "409", description = "이미 등록된 지갑")
     })
     @PostMapping
-    public ResponseEntity<?> registerMyWallet(
-            @AuthenticationPrincipal OwnerDetails owner,
-            @RequestBody @Valid WalletRegisterRequest request
+    public ResponseEntity<?> registerMyWallet(@AuthenticationPrincipal OwnerDetails owner,
+                                              @RequestBody @Valid WalletRegisterRequest request
     ) {
         Integer ownerId = Integer.parseInt(owner.getUsername());
         return ResponseUtility.success("지갑이 성공적으로 등록되었습니다.", walletComplexService.registerWallet(ownerId, request));
@@ -60,7 +60,6 @@ public class WalletController {
 
     /**
      * 현재 로그인된 보호자 회원의 지갑 목록을 조회합니다.
-     *
      * @param owner 인증된 보호자 계정 정보
      * @return 현재 로그인된 회원의 지갑 정보
      */
@@ -74,10 +73,8 @@ public class WalletController {
         return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByOwnerId(ownerId));
     }
 
-
     /**
      * 특정 지갑 정보를 조회합니다.
-     *
      * @param owner 인증된 보호자 계정 정보
      * @return 조회된 지갑의 상세 정보
      */
@@ -90,7 +87,7 @@ public class WalletController {
     @GetMapping("/{walletId}")
     public ResponseEntity<?> getWalletInfo(@AuthenticationPrincipal OwnerDetails owner,
                                            @PathVariable @Min(1) Integer walletId
-    ) {
+    ){
         Integer ownerId = Integer.parseInt(owner.getUsername());
         return ResponseUtility.success("현재 로그인한 계정의 디지털 지갑 목록입니다.", walletComplexService.getWalletInfoByWalletId(ownerId, walletId));
     }
@@ -98,7 +95,6 @@ public class WalletController {
 
     /**
      * 특정 지갑 정보를 수정합니다.
-     *
      * @param owner   인증된 보호자 계정 정보
      * @param request 지갑 수정 요청
      * @return 수정 완료된 지갑의 정보
@@ -120,7 +116,6 @@ public class WalletController {
 
     /**
      * 현재 로그인된 사용자의 지갑 정보를 삭제합니다.
-     *
      * @param owner 인증된 보호자 계정 정보
      */
     @Operation(summary = "지갑 삭제", description = "현재 로그인된 사용자의 지갑 정보를 삭제합니다.")
@@ -140,7 +135,6 @@ public class WalletController {
 
     /**
      * 로그인된 사용자 지갑에 새로운 반려동물을 등록합니다.
-     *
      * @param ownerDetails 인증된 보호자 회원
      * @param request      반려동물 등록 요청
      * @return 등록된 반려동물 정보
@@ -160,7 +154,6 @@ public class WalletController {
 
     /**
      * 특정 지갑에 있는 반려동물 목록을 조회합니다.
-     *
      * @param ownerDetails 인증된 보호자 회원
      * @return 조회된 반려동물 목록
      */

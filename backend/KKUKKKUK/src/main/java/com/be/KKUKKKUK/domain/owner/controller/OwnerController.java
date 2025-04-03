@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
  * 25.04.01          haelim           회원 탈퇴 api <br>
  */
 @Tag(name = "보호자 API", description = "보호자 정보를 관리하는 API입니다.")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/owners")
@@ -100,7 +103,7 @@ public class OwnerController {
     })
     @PostMapping(path = "/me/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateOwnerImage(@AuthenticationPrincipal OwnerDetails ownerDetails,
-                                              @RequestParam("image") MultipartFile imageFile
+                                              @RequestParam("image") @NotNull MultipartFile imageFile
     ){
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("계정 프로필이 성공적으로 업데이트되었습니다.", ownerComplexService.updateOwnerImage(ownerId, imageFile));

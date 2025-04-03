@@ -40,15 +40,12 @@ public class S3Service {
      * @return 저장된 이미지 url
      */
     public String uploadImage(Integer relativeId, RelatedType relatedType, MultipartFile imageFile) {
-        // 1. 기존 이미지 있으면 삭제
         s3Repository.findByRelatedIdAndRelatedType(relativeId, relatedType).ifPresent(s3 -> {
             s3Uploader.deleteImage(s3.getUrl());
         });
 
-        // 2. 새로운 이미지 업로드
         String image = s3Uploader.uploadPermanent(imageFile, relatedType.name());
 
-        // 3. 새로운 이미지 저장
         return s3Repository.save(new S3(relativeId, relatedType, image, LocalDateTime.now())).getUrl();
     }
 

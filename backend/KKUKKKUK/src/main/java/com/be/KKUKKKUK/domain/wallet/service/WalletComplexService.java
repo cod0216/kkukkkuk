@@ -18,7 +18,6 @@ import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
-import com.be.KKUKKKUK.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +74,7 @@ public class WalletComplexService {
      * @param ownerId 현재 로그인한 회원 계정 ID
      * @return 조회된 반려동물 목록
      */
+    @Transactional(readOnly = true)
     public List<PetInfoResponse> getPetInfoListByWalletId(Integer ownerId, Integer walletId) {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
 
@@ -83,7 +83,6 @@ public class WalletComplexService {
 
         return petInfos;
     }
-
 
     /**
      * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
@@ -102,47 +101,42 @@ public class WalletComplexService {
      * @param walletId 조회할 지갑 ID
      * @return 조회된 지갑 상세 정보
      */
+    @Transactional(readOnly = true)
     public WalletInfoResponse getWalletInfoByWalletId(Integer ownerId, Integer walletId) {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
-
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-
         List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, walletId);
 
-        return new WalletInfoResponse(wallet.getId(), wallet.getDid(), wallet.getAddress(), wallet.getName(), ownerInfos, petInfos);
+        return walletMapper.mapToWalletInfoResponse(wallet, ownerInfos, petInfos);
     }
 
-
     /**
-     * 지갑을 신규 등록합니다.
-     *
+     * 보호자에게 지갑을 신규 등록합니다.
+     * 기존에 등록된 address 가 있다면 기존 지갑과 연결됩니다.
+     * 등록 후 지갑 정보(지갑, 지갑의 다른 보호자, 지갑에 속한 반려동물 목록)과 함께 반환됩니다.
      * @param ownerId 등록할 지갑 주인 ID
      * @param request 등록 요청
      * @return 등록된 지갑 정보
      */
-    @Transactional
-    public WalletInfoResponse registerWallet(Integer ownerId, WalletRegisterRequest request) throws ApiException {
+    public WalletInfoResponse registerWallet(Integer ownerId, WalletRegisterRequest request) {
         Owner owner = ownerService.getOwnerById(ownerId);
-
         Wallet wallet = walletService.getWalletOptionalByWalletAddress(request.getAddress())
                 .orElseGet(() -> walletService.saveWallet(request.toWalletEntity()));
 
         walletOwnerService.connectWalletAndOwner(owner, wallet);
 
         List<Owner> owners = walletOwnerService.getOwnersByWalletId(wallet.getId());
-
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-
         List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, wallet.getId());
 
         return  walletMapper.mapToWalletInfoResponse(wallet, ownerInfos, petInfos);
     }
 
-
     /**
      * 사용자의 지갑 정보를 업데이트합니다.
+     * 업데이트 후 지갑 정보(지갑, 지갑의 다른 보호자, 지갑에 속한 반려동물 목록)과 함께 반환됩니다.
      * @param ownerId 업데이트 시도한 보호자 ID
      * @param walletId 업데이트할 지갑 ID
      * @param request 업데이트 요청
@@ -150,14 +144,11 @@ public class WalletComplexService {
      */
     public WalletInfoResponse updateWallet(Integer ownerId, Integer walletId, WalletUpdateRequest request) {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
-
         walletMapper.updateWalletFromRequest(wallet, request);
-
-        List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
         Wallet updateWallet = walletService.saveWallet(wallet);
 
+        List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
         List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-
         List<PetInfoResponse> petInfos = getPetInfoListByWalletId(ownerId, walletId);
 
         return  walletMapper.mapToWalletInfoResponse(updateWallet, ownerInfos, petInfos);

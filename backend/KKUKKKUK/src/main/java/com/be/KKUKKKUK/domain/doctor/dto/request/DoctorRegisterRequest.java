@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.doctor.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DoctorRegisterRequest {
     @NotBlank
+    @Size(min = 1, max = 30)
     @Schema(description = "의사 이름", example = "권닥터")
     private String name;
 }
