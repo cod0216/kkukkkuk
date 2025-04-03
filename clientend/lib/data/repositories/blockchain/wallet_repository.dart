@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_delete_response.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_detail_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_info_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
@@ -22,9 +23,7 @@ class WalletRepository implements IWalletRepository {
         '/api/wallets',
         data: request.toJson(),
       );
-
-      final walletResponse = WalletRegistrationResponse.fromJson(response.data);
-      return walletResponse;
+      return WalletRegistrationResponse.fromJson(response.data);
     } catch (e) {
       print('지갑 등록 API 호출 실패: $e');
       rethrow;
@@ -34,19 +33,33 @@ class WalletRepository implements IWalletRepository {
   @override
   Future<WalletInfoResponse> getWalletInfo() async {
     try {
-      final response = await _apiClient.get('/api/wallets/me');
+      final response = await _apiClient.get('/api/wallets');
       return WalletInfoResponse.fromJson(response.data);
     } catch (e) {
-      print('지갑 정보 조회 실패: $e');
+      print('지갑 목록 조회 실패: $e');
       rethrow;
     }
   }
 
   @override
-  Future<WalletUpdateResponse> updateWallet(WalletUpdateRequest request) async {
+  Future<WalletDetailResponse> getWalletDetail(int walletId) async {
+    try {
+      final response = await _apiClient.get('/api/wallets/$walletId');
+      return WalletDetailResponse.fromJson(response.data);
+    } catch (e) {
+      print('지갑 상세 정보 조회 실패: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<WalletUpdateResponse> updateWallet(
+    int walletId,
+    WalletUpdateRequest request,
+  ) async {
     try {
       final response = await _apiClient.put(
-        '/api/wallets/me',
+        '/api/wallets/$walletId',
         data: request.toJson(),
       );
       return WalletUpdateResponse.fromJson(response.data);
@@ -57,9 +70,9 @@ class WalletRepository implements IWalletRepository {
   }
 
   @override
-  Future<WalletDeleteResponse> deleteWallet() async {
+  Future<WalletDeleteResponse> deleteWallet(int walletId) async {
     try {
-      final response = await _apiClient.delete('/api/wallets/me');
+      final response = await _apiClient.delete('/api/wallets/$walletId');
       return WalletDeleteResponse.fromJson(response.data);
     } catch (e) {
       print('지갑 정보 삭제 실패: $e');

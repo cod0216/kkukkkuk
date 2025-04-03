@@ -1,4 +1,5 @@
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_delete_response.dart';
+import 'package:kkuk_kkuk/data/dtos/wallet/wallet_detail_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_info_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_request.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
@@ -11,14 +12,18 @@ abstract class IWalletRepository {
     WalletRegistrationRequest request,
   );
   
-  /// 현재 로그인한 사용자의 지갑 정보 조회
+  /// 현재 로그인한 사용자의 지갑 목록 조회
   Future<WalletInfoResponse> getWalletInfo();
+  
+  /// 지갑 상세 정보 조회
+  Future<WalletDetailResponse> getWalletDetail(int walletId);
   
   /// 지갑 정보 업데이트
   Future<WalletUpdateResponse> updateWallet(
+    int walletId,
     WalletUpdateRequest request,
   );
   
   /// 지갑 정보 삭제
-  Future<WalletDeleteResponse> deleteWallet();
+  Future<WalletDeleteResponse> deleteWallet(int walletId);
 }
