@@ -2,7 +2,6 @@ package com.be.KKUKKKUK.domain.wallet.dto.mapper;
 
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
-import com.be.KKUKKKUK.domain.pet.dto.response.PetInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
@@ -21,8 +20,9 @@ import java.util.List;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초생성<br>
  * 25.03.28          haelim           지갑 여러 개 반환하도록 수정 <br>
+ * 25.04.01          haelim           pet 도메인 삭제로 인한 변경 <br>
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface WalletMapper {
     
     @Mapping(target = "id", source = "owner.id")
@@ -36,5 +36,5 @@ public interface WalletMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateWalletFromRequest(@MappingTarget Wallet wallet, WalletUpdateRequest request);
 
-    WalletInfoResponse mapToWalletInfoResponse(Wallet wallet, List<OwnerShortInfoResponse> owners, List<PetInfoResponse> pets);
+    WalletInfoResponse mapToWalletInfoResponse(Wallet wallet, List<OwnerShortInfoResponse> owners);
 }

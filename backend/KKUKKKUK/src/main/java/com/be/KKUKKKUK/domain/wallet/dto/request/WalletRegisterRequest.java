@@ -27,24 +27,8 @@ import java.time.LocalDateTime;
 public class WalletRegisterRequest {
     @NotBlank
     @Size(max = 255)
-    @Schema(description = "지갑의 암호화된 개인키", example = "exampleprivatekey")
-    private String privateKey;
-
-    @NotBlank
-    @Size(max = 255)
-    @Schema(description = "지갑의 공개키", example = "examplepublickey")
-    private String publicKey;
-
-    @NotBlank
-    @Size(max = 255)
     @Schema(description = "지갑 주소", example = "examplewalletaddress")
     private String address;
-
-    @NotBlank
-    @Size(max = 255)
-    @Schema(description = "지갑 주소", example = "examplewalletdid")
-    private String did;
-
     @NotBlank
     @Size(max = 30)
     @Schema(description = "지갑 이름", example = "임보용 지갑")
@@ -53,10 +37,7 @@ public class WalletRegisterRequest {
     public Wallet toWalletEntity() {
         return Wallet.builder()
                 .name(name)
-                .privateKey(privateKey)
-                .publicKey(publicKey)
                 .address(address)
-                .did(did)
                 .createdAt(LocalDateTime.now())
                 .build();
     }

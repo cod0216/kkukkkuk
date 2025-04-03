@@ -7,7 +7,9 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring",
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_DEFAULT)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_DEFAULT,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
 public interface DoctorMapper {
 
     @Mapping(target = "name", defaultValue = "익명")

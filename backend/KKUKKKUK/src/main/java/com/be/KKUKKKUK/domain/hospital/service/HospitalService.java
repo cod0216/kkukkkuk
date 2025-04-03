@@ -118,6 +118,11 @@ public class HospitalService {
         Hospital hospital = findHospitalById(hospitalId);
 
         hospitalMapper.updateHospitalFromRequest(hospital, request);
+
+
+
+
+
         if(Objects.nonNull(request.getPassword()) && !request.getPassword().isEmpty()){
             hospital.setPassword(passwordEncoder.encode(request.getPassword()));
         }

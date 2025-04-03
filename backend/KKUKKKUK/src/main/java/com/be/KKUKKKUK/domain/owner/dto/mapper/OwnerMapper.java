@@ -4,6 +4,7 @@ import com.be.KKUKKKUK.domain.owner.dto.OwnerDetails;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.owner.dto.mapper<br>
@@ -16,7 +17,7 @@ import org.mapstruct.Mapper;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초생성<br>
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OwnerMapper {
     OwnerInfoResponse mapToOwnerInfo(Owner owner);
 

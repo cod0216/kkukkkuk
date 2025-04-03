@@ -23,7 +23,7 @@ import java.util.List;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초생성<br>
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface HospitalMapper {
     HospitalInfoResponse mapToHospitalInfo(Hospital hospital);
 

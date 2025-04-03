@@ -19,6 +19,7 @@ import java.time.LocalDate;
  * 25.03.13          Fiat_lux           최초생성<br>
  * 25.03.14          haelim             licenseNumber, doctorName 필드 추가
  * 25.03.14          haelim             licenseNumber, 필드 삭제
+ * 25.04.01          haelim             publicKey, 필드 삭제
  */
 @Entity
 @Table(name = "hospital")
@@ -52,9 +53,6 @@ public class Hospital {
 
     @Column(nullable = false)
     private String address;
-
-    @Column(name = "public_key")
-    private String publicKey;
 
     @Column(name = "flag_certified", nullable = false)
     private Boolean flagCertified;
