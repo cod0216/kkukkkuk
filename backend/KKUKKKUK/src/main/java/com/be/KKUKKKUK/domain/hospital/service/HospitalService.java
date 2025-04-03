@@ -198,8 +198,9 @@ public class HospitalService {
      */
     @Transactional(readOnly = true)
     public void checkEmailAvailable(String email) {
-        findHospitalByEmailOptional(email)
-                .orElseThrow(() -> new ApiException(ErrorCode.EMAIL_DUPLICATED));
+        if(findHospitalByEmailOptional(email).isPresent()){
+            throw new ApiException(ErrorCode.EMAIL_DUPLICATED);
+        }
     }
 
     
