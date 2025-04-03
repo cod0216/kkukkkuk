@@ -1,4 +1,4 @@
-package com.be.KKUKKKUK.domain.drug.mapper;
+package com.be.KKUKKKUK.domain.drug.dto.mapper;
 
 import com.be.KKUKKKUK.domain.drug.dto.response.DrugResponse;
 import com.be.KKUKKKUK.domain.drug.entity.Drug;
@@ -24,6 +24,6 @@ import java.util.List;
 public interface DrugMapper {
 
     DrugResponse mapToDrugResponse(Drug drug);
-    List<DrugResponse> mapDrugToDrugResponse(List<Drug> drugList);
+    List<DrugResponse> mapToDrugResponseList(List<Drug> drugList);
 
 }

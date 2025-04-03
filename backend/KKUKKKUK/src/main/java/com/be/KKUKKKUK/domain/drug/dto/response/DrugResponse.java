@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * packageName    : com.be.KKUKKKUK.domain.drug.dto.response<br>
  * fileName       : DrugResponse.java<br>
- * author         : haelim<br>
+ * author         : eunchang<br>
  * date           : 2025-04-01<br>
  * description    : Drug 엔터티의 정보를 조회하는 DTO 클래스입니다.<br>
  * ===========================================================<br>

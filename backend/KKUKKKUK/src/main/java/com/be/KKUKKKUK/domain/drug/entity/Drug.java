@@ -20,13 +20,13 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 public class Drug {
     @Id
+    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name_kr") //TODO  해당 칼럼에 대한 조건은 없나요?
+    @Column(name = "name_kr")
     private String nameKr;
 
     @Column(name = "name_en")
