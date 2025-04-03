@@ -9,7 +9,9 @@
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
+ * 2025-04-02        seonghun        status 필드, flagCertificated 필드 추가
  */
+
 
 /**
  * 블록체인 기반 치료 정보를 나타내는 인터페이스입니다.
@@ -30,6 +32,8 @@ export interface BlockChainRecord {
   expireDate?: number;  // 유효기간 만료일 (Unix 타임스탬프)
   petDid?: string;  // 반려동물 DID 주소
   previousRecord?: string; // 이전 기록 ID (수정 기능에서 사용)
+  status?: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'SHARED' | 'NONE';  // 진료 상태 (TreatmentState enum과 일치해야 함)
+  flagCertificated?: boolean;  // 병원 인증 여부 (병원 작성: true, 보호자 작성: false)
 }
 
 /**

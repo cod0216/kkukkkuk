@@ -10,6 +10,7 @@
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-31        seonghun         PetWithAgreement 인터페이스 추가
+ * 2025-04-02        seonghun         speciesName 필드 추가, profileUrl 필드 추가
  */
 
 /**
@@ -31,6 +32,8 @@ export interface PetBasicInfo {
   birth: string;        // 생년월일
   flagNeutering: string | boolean;  // 중성화 여부
   breedName: string;    // 품종
+  speciesName?: string; // 종류 (강아지, 고양이 등)
+  profileUrl?: string;  // 프로필 이미지 URL
   petDID?: string;      // 반려동물 DID 주소
 }
 

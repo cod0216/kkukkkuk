@@ -13,6 +13,7 @@ import { BlockChainRecord, BlockChainRecordResponse } from "@/interfaces/blockCh
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-31        seonghun         Treatment 상태 타입 확장 
+ * 2025-04-02        seonghun         profileUrl 필드 추가, speciesName 필드 추가
  */
 
 /**
@@ -43,6 +44,8 @@ export interface Treatment {
   age: number;
   gender: Gender;
   breedName: string;
+  speciesName?: string; // 종류 (강아지, 고양이 등)
+  profileUrl?: string;  // 반려동물 프로필 이미지 URL
   birth?: string;
   flagNeutering: boolean | string;
   createdAt?: string;
@@ -83,6 +86,8 @@ export const parseTreatmentResponse = (data: any[]): TreatmentResponse => {
       gender: item.gender,
       flagNeutering: item.flag_neutering,
       breedName: item.breed_name,
+      speciesName: item.species_name,
+      profileUrl: item.profile_url,
     }))
   };
 };
