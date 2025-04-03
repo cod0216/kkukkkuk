@@ -6,7 +6,6 @@ enum QRScannerStatus {
   processing, // QR 코드 처리 중
   success, // 스캔 성공
   error, // 에러 발생
-  noPermission, // 카메라 권한 없음
 }
 
 class QRScannerState {
@@ -62,10 +61,5 @@ class QRScannerState {
   // 에러 상태
   factory QRScannerState.error(String message) {
     return QRScannerState(status: QRScannerStatus.error, errorMessage: message);
-  }
-
-  // 권한 없음 상태
-  factory QRScannerState.noPermission() {
-    return const QRScannerState(status: QRScannerStatus.noPermission);
   }
 }

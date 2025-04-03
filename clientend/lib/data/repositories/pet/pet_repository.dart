@@ -69,17 +69,6 @@ class PetRepository implements IPetRepository {
             flagNeutering = true;
           }
 
-          // 나이 계산
-          if (birth != null) {
-            final now = DateTime.now();
-            final years = now.year - birth.year;
-            if (years > 0) {
-            } else {
-              final months =
-                  now.month - birth.month + (now.year - birth.year) * 12;
-            }
-          }
-
           final imageUrl = attributes['profileUrl']?['value'] as String? ?? '';
 
           // 반려동물 객체 생성
@@ -356,6 +345,75 @@ class PetRepository implements IPetRepository {
       print('반려동물 속성 조회 오류: $e');
       throw Exception('반려동물 속성 조회에 실패했습니다: $e');
     }
+  }
+
+  // 진료 기록 추가
+  @override
+  Future<String> addMedicalRecord({
+    required Credentials credentials,
+    required String petAddress,
+    required String diagnosis,
+    required String hospitalName,
+    required String doctorName,
+    required String notes,
+    required String examinationsJson,
+    required String medicationsJson,
+    required String vaccinationsJson,
+    required String picturesJson,
+    required String status,
+    required bool flagCertificated,
+  }) async {
+    try {
+      return await _registryContract.addMedicalRecord(
+        credentials: credentials,
+        petAddress: petAddress,
+        diagnosis: diagnosis,
+        hospitalName: hospitalName,
+        doctorName: doctorName,
+        notes: notes,
+        examinationsJson: examinationsJson,
+        medicationsJson: medicationsJson,
+        vaccinationsJson: vaccinationsJson,
+        picturesJson: picturesJson,
+        status: status,
+        flagCertificated: flagCertificated,
+      );
+    } catch (e) {
+      print('진료 기록 추가 오류: $e');
+      throw Exception('진료 기록 추가에 실패했습니다: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> processMedicalRecordImage(
+    Map<String, dynamic> ocrData,
+  ) async {
+    // TODO: 실제 서버 API 엔드포인트 연동
+    // TODO: API 요청/응답 모델 정의
+    // TODO: API 에러 처리 추가
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+
+    // Dummy response
+    return {
+      "diagnosis": "감기",
+      "notes": "목이 부었음",
+      "doctorName": "김닥터",
+      "hospitalName": "일곡동물병원",
+      "examinations": [
+        {"type": "검사", "key": "혈액검사", "value": "백혈구수치130"},
+        {"type": "검사", "key": "xray검사", "value": "골절상"},
+      ],
+      "medications": [
+        {"type": "약물", "key": "타이레놀", "value": "350ml"},
+        {"type": "약물", "key": "이부부로펜", "value": "40ml"},
+      ],
+      "vaccinations": [
+        {"type": "접종", "key": "파상풍주사", "value": "1차"},
+        {"type": "접종", "key": "예방접종", "value": "2차"},
+      ],
+      "date": DateTime.now().toIso8601String().split('T')[0],
+    };
   }
 }
 

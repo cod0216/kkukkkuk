@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
-import 'package:kkuk_kkuk/models/qr_scanner_state.dart';
 import 'package:kkuk_kkuk/controllers/qr_scanner_controller.dart';
 
 class QRScannerView extends ConsumerStatefulWidget {
@@ -25,38 +24,14 @@ class _QRScannerViewState extends ConsumerState<QRScannerView> {
   @override
   void initState() {
     super.initState();
-    // 컨트롤러를 통해 카메라 권한 요청
-    ref.read(qrScannerProvider.notifier).requestCameraPermission();
-  }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(qrScannerProvider.notifier).resetScanner();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final scannerState = ref.watch(qrScannerProvider);
-
-    if (scannerState.status == QRScannerStatus.noPermission) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('카메라 권한이 필요합니다'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(qrScannerProvider.notifier).requestCameraPermission();
-              },
-              child: const Text('권한 요청'),
-            ),
-          ],
-        ),
-      );
-    }
-
     // 화면 크기 가져오기
     final screenSize = MediaQuery.of(context).size;
     final scannerSize = screenSize.width * 0.7; // 스캐너 크기를 화면 너비의 70%로 조정
@@ -142,7 +117,7 @@ class ScannerOverlay extends CustomPainter {
     // Background with hole
     final backgroundPaint =
         Paint()
-          ..color = Colors.black.withOpacity(0.5)
+          ..color = Colors.black.withAlpha(128)
           ..style = PaintingStyle.fill;
 
     final backgroundPath =

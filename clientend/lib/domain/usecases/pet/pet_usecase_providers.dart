@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/data/repositories/pet/pet_repository.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/add_hospital_with_sharing_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_species_usecase.dart';
+import 'package:kkuk_kkuk/domain/usecases/pet/process_medical_record_image_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/update_pet_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/delete_pet_usecase.dart';
@@ -48,4 +50,17 @@ final grantHospitalAccessUseCaseProvider =
     Provider<AddHospitalWithSharingUseCase>((ref) {
       final repository = ref.watch(petRepositoryProvider);
       return AddHospitalWithSharingUseCase(repository);
+    });
+
+final addMedicalRecordUseCaseProvider = Provider<AddMedicalRecordUseCase>((
+  ref,
+) {
+  final repository = ref.watch(petRepositoryProvider);
+  return AddMedicalRecordUseCase(repository);
+});
+
+final processMedicalRecordImageUseCaseProvider =
+    Provider<ProcessMedicalRecordImageUseCase>((ref) {
+      final repository = ref.watch(petRepositoryProvider);
+      return ProcessMedicalRecordImageUseCase(repository);
     });

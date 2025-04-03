@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
+import 'package:web3dart/web3dart.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스
 ///
@@ -54,7 +55,7 @@ class GetAllAtributesUseCase {
     print('attributes: $attributes');
     // 속성에서 진료 기록 데이터 추출 및 변환
     attributes.forEach((key, value) {
-      if (key.startsWith('medical_record_')) {
+      if (key.startsWith('medical_') || key.startsWith('medical_record')) {
         try {
           print('value: $value');
           // 블록체인에서 반환된 값은 Map 형태이므로 'value' 키에서 JSON 문자열을 추출
@@ -87,51 +88,60 @@ class GetAllAtributesUseCase {
     Map<String, dynamic> recordData,
     String recordKey,
   ) {
-    // 타임스탬프 추출 (recordKey에서 medical_record_TIMESTAMP_ 형식)
-    int timestamp = 0;
-    try {
-      final parts = recordKey.split('_');
-      if (parts.length >= 3) {
-        timestamp = int.parse(parts[2]);
+    // TODO: contract에서 treatmentDate 속성이 추가되면 변경
+    // TODO: LocalDateTime으로 변경
+    final treatmentDate = DateTime.fromMillisecondsSinceEpoch(
+      recordData['createdAt'] * 1000,
+    );
+
+    print('treatmentDate: $treatmentDate');
+
+    // Convert examinations
+    final List<Examination> examinations = [];
+    final List<Medication> medications = [];
+    final List<Vaccination> vaccinations = [];
+
+    if (recordData['treatments']?['examinations'] != null) {
+      for (final exam in recordData['treatments']['examinations']) {
+        examinations.add(
+          Examination(
+            type: exam['type'] ?? '',
+            key: exam['key'] ?? '',
+            value: exam['value'] ?? '',
+          ),
+        );
       }
-    } catch (e) {
-      print('타임스탬프 추출 오류: $e');
     }
 
-    // 타임스탬프로부터 날짜 생성 (초 단위)
-    final treatmentDate =
-        timestamp > 0
-            ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
-            : DateTime.now();
-
-    // 약물 정보 추출
-    List<String> medications = [];
-    if (recordData['treatments'] != null &&
-        recordData['treatments']['medications'] != null) {
-      medications = List<String>.from(recordData['treatments']['medications']);
+    if (recordData['treatments']?['medications'] != null) {
+      for (final med in recordData['treatments']['medications']) {
+        medications.add(
+          Medication(key: med['key'] ?? '', value: med['value'] ?? ''),
+        );
+      }
     }
 
-    // 예방접종 정보 추출
-    List<String> vaccinations = [];
-    if (recordData['treatments'] != null &&
-        recordData['treatments']['vaccinations'] != null) {
-      vaccinations = List<String>.from(
-        recordData['treatments']['vaccinations'],
-      );
+    if (recordData['treatments']?['vaccinations'] != null) {
+      for (final vac in recordData['treatments']['vaccinations']) {
+        vaccinations.add(
+          Vaccination(key: vac['key'] ?? '', value: vac['value'] ?? ''),
+        );
+      }
     }
 
     return PetMedicalRecord(
       treatmentDate: treatmentDate,
-      recordType: '진료', // 기본값
-      medication: medications.isNotEmpty ? medications.join(', ') : null,
-      vaccination: vaccinations.isNotEmpty ? vaccinations.join(', ') : null,
-      xRayUrl: null, // 블록체인 데이터에 X-ray URL이 없음
+      diagnosis: recordData['diagnosis'] ?? '',
       veterinarian: recordData['doctorName'] ?? '',
-      petName: '', // 블록체인 데이터에 펫 이름이 없음
-      petGender: '', // 블록체인 데이터에 펫 성별이 없음
-      guardianName: '', // 블록체인 데이터에 보호자 이름이 없음
-      treatmentDetails: recordData['diagnosis'] ?? '',
+      hospitalName: recordData['hospitalName'] ?? '',
+      hospitalAddress: recordData['hospitalAddress'] ?? '',
+      examinations: examinations,
+      medications: medications,
+      vaccinations: vaccinations,
       memo: recordData['notes'],
+      status: recordData['status'] ?? 'UNKNOWN',
+      flagCertificated: recordData['flagCertificated'] ?? false,
+      pictures: List<String>.from(recordData['pictures'] ?? []),
     );
   }
 }

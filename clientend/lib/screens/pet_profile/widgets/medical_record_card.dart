@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/screens/pet_profile/widgets/certification_badge.dart';
 
 class MedicalRecordCard extends StatelessWidget {
   final PetMedicalRecord record;
@@ -8,12 +9,6 @@ class MedicalRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('MedicalRecordCard building with record: $record');
-    // Add debug print to check record data
-    print('진료 일자: ${record.treatmentDate}');
-    print('진료 내용: ${record.treatmentDetails}');
-    print('진료 메모: ${record.memo}');
-
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -22,12 +17,31 @@ class MedicalRecordCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            Row(
+              children: [
+                Expanded(child: _buildHeader()),
+                CertificationBadge(isCertified: record.flagCertificated),
+              ],
+            ),
             const SizedBox(height: 12),
-            _buildTreatmentDetails(),
-            const SizedBox(height: 12),
-            _buildMedicalInfo(),
-            if (record.memo != null) _buildMemo(),
+            _buildDiagnosis(),
+            if (record.memo != null) ...[
+              const SizedBox(height: 12),
+              _buildMemo(),
+            ],
+            if (record.examinations.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _buildExaminations(),
+            ],
+            if (record.medications.isNotEmpty ||
+                record.vaccinations.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _buildTreatments(),
+            ],
+            if (record.pictures.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _buildPictures(),
+            ],
           ],
         ),
       ),
@@ -37,41 +51,63 @@ class MedicalRecordCard extends StatelessWidget {
   Widget _buildHeader() {
     return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            record.recordType,
-            style: TextStyle(color: Colors.grey.shade700),
-          ),
-        ),
         const Spacer(),
         Text(
-          '${record.treatmentDate.year}.${record.treatmentDate.month.toString().padLeft(2, '0')}.${record.treatmentDate.day.toString().padLeft(2, '0')}',
+          '${record.treatmentDate.year}.${record.treatmentDate.month.toString().padLeft(2, '0')}.${record.treatmentDate.day.toString().padLeft(2, '0')} ${record.treatmentDate.hour.toString().padLeft(2, '0')}:${record.treatmentDate.minute.toString().padLeft(2, '0')}',
           style: TextStyle(color: Colors.grey.shade700),
         ),
       ],
     );
   }
 
-  Widget _buildTreatmentDetails() {
-    return Text(
-      record.treatmentDetails,
-      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-    );
-  }
-
-  Widget _buildMedicalInfo() {
+  Widget _buildDiagnosis() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (record.medication != null) _buildInfoItem('약물', record.medication!),
-        if (record.vaccination != null)
-          _buildInfoItem('예방접종', record.vaccination!),
-        _buildInfoItem('주치의', record.veterinarian),
+        Text(
+          record.diagnosis,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${record.hospitalName} - ${record.veterinarian}',
+          style: TextStyle(color: Colors.grey.shade700),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExaminations() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('검사 결과', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        ...record.examinations.map(
+          (exam) => Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text('${exam.key}: ${exam.value}'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTreatments() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (record.medications.isNotEmpty) ...[
+          const Text('처방 약물', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          ...record.medications.map((med) => Text('${med.key} ${med.value}')),
+          const SizedBox(height: 8),
+        ],
+        if (record.vaccinations.isNotEmpty) ...[
+          const Text('예방 접종', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          ...record.vaccinations.map((vac) => Text('${vac.key} ${vac.value}')),
+        ],
       ],
     );
   }
@@ -80,33 +116,41 @@ class MedicalRecordCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Divider(height: 24),
-        Text(
-          '메모',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Colors.grey.shade700,
-          ),
-        ),
+        const Text('증상', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(record.memo!, style: TextStyle(color: Colors.grey.shade700)),
       ],
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$label: ', style: TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(
-            child: Text(value, style: TextStyle(color: Colors.grey.shade700)),
+  Widget _buildPictures() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('사진', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: record.pictures.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    record.pictures[index],
+                    height: 100,
+                    width: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
