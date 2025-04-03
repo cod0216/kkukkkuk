@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BlockChainRecord } from '@/interfaces';
 import RecordHistory from './RecordHistory';
-import { FaChevronDown, FaChevronUp, FaEdit } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaEdit, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { getAccountAddress } from '@/services/blockchainAuthService';
 
 /**
@@ -18,7 +18,8 @@ import { getAccountAddress } from '@/services/blockchainAuthService';
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         처방 정보 표시 필드 수정 (type → key)
- * 2025-04-02        assistant        수정 내역 기능 및 진료 기록 수정 기능 추가
+ * 2025-04-02        seonghun         수정 내역 기능 및 진료 기록 수정 기능 추가, 인증 여부 및 상태 표시 추가
+ * 2025-04-03        seonghun         처방정보 null undefined 처리 개선, 높이 계산 개선
  */
 
 /**
@@ -97,8 +98,19 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
       {/* 상단 요약 정보 */}
       <div className="p-4 border-b border-gray-100 flex-shrink-0">
         <div className="flex justify-between items-center">
-          <div className="font-semibold text-gray-800">
+          <div className="flex items-center gap-2 font-semibold text-gray-800">
             {record.diagnosis}
+            {record.flagCertificated === false ? (
+              <div className="flex items-center text-xs text-red-500 ml-2">
+                <FaExclamationTriangle className="w-3 h-3 mr-1" />
+                <span>인증되지 않은 기록</span>
+              </div>
+            ) : (
+              <div className="flex items-center text-xs text-green-600 ml-2">
+                <FaCheck className="w-3 h-3 mr-1" />
+                <span>병원 인증 기록</span>
+              </div>
+            )}
           </div>
           {isOwnRecord && (
             <button 
@@ -126,56 +138,60 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
         {/* 노트 및 처방 정보 */}
         <div className="space-y-4">
           <div>
-            <h4 className="text-xs font-semibold text-gray-800 mb-1">노트</h4>
-            <p className="text-xs text-gray-700 leading-relaxed">{record.notes || '노트 정보가 없습니다.'}</p>
+            <h4 className="text-xs font-semibold text-gray-800 mb-1">증상</h4>
+            <p className="text-xs text-gray-700 leading-relaxed">{record.notes || '증상 정보가 없습니다.'}</p>
           </div>
 
           <div>
             <h4 className="text-xs font-semibold text-gray-800 mb-2">처방</h4>
             <div className="flex gap-1 flex-col text-sm p-2 bg-gray-50 rounded-lg">
               {/* 검사 정보 */}
-              {record.treatments.examinations.length > 0 && (
+              {record.treatments?.examinations?.length > 0 && (
                 <div>
                   <h5 className="text-xs font-bold text-gray-700">검사</h5>
-                  {record.treatments.examinations.map((exam, index) => (
+                  {record.treatments?.examinations?.map((exam, index) => (
                     <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg mb-1 text-xs">
-                      <span className="font-medium text-gray-800">{exam.key}</span>
-                      <span className="text-gray-600">{exam.value}</span>
+                      <span className="font-medium text-gray-800">{exam?.key || ''}</span>
+                      <span className="text-gray-600">{exam?.value || ''}</span>
                     </div>
                   ))}
                 </div>
               )}
 
               {/* 약물 정보 */}
-              {record.treatments.medications.length > 0 && (
+              {record.treatments?.medications?.length > 0 && (
                 <div className="mt-2">
                   <h5 className="text-xs font-bold text-gray-700">약물</h5>
-                  {record.treatments.medications.map((medication, index) => (
+                  {record.treatments?.medications?.map((medication, index) => (
                     <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg mb-1 text-xs">
-                      <span className="font-medium text-gray-800">{medication.key}</span>
-                      <span className="text-gray-600">{medication.value}</span>
+                      <span className="font-medium text-gray-800">{medication?.key || ''}</span>
+                      <span className="text-gray-600">{medication?.value || ''}</span>
                     </div>
                   ))}
                 </div>
               )}
 
               {/* 접종 정보 */}
-              {record.treatments.vaccinations.length > 0 && (
+              {record.treatments?.vaccinations?.length > 0 && (
                 <div className="mt-2">
                   <h5 className="text-xs font-bold text-gray-700">접종</h5>
-                  {record.treatments.vaccinations.map((vaccination, index) => (
+                  {record.treatments?.vaccinations?.map((vaccination, index) => (
                     <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg mb-1 text-xs">
-                      <span className="font-medium text-gray-800">{vaccination.key}</span>
-                      <span className="text-gray-600">{vaccination.value}차</span>
+                      <span className="font-medium text-gray-800">{vaccination?.key || ''}</span>
+                      <span className="text-gray-600">{vaccination?.value || ''}차</span>
                     </div>
                   ))}
                 </div>
               )}
               
               {/* 처방 정보가 없는 경우 */}
-              {record.treatments.examinations.length === 0 && 
-               record.treatments.medications.length === 0 && 
-               record.treatments.vaccinations.length === 0 && (
+              {(!record.treatments || 
+                !record.treatments.examinations || 
+                !record.treatments.medications || 
+                !record.treatments.vaccinations ||
+                (record.treatments.examinations?.length === 0 && 
+                record.treatments.medications?.length === 0 && 
+                record.treatments.vaccinations?.length === 0)) && (
                 <div className="text-xs text-gray-500 p-2">
                   처방 정보가 없습니다.
                 </div>
@@ -188,7 +204,7 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
             <div>
               <h4 className="text-xs font-semibold text-gray-800 mb-2">사진</h4>
               <div className="grid grid-cols-2 gap-2">
-                {record.pictures.map((picture, index) => (
+                {record.pictures?.map((picture, index) => (
                   <div 
                     key={index} 
                     className="cursor-pointer relative group"

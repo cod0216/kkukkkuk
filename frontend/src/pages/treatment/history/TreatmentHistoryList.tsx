@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
 import RecordItem from '@/pages/treatment/history/RecordItem';
 import RecordDetail from '@/pages/treatment/history/RecordDetail';
 import RecordEditForm from '@/pages/treatment/form/RecordEditForm';
@@ -82,6 +82,9 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   const [selectedRecordId, setSelectedRecordId] = useState<string>('');
   const [sortField, setSortField] = useState<SortField>('timestamp');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [showOnlyMyHospitalRecords, setShowOnlyMyHospitalRecords] = useState<boolean>(false);
+  const [myHospitalAddress, setMyHospitalAddress] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   
   // 수정 모드 상태
   const [editingRecord, setEditingRecord] = useState<BlockChainRecord | null>(null);
@@ -105,11 +108,25 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   };
   
   // 정렬된 의료 기록 목록 계산
-  const sortedRecords = React.useMemo(() => {
+  const sortedRecords = useMemo(() => {
     // 취소된 진료 기록(진단명에 CANCELED 포함) 필터링
-    const filteredRecords = blockchainRecords.filter(record => 
+    let filteredRecords = blockchainRecords.filter(record => 
       !record.diagnosis || !record.diagnosis.includes('CANCELED')
     );
+    
+    // 검색어로 진단명 필터링
+    if (searchQuery.trim() !== '') {
+      filteredRecords = filteredRecords.filter(record => 
+        record.diagnosis && record.diagnosis.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // '우리 병원 기록만 보기' 필터링
+    if (showOnlyMyHospitalRecords && myHospitalAddress) {
+      filteredRecords = filteredRecords.filter(record => 
+        record.hospitalAddress === myHospitalAddress
+      );
+    }
     
     // 현재 선택된 기록이 필터링으로 제거된 경우, 첫 번째 기록 선택
     if (selectedRecordId && filteredRecords.length > 0) {
@@ -145,7 +162,7 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       // 정렬 방향에 따라 비교 결과 반전
       return sortDirection === 'asc' ? compared : -compared;
     });
-  }, [blockchainRecords, sortField, sortDirection, selectedRecordId]);
+  }, [blockchainRecords, sortField, sortDirection, selectedRecordId, showOnlyMyHospitalRecords, myHospitalAddress, searchQuery]);
   
   // 컨트랙트 주소 가져오기
   useEffect(() => {
@@ -166,6 +183,7 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
     const fetchUserAddress = async () => {
       const address = await getAccountAddress();
       setCurrentUserAddress(address);
+      setMyHospitalAddress(address);
     };
     
     fetchUserAddress();
@@ -242,17 +260,24 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       if (response.success) {
         setHospitalPets(response.pets);
         
-        // selectedPetDid가 없을 때만 첫 번째 반려동물을 선택
-        if (!selectedPetDid && response.pets.length > 0) {
-          // 기록 설정
-          const firstPetRecords = response.pets[0].records;
-          setBlockchainRecords(firstPetRecords);
-          
-          // 첫 번째 기록 선택 - 최초 로드 시에만 실행되므로 여기서는 무조건 첫 번째 선택
-          if (firstPetRecords.length > 0 && firstPetRecords[0].id) {
-            setSelectedRecordId(firstPetRecords[0].id);
-            // 상위 컴포넌트에 알림은 selectedRecordId가 변경될 때 useEffect에서 처리
+        // selectedPetDid가 있을 때만 해당 반려동물의 기록을 표시
+        if (selectedPetDid && response.pets.length > 0) {
+          // 선택된 반려동물 찾기
+          const selectedPet = response.pets.find(pet => pet.petDID === selectedPetDid);
+          if (selectedPet) {
+            setBlockchainRecords(selectedPet.records);
+            
+            // 기록이 있으면 첫 번째 기록 선택
+            if (selectedPet.records.length > 0 && selectedPet.records[0].id) {
+              setSelectedRecordId(selectedPet.records[0].id);
+            } else {
+              setSelectedRecordId('');
+            }
           }
+        } else {
+          // 선택된 반려동물이 없으면 빈 기록 설정
+          setBlockchainRecords([]);
+          setSelectedRecordId('');
         }
       } else {
         setError(response.error || '반려동물 목록을 불러오는데 실패했습니다.');
@@ -359,6 +384,14 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
     }
   }));
 
+  // 취소되지 않은 유효한 기록이 있는지 확인하는 계산값 추가
+  const validRecordsExist = useMemo(() => {
+    // 취소된 진료 기록(진단명에 CANCELED 포함) 제외한 유효한 기록이 있는지 확인
+    return blockchainRecords.some(record => 
+      !record.diagnosis || !record.diagnosis.includes('CANCELED')
+    );
+  }, [blockchainRecords]);
+
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full gap-5">
       {/* 좌측: 의료 기록 목록 */}
@@ -371,10 +404,62 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
             </div>
             
             {/* 반려동물 선택 UI */}
-            {sortedRecords.length > 0 && (
-              <div className="p-3 border-b flex items-center justify-between">
-                <div className="text-xs text-gray-500">
-                  총 {sortedRecords.length}개의 진료기록
+            {(blockchainRecords.length > 0 && (validRecordsExist || searchQuery.trim() !== '')) && (
+              <div className="p-3 border-b">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <div className="text-xs text-gray-500 mr-2">
+                      총 {sortedRecords.length}개의 진료기록
+                    </div>
+                    
+                    {/* 검색창 위치 변경 */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-40 pl-6 pr-6 py-0.5 text-xs border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                        placeholder="진단명 검색..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <div className="absolute left-1.5 top-1">
+                        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                      </div>
+                      {searchQuery && (
+                        <button
+                          className="absolute right-1.5 top-1 text-gray-400 hover:text-gray-600"
+                          onClick={() => setSearchQuery('')}
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-600">우리 병원 기록만</span>
+                    <label className="relative inline-block w-8 h-4" title="우리 병원 기록만 보기 On/Off">
+                      <input
+                        type="checkbox"
+                        className="opacity-0 w-0 h-0"
+                        checked={showOnlyMyHospitalRecords}
+                        onChange={() => setShowOnlyMyHospitalRecords(prev => !prev)}
+                        disabled={!myHospitalAddress}
+                      />
+                      <span
+                        className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 rounded-full transition-colors duration-300 ease-in-out 
+                          ${showOnlyMyHospitalRecords ? 'bg-primary-500' : 'bg-gray-300'}`}
+                      >
+                        <span
+                          className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform duration-300 ease-in-out 
+                            ${showOnlyMyHospitalRecords ? 'translate-x-4' : 'translate-x-0'}`}
+                        ></span>
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
             )}
@@ -394,9 +479,35 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
             )}
             
             {/* 데이터가 없는 경우 - 실제 기록이 없거나 모두 취소된 경우 동일 메시지 표시 */}
-            {!loading && !error && (blockchainRecords.length === 0 || sortedRecords.length === 0) && (
+            {!loading && !error && !selectedPetDid && hospitalPets.length > 0 && (
+              <div className="p-4 text-center text-gray-500">
+                선택한 반려동물의 진료기록이 여기에 표시됩니다.
+              </div>
+            )}
+            
+            {/* 검색 결과가 없을 때와 기록이 없을 때 분리 */}
+            {!loading && !error && selectedPetDid && blockchainRecords.length > 0 && sortedRecords.length === 0 && searchQuery.trim() !== '' && (
+              <div className="p-4 text-center text-gray-500">
+                '{searchQuery}' 검색어에 맞는 진료기록이 없습니다.
+              </div>
+            )}
+            
+            {!loading && !error && selectedPetDid && blockchainRecords.length === 0 && (
               <div className="p-4 text-center text-gray-500">
                 진료 기록이 없습니다.
+              </div>
+            )}
+            
+            {!loading && !error && hospitalPets.length === 0 && (
+              <div className="p-4 text-center text-gray-500">
+                병원에 등록된 반려동물이 없습니다.
+              </div>
+            )}
+            
+            {/* 취소 기록만 존재하고 다른 기록이 없는 경우 메시지 추가 */}
+            {!loading && !error && selectedPetDid && blockchainRecords.length > 0 && !validRecordsExist && searchQuery.trim() === '' && (
+              <div className="p-4 text-center text-gray-500">
+                유효한 진료기록이 없습니다.
               </div>
             )}
           </div>
@@ -459,7 +570,7 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       
       {/* 데스크톱에서는 부모 컴포넌트에서 RecordDetail을 관리 */}
       {selectedRecordId && (
-        <div className="hidden md:block max-w-sm flex-shrink-0 h-[calc(100vh-208px)]">
+        <div className="hidden md:block max-w-sm flex-shrink-0 h-[calc(100vh-216px)]">
           {(() => {
             const record = sortedRecords.find(record => record.id === selectedRecordId) ||
                            blockchainRecords.find(record => record.id === selectedRecordId);
