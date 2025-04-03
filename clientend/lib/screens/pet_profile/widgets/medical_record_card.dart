@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/screens/pet_profile/widgets/certification_badge.dart';
 
 class MedicalRecordCard extends StatelessWidget {
   final PetMedicalRecord record;
@@ -16,7 +17,12 @@ class MedicalRecordCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            Row(
+              children: [
+                Expanded(child: _buildHeader()),
+                CertificationBadge(isCertified: record.flagCertificated),
+              ],
+            ),
             const SizedBox(height: 12),
             _buildDiagnosis(),
             if (record.memo != null) ...[
