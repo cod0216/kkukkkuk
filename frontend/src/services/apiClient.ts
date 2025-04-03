@@ -45,13 +45,15 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 let refreshPromise: Promise<string> | null = null;
 
 /**
- * Axoios 인스턴스를 생성합니다.
+ * Axios 인스턴스를 생성합니다.
  */
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
   timeout: 10 * 1000,
 });
+
+
 
 /**
  * 요청 인터셉터를 추가합니다.
@@ -86,6 +88,8 @@ apiClient.interceptors.request.use(
     return Promise.reject(error)
   }
 );
+
+
 
 /**
  * refresh token을 이용하여 새로운 access token을 발급받습니다.
@@ -193,5 +197,6 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 
 export default apiClient;

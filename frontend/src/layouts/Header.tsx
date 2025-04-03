@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaPaw, FaQrcode } from "react-icons/fa";
+import { FaPaw } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, clearAccessToken, setHospital } from "@/redux/store";
 import { logout as logoutApi } from "@/services/authService";
@@ -11,6 +11,7 @@ import { request } from "@/services/apiRequest"
 import { ApiResponse, ResponseStatus } from "@/types"
 import QRGenerator from '@/pages/treatment/QRGenerator';
 import { getAccountAddress } from '@/services/blockchainAuthService';
+import { LuLogIn, LuLogOut, LuUser, LuQrCode } from 'react-icons/lu';
 
 /**
  * @module Header
@@ -32,6 +33,7 @@ import { getAccountAddress } from '@/services/blockchainAuthService';
  * 2025-03-31        sangmuk          회원정보 수정 시 헤더의 병원 이름이 같이 변경되도록 수정
  * 2025-03-31        seonghun         QR 보기 버튼 로그아웃 버튼 우측으로 이동
  * 2025-04-01        seonghun         QR 보기 버튼 높이 너비 조정
+ * 2025-04-02        seonghun         QR, 마이페이지, 로그인/로그아웃 아이콘으로 변경
  */
 
 const Header: React.FC = () => {
@@ -148,29 +150,38 @@ const Header: React.FC = () => {
           <div className="text-xl font-bold text-primary-500">KKUK KKUK</div>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="text-sm font-medium cursor-pointer" onClick={goToMyPage}>{userName}</div>
+          <span className="text-sm font-medium text-gray-700">{userName}</span>
           {accessToken ? (
             <>
               <button
+                onClick={goToMyPage}
+                className="p-2 rounded-full hover:bg-gray-200 text-gray-600 flex items-center justify-center"
+                title="마이페이지"
+              >
+                <LuUser className="w-5 h-5" />
+              </button>
+              <button
                 onClick={openQrModal}
-                className="px-2 py-1 border rounded-md text-xs font-medium text-nowrap w-20 justify-center bg-primary-500 hover:bg-primary-600 text-white flex items-center"
+                className="p-2 rounded-full hover:bg-gray-200 text-gray-600 flex items-center justify-center"
                 title="병원 QR 코드 보기"
               >
-                <FaQrcode className="mr-1" /> QR 보기
+                <LuQrCode className="w-5 h-5" />
               </button>
               <button
                 onClick={handleLogout}
-                className="px-2 py-1 border rounded-md text-xs font-medium text-nowrap w-20 justify-center hover:bg-neutral-200"
+                className="p-2 rounded-full hover:bg-gray-200 text-gray-600 flex items-center justify-center"
+                title="로그아웃"
               >
-                로그아웃
+                <LuLogOut className="w-5 h-5" />
               </button>
             </>
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="px-2 py-1 border rounded-md text-xs font-medium text-nowrap w-20 justify-center hover:bg-neutral-200"
+              className="p-2 rounded-full hover:bg-gray-200 text-gray-600 flex items-center justify-center"
+              title="로그인"
             >
-              로그인
+              <LuLogIn className="w-5 h-5" />
             </button>
           )}
         </div>

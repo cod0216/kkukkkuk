@@ -1,6 +1,5 @@
 import { FaPaw, FaCalendarAlt, FaDog, FaCat } from "react-icons/fa";
 import { Treatment, Gender, TreatmentState } from "@/interfaces/index";
-import { determinePetTypeSync } from "@/services/petTypeService";
 /**
  * @module PetListItem
  * @file PetListItem.tsx
@@ -120,11 +119,18 @@ const PetListItem: React.FC<PetListItemProps> = ({
   const formattedStartDate = hasAgreementInfo && treatment.agreementInfo?.formattedCreatedAt
     ? treatment.agreementInfo.formattedCreatedAt
     : '';
+  
+  // 반려동물 타입 직접 확인 (speciesName 우선 사용)
+  const speciesLower = treatment.speciesName?.toLowerCase() || '';
+  let petType: '강아지' | '고양이' | 'unknown' = 'unknown';
+  
+  if (speciesLower.includes('강아지') || speciesLower.includes('개') || speciesLower === 'dog') {
+    petType = '강아지';
+  } else if (speciesLower.includes('고양이') || speciesLower === 'cat') {
+    petType = '고양이';
+  }
+  
     
-  // 반려동물 타입 판별
-  const petType = determinePetTypeSync(treatment.breedName);
-  
-  
   // 진료 상태
   const calculatedState = treatment.calculatedState || 
     (hasAgreementInfo ? TreatmentState.SHARED : treatment.state);
@@ -132,6 +138,7 @@ const PetListItem: React.FC<PetListItemProps> = ({
   // 진료 상태 스타일
   const statusStyle = getStatusStyle(calculatedState);
 
+  //PetListItem에는 프로필 이미지 사용하지 않음.
   return (
     <div
       className={`relative flex flex-col gap-1 p-3 rounded-lg transition-all duration-200 cursor-pointer
@@ -144,15 +151,13 @@ const PetListItem: React.FC<PetListItemProps> = ({
       <div className="flex gap-2">
         <div className="flex items-center flex-1 justify-between">
           <div className="flex items-baseline gap-2">
-            {/* 반려동물 타입에 따른 아이콘 표시 */}
-            {petType === 'dog' ? (
+            {petType === '강아지' ? (
               <FaDog className="h-4 w-4 text-blue-500" title="강아지" />
-            ) : petType === 'cat' ? (
+            ) : petType === '고양이' ? (
               <FaCat className="h-4 w-4 text-orange-500" title="고양이" />
             ) : (
               <FaPaw className="h-4 w-4 text-gray-500" title="반려동물" />
             )}
-            
             <div className="font-bold text-gray-900 text-nowrap">
               {treatment.name}
               {isUnread && (
@@ -183,9 +188,9 @@ const PetListItem: React.FC<PetListItemProps> = ({
         </div>
       </div>
       
-      {/* 기본 정보 */}
+      {/* 기본 정보 표시 - speciesName 포함 */}
       <div className="text-xs text-gray-600">
-      {treatment.breedName} | {treatment.age}세 | {treatment.gender === Gender.MALE ? "수컷" : "암컷"} | {
+        {treatment.breedName} | {treatment.age}세 | {treatment.gender === Gender.MALE ? "수컷" : "암컷"} | {
           // 문자열이나 불리언 값을 모두 처리할 수 있도록 변환
           (treatment.flagNeutering === true || treatment.flagNeutering === 'true') 
             ? "중성화 완료" 

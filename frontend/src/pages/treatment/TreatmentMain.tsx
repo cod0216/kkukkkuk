@@ -27,6 +27,7 @@ import { connectWallet } from "@/services/blockchainAuthService";
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         TreatmentForm에 onCancel 콜백 추가 및 UI 변경경
  * 2025-03-26        eunchang         MetaMask 확장프로그램 설치 URL
+ * 2025-04-02        seonghun         petListItem 새로고침을 위한 핸들러 추가
  */
 
 /**
@@ -139,6 +140,19 @@ const TreatmentMain: React.FC = () => {
       }
     }
   }, [selectedPet]);
+  
+  /**
+   * 새로운 반려동물 공유 후 호출되는 함수입니다.
+   */
+  const handleSharingComplete = useCallback((petAddress: string, petName: string) => {
+    console.log(`새로운 반려동물 "${petName}"(${petAddress}) 공유 완료`);
+    
+    // 전체 목록 새로고침
+    if (sidebarRef.current) {
+      console.log('반려동물 공유 완료 후 전체 목록 새로고침');
+      sidebarRef.current.fetchPetsData();
+    }
+  }, []);
 
   /**
    * 동물 상태에 따라 화면에 보여줄 스타일을 반환합니다.
@@ -271,6 +285,9 @@ const TreatmentMain: React.FC = () => {
                 테스트를 원할 경우 앱에서 메타마스크 계정으로 반려동물 정보를
                 공유받으세요.
               </li>
+              <li>
+                메타마스트 계정 연결 후에 저장버튼이 동작하지 않을 경우, 확장프로그램 위치의 알림을 확인하세요.
+              </li>
             </ul>
           </div>
 
@@ -298,6 +315,7 @@ const TreatmentMain: React.FC = () => {
           getStateBadgeColor={getStateBadgeColor}
           onBlockchainPetsLoad={handleBlockchainPetsLoad}
           onStateChanged={handlePetStateChanged}
+          onSharingComplete={handleSharingComplete}
         />
       </div>
 

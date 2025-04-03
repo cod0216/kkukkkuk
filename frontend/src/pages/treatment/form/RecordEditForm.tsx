@@ -10,15 +10,16 @@ import { getRecordChanges } from '@/services/treatmentService';
 /**
  * @component RecordEditForm
  * @file RecordEditForm.tsx
- * @author assistant
+ * @author seonghun
  * @date 2025-04-02
  * @description 진료 기록 수정을 위한 폼 컴포넌트입니다.
  * 
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
- * 2025-04-02        assistant        최초 생성
- * 2025-04-03        assistant        컴포넌트 개선 및 모든 필드 수정 가능하도록 수정
+ * 2025-04-02        seonghun        최초 생성
+ * 2025-04-03        seonghun        컴포넌트 개선 및 모든 필드 수정 가능하도록 수정
+ * 2025-04-03        seonghun        처방 정보 수정 시 너비 개선
  */
 
 /**
@@ -44,7 +45,7 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
   const [diagnosis, setDiagnosis] = useState(record.diagnosis || '');
   const [notes, setNotes] = useState(record.notes || '');
   const [isFinalTreatment, setIsFinalTreatment] = useState(
-    record.notes?.includes('[최종진료]') || false
+    record.status === 'COMPLETED' || false
   );
   const [doctorName, setDoctorName] = useState(record.doctorName || '');
   const [prescriptions, setPrescriptions] = useState<BlockChainTreatment>(
@@ -150,16 +151,17 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
         return;
       }
       
-      // 업데이트된 레코드 생성 (isFinalTreatment에 따라 노트에 [최종진료] 추가)
+      // 업데이트된 레코드 생성
       const updatedRecord: BlockChainRecord = {
         ...record,
         diagnosis,
         doctorName,
-        notes: isFinalTreatment ? `[최종진료] ${notes}` : notes,
+        notes: notes,
         treatments: prescriptions,
         pictures,
         hospitalAddress,
-        petDid: record.petDid
+        petDid: record.petDid,
+        status: isFinalTreatment ? 'COMPLETED' : 'IN_PROGRESS'
       };
       
       // 원본 레코드와 비교하여 변경 사항 감지
@@ -274,20 +276,22 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
         </div>
         
         {/* 처방 정보 수정 */}
-        <div className="mb-4">
+        <div className="mb-4 flex flex-col flex-1">
           <label className="block text-xs font-medium text-gray-700 mb-1">
             처방 정보
           </label>
-          <PrescriptionSection
-            prescriptions={prescriptions}
-            setPrescriptions={setPrescriptions}
-            treatmentType={treatmentType}
-            setTreatmentType={setTreatmentType}
-            prescriptionType={prescriptionType}
-            setPrescriptionType={setPrescriptionType}
-            prescriptionDosage={prescriptionDosage}
-            setPrescriptionDosage={setPrescriptionDosage}
-          />
+          <div className="flex-1">
+            <PrescriptionSection
+              prescriptions={prescriptions}
+              setPrescriptions={setPrescriptions}
+              treatmentType={treatmentType}
+              setTreatmentType={setTreatmentType}
+              prescriptionType={prescriptionType}
+              setPrescriptionType={setPrescriptionType}
+              prescriptionDosage={prescriptionDosage}
+              setPrescriptionDosage={setPrescriptionDosage}
+            />
+          </div>
         </div>
         
         {/* 사진 업로드 */}

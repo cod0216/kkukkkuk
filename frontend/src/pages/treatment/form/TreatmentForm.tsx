@@ -6,6 +6,7 @@ import { Doctor, BlockChainRecord, TreatmentType } from '@/interfaces';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
 import { createBlockchainTreatment } from '@/services/treatmentService';
 import { getAccountAddress } from '@/services/blockchainAuthService';
+import { uploadImage } from '@/services/treatmentImageService';
 /**
  * @module TreatmentForm
  * @file TreatmentForm.tsx
@@ -22,6 +23,7 @@ import { getAccountAddress } from '@/services/blockchainAuthService';
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         온캔슬 콜백 추가 및 목록으로 버튼 구현
  * 2025-03-28        seonghun         토큰에서 실제 병원명 가져오기 추가
+ * 2025-04-02        seonghun         이미지 업로드 처리 api 연동, 필드명 정리 및 최종진료 체크박스스
  */
 
 
@@ -99,30 +101,103 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     vaccinations: []
   });
   const [images, setImages] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState<boolean>(false);
   const [diagnosis, setDiagnosis] = useState('');
   const [doctorId, setDoctorId] = useState<number>(doctors[0] ? doctors[0].id : 0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+
   /**
    * 이미지 업로드 핸들러입니다. 
    * @param {React.ChangeEvent<HTMLInputElement>} event - 파일 입력 이벤트
    */
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file));
-      setImages([...images, ...newImages]);
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImages(true);
+    setError(null);
+
+    // 현재 상태 복사
+    const currentBlobUrls = [...images];
+    const currentS3Urls = [...imageUrls];
+    
+    // 결과를 저장할 배열 초기화
+    const newBlobUrls: string[] = [];
+    
+    try {
+      console.log(`${files.length}개 미리보기 생성 중...`);
+      for (const file of files) {
+        const blobUrl = URL.createObjectURL(file);
+        newBlobUrls.push(blobUrl);
+      }
+      
+      // 미리보기 업데이트
+      setImages([...currentBlobUrls, ...newBlobUrls]);
+      
+      // 3단계: 압축된 파일을 서버에 업로드
+      console.log(`${files.length}개 이미지 업로드 시작...`);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const blobUrl = newBlobUrls[i];
+        
+        try {
+          console.log(`[${i+1}/${files.length}] 이미지 업로드 중: ${file.name}`);
+          const s3Url = await uploadImage(file, 'treatment');
+          
+          if (s3Url) {
+            console.log(`[${i+1}/${files.length}] 업로드 성공: ${file.name}, S3 URL: ${s3Url}`);
+            currentS3Urls.push(s3Url);
+          } else {
+            console.error(`[${i+1}/${files.length}] 업로드 실패: ${file.name}`);
+            showMessage(`'${file.name}' 이미지 업로드 실패`, true);
+            
+            // 업로드 실패 시 해당 미리보기 제거
+            setImages(prev => prev.filter(url => url !== blobUrl));
+            URL.revokeObjectURL(blobUrl);
+          }
+        } catch (uploadError) {
+          console.error(`[${i+1}/${files.length}] 이미지 업로드 중 오류:`, uploadError);
+          showMessage(`'${file.name}' 이미지 업로드 중 오류 발생`, true);
+          
+          // 업로드 오류 시 해당 미리보기 제거
+          setImages(prev => prev.filter(url => url !== blobUrl));
+          URL.revokeObjectURL(blobUrl);
+        }
+      }
+      
+      // S3 URL 상태 업데이트
+      setImageUrls(currentS3Urls);
+      console.log(`이미지 업로드 프로세스 완료: 총 ${currentS3Urls.length}개 이미지 저장 완료`);
+      
+    } catch (error) {
+      console.error('이미지 처리 중 예상치 못한 오류:', error);
+      showMessage('이미지 처리 중 오류가 발생했습니다', true);
+      
+      // 오류 발생 시 생성된 모든 Blob URL 해제
+      newBlobUrls.forEach(url => URL.revokeObjectURL(url));
+    } finally {
+      setIsUploadingImages(false);
     }
   };
 
   /**
-   * 업로드된 이미지를 삭제합니다. 
+   * 업로드된 이미지를 삭제합니다.
    * @param {number} index - 삭제할 이미지의 인덱스
    */
   const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+    const newImages = images.filter((_, i) => i !== index);
+    const newImageUrls = imageUrls.filter((_, i) => i !== index);
+
+    if (images[index]) {
+      URL.revokeObjectURL(images[index]);
+    }
+
+    setImages(newImages);
+    setImageUrls(newImageUrls);
   };
 
   /**
@@ -169,47 +244,72 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
       const timestamp = Math.floor(Date.now() / 1000); // Unix timestamp (초 단위)
       const doctorName = doctors.find(doctor => doctor.id === doctorId)?.name || '';
       
+      // 기본값 처리를 추가하여 누락된 필드 방지
+      const safeExaminations = prescriptions.examinations || [];
+      const safeMedications = prescriptions.medications || [];
+      const safeVaccinations = prescriptions.vaccinations || [];
+      
       const record: BlockChainRecord = {
         id: `medical_record_${timestamp}_${doctorName.replace(/\s+/g, '_')}`,
         timestamp: timestamp,
-        diagnosis,
-        treatments: prescriptions,
-        doctorName: doctorName,
-        notes: isFinalTreatment ? `[최종진료] ${notes}` : notes,
-        hospitalAddress: formData.hospitalAddress,
-        hospitalName: actualHospitalName,
+        diagnosis: diagnosis || '진단 없음',
+        treatments: {
+          examinations: safeExaminations,
+          medications: safeMedications,
+          vaccinations: safeVaccinations
+        },
+        doctorName: doctorName || '담당의사 정보 없음',
+        notes: notes || '',
+        hospitalAddress: formData.hospitalAddress || '',
+        hospitalName: actualHospitalName || '병원명 없음',
         createdAt: new Date().toISOString(),
         isDeleted: false,
-        pictures: images,
-        expireDate: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60) // 1년 후 만료
+        pictures: imageUrls || [],
+        expireDate: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60), // 1년 후 만료
+        status: isFinalTreatment ? 'COMPLETED' : 'IN_PROGRESS', // 최종 진료면 완료, 아니면 진행 중
+        flagCertificated: true // 병원에서 작성하므로 true
       };
 
       console.log('저장 전 처방 데이터:', prescriptions);
 
-      // 블록체인에 트랜잭션 전송
-      const result = await createBlockchainTreatment(petDID, record);
+      // 중요: 트랜잭션 실패 시에도 UI는 정상 동작하도록 예외 처리
+      try {
+        // 블록체인에 트랜잭션 전송
+        const result = await createBlockchainTreatment(petDID, record);
 
-      if (result.success) {
-        showMessage('진료 기록이 성공적으로 저장되었습니다', false);
-        
-        // 폼 초기화
-        setDiagnosis('');
-        setNotes('');
-        setPrescriptions({
-          examinations: [],
-          medications: [],
-          vaccinations: []
-        });
-        setImages([]);
-        
-        // 상위 컴포넌트 콜백 호출 (있는 경우)
-        if (onSave) {
-          onSave(record);
+        if (result.success) {
+          showMessage('진료 기록이 성공적으로 저장되었습니다', false);
+          
+          // 폼 초기화
+          setDiagnosis('');
+          setNotes('');
+          setPrescriptions({
+            examinations: [],
+            medications: [],
+            vaccinations: []
+          });
+          setImages([]);
+          setImageUrls([]);
+          
+          // 상위 컴포넌트 콜백 호출 (있는 경우)
+          if (onSave) {
+            onSave(record);
+          }
+
+          console.log('블록체인에 저장한 데이터:', record.treatments);
+        } else {
+          showMessage(result.error || '알 수 없는 오류가 발생했습니다', true);
         }
-
-        console.log('블록체인에 저장한 데이터:', record.treatments);
-      } else {
-        showMessage(result.error || '알 수 없는 오류가 발생했습니다', true);
+      } catch (txError: any) {
+        console.error('블록체인 트랜잭션 오류:', txError);
+        showMessage(`블록체인 저장 중 오류: ${txError.message || '알 수 없는 오류가 발생했습니다'}`, true);
+        
+        // 심각한 오류 감지 시 개발자 콘솔에 상세 정보 표시
+        if (txError.code === 'GAS_LIMIT_EXCEEDED') {
+          console.error('가스 한도 초과 오류. 처방 데이터가 너무 많을 수 있습니다.');
+        } else if (txError.code === 'TRANSACTION_REVERTED') {
+          console.error('트랜잭션 실패. 계약 내부 조건을 확인하세요.');
+        }
       }
     } catch (error: any) {
       console.error('진료 기록 저장 중 오류:', error);
@@ -261,7 +361,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           <button
             onClick={handleSave}
             className="flex gap-1 items-center justify-center bg-primary-500 hover:bg-primary-600 text-white text-xs font-medium rounded-md transition w-20 px-2 py-1"
-            disabled={loading}
+            disabled={loading || isUploadingImages}
           >
             {loading ? <Loader className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> 저장</>}
           </button>
@@ -296,7 +396,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           </div>
 
           {/* 증상 입력 필드 */}
-          <div>
+          <div className="flex-2">
             <div className="font-bold text-md">증상</div>
             <textarea
               className="w-full border p-2 text-sm h-24 rounded-md"
@@ -308,7 +408,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           </div>
           
           {/* 최종 진료 체크박스 */}
-          <div className="mb-4">
+          <div className="mb-2">
             <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
@@ -329,15 +429,21 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           </div>
 
           {/* 사진 업로드 */}
-          <div className="flex-1">
+          <div>
             <div className="font-bold text-md">사진</div>
-            <div className="flex gap-1 mt-2 flex-wrap">
-              <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" id="file-upload" disabled={loading} />
+            <div className="flex gap-1 mt-2 flex-wrap items-center">
+              <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" id="file-upload" disabled={loading || isUploadingImages} />
               <label
                 htmlFor="file-upload"
-                className="w-16 h-16 flex justify-center items-center border rounded-md cursor-pointer text-primary-500"
+                className={`w-16 h-16 flex flex-col justify-center items-center border rounded-md cursor-pointer text-primary-500 
+                  ${loading || isUploadingImages ? 'bg-gray-100 cursor-not-allowed opacity-50' : 'hover:bg-primary-50'}`}
               >
-                <Camera className="w-4 h-4" />
+                {isUploadingImages ? (
+                  <Loader className="w-4 h-4 animate-spin mb-1" />
+                ) : (
+                  <Camera className="w-4 h-4 mb-1" /> 
+                )}
+                <span className="text-xs">{isUploadingImages ? '업로드중' : '사진 추가'}</span>
               </label>
               {images.map((image, index) => (
                 <div key={index} className="relative">
@@ -356,18 +462,20 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
         </div>
 
         {/* 처방 입력 필드 */}
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
           <div className="font-bold text-md mb-2">처방</div>
-          <PrescriptionSection
-            prescriptions={prescriptions}
-            setPrescriptions={setPrescriptions}
-            treatmentType={treatmentType}
-            setTreatmentType={setTreatmentType}
-            prescriptionType={prescriptionType}
-            setPrescriptionType={setPrescriptionType}
-            prescriptionDosage={prescriptionDosage}
-            setPrescriptionDosage={setPrescriptionDosage}
-          />
+          <span className="h-full">
+            <PrescriptionSection
+              prescriptions={prescriptions}
+              setPrescriptions={setPrescriptions}
+              treatmentType={treatmentType}
+              setTreatmentType={setTreatmentType}
+              prescriptionType={prescriptionType}
+              setPrescriptionType={setPrescriptionType}
+              prescriptionDosage={prescriptionDosage}
+              setPrescriptionDosage={setPrescriptionDosage}
+            />
+          </span>
         </div>
       </div>
     </div>

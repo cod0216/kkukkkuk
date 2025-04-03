@@ -57,6 +57,7 @@ interface SidebarProps {
     getStateColor: (state: TreatmentState) => string;
     onBlockchainPetsLoad?: (pets: Treatment[]) => void; // 블록체인 반려동물 목록을 상위 컴포넌트로 전달하는 콜백
     onStateChanged?: (petId: string, newState: TreatmentState, isCancelled: boolean) => void; // 상태 변경 시 호출되는 콜백
+    onSharingComplete?: (petAddress: string, petName: string) => void; // 반려동물 공유 완료 시 호출되는 콜백
 }
 
 /**
@@ -79,6 +80,7 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
     getStateColor,
     onBlockchainPetsLoad,
     onStateChanged,
+    onSharingComplete,
 }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [dateRange, setDateRange] = useState({
@@ -131,6 +133,53 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
       fetchHospitalInfo();
     }, []);
 
+    /**
+     * 재시도 로직을 포함하여 반려동물 기본 정보를 가져옵니다.
+     * @param petAddress 반려동물 DID 주소
+     * @param retryCount 현재 시도 횟수
+     * @param maxRetries 최대 시도 횟수
+     * @returns 조회 결과 (성공 시 petInfo 포함, 실패 시 error 포함)
+     */
+    const fetchPetInfoWithRetry = async (
+      petAddress: string,
+      retryCount: number = 0,
+      maxRetries: number = 3 // 초기 호출 + 2번 재시도 = 총 3번 시도
+    ): Promise<{ success: boolean; petInfo?: any; error?: string }> => {
+      
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+      
+      try {
+        console.log(`반려동물 정보 조회 시도 ${retryCount + 1}/${maxRetries} (DID: ${petAddress})`);
+        const result = await getPetBasicInfo(petAddress);
+        console.log(`시도 ${retryCount + 1} 결과:`, result);
+
+        if (result.success && result.petInfo) {
+          return { success: true, petInfo: result.petInfo };
+        } else {
+          if (retryCount < maxRetries - 1) {
+            const retryDelay = 1000 + retryCount * 1000; // 1초, 2초 간격
+            console.log(`시도 ${retryCount + 1} 실패: ${result.error}. ${retryDelay / 1000}초 후 재시도...`);
+            await delay(retryDelay);
+            return fetchPetInfoWithRetry(petAddress, retryCount + 1, maxRetries);
+          } else {
+            console.log(`모든 ${maxRetries} 시도 실패 (DID: ${petAddress}). 오류: ${result.error}`);
+            return { success: false, error: `최대 시도(${maxRetries}) 후 실패: ${result.error}` };
+          }
+        }
+      } catch (error: any) {
+        console.error(`시도 ${retryCount + 1} 중 오류 (DID: ${petAddress}):`, error);
+        if (retryCount < maxRetries - 1) {
+          const retryDelay = 1000 + retryCount * 1000;
+          console.log(`오류 발생. ${retryDelay / 1000}초 후 재시도...`);
+          await delay(retryDelay);
+          return fetchPetInfoWithRetry(petAddress, retryCount + 1, maxRetries);
+        } else {
+          console.log(`모든 ${maxRetries} 시도 실패 (DID: ${petAddress}).`);
+          return { success: false, error: `최대 시도(${maxRetries}) 후 오류 발생: ${error.message || error}` };
+        }
+      }
+    };
+
     // 블록체인 WebSocket 연결 초기화
     useEffect(() => {
       const setupWebSocketConnection = async () => {
@@ -145,33 +194,38 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
               
               // 현재 병원에 대한 이벤트인 경우에만 처리
               if (hospitalAddress === currentHospitalAddress.current) {
-                try {
-                  // 반려동물 기본 정보 조회
-                  const result = await getPetBasicInfo(petAddress);
-                  const petName = result.success && result.petInfo ? result.petInfo.name : '알 수 없는 반려동물';
-                  
-                  // 새로운 공유 계약 알림 표시
+                // 먼저 임시 알림 표시 (이름 없이)
+                setNewNotification({
+                  message: `새로운 반려동물이 공유되었습니다. 정보를 불러오는 중...`,
+                  timestamp: timestamp || Date.now()
+                });
+                
+                // 읽지 않은 항목으로 추가
+                setUnreadPets(prev => new Set([...prev, petAddress]));
+                
+                // 5초 지연 후 정보 조회 시작 (블록체인 전파 시간 고려)
+                setTimeout(async () => {
+                  console.log(`초기 지연 후 ${petAddress} 정보 조회 시작 (재시도 포함)`);
+                  const finalResult = await fetchPetInfoWithRetry(petAddress);
+
+                  const petName = finalResult.success && finalResult.petInfo ? finalResult.petInfo.name : '알 수 없는 반려동물';
+                  const message = finalResult.success
+                      ? `새로운 반려동물 "${petName}"이(가) 공유되었습니다.`
+                      : `새로운 반려동물 공유 확인 (정보 조회 실패) 새로고침버튼을 눌러주세요`; // 실패 시 간단 메시지
+              
                   setNewNotification({
-                    message: `새로운 반려동물 "${petName}"이(가) 공유되었습니다.`,
+                    message: message,
                     timestamp: timestamp || Date.now()
                   });
-                  
-                  // 읽지 않은 항목으로 추가
-                  setUnreadPets(prev => new Set([...prev, petAddress]));
-                  
-                  // 목록 새로고침
-                  fetchPetsData();
-                } catch (error) {
-                  console.error('반려동물 정보 조회 중 오류:', error);
-                  // 기본 메시지로 표시
-                  setNewNotification({
-                    message: `새로운 반려동물이 공유되었습니다.`,
-                    timestamp: timestamp || Date.now()
-                  });
-                  
-                  setUnreadPets(prev => new Set([...prev, petAddress]));
-                  fetchPetsData();
-                }
+              
+                  fetchPetsData(); // 결과와 관계없이 목록 새로고침
+                  console.log('공유 이벤트: 목록 새로고침 완료.');
+              
+                  if (onSharingComplete) {
+                    onSharingComplete(petAddress, petName);
+                  }
+                  setIsLoading(false); // 로딩 상태 해제
+                }, 5000); // 5초 지연
               }
             });
             
@@ -181,29 +235,23 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
               
               // 현재 병원에 대한 이벤트인 경우에만 처리
               if (hospitalAddress === currentHospitalAddress.current) {
-                try {
-                  // 반려동물 기본 정보 조회
-                  const result = await getPetBasicInfo(petAddress);
-                  const petName = result.success && result.petInfo ? result.petInfo.name : '알 수 없는 반려동물';
-                  
-                  // 공유 계약 취소 알림 표시
+                // 2초 지연 후 취소 정보 처리 (이름 포함)
+                setTimeout(async () => {
+                  console.log(`초기 지연 후 취소된 반려동물 ${petAddress} 정보 조회 시작`);
+                  const finalResult = await fetchPetInfoWithRetry(petAddress, 0, 2); // 취소 시에는 최대 2번만 시도
+
+                  const petName = finalResult.success && finalResult.petInfo ? finalResult.petInfo.name : '알 수 없는 반려동물';
+                  const message = `반려동물 "${petName}"의 공유가 취소되었습니다.`;
+              
                   setNewNotification({
-                    message: `반려동물 "${petName}"의 공유가 취소되었습니다.`,
+                    message: message,
                     timestamp: timestamp || Date.now()
                   });
-                  
-                  // 목록 새로고침
-                  fetchPetsData();
-                } catch (error) {
-                  console.error('반려동물 정보 조회 중 오류:', error);
-                  // 기본 메시지로 표시
-                  setNewNotification({
-                    message: `반려동물의 공유가 취소되었습니다.`,
-                    timestamp: timestamp || Date.now()
-                  });
-                  
-                  fetchPetsData();
-                }
+              
+                  fetchPetsData(); // 목록 새로고침
+                  console.log('취소 이벤트: 목록 새로고침 완료.');
+                  setIsLoading(false); // 로딩 상태 해제
+                }, 2000); // 2초 지연
               }
             });
           } else {
@@ -220,7 +268,7 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
       return () => {
         unsubscribeFromAllEvents();
       };
-    }, []);
+    }, []); // onSharingComplete 의존성 제거, useCallback 불필요
 
     // 진료 상태 계산 및 업데이트 함수
     const updatePetTreatmentState = async (pets: Treatment[]) => {
@@ -263,7 +311,7 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                     );
                     
                     // 3. 가장 최근 진료 기록의 상태 확인 (API 호출 추가 필요)
-                    let latestRecordStatus: 'ongoing' | 'completed' | null = null;
+                    let latestRecordStatus: 'IN_PROGRESS' | 'COMPLETED' | null = null;
                     
                     try {
                         // 블록체인 또는 API에서 가장 최근 진료 기록 상태 조회
@@ -293,7 +341,7 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                         
                         if (recordsResult.success && recordsResult.hasTreatment) {
                             // 진료 기록이 있는 경우
-                            if (latestRecordStatus === 'completed') {
+                            if (latestRecordStatus === 'COMPLETED') {
                                 // 마지막 진료가 완료 상태면 전체 완료
                                 newState = TreatmentState.COMPLETED;
                             } else {
@@ -308,7 +356,7 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                         // 취소 없이 진료 기록이 있는 경우
                         isCancelled = false;
                         
-                        if (latestRecordStatus === 'completed') {
+                        if (latestRecordStatus === 'COMPLETED') {
                             // 마지막 진료가 완료 상태면 전체 완료
                             newState = TreatmentState.COMPLETED;
                         } else {
@@ -588,6 +636,8 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
         setIsLoading(true);
         setError(null);
         
+        console.log('반려동물 목록 새로고침 시작...');
+        
         const result = await getHospitalPetsWithRecords(DID_REGISTRY_ADDRESS);
         
         if (result.success) {
@@ -627,8 +677,13 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
           // 진료 상태 계산 및 업데이트
           const updatedTreatments = await updatePetTreatmentState(validTreatments);
           
+          // 디버깅 로그 추가
+          console.log('블록체인 반려동물 목록 새로고침 완료. 처리된 항목 수:', validTreatments.length);
+          
           // 정렬된 상태로 저장
           const sortedTreatments = sortByStateAndDate(updatedTreatments);
+          
+          // 상태 업데이트
           setBlockchainPets(sortedTreatments);
           hasLoadedData.current = true;
           
@@ -875,11 +930,14 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                     checked={showCompleted}
                     onChange={() => setShowCompleted(prev => !prev)}
                   />
-                  <span className={`absolute cursor-pointer inset-0 rounded-full transition-colors duration-200 ${showCompleted ? 'bg-primary-500' : 'bg-gray-300'}`}>
-                    <span 
-                      className={`absolute w-3 h-3 rounded-full bg-white transition-transform duration-200 transform ${showCompleted ? 'translate-x-4' : 'translate-x-1'}`} 
-                      style={{top: '2px'}}
-                    />
+                  <span
+                    className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full transition-colors duration-300 ease-in-out 
+                      ${showCompleted ? 'bg-primary-500' : 'bg-gray-300'}`}
+                  >
+                    <span
+                      className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform duration-300 ease-in-out 
+                        ${showCompleted ? 'translate-x-4' : 'translate-x-0'}`}
+                    ></span>
                   </span>
                 </label>
               </div>
@@ -894,11 +952,14 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                     checked={showCancelled}
                     onChange={() => setShowCancelled(prev => !prev)}
                   />
-                  <span className={`absolute cursor-pointer inset-0 rounded-full transition-colors duration-200 ${showCancelled ? 'bg-primary-500' : 'bg-gray-300'}`}>
-                    <span 
-                      className={`absolute w-3 h-3 rounded-full bg-white transition-transform duration-200 transform ${showCancelled ? 'translate-x-4' : 'translate-x-1'}`} 
-                      style={{top: '2px'}}
-                    />
+                  <span
+                    className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full transition-colors duration-300 ease-in-out 
+                      ${showCancelled ? 'bg-primary-500' : 'bg-gray-300'}`}
+                  >
+                    <span
+                      className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform duration-300 ease-in-out 
+                        ${showCancelled ? 'translate-x-4' : 'translate-x-0'}`}
+                    ></span>
                   </span>
                 </label>
               </div>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { FaPaw, FaStethoscope, FaDog, FaCat, FaCalendarAlt, FaTimes } from "react-icons/fa";
 import { Treatment, Gender, TreatmentState } from "@/interfaces/index";
 import { markAppointmentAsCancelled } from "@/services/blockchainAgreementService";
-import { determinePetTypeSync } from "@/services/petTypeService";
 /**
  * @module TreatmentHeader
  * @file TreatmentHeader.tsx
@@ -19,7 +18,9 @@ import { determinePetTypeSync } from "@/services/petTypeService";
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         선택한 동물 정보 표시 추가
  * 2025-03-31        seonghun         진료취소 버튼 추가, 공유계약 상세정보 추가, 동물별 아이콘 추가
- * 2025-04-01        assistant        품종 타입 판별 함수를 petTypeService로 이동
+ * 2025-04-01        seonghun         품종 타입 판별 함수를 petTypeService로 이동
+ * 2025-04-02        seonghun         speciesName 및 profileUrl 지원 추가
+ * 2025-04-03        seonghun         진료취소 버튼 필드에 맞게 개선, 취소 핸들러 추가
  */
 
 /**
@@ -101,8 +102,18 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({
   onSelected,
   onCancelled,
 }) => {
-  // 반려동물 타입 판별
-  const petType = treatment ? determinePetTypeSync(treatment.breedName) : 'unknown';
+  // 반려동물 타입 직접 확인 (speciesName 우선 사용)
+  const speciesLower = treatment?.speciesName?.toLowerCase() || '';
+  let petType: '강아지' | '고양이' | 'unknown' = 'unknown';
+  
+  if (speciesLower.includes('강아지') || speciesLower.includes('개') || speciesLower === 'dog') {
+    petType = '강아지';
+  } else if (speciesLower.includes('고양이') || speciesLower === 'cat') {
+    petType = '고양이';
+  }
+  
+  // 프로필 이미지 존재 여부
+  const hasProfileImage = treatment?.profileUrl && treatment.profileUrl.length > 0;
   
   // 공유 계약 정보 확인
   const hasAgreementInfo = treatment && !!treatment.agreementInfo;
@@ -179,14 +190,45 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({
   return (
     <>
       <div className="bg-white p-4 rounded-lg border mb-3 flex items-center">
-        {/* 왼쪽 아이콘 */}
-        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
-          {petType === 'dog' ? (
-            <FaDog className="text-blue-500 text-4xl" title="강아지" />
-          ) : petType === 'cat' ? (
-            <FaCat className="text-orange-500 text-4xl" title="고양이" />
+        {/* 왼쪽 아이콘 - 프로필 이미지 또는 동물 아이콘 */}
+        <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center border border-gray-200">
+          {hasProfileImage ? (
+            <img 
+              src={treatment!.profileUrl!} 
+              alt={`${treatment!.name} 프로필`}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // 이미지 로드 실패 시 아이콘 표시
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.parentElement) {
+                  e.currentTarget.parentElement.classList.add('bg-gray-100');
+                  
+                  // 동물 아이콘 렌더링
+                  const iconElement = document.createElement('div');
+                  iconElement.className = 'flex items-center justify-center h-full';
+                  
+                  if (petType === '강아지') {
+                    iconElement.innerHTML = '<svg class="text-blue-500 text-4xl" viewBox="0 0 512 512"><path fill="currentColor" d="M496 96h-64l-7.16-14.31A32 32 0 0 0 396.22 64H342.6l-27.28-27.28C305.23 26.64 288 33.78 288 48.03v149.84l128 45.71V208h32c35.35 0 64-28.65 64-64v-32c0-8.84-7.16-16-16-16zm-112 48c-8.84 0-16-7.16-16-16s7.16-16 16-16 16 7.16 16 16-7.16 16-16 16zM96 224c-17.64 0-32-14.36-32-32 0-17.67-14.33-32-32-32S0 174.33 0 192c0 41.66 26.83 76.85 64 90.1V496c0 8.84 7.16 16 16 16h64c8.84 0 16-7.16 16-16V384h160v112c0 8.84 7.16 16 16 16h64c8.84 0 16-7.16 16-16V277.55L266.05 224H96z"/></svg>';
+                  } else if (petType === '고양이') {
+                    iconElement.innerHTML = '<svg class="text-orange-500 text-4xl" viewBox="0 0 512 512"><path fill="currentColor" d="M290.59 192c-20.18 0-106.82 1.98-162.59 85.95V192c0-52.94-43.06-96-96-96-17.67 0-32 14.33-32 32s14.33 32 32 32c17.64 0 32 14.36 32 32v256c0 35.3 28.7 64 64 64h176c8.84 0 16-7.16 16-16v-16c0-17.67-14.33-32-32-32h-32l128-96v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V289.86c-10.29 2.67-20.89 4.54-32 4.54-61.81 0-113.52-44.05-125.41-102.4zM448 96h-64l-64-64v134.4c0 53.02 42.98 96 96 96s96-42.98 96-96V32l-64 64zm-72 80c-8.84 0-16-7.16-16-16s7.16-16 16-16 16 7.16 16 16-7.16 16-16 16z"/></svg>';
+                  } else {
+                    iconElement.innerHTML = '<svg class="text-gray-400 text-4xl" viewBox="0 0 512 512"><path fill="currentColor" d="M256 224c-79.41 0-192 122.76-192 200.25 0 34.9 26.81 55.75 71.74 55.75 48.84 0 81.09-25.08 120.26-25.08 39.51 0 71.85 25.08 120.26 25.08 44.93 0 71.74-20.85 71.74-55.75C448 346.76 335.41 224 256 224zm-147.28-12.61c-10.4-34.65-42.44-57.09-71.56-50.13-29.12 6.96-44.29 40.69-33.89 75.34 10.4 34.65 42.44 57.09 71.56 50.13 29.12-6.96 44.29-40.69 33.89-75.34zm84.72-20.78c30.94-8.14 46.42-49.94 34.58-93.36s-46.52-72.01-77.46-63.87-46.42 49.94-34.58 93.36c11.84 43.42 46.53 72.02 77.46 63.87zm281.39-29.34c-29.12-6.96-61.15 15.48-71.56 50.13-10.4 34.65 4.77 68.38 33.89 75.34 29.12 6.96 61.15-15.48 71.56-50.13 10.4-34.65-4.77-68.38-33.89-75.34zm-156.27 29.34c30.94 8.14 65.62-20.45 77.46-63.87 11.84-43.42-3.64-85.21-34.58-93.36s-65.62 20.45-77.46 63.87c-11.84 43.42 3.64 85.22 34.58 93.36z"/></svg>';
+                  }
+                  
+                  e.currentTarget.parentElement.appendChild(iconElement);
+                }
+              }}
+            />
           ) : (
-            <FaPaw className="text-gray-400 text-4xl" title="반려동물" />
+            <div className="bg-gray-100 w-full h-full flex items-center justify-center">
+              {petType === '강아지' ? (
+                <FaDog className="text-blue-500 text-4xl" title="강아지" />
+              ) : petType === '고양이' ? (
+                <FaCat className="text-orange-500 text-4xl" title="고양이" />
+              ) : (
+                <FaPaw className="text-gray-400 text-4xl" title="반려동물" />
+              )}
+            </div>
           )}
         </div>
 

@@ -9,6 +9,7 @@
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-31        seonghun     최초 생성
+ * 2025-04-02        seonghun     진료취소 기능 개선, 변경된 필드에 맞게 정보 조회 개선
  */
 
 import { PetWithAgreement, SharingAgreement } from '@/interfaces/pet';
@@ -161,6 +162,8 @@ export const convertPetToTreatment = (
     age: pet.age || 0,
     gender: genderValue,
     breedName: pet.breedName || '품종 정보 없음',
+    speciesName: pet.speciesName || '',
+    profileUrl: pet.profileUrl || '',
     birth: pet.birth || '',
     flagNeutering: flagNeuteringValue,
     createdAt: new Date(pet.agreementInfo.createdAt * 1000).toISOString(),
@@ -259,6 +262,8 @@ export const markAppointmentAsCancelled = async (
       "[]", // medications (빈 배열)
       "[]", // vaccinations (빈 배열)
       "[]", // pictures (빈 배열)
+      "CANCELLED", // status 추가 - 진료 상태를 CANCELLED로 설정
+      true, // flagCertificated 추가 - 병원에서 인증된 기록
       { gasLimit: 500000 }
     );
     
