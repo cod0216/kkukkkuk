@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
+import 'package:web3dart/web3dart.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스
 ///
@@ -54,7 +55,7 @@ class GetAllAtributesUseCase {
     print('attributes: $attributes');
     // 속성에서 진료 기록 데이터 추출 및 변환
     attributes.forEach((key, value) {
-      if (key.startsWith('medical_')) {
+      if (key.startsWith('medical_') || key.startsWith('medical_record')) {
         try {
           print('value: $value');
           // 블록체인에서 반환된 값은 Map 형태이므로 'value' 키에서 JSON 문자열을 추출
@@ -87,21 +88,13 @@ class GetAllAtributesUseCase {
     Map<String, dynamic> recordData,
     String recordKey,
   ) {
-    // Extract timestamp from recordKey
-    int timestamp = 0;
-    try {
-      final parts = recordKey.split('_');
-      if (parts.length >= 3) {
-        timestamp = int.parse(parts[2]);
-      }
-    } catch (e) {
-      print('타임스탬프 추출 오류: $e');
-    }
+    // TODO: contract에서 treatmentDate 속성이 추가되면 변경
+    // TODO: LocalDateTime으로 변경
+    final treatmentDate = DateTime.fromMillisecondsSinceEpoch(
+      recordData['createdAt'] * 1000,
+    );
 
-    final treatmentDate =
-        timestamp > 0
-            ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
-            : DateTime.now();
+    print('treatmentDate: $treatmentDate');
 
     // Convert examinations
     final List<Examination> examinations = [];

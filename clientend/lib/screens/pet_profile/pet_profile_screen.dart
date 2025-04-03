@@ -233,7 +233,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
             ),
       );
 
-      // Register medical record with processed data
+      // TODO: transaction 완료까지 대기
       await ref
           .read(medicalRecordRegisterProvider.notifier)
           .registerMedicalRecord(widget.pet.did!, processedData);

@@ -53,7 +53,7 @@ class MedicalRecordCard extends StatelessWidget {
       children: [
         const Spacer(),
         Text(
-          '${record.treatmentDate.year}.${record.treatmentDate.month.toString().padLeft(2, '0')}.${record.treatmentDate.day.toString().padLeft(2, '0')}',
+          '${record.treatmentDate.year}.${record.treatmentDate.month.toString().padLeft(2, '0')}.${record.treatmentDate.day.toString().padLeft(2, '0')} ${record.treatmentDate.hour.toString().padLeft(2, '0')}:${record.treatmentDate.minute.toString().padLeft(2, '0')}',
           style: TextStyle(color: Colors.grey.shade700),
         ),
       ],
