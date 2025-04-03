@@ -69,17 +69,6 @@ class PetRepository implements IPetRepository {
             flagNeutering = true;
           }
 
-          // 나이 계산
-          if (birth != null) {
-            final now = DateTime.now();
-            final years = now.year - birth.year;
-            if (years > 0) {
-            } else {
-              final months =
-                  now.month - birth.month + (now.year - birth.year) * 12;
-            }
-          }
-
           final imageUrl = attributes['profileUrl']?['value'] as String? ?? '';
 
           // 반려동물 객체 생성
@@ -355,6 +344,43 @@ class PetRepository implements IPetRepository {
     } catch (e) {
       print('반려동물 속성 조회 오류: $e');
       throw Exception('반려동물 속성 조회에 실패했습니다: $e');
+    }
+  }
+
+  // 진료 기록 추가
+  @override
+  Future<String> addMedicalRecord({
+    required Credentials credentials,
+    required String petAddress,
+    required String diagnosis,
+    required String hospitalName,
+    required String doctorName,
+    required String notes,
+    required String examinationsJson,
+    required String medicationsJson,
+    required String vaccinationsJson,
+    required String picturesJson,
+    required String status,
+    required bool flagCertificated,
+  }) async {
+    try {
+      return await _registryContract.addMedicalRecord(
+        credentials: credentials,
+        petAddress: petAddress,
+        diagnosis: diagnosis,
+        hospitalName: hospitalName,
+        doctorName: doctorName,
+        notes: notes,
+        examinationsJson: examinationsJson,
+        medicationsJson: medicationsJson,
+        vaccinationsJson: vaccinationsJson,
+        picturesJson: picturesJson,
+        status: status,
+        flagCertificated: flagCertificated,
+      );
+    } catch (e) {
+      print('진료 기록 추가 오류: $e');
+      throw Exception('진료 기록 추가에 실패했습니다: $e');
     }
   }
 }

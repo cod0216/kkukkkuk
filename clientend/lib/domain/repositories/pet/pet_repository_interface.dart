@@ -43,4 +43,20 @@ abstract class IPetRepository {
     required String scope,
     required int sharingPeriod,
   });
+
+  /// 진료 기록 추가 (공유 계약 생성)
+  Future<String> addMedicalRecord({
+    required Credentials credentials,
+    required String petAddress,
+    required String diagnosis,
+    required String hospitalName,
+    required String doctorName,
+    required String notes,
+    required String examinationsJson,
+    required String medicationsJson,
+    required String vaccinationsJson,
+    required String picturesJson,
+    required String status,
+    required bool flagCertificated,
+  });
 }
