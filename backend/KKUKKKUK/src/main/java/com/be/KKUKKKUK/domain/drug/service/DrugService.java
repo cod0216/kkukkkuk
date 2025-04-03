@@ -25,6 +25,7 @@ import java.util.*;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.01          eunchang           최초 생성<br>
+ * 25.04.01          eunchang           redis 사용하는 서비스 분리<br>
  */
 
 @Service
