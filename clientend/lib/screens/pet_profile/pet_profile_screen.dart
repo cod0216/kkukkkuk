@@ -96,7 +96,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
 
   Future<void> _handleImageSelected(File image) async {
     try {
-      // Show loading dialog
+      // Show OCR processing dialog
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -125,7 +125,65 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
           .execute(ocrData);
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(); // Close processing dialog
+
+      // Show confirmation dialog with processed data
+      final bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text('진료기록 확인'),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('아래 내용이 맞는지 확인해주세요:'),
+                    const SizedBox(height: 16),
+                    Text('진단명: ${processedData['diagnosis']}'),
+                    Text('수의사: ${processedData['doctorName']}'),
+                    Text('병원명: ${processedData['hospitalName']}'),
+                    Text('메모: ${processedData['notes']}'),
+                    const SizedBox(height: 8),
+                    const Text('검사 항목:'),
+                    ...processedData['examinations'].map<Widget>(
+                      (e) => Text('- ${e['key']}: ${e['value']}'),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('처방 약물:'),
+                    ...processedData['medications'].map<Widget>(
+                      (e) => Text('- ${e['key']}: ${e['value']}'),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('접종 정보:'),
+                    ...processedData['vaccinations'].map<Widget>(
+                      (e) => Text('- ${e['key']}: ${e['value']}'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                    // Show image picker again
+                    final imagePicker = MedicalRecordImagePicker(
+                      context: context,
+                      onImageSelected: _handleImageSelected,
+                    );
+                    imagePicker.showImageSourceDialog();
+                  },
+                  child: const Text('다시 시도'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('확인'),
+                ),
+              ],
+            ),
+      );
+
+      if (confirmed != true) return;
 
       // Show registration dialog
       showDialog(
