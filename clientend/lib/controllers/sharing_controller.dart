@@ -22,7 +22,9 @@ class SharingController extends StateNotifier<SharingState> {
   }) async {
     try {
       // 기본 만료일 설정 (1일)
-      final expiryDate = DateTime.now().add(const Duration(days: 1));
+      final expiryDate = DateTime.now().add(
+        const Duration(days: 1, minutes: 10), // 트랜잭션 시간 고려 위해 10분 추가
+      );
 
       // 처리 중 상태로 변경
       state = SharingState.processing(
