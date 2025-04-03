@@ -98,35 +98,41 @@ class GetAllAtributesUseCase {
       print('타임스탬프 추출 오류: $e');
     }
 
-    final treatmentDate = timestamp > 0
-        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
-        : DateTime.now();
+    final treatmentDate =
+        timestamp > 0
+            ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
+            : DateTime.now();
 
     // Convert examinations
     final List<Examination> examinations = [];
+    final List<Medication> medications = [];
+    final List<Vaccination> vaccinations = [];
+
     if (recordData['treatments']?['examinations'] != null) {
       for (final exam in recordData['treatments']['examinations']) {
-        examinations.add(Examination(
-          type: exam['type'] ?? '',
-          key: exam['key'] ?? '',
-          value: exam['value'] ?? '',
-        ));
+        examinations.add(
+          Examination(
+            type: exam['type'] ?? '',
+            key: exam['key'] ?? '',
+            value: exam['value'] ?? '',
+          ),
+        );
       }
     }
 
-    // Extract medications and vaccinations
-    final List<String> medications = [];
-    final List<String> vaccinations = [];
-    
     if (recordData['treatments']?['medications'] != null) {
       for (final med in recordData['treatments']['medications']) {
-        medications.add('${med['key']}: ${med['value']}');
+        medications.add(
+          Medication(key: med['key'] ?? '', value: med['value'] ?? ''),
+        );
       }
     }
 
     if (recordData['treatments']?['vaccinations'] != null) {
       for (final vac in recordData['treatments']['vaccinations']) {
-        vaccinations.add('${vac['key']}: ${vac['value']}');
+        vaccinations.add(
+          Vaccination(key: vac['key'] ?? '', value: vac['value'] ?? ''),
+        );
       }
     }
 

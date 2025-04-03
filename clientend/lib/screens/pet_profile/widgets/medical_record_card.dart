@@ -94,13 +94,13 @@ class MedicalRecordCard extends StatelessWidget {
         if (record.medications.isNotEmpty) ...[
           const Text('처방 약물', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          ...record.medications.map((med) => Text(med)),
+          ...record.medications.map((med) => Text('${med.key} ${med.value}')),
           const SizedBox(height: 8),
         ],
         if (record.vaccinations.isNotEmpty) ...[
           const Text('예방 접종', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          ...record.vaccinations.map((vac) => Text(vac)),
+          ...record.vaccinations.map((vac) => Text('${vac.key} ${vac.value}')),
         ],
       ],
     );

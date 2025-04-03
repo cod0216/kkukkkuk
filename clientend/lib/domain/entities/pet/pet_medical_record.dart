@@ -5,8 +5,8 @@ class PetMedicalRecord {
   final String hospitalName;
   final String hospitalAddress;
   final List<Examination> examinations;
-  final List<String> medications;
-  final List<String> vaccinations;
+  final List<Medication> medications;
+  final List<Vaccination> vaccinations;
   final String? memo;
   final String status;
   final bool flagCertificated;
@@ -33,9 +33,17 @@ class Examination {
   final String key;
   final String value;
 
-  Examination({
-    required this.type,
-    required this.key,
-    required this.value,
-  });
+  Examination({required this.type, required this.key, required this.value});
+}
+
+class Medication {
+  final String key;
+  final String value;
+  Medication({required this.key, required this.value});
+}
+
+class Vaccination {
+  final String key;
+  final String value;
+  Vaccination({required this.key, required this.value});
 }
