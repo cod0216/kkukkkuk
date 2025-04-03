@@ -13,7 +13,7 @@ export const NETWORK_CONFIG = {
 };
 
 // 컨트랙트 주소
-export const DID_REGISTRY_ADDRESS = '0xE3B7abcB7cdd4c483ee891757Bc827592b1B151b';
+export const DID_REGISTRY_ADDRESS = '0x4dF9845a5608d4C461e4dc5a2171d2D83EA71E04';
 
 // 가스 설정
 export const GAS_SETTINGS = {
@@ -403,7 +403,38 @@ export const didRegistryABI = [
         "type": "address"
       }
     ],
-    "name": "addHospital",
+    "name": "_addHospital",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "petAddress",
+        "type": "address"
+      }
+    ],
+    "name": "_registerPetOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "petAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "hospitalAddress",
+        "type": "address"
+      }
+    ],
+    "name": "_removeHospital",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -482,6 +513,16 @@ export const didRegistryABI = [
         "internalType": "string",
         "name": "picturesJson",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "flagCertificated",
+        "type": "bool"
       }
     ],
     "name": "addMedicalRecord",
@@ -540,6 +581,16 @@ export const didRegistryABI = [
         "internalType": "string",
         "name": "picturesJson",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "flagCertificated",
+        "type": "bool"
       }
     ],
     "name": "appendMedicalRecord",
@@ -953,19 +1004,6 @@ export const didRegistryABI = [
         "internalType": "address",
         "name": "petAddress",
         "type": "address"
-      }
-    ],
-    "name": "registerPetOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "petAddress",
-        "type": "address"
       },
       {
         "internalType": "string",
@@ -991,27 +1029,19 @@ export const didRegistryABI = [
         "internalType": "bool",
         "name": "flagNeutering",
         "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "speciesName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "profileUrl",
+        "type": "string"
       }
     ],
     "name": "registerPetWithAttributes",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "petAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "hospitalAddress",
-        "type": "address"
-      }
-    ],
-    "name": "removeHospital",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
