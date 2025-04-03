@@ -32,6 +32,9 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   // TODO: 진료 기록 필터링 기능 추가 (진료 유형별)
   // TODO: 진료 기록 검색 기능 추가
 
+  // 새로고침 컨트롤러 추가
+  final RefreshController _refreshController = RefreshController();
+
   @override
   void initState() {
     super.initState();
@@ -42,16 +45,41 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
     _loadMedicalRecords();
   }
 
-  /// 진료 기록 데이터 로드
   @override
   void dispose() {
     // 화면이 종료될 때 진료 기록 상태 초기화
     Future.microtask(() {
       _controller.clearRecords();
     });
+    _refreshController.dispose(); // 컨트롤러 해제
     super.dispose();
   }
 
+  // 새로고침 처리 함수
+  Future<void> _onRefresh() async {
+    try {
+      // 진료 기록 상태 초기화
+      _controller.clearRecords();
+
+      // 블록체인에서 데이터 다시 로드
+      if (widget.pet.did != null && widget.pet.did!.isNotEmpty) {
+        await _loadMedicalRecordsFromBlockchain(widget.pet.did!);
+      }
+
+      // 새로고침 완료
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      // 새로고침 실패
+      _refreshController.refreshFailed();
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('새로고침 실패: $e')));
+      }
+    }
+  }
+
+  /// 진료 기록 데이터 로드
   void _loadMedicalRecords() {
     // 진료 기록 상태 초기화 후 새로운 데이터 로드
     Future.microtask(() {
@@ -250,12 +278,16 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : records.isEmpty
                     ? const EmptyRecords()
-                    : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: records.length,
-                      itemBuilder: (context, index) {
-                        return MedicalRecordCard(record: records[index]);
-                      },
+                    : RefreshIndicator(
+                      onRefresh: _onRefresh,
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        itemCount: records.length,
+                        itemBuilder: (context, index) {
+                          return MedicalRecordCard(record: records[index]);
+                        },
+                      ),
                     ),
           ),
         ],
@@ -285,5 +317,28 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
                 : const Icon(Icons.add),
       ),
     );
+  }
+}
+
+// RefreshController 클래스 추가
+class RefreshController {
+  VoidCallback? _onRefreshCompleted;
+  VoidCallback? _onRefreshFailed;
+
+  void refreshCompleted() {
+    if (_onRefreshCompleted != null) {
+      _onRefreshCompleted!();
+    }
+  }
+
+  void refreshFailed() {
+    if (_onRefreshFailed != null) {
+      _onRefreshFailed!();
+    }
+  }
+
+  void dispose() {
+    _onRefreshCompleted = null;
+    _onRefreshFailed = null;
   }
 }
