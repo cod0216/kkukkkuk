@@ -63,7 +63,7 @@ public class DrugService {
      * @return 해당 약품 Entity
      * @throws ApiException 검색한 약품이 없는 경우 예외 발생
      */
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) //TODO 사용하지 않은건 삭제 해주세요
     public DrugResponse getDrug(String name){
         Drug drug = drugRepository.findByNameKrOrNameEn(name, name)
                 .orElseThrow(() -> new ApiException(ErrorCode.DRUG_NOT_FOUND));

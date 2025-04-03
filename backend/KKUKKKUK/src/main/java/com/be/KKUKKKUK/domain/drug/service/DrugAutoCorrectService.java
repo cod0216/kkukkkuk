@@ -1,5 +1,5 @@
 package com.be.KKUKKKUK.domain.drug.service;
-
+//TODO 사용하지 않은 import 문 정리해주세요
 import com.be.KKUKKKUK.domain.drug.dto.response.DrugResponse;
 import com.be.KKUKKKUK.domain.drug.entity.Drug;
 import com.be.KKUKKKUK.global.service.RedisService;
@@ -30,7 +30,7 @@ import java.util.Set;
 public class DrugAutoCorrectService {
     private final DrugService drugService;
     private final RedisService redisService;
-    private final String SUFFIX = "*";
+    private final String SUFFIX = "*"; //TODO 상수 사용할때 어떤식으로 사용해야하는지
     private final int MAX_SIZE = 10;
 
     /**
