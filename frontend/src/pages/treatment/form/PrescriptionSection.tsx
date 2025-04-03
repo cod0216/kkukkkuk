@@ -16,6 +16,7 @@ import { TreatmentType, ExaminationTreatment, MedicationTreatment, VaccinationTr
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         처방 정보 표시 방식 개선 (key 필드 사용)
+ * 2025-04-02        seonghun         엔터를 이용한 처방 추가 기능, null과 undefined 처리 개선
  */
 
 
@@ -92,7 +93,8 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     };
 
     return (
-        <div className="flex gap-2 flex-col w-full">
+        <div className= "flex-1 w-full h-full">
+        <div className="flex gap-2 flex-col w-full h-full">
             {/* 처방 입력 필드 */}
             <div className="flex flex-wrap gap-1 items-center w-full">
                 {/* 치료 유형 선택 */}
@@ -114,6 +116,12 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                         type="text"
                         value={prescriptionType}
                         onChange={(e) => setPrescriptionType(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addPrescription();
+                            }
+                        }}
                         placeholder="항목명"
                         className="border rounded px-2 py-1 text-xs w-full"
                     />
@@ -125,6 +133,12 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                         type="text"
                         value={prescriptionDosage}
                         onChange={(e) => setPrescriptionDosage(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addPrescription();
+                            }
+                        }}
                         placeholder="용량/결과"
                         className="border rounded px-2 py-1 text-xs w-full"
                     />
@@ -140,7 +154,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
             </div>
 
             {/* 기존 처방 목록 표시 */}
-            <div className="flex gap-1 flex-col text-xs p-2 w-full">
+            <div className="flex gap-1 flex-col text-xs p-2 w-full flex-1 overflow-y-auto max-h-[240px]">
                 {prescriptions.examinations.length > 0 && (
                     <div className="font-bold text-xs mt-1">검사</div>
                 )}
@@ -173,6 +187,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                     </div>
                 ))}
             </div>
+        </div>
         </div>
     );
 };
