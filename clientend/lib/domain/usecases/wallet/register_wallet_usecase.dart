@@ -8,18 +8,11 @@ class RegisterWalletUseCase {
   RegisterWalletUseCase(this._walletRepository);
 
   Future<WalletRegistrationResponse> execute({
-    required String did,
     required String address,
-    required String encryptedPrivateKey,
-    required String publicKey,
+    required String name,
   }) async {
     try {
-      final request = WalletRegistrationRequest(
-        did: did,
-        address: address,
-        privateKey: encryptedPrivateKey,
-        publicKey: publicKey,
-      );
+      final request = WalletRegistrationRequest(address: address, name: name);
       return await _walletRepository.registerWallet(request);
     } catch (e) {
       print('지갑 등록 실패: $e');

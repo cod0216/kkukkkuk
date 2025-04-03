@@ -8,23 +8,13 @@ class UpdateWalletUseCase {
   UpdateWalletUseCase(this._walletRepository);
 
   /// 지갑 정보 업데이트
-  /// 
-  /// [did] 업데이트할 지갑의 DID
-  /// [address] 업데이트할 지갑 주소
-  /// [publicKey] 업데이트할 지갑의 공개키
   Future<WalletUpdateResponse> execute({
-    required String did,
-    required String address,
-    required String publicKey,
+    required int walletId,
+    required String name,
   }) async {
     try {
-      final request = WalletUpdateRequest(
-        did: did,
-        address: address,
-        publicKey: publicKey,
-      );
-      
-      return await _walletRepository.updateWallet(request);
+      final request = WalletUpdateRequest(name: name);
+      return await _walletRepository.updateWallet(walletId, request);
     } catch (e) {
       print('지갑 정보 업데이트 실패: $e');
       throw Exception('지갑 정보 업데이트에 실패했습니다: $e');
