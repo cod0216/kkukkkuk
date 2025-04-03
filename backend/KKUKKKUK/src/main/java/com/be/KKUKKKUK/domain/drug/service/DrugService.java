@@ -6,6 +6,7 @@ import com.be.KKUKKKUK.domain.drug.dto.mapper.DrugMapper;
 import com.be.KKUKKKUK.domain.drug.repository.DrugRepository;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
+import com.be.KKUKKKUK.global.service.RedisService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -29,63 +30,9 @@ import java.util.*;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class DrugService { //TODO 이 비즈니스 service 클래스는 MySQL, Redis 둘다 통신을 하는 것 같은데 분리하는 건 어떨까요? 넵
+public class DrugService {
     private final DrugRepository drugRepository;
-    private final RedisSortedSetService redisSortedSetService;
     private final DrugMapper drugMapper;
-
-    private final String SUFFIX = "*";
-    private final int MAX_SIZE = 10;
-
-    /**
-     * 서버 실행 시 약품을 조회해서 redis에 저장합니다.
-     */
-    @PostConstruct
-    public void init() {
-        saveAllSubstring(drugRepository.findAll());
-    }
-
-    /**
-     * MySQL에 저장된 모든 약품을 음절 단위로 잘라 Redis에 저장합니다.
-     *
-     * @param drugs 조회된 약품들
-     */
-    private void saveAllSubstring(List<Drug> drugs){
-        for(Drug drug : drugs){
-            redisSortedSetService.addToSortedSet(drug.getNameKr() + SUFFIX);
-            String kr = drug.getNameKr();
-            String en = drug.getNameEn();
-
-            for(int i = kr.length(); i > 0; --i) {
-                redisSortedSetService.addToSortedSet(kr.substring(0, i));
-            }
-            for(int i = en.length(); i > 0; --i) {
-                redisSortedSetService.addToSortedSet(en.substring(0, i));
-            }
-        }
-    }
-
-    /**
-     * 입력한 키워드로 자동완성 조회를 합니다.
-     *
-     * @param keyword 검색어
-     * @return 일치한 String 단어를 사전순으로 반환
-     */
-    public List<String> autocorrectKeyword(String keyword) {
-        Long keywordIndex = redisSortedSetService.findFromSortedSet(keyword);
-
-        if(Objects.isNull(keywordIndex)){
-            return Collections.emptyList();
-        }
-
-        Set<String> allValuesAfterIndexFromSortedSet = redisSortedSetService.findAllValuesAfterIndexFromSortedSet(keywordIndex);
-
-        return allValuesAfterIndexFromSortedSet.stream()
-                .filter(value -> value.endsWith(SUFFIX) && value.startsWith(keyword))
-                .map(value -> StringUtils.removeEnd(value, SUFFIX))
-                .limit(MAX_SIZE)
-                .toList();
-    }
 
     /**
      * 전체 Drug 데이터를 조회합니다.
@@ -93,7 +40,6 @@ public class DrugService { //TODO 이 비즈니스 service 클래스는 MySQL, R
      */
     @Transactional(readOnly = true)
     public List<DrugResponse> getAllDrugs() {
-
         List<Drug> drugs = drugRepository.findAll();
         return drugMapper.mapToDrugResponseList(drugs);
     }
@@ -108,7 +54,6 @@ public class DrugService { //TODO 이 비즈니스 service 클래스는 MySQL, R
         List<Drug> drugs = drugRepository.findByNameKrContainingIgnoreCaseOrNameEnContainingIgnoreCase(keyword, keyword);
         return drugMapper.mapToDrugResponseList(drugs);
     }
-
 
     /**
      * 검색한 단어로 약품을 조회입니다.
