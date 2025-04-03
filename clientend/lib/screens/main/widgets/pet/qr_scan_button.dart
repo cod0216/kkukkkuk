@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:kkuk_kkuk/core/permission/permission_manager.dart';
 
 class QrScanCard extends StatelessWidget {
   final VoidCallback? onTap;
+  final _permissionManager = PermissionManager();
 
-  const QrScanCard({super.key, this.onTap});
+  QrScanCard({super.key, this.onTap});
+
+  Future<void> _handleQrScan(BuildContext context) async {
+    final hasPermission = await _permissionManager.handlePermissionRequest(
+      context,
+      Permission.camera,
+    );
+
+    if (hasPermission) {
+      if (context.mounted) {
+        context.push('/qr-scanner');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +34,7 @@ class QrScanCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap:
-              onTap ??
-              () {
-                // Default QR scan action
-              },
+          onTap: () => _handleQrScan(context),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Row(

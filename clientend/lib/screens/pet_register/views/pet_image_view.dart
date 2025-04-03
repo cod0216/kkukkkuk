@@ -12,6 +12,7 @@ import 'package:kkuk_kkuk/screens/common/widgets/image_source_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/skip_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/dual_buttons.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_header.dart';
+import 'package:kkuk_kkuk/core/permission/permission_manager.dart';
 
 // 반려동물 이미지 등록 화면
 class PetImageView extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class PetImageView extends ConsumerStatefulWidget {
 }
 
 class _PetImageViewState extends ConsumerState<PetImageView> {
+  final _permissionManager = PermissionManager();
   // 상태 관리
   bool _isLoading = false;
   bool _hasImage = false; // 이미지 선택 여부 추적
@@ -114,34 +116,6 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
     _registerPet();
   }
 
-  // 카메라 권한 요청
-  Future<bool> _requestCameraPermission() async {
-    final status = await Permission.camera.status;
-    if (status.isDenied) {
-      final result = await Permission.camera.request();
-      return result.isGranted;
-    }
-    return status.isGranted;
-  }
-
-  // 갤러리 권한 요청
-  Future<bool> _requestGalleryPermission() async {
-    // Android 13 (API 33) 이상
-    if (Platform.isAndroid) {
-      if (await Permission.photos.status.isDenied) {
-        final status = await Permission.photos.request();
-        return status.isGranted;
-      }
-      return true;
-    }
-    // Android 12 이하
-    if (await Permission.storage.status.isDenied) {
-      final status = await Permission.storage.request();
-      return status.isGranted;
-    }
-    return true;
-  }
-
   // 이미지 크롭
   Future<File?> _cropImage(String imagePath) async {
     final croppedFile = await ImageCropper().cropImage(
@@ -182,14 +156,16 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
 
   // 카메라로 사진 촬영
   Future<void> _takePicture() async {
-    if (!await _requestCameraPermission()) {
+    final hasPermission = await _permissionManager.handlePermissionRequest(
+      context,
+      Permission.camera,
+    );
+
+    if (!hasPermission) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('카메라 접근 권한이 필요합니다. 설정에서 권한을 허용해주세요.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('카메라 접근 권한이 필요합니다.')));
       }
       return;
     }
@@ -214,7 +190,15 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
 
   // 갤러리에서 이미지 선택
   Future<void> _pickFromGallery() async {
-    if (!await _requestGalleryPermission()) {
+    final permission =
+        Platform.isAndroid ? Permission.photos : Permission.storage;
+
+    final hasPermission = await _permissionManager.handlePermissionRequest(
+      context,
+      permission,
+    );
+
+    if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
