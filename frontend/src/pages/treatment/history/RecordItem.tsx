@@ -98,6 +98,12 @@ const RecordItem: React.FC<RecordItemProps> = ({
   sortField,
   sortDirection
 }) => {
+  console.log('레코드 상태 정보:', records.map(r => ({
+    id: r.id,
+    diagnosis: r.diagnosis,
+    status: r.status || '상태 없음'
+  })));
+
   // 날짜 포맷 함수
   const formatDate = (timestamp: number): string => {
     try {
@@ -162,13 +168,33 @@ const RecordItem: React.FC<RecordItemProps> = ({
               records.map((record, index) => {
                 return (
                   <tr 
-                    key={record.id || index} 
+                    key={record.id || `temp-${index}`} 
                     className={`border-b cursor-pointer text-xs ${
                       selectedRecordId && record.id === selectedRecordId 
                         ? 'bg-blue-50 hover:bg-blue-100' 
                         : 'hover:bg-gray-50'
                     }`}
-                    onClick={() => onRecordSelect(record.id || '')}
+                    onClick={() => {
+                      console.log('RecordItem 클릭 - 전달할 ID:', record.id, '기록:', record);
+                      
+                      // ID가 없는 경우 임시 ID 생성
+                      let selectedId = record.id;
+                      if (!selectedId) {
+                        // 임시 ID 생성 (타임스탬프 + 진단명 해시)
+                        const timestamp = record.timestamp || Math.floor(Date.now() / 1000);
+                        const diagnosisHash = record.diagnosis ? 
+                          record.diagnosis.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 
+                          0;
+                        selectedId = `temp_${timestamp}_${diagnosisHash}_${index}`;
+                        console.log('임시 ID 생성:', selectedId);
+                        
+                        // 기록에 ID 직접 할당 (오직 클라이언트에서만 사용)
+                        // @ts-ignore: 객체의 속성을 동적으로 할당
+                        record.id = selectedId;
+                      }
+                      
+                      onRecordSelect(selectedId);
+                    }}
                   >
                     <td className="px-2 py-1">{formatDate(record.timestamp)}</td>
                     <td className="px-2 py-1 max-w-[150px] truncate">

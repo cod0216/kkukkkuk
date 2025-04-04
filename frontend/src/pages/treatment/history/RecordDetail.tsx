@@ -3,6 +3,7 @@ import { BlockChainRecord } from '@/interfaces';
 import RecordHistory from './RecordHistory';
 import { FaChevronDown, FaChevronUp, FaEdit, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { getAccountAddress } from '@/services/blockchainAuthService';
+import { getRecordChanges } from '@/services/treatmentRecordService';
 
 /**
  * @component RecordDetail
@@ -30,6 +31,7 @@ interface RecordDetailProps {
   record: BlockChainRecord;
   onEditRecord?: (record: BlockChainRecord) => void;
   blockchainRecords?: BlockChainRecord[];
+  selectedPetDid?: string;
 }
 
 /**
@@ -38,11 +40,12 @@ interface RecordDetailProps {
 export const RecordDetail: React.FC<RecordDetailProps> = ({ 
   record,
   onEditRecord,
-  blockchainRecords = []
+  selectedPetDid,
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [currentUserAddress, setCurrentUserAddress] = useState<string | null>(null);
+  const [historyChain, setHistoryChain] = useState<BlockChainRecord[]>([]);
   
   // 현재 사용자 주소 가져오기
   useEffect(() => {
@@ -54,9 +57,68 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
     fetchUserAddress();
   }, []);
   
+  // 레코드 체인 가져오기
+  useEffect(() => {
+    const fetchRecordHistory = async () => {
+      if (record && selectedPetDid) {
+        try {
+          console.log('기록 변경 이력 조회 시작:', record.id, selectedPetDid);
+          
+          // getRecordChanges 함수는 이미 현재 기록에 맞게 이력을 반환함:
+          // - 원본 기록 → 빈 배열
+          // - 수정본 기록 → 현재 기록을 제외한 이전 버전들 (최신순, 원본이 마지막)
+          const historyRecords = await getRecordChanges(record, selectedPetDid);
+          
+          // 타임스탬프 디버깅 로그
+          if (historyRecords.length > 0) {
+            console.log('수정 내역의 타임스탬프 정보:');
+            historyRecords.forEach((item, index) => {
+              console.log(`기록 #${index + 1}:`, {
+                id: item.id,
+                timestamp: item.timestamp,
+                createdAt: item.createdAt,
+                timestampType: typeof item.timestamp,
+                createdAtType: typeof item.createdAt,
+                diagnosis: item.diagnosis,
+                isOriginal: item.id?.startsWith('medical_record_')
+              });
+            });
+          }
+          
+          console.log('기록 내역 조회 결과:', historyRecords.length, '개 항목', historyRecords);
+          setHistoryChain(historyRecords);
+        } catch (error) {
+          console.error('기록 내역 조회 실패:', error);
+          setHistoryChain([]);
+        }
+      } else {
+        console.log('기록 내역 조회 불가: record 또는 selectedPetDid 없음', {
+          hasRecord: !!record,
+          selectedPetDid
+        });
+        setHistoryChain([]);
+      }
+    };
+    
+    fetchRecordHistory();
+  }, [record, selectedPetDid]);
+  
+  // 이력이 있는지 확인 (빈 배열이 아닌 경우)
+  const hasHistory = historyChain.length > 0;
+  
+  // 원본 기록인지 확인 (ID가 'medical_record_'로 시작하는 경우)
+  const isOriginalRecord = record.id ? record.id.startsWith('medical_record_') : false;
+  
+  
   // 현재 사용자가 작성한 기록인지 확인
   const isOwnRecord = currentUserAddress && record.hospitalAddress && 
     currentUserAddress.toLowerCase() === record.hospitalAddress.toLowerCase();
+  
+  // 인증되지 않은 기록인지 확인 (보호자가 작성한 기록)
+  const isUncertifiedRecord = record.flagCertificated === false;
+  
+  // 수정 가능 여부: 본인이 작성했거나 인증되지 않은 기록
+  const canEdit = isOwnRecord || isUncertifiedRecord;
 
   // 이미지 확대 모달 표시
   const showImageModal = (imageUrl: string) => {
@@ -71,7 +133,12 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
   // 수정 버튼 클릭 핸들러
   const handleEditClick = () => {
     if (onEditRecord && record) {
-      onEditRecord(record);
+      // 레코드에 petDid가 없으면 selectedPetDid를 사용하여 정보를 보완
+      const recordWithPetDid = {
+        ...record,
+        petDid: record.petDid || selectedPetDid
+      };
+      onEditRecord(recordWithPetDid);
     }
   };
   
@@ -112,11 +179,11 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
               </div>
             )}
           </div>
-          {isOwnRecord && (
+          {canEdit && (
             <button 
               onClick={handleEditClick}
-              className="text-primary-600 hover:text-primary-800 p-1 rounded-full hover:bg-primary-50"
-              title="진료 기록 수정"
+              className={`${isOwnRecord ? 'text-primary-600 hover:text-primary-800' : 'text-orange-600 hover:text-orange-800'} p-1 rounded-full hover:bg-primary-50`}
+              title={isOwnRecord ? "진료 기록 수정" : "인증되지 않은 기록 수정 및 인증"}
             >
               <FaEdit className="h-4 w-4" />
             </button>
@@ -229,21 +296,34 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
           )}
           
           {/* 아코디언 메뉴 - 수정 내역 */}
-          <div className="border border-gray-200 rounded-md overflow-hidden">
-            <button 
-              className="w-full flex justify-between items-center p-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
-              onClick={() => setShowHistory(!showHistory)}
-            >
-              <span>수정 내역</span>
-              {showHistory ? <FaChevronUp className="h-3 w-3" /> : <FaChevronDown className="h-3 w-3" />}
-            </button>
-            
-            {showHistory && (
-              <div className="p-2 bg-white border-t border-gray-200">
-                <RecordHistory record={record} allRecords={blockchainRecords} />
-              </div>
-            )}
-          </div>
+          {record.id && (
+            <div className="border border-gray-200 rounded-md overflow-hidden">
+              {isOriginalRecord ? (
+                <div className="p-2 text-xs font-medium text-gray-700 bg-gray-50">
+                  이 기록은 원본 기록입니다
+                </div>
+              ) : (
+                <>
+                  <button 
+                    className="w-full flex justify-between items-center p-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
+                    onClick={() => setShowHistory(!showHistory)}
+                    disabled={!hasHistory}
+                  >
+                    <span>
+                      {hasHistory ? '수정된 기록 (이전 버전 있음)' : '수정된 기록 (최초 수정본)'}
+                    </span>
+                    {hasHistory && (showHistory ? <FaChevronUp className="h-3 w-3" /> : <FaChevronDown className="h-3 w-3" />)}
+                  </button>
+                  
+                  {showHistory && hasHistory && (
+                    <div className="p-2 bg-white border-t border-gray-200">
+                      <RecordHistory historyChain={historyChain} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

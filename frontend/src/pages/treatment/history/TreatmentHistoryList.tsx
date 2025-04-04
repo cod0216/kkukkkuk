@@ -2,8 +2,9 @@ import { useState, useEffect, forwardRef, useImperativeHandle, useMemo } from 'r
 import RecordItem from '@/pages/treatment/history/RecordItem';
 import RecordDetail from '@/pages/treatment/history/RecordDetail';
 import RecordEditForm from '@/pages/treatment/form/RecordEditForm';
+import RecordByOwnerEditForm from '@/pages/treatment/form/RecordByOwnerEditForm';
 import { BlockChainRecord } from '@/interfaces';
-import { getHospitalPetsWithRecords, updateBlockchainTreatment, getRecordChanges } from '@/services/treatmentService';
+import { getLatestPetRecords } from '@/services/treatmentRecordService';
 import { getAccountAddress, getContractAddresses } from '@/services/blockchainAuthService';
 import { getDoctors } from '@/services/doctorService';
 import { Doctor } from '@/interfaces';
@@ -33,8 +34,8 @@ type SortDirection = 'asc' | 'desc';
  * -----------------------------------------------------------
  * 2025-03-26        haelim           최초 생성
  * 2025-03-28        seonghun         블록체인 서비스 연동
- * 2025-04-01        assistant        인덱스 기반 선택에서 ID 기반 선택으로 변경
- * 2025-04-02        assistant        정렬 기능 추가
+ * 2025-04-01        seonghun         인덱스 기반 선택에서 ID 기반 선택으로 변경
+ * 2025-04-02        seonghun         정렬 기능 추가, 상태에 따른 RecordItem 표시 개선
  */
 
 /**
@@ -109,9 +110,10 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   
   // 정렬된 의료 기록 목록 계산
   const sortedRecords = useMemo(() => {
-    // 취소된 진료 기록(진단명에 CANCELED 포함) 필터링
+    // 취소된 진료 기록(진단명에 CANCELED 포함)과 삭제된 기록(isDeleted가 true) 필터링
     let filteredRecords = blockchainRecords.filter(record => 
-      !record.diagnosis || !record.diagnosis.includes('CANCELED')
+      (!record.diagnosis || !record.diagnosis.includes('CANCELED')) && 
+      !record.isDeleted
     );
     
     // 검색어로 진단명 필터링
@@ -121,11 +123,26 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       );
     }
     
-    // '우리 병원 기록만 보기' 필터링
+    // '우리 병원 기록만 보기' 필터링 개선
     if (showOnlyMyHospitalRecords && myHospitalAddress) {
-      filteredRecords = filteredRecords.filter(record => 
-        record.hospitalAddress === myHospitalAddress
-      );
+      filteredRecords = filteredRecords.filter(record => {
+        // 1. 일반적인 hospitalAddress 비교 (대소문자 무시)
+        if (record.hospitalAddress && 
+            record.hospitalAddress.toLowerCase() === myHospitalAddress.toLowerCase()) {
+          return true;
+        }
+        
+        // 2. ID에서 주소 추출하여 비교 (hospitalAddress가 없는 경우)
+        if (!record.hospitalAddress && record.id && record.id.includes('_')) {
+          const parts = record.id.split('_');
+          if (parts.length >= 3) {
+            const addressFromId = parts[parts.length - 1];
+            return addressFromId.toLowerCase() === myHospitalAddress.toLowerCase();
+          }
+        }
+        
+        return false;
+      });
     }
     
     // 현재 선택된 기록이 필터링으로 제거된 경우, 첫 번째 기록 선택
@@ -139,6 +156,7 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       }
     }
     
+    // 정렬 적용
     return [...filteredRecords].sort((a, b) => {
       let compared = 0;
       
@@ -147,13 +165,13 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
           compared = a.timestamp - b.timestamp;
           break;
         case 'diagnosis':
-          compared = a.diagnosis.localeCompare(b.diagnosis);
+          compared = (a.diagnosis || '').localeCompare(b.diagnosis || '');
           break;
         case 'hospitalName':
-          compared = a.hospitalName.localeCompare(b.hospitalName);
+          compared = (a.hospitalName || '').localeCompare(b.hospitalName || '');
           break;
         case 'doctorName':
-          compared = a.doctorName.localeCompare(b.doctorName);
+          compared = (a.doctorName || '').localeCompare(b.doctorName || '');
           break;
         default:
           compared = 0;
@@ -163,6 +181,28 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       return sortDirection === 'asc' ? compared : -compared;
     });
   }, [blockchainRecords, sortField, sortDirection, selectedRecordId, showOnlyMyHospitalRecords, myHospitalAddress, searchQuery]);
+  
+  // 선택된 기록 ID 변경 추적
+  useEffect(() => {
+    console.log('선택된 기록 ID 변경:', selectedRecordId);
+    
+    // 선택된 기록 ID로 해당 기록 찾기
+    if (selectedRecordId) {
+      const record: BlockChainRecord | undefined = blockchainRecords.find(r => r.id === selectedRecordId) ||
+                   sortedRecords.find(r => r.id === selectedRecordId);
+      
+      if (record) {
+        console.log('선택된 기록 정보:', {
+          id: record.id,
+          diagnosis: record.diagnosis,
+          isOriginal: record.id?.startsWith('medical_record_'),
+          hasId: !!record.id
+        });
+      } else {
+        console.warn('선택된 ID에 해당하는 기록을 찾을 수 없음:', selectedRecordId);
+      }
+    }
+  }, [selectedRecordId, blockchainRecords, sortedRecords]);
   
   // 컨트랙트 주소 가져오기
   useEffect(() => {
@@ -221,6 +261,7 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       
       if (petIndex !== -1) {
         const petRecords = hospitalPets[petIndex].records;
+        
         // 해당 반려동물의 의료 기록 표시
         setBlockchainRecords(petRecords);
         
@@ -238,26 +279,73 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
           // 레코드가 없는 경우 선택 초기화
           setSelectedRecordId('');
         }
+      } else {
+        // 해당 반려동물이 없는 경우도 기록 초기화
+        setBlockchainRecords([]);
+        setSelectedRecordId('');
       }
+    } else if (!selectedPetDid) {
+      // 선택된 반려동물이 없으면 빈 기록 설정
+      setBlockchainRecords([]);
+      setSelectedRecordId('');
     }
   }, [selectedPetDid, hospitalPets, selectedRecordId]);
   
   // 선택된 id가 변경될 때만 상위 컴포넌트에 알림
   useEffect(() => {
-    // 유효한 id인 경우에만 업데이트
-    if (selectedRecordId && blockchainRecords.some(record => record.id === selectedRecordId)) {
-      parentSetSelectedRecordId(selectedRecordId);
+    // 선택된 ID가 유효한 경우에만 상위 컴포넌트에 전달
+    if (selectedRecordId) {
+      // 정렬된 기록이나 전체 기록 중에 존재하면 상위 컴포넌트에 알림
+      const existsInSorted = sortedRecords.some(record => record.id === selectedRecordId);
+      const existsInAll = blockchainRecords.some(record => record.id === selectedRecordId);
+      
+      if (existsInSorted || existsInAll) {
+        console.log('상위 컴포넌트에 선택된 ID 전달:', selectedRecordId);
+        parentSetSelectedRecordId(selectedRecordId);
+      } else {
+        console.warn('유효하지 않은 ID가 선택됨:', selectedRecordId);
+      }
     }
-  }, [selectedRecordId, blockchainRecords, parentSetSelectedRecordId]);
+  }, [selectedRecordId, sortedRecords, blockchainRecords, parentSetSelectedRecordId]);
   
   const fetchHospitalPets = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await getHospitalPetsWithRecords(didRegistryAddress);
+      const response = await getLatestPetRecords();
       
       if (response.success) {
+        console.log('받아온 반려동물 데이터:', response.pets);
+        
+        // 모든 기록 ID 확인 및 필요하면 ID 생성
+        response.pets.forEach(pet => {
+          if (pet.records && Array.isArray(pet.records)) {
+            pet.records.forEach((record: BlockChainRecord, index: number) => {
+              // ID가 없는 기록에 임시 ID 할당
+              if (!record.id) {
+                const timestamp = record.timestamp || Math.floor(Date.now() / 1000);
+                const diagnosisHash = record.diagnosis ? 
+                  record.diagnosis.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) : 
+                  0;
+                const tempId = `temp_${timestamp}_${diagnosisHash}_${index}`;
+                console.log(`반려동물(${pet.name})의 기록에 임시 ID 할당:`, tempId, record.diagnosis);
+                record.id = tempId;
+              }
+            });
+          }
+        });
+        
+        // 모든 기록 ID 확인 (디버깅용)
+        const allRecordIds = response.pets
+          .flatMap(pet => pet.records.map((record: BlockChainRecord) => ({ 
+            id: record.id, 
+            isOriginal: record.id?.startsWith('medical_record_'),
+            hasId: !!record.id,
+            petName: pet.name
+          })));
+        console.log('전체 기록 ID 현황:', allRecordIds);
+        
         setHospitalPets(response.pets);
         
         // selectedPetDid가 있을 때만 해당 반려동물의 기록을 표시
@@ -265,12 +353,15 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
           // 선택된 반려동물 찾기
           const selectedPet = response.pets.find(pet => pet.petDID === selectedPetDid);
           if (selectedPet) {
+            console.log('선택된 반려동물의 기록:', selectedPet.records);
             setBlockchainRecords(selectedPet.records);
             
             // 기록이 있으면 첫 번째 기록 선택
             if (selectedPet.records.length > 0 && selectedPet.records[0].id) {
+              console.log('첫 번째 기록 선택:', selectedPet.records[0].id);
               setSelectedRecordId(selectedPet.records[0].id);
             } else {
+              console.log('기록이 없거나 첫 번째 기록에 ID가 없음');
               setSelectedRecordId('');
             }
           }
@@ -293,9 +384,28 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   
   // 기록 선택 핸들러
   const handleRecordSelect = (id: string) => {
-    if (id && blockchainRecords.some(record => record.id === id)) {
-      setSelectedRecordId(id);
-      // 상위 컴포넌트 알림은 useEffect에서 처리됨
+    console.log('기록 선택 시도:', id);
+    
+    // 먼저 정렬된 기록에서 검색 (실제 화면에 표시된 기록에서 검색)
+    const existsInSorted = sortedRecords.some(record => record.id === id);
+    // 필요한 경우 전체 기록에서도 검색
+    const existsInAll = blockchainRecords.some(record => record.id === id);
+    
+    console.log('선택한 기록 존재 여부:', { 
+      existsInSorted, 
+      existsInAll,
+      id
+    });
+    
+    if (id) {
+      // 정렬된 기록이나 전체 기록 중에 존재하면 선택 (조건 완화)
+      if (existsInSorted || existsInAll) {
+        console.log('기록 선택 성공:', id);
+        setSelectedRecordId(id);
+        // 상위 컴포넌트 알림은 useEffect에서 처리됨
+      } else {
+        console.warn('존재하지 않는 기록 ID:', id);
+      }
     }
   };
   
@@ -313,69 +423,6 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
     setEditError(null);
   };
   
-  // 수정 저장 핸들러
-  const handleSaveEdit = async (updatedRecord: BlockChainRecord, changes: string[] = []) => {
-    try {
-      setIsEditSuccess(false);
-      setEditError(null);
-      
-      // 현재 선택된 반려동물 정보 찾기
-      const selectedPet = hospitalPets.find(pet => pet.records.some(record => record.id === updatedRecord.id));
-      
-      if (!selectedPet) {
-        throw new Error('선택된 반려동물 정보를 찾을 수 없습니다.');
-      }
-      
-      // petDid를 현재 선택된 반려동물의 petDID로 업데이트
-      updatedRecord.petDid = selectedPet.petDID;
-      
-      if (!updatedRecord.petDid) {
-        throw new Error('반려동물 정보가 없습니다.');
-      }
-      
-      // 원본 record 찾기
-      const originalRecord = blockchainRecords.find(record => record.id === updatedRecord.id);
-      if (!originalRecord) {
-        throw new Error('원본 기록을 찾을 수 없습니다.');
-      }
-      
-      // 변경 사항 확인 (이미 RecordEditForm에서 확인했지만 한 번 더 확인)
-      const detectedChanges = changes.length > 0 ? changes : getRecordChanges(originalRecord, updatedRecord);
-      if (detectedChanges.length === 0) {
-        setEditError('변경된 내용이 없습니다. 적어도 하나 이상의 필드를 수정해주세요.');
-        return;
-      }
-      
-      console.log('감지된 변경 사항:', detectedChanges);
-      
-      // 블록체인에 업데이트 요청
-      const result = await updateBlockchainTreatment(
-        updatedRecord.petDid,
-        updatedRecord,
-        detectedChanges
-      );
-      
-      if (result.success) {
-        setIsEditSuccess(true);
-        setEditingRecord(null);
-        
-        // 새 레코드 ID가 있으면 선택
-        if (result.newRecordId) {
-          // 기록 다시 불러오기 후 새 레코드 선택
-          await fetchHospitalPets();
-          setTimeout(() => setSelectedRecordId(result.newRecordId || ''), 500);
-        } else {
-          // 기록 다시 불러오기
-          await fetchHospitalPets();
-        }
-      } else {
-        setEditError(result.error || '저장 중 오류가 발생했습니다.');
-      }
-    } catch (error: any) {
-      setEditError(error.message || '저장 중 오류가 발생했습니다.');
-    }
-  };
-
   // 외부에서 호출 가능한 함수들 노출
   useImperativeHandle(ref, () => ({
     // 의료 기록 새로고침
@@ -386,11 +433,28 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
 
   // 취소되지 않은 유효한 기록이 있는지 확인하는 계산값 추가
   const validRecordsExist = useMemo(() => {
-    // 취소된 진료 기록(진단명에 CANCELED 포함) 제외한 유효한 기록이 있는지 확인
+    // 취소된 진료 기록(진단명에 CANCELED 포함)과 삭제된 기록(isDeleted가 true) 제외한 유효한 기록이 있는지 확인
     return blockchainRecords.some(record => 
-      !record.diagnosis || !record.diagnosis.includes('CANCELED')
+      (!record.diagnosis || !record.diagnosis.includes('CANCELED')) &&
+      !record.isDeleted
     );
   }, [blockchainRecords]);
+
+  // 알림 자동 사라짐 처리
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isEditSuccess || editError) {
+      timer = setTimeout(() => {
+        if (isEditSuccess) setIsEditSuccess(false);
+        if (editError) setEditError(null);
+      }, 2000); // 2초 후 사라짐 (0.5초는 너무 빨라서 2초로 설정)
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isEditSuccess, editError]);
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full gap-5">
@@ -532,25 +596,78 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       {selectedRecordId && (
         <div className="md:hidden mt-4 h-[500px]">
           {(() => {
+            // 먼저 현재 정렬된 기록에서 찾고, 없으면 전체 기록에서 찾음
             const record = sortedRecords.find(record => record.id === selectedRecordId) ||
                            blockchainRecords.find(record => record.id === selectedRecordId);
             
-            // 기록이 없거나 취소된 기록(CANCELED)인 경우 표시하지 않음
-            if (!record || record.diagnosis?.includes('CANCELED')) {
-              return null;
+            // 디버깅: 레코드를 찾지 못하는 경우 로그 출력
+            if (!record) {
+              console.error('모바일: 레코드를 찾을 수 없음:', { 
+                selectedRecordId, 
+                sortedRecordsCount: sortedRecords.length,
+                blockchainRecordsCount: blockchainRecords.length
+              });
+              return (
+                <div className="p-4 text-center text-red-500">
+                  선택한 기록을 찾을 수 없습니다.
+                </div>
+              );
+            }
+            
+            // 취소된 기록(CANCELED)인 경우 표시하지 않음
+            if (record.diagnosis?.includes('CANCELED')) {
+              return (
+                <div className="p-4 text-center text-gray-500">
+                  취소된 진료 기록입니다.
+                </div>
+              );
             }
             
             // 수정 모드인 경우 수정 폼 표시
             if (editingRecord && editingRecord.id === record.id) {
+              // flagCertificated가 false인 경우 RecordByOwnerEditForm 사용
+              if (editingRecord.flagCertificated === false) {
+                return (
+                  <RecordByOwnerEditForm 
+                    record={editingRecord}
+                    onSave={async (_updatedRecord) => {
+                      // 성공 후 처리: 목록 새로고침
+                      await fetchHospitalPets();
+                      // 편집 모드 종료
+                      setEditingRecord(null);
+                    }}
+                    onCancel={handleCancelEdit}
+                    petDid={selectedPetDid}
+                  />
+                );
+              }
+              
+              // 일반적인 경우 기존 RecordEditForm 사용
               return (
                 <RecordEditForm 
+                  key={editingRecord.id}
                   record={editingRecord}
-                  onSave={async (updatedRecord, changes) => {
-                    // 여기서 원본 레코드와 수정된 레코드를 비교하여 변경 사항을 감지하고 전달
-                    await handleSaveEdit(updatedRecord, changes);
+                  pictures={editingRecord.pictures}
+                  onSave={async (updatedRecord) => {
+                    // 수정된 기록 사본을 로컬에 저장
+                    const updatedRecordCopy = {...updatedRecord};
+                    console.log('업데이트된 기록 (fetchHospitalPets 호출 전):', {
+                      id: updatedRecordCopy.id,
+                      pictures: updatedRecordCopy.pictures,
+                      hasPictures: !!updatedRecordCopy.pictures,
+                      picturesLength: updatedRecordCopy.pictures?.length
+                    });
+                    
+                    // 기록 새로고침
+                    await fetchHospitalPets();
+                    
+                    // 편집 모드 종료
+                    setEditingRecord(null);
                   }}
                   onCancel={handleCancelEdit}
                   doctors={doctors}
+                  petDid={selectedPetDid}
+                  blockchainRecords={blockchainRecords}
                 />
               );
             }
@@ -562,6 +679,7 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
                 record={record}
                 onEditRecord={handleEditRecord}
                 blockchainRecords={blockchainRecords}
+                selectedPetDid={selectedPetDid}
               />
             );
           })()}
@@ -570,55 +688,115 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
       
       {/* 데스크톱에서는 부모 컴포넌트에서 RecordDetail을 관리 */}
       {selectedRecordId && (
-        <div className="hidden md:block max-w-sm flex-shrink-0 h-[calc(100vh-216px)]">
-          {(() => {
-            const record = sortedRecords.find(record => record.id === selectedRecordId) ||
-                           blockchainRecords.find(record => record.id === selectedRecordId);
-            
-            // 기록이 없거나 취소된 기록(CANCELED)인 경우 표시하지 않음
-            if (!record || record.diagnosis?.includes('CANCELED')) {
-              return null;
-            }
-            
-            // 수정 모드인 경우 수정 폼 표시
-            if (editingRecord && editingRecord.id === record.id) {
+        <div className="hidden md:block max-w-sm flex-shrink-0 h-[calc(100vh-216px)] relative">
+          {/* 메인 콘텐츠 - 위치 고정 */}
+          <div className="h-full overflow-auto">
+            {(() => {
+              // 먼저 현재 정렬된 기록에서 찾고, 없으면 전체 기록에서 찾음
+              const record = sortedRecords.find(record => record.id === selectedRecordId) ||
+                            blockchainRecords.find(record => record.id === selectedRecordId);
+              
+              // 디버깅: 레코드를 찾지 못하는 경우 로그 출력
+              if (!record) {
+                console.error('레코드를 찾을 수 없음:', { 
+                  selectedRecordId, 
+                  sortedRecordsCount: sortedRecords.length,
+                  blockchainRecordsCount: blockchainRecords.length
+                });
+                return (
+                  <div className="p-4 text-center text-red-500">
+                    선택한 기록을 찾을 수 없습니다.
+                  </div>
+                );
+              }
+              
+              // 취소된 기록(CANCELED)인 경우 표시하지 않음
+              if (record.diagnosis?.includes('CANCELED')) {
+                return (
+                  <div className="p-4 text-center text-gray-500">
+                    취소된 진료 기록입니다.
+                  </div>
+                );
+              }
+              
+              // 수정 모드인 경우 수정 폼 표시
+              if (editingRecord && editingRecord.id === record.id) {
+                // flagCertificated가 false인 경우 RecordByOwnerEditForm 사용
+                if (editingRecord.flagCertificated === false) {
+                  return (
+                    <RecordByOwnerEditForm 
+                      record={editingRecord}
+                      onSave={async (_updatedRecord) => {
+                        // 성공 후 처리: 목록 새로고침
+                        await fetchHospitalPets();
+                        // 편집 모드 종료
+                        setEditingRecord(null);
+                      }}
+                      onCancel={handleCancelEdit}
+                      petDid={selectedPetDid}
+                    />
+                  );
+                }
+                
+                // 일반적인 경우 기존 RecordEditForm 사용
+                return (
+                  <RecordEditForm 
+                    key={editingRecord.id}
+                    record={editingRecord}
+                    pictures={editingRecord.pictures}
+                    onSave={async (updatedRecord) => {
+                      // 수정된 기록 사본을 로컬에 저장
+                      const updatedRecordCopy = {...updatedRecord};
+                      console.log('업데이트된 기록 (fetchHospitalPets 호출 전):', {
+                        id: updatedRecordCopy.id,
+                        pictures: updatedRecordCopy.pictures,
+                        hasPictures: !!updatedRecordCopy.pictures,
+                        picturesLength: updatedRecordCopy.pictures?.length
+                      });
+                      
+                      // 기록 새로고침
+                      await fetchHospitalPets();
+                      
+                      // 편집 모드 종료
+                      setEditingRecord(null);
+                    }}
+                    onCancel={handleCancelEdit}
+                    doctors={doctors}
+                    petDid={selectedPetDid}
+                    blockchainRecords={blockchainRecords}
+                  />
+                );
+              }
+              
+              // 상세 정보 표시
               return (
-                <RecordEditForm 
-                  record={editingRecord}
-                  onSave={async (updatedRecord, changes) => {
-                    // 여기서 원본 레코드와 수정된 레코드를 비교하여 변경 사항을 감지하고 전달
-                    await handleSaveEdit(updatedRecord, changes);
-                  }}
-                  onCancel={handleCancelEdit}
-                  doctors={doctors}
+                <RecordDetail 
+                  key={`desktop-detail-${selectedRecordId}`} 
+                  record={record}
+                  onEditRecord={handleEditRecord}
+                  blockchainRecords={blockchainRecords}
+                  selectedPetDid={selectedPetDid}
                 />
               );
-            }
+            })()}
+          </div>
+          
+          {/* 알림 메시지를 위한 고정 위치 컨테이너 - 가운데 정렬 및 너비 축소 */}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-10 w-4/5 max-w-xs">
+            {/* 성공 메시지 */}
+            {isEditSuccess && (
+              <div className="p-2 bg-green-50 border border-green-200 rounded-md text-xs text-green-600 shadow-md mb-2 text-center">
+                진료 기록이 성공적으로 수정되었습니다.
+              </div>
+            )}
             
-            // 상세 정보 표시
-            return (
-              <RecordDetail 
-                key={`desktop-detail-${selectedRecordId}`} 
-                record={record}
-                onEditRecord={handleEditRecord}
-                blockchainRecords={blockchainRecords}
-              />
-            );
-          })()}
-          
-          {/* 성공 메시지 */}
-          {isEditSuccess && (
-            <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-md text-xs text-green-600">
-              진료 기록이 성공적으로 수정되었습니다.
-            </div>
-          )}
-          
-          {/* 오류 메시지 */}
-          {editError && (
-            <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-md text-xs text-red-600">
-              {editError}
-            </div>
-          )}
+            {/* 오류 메시지 */}
+            {editError && (
+              <div className="p-2 bg-red-50 border border-red-200 rounded-md text-xs text-red-600 shadow-md mb-2 text-center">
+                {editError}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
