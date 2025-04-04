@@ -1,21 +1,19 @@
-class Wallet {
-  final int id;
-  final String address;
-  final String name;
-  final List<Owner>? owners;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  Wallet({
-    required this.id,
-    required this.address,
-    required this.name,
-    this.owners,
-  });
+part 'wallet.freezed.dart';
+
+@freezed
+abstract class Wallet with _$Wallet {
+  const factory Wallet({
+    required int id,
+    required String address,
+    required String name,
+    List<Owner>? owners,
+  }) = _Wallet;
 }
 
-class Owner {
-  final int id;
-  final String name;
-  final String? image;
-
-  Owner({required this.id, required this.name, this.image});
+@freezed
+abstract class Owner with _$Owner {
+  const factory Owner({required int id, required String name, String? image}) =
+      _Owner;
 }
