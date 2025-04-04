@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.drug.service<br>
@@ -44,7 +46,9 @@ public class DrugAutoCorrectService {
      * @param drugs 조회된 약품들
      */
     private void saveAllSubstring(List<DrugResponse> drugs){
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         for(DrugResponse drug : drugs){
+            executorService.submit(() -> {
             redisService.addToSortedSet(drug.getNameKr() + SUFFIX);
             String kr = drug.getNameKr();
             String en = drug.getNameEn();
@@ -55,7 +59,9 @@ public class DrugAutoCorrectService {
             for(int i = en.length(); i > 0; --i) {
                 redisService.addToSortedSet(en.substring(0, i));
             }
+            });
         }
+        executorService.shutdown();
     }
 
     /**
