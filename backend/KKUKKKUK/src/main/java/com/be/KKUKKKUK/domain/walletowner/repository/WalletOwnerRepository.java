@@ -1,6 +1,7 @@
 package com.be.KKUKKKUK.domain.walletowner.repository;
 
 import com.be.KKUKKKUK.domain.walletowner.entity.WalletOwner;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public interface WalletOwnerRepository extends JpaRepository<WalletOwner, Intege
      * @param walletId 지갑 ID
      * @return 해당 지갑에 연결된 WalletOwner 리스트
      */
+    @EntityGraph(attributePaths = {"owner", "wallet"})
     List<WalletOwner> findByWalletId(Integer walletId);
 
     /**
@@ -39,5 +41,6 @@ public interface WalletOwnerRepository extends JpaRepository<WalletOwner, Intege
      * @param ownerId 보호자 ID
      * @return 해당 보호자에 연결된 WalletOwner 리스트
      */
+    @EntityGraph(attributePaths = {"owner", "wallet"})  // 연관된 엔티티를 한 번의 쿼리로 조회
     List<WalletOwner> findByOwnerId(Integer ownerId);
 }

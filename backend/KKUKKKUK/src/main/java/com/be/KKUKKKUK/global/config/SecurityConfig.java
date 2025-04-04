@@ -46,10 +46,11 @@ import java.util.Arrays;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final TokenService tokenService;
     private final JwtUtility jwtUtility;
-    private final HospitalDetailService hospitalDetailService;
+
+    private final TokenService tokenService;
     private final OwnerDetailService ownerDetailService;
+    private final HospitalDetailService hospitalDetailService;
 
     /**
      * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
@@ -60,7 +61,8 @@ public class SecurityConfig {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
             "/api/auths/**",
             "/api/hospitals/authorization-number/**", "/api/hospitals/account/**", "/api/hospitals/name/**",
-            "/api/breeds/**"
+            "/api/breeds/**",
+            "/ws/*"
     };
 
     /**

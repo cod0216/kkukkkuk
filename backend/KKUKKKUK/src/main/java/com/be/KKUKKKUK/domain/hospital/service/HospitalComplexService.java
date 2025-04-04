@@ -222,7 +222,7 @@ public class HospitalComplexService {
      * @param hospital 초기화할 동물병원 entity
      */
     private void resetHospital(Hospital hospital){
-        hospital.setFlagCertified(false);
+        hospital.setFlagCertified(Boolean.FALSE);
 
         hospital.setAccount(null);
         hospital.setPassword(null);
