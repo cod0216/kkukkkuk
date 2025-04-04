@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/domain/entities/user.dart';
 import 'package:kkuk_kkuk/domain/entities/wallet.dart';
-import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
+import 'package:kkuk_kkuk/domain/usecases/user/get_user_profile_usecase.dart';
 import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/profile_card.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/wallet_card.dart';
@@ -13,73 +14,86 @@ class MyPageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 상태 관리
-    final authState = ref.watch(authViewModelProvider);
-    final user = authState.user;
-
     // 컨트롤러 초기화
     final controller = ref.watch(myPageControllerProvider(ref));
 
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        // Replace Column with SingleChildScrollView + Column
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 헤더 섹션
-              const Text(
-                '마이페이지',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 24),
+          child: FutureBuilder<User>(
+            future: ref.read(getUserProfileUseCaseProvider).execute(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-              // 사용자 정보가 없는 경우
-              if (user == null)
-                const Center(child: Text('로그인이 필요합니다.'))
-              else
-                // 사용자 프로필 섹션
-                ProfileCard(user: user),
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-              const SizedBox(height: 24),
+              final user = snapshot.data;
 
-              // 지갑 정보 섹션
-              if (user != null &&
-                  user.wallets != null &&
-                  user.wallets!.isNotEmpty)
-                FutureBuilder<Map<String, dynamic>>(
-                  future: _getWalletData(ref, user.wallets!),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 헤더 섹션
+                  const Text(
+                    '마이페이지',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 24),
 
-                    final data =
-                        snapshot.data ??
-                        {'wallets': user.wallets!, 'activeAddress': null};
-                    final wallets = data['wallets'] as List<Wallet>;
-                    final activeWalletAddress =
-                        data['activeAddress'] as String?;
+                  // 사용자 정보가 없는 경우
+                  if (user == null)
+                    const Center(child: Text('로그인이 필요합니다.'))
+                  else
+                    // 사용자 프로필 섹션
+                    ProfileCard(user: user),
 
-                    return WalletCard(
-                      wallets: wallets,
-                      activeWalletAddress: activeWalletAddress,
-                    );
-                  },
-                ),
+                  const SizedBox(height: 24),
 
-              const SizedBox(height: 24), // Replace Spacer with SizedBox
-              // 설정 섹션
-              SettingsCard(
-                user: user,
-                onWalletChange: () => controller.handleWalletChange(context),
-                onLogout: () => controller.handleLogout(context),
-              ),
+                  // 지갑 정보 섹션
+                  if (user != null &&
+                      user.wallets != null &&
+                      user.wallets!.isNotEmpty)
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: _getWalletData(ref, user.wallets!),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-              // Add some bottom padding for better scrolling experience
-              const SizedBox(height: 16),
-            ],
+                        final data =
+                            snapshot.data ??
+                            {'wallets': user.wallets!, 'activeAddress': null};
+                        final wallets = data['wallets'] as List<Wallet>;
+                        final activeWalletAddress =
+                            data['activeAddress'] as String?;
+
+                        return WalletCard(
+                          wallets: wallets,
+                          activeWalletAddress: activeWalletAddress,
+                        );
+                      },
+                    ),
+
+                  const SizedBox(height: 24),
+                  // 설정 섹션
+                  SettingsCard(
+                    user: user,
+                    onWalletChange:
+                        () => controller.handleWalletChange(context),
+                    onLogout: () => controller.handleLogout(context),
+                  ),
+
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
           ),
         ),
       ),
