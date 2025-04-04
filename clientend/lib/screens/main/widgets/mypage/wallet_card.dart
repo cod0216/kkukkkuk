@@ -5,11 +5,15 @@ import 'package:kkuk_kkuk/domain/entities/wallet.dart';
 class WalletCard extends StatefulWidget {
   final List<Wallet> wallets;
   final String? activeWalletAddress;
+  final Function(int, String)? onWalletNameUpdate; // Add this
+  final Function(int)? onWalletDelete; // Add this
 
   const WalletCard({
     super.key,
     required this.wallets,
     this.activeWalletAddress,
+    this.onWalletNameUpdate, // Add this
+    this.onWalletDelete, // Add this
   });
 
   @override
@@ -84,18 +88,41 @@ class _WalletCardState extends State<WalletCard> {
   /// 지갑 정보 위젯 생성
   Widget _buildWalletInfo(Wallet wallet) {
     final isExpanded = _expandedWalletIds.contains(wallet.id);
+    final isActive = _isWalletActive(wallet);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text(
-              wallet.name,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    wallet.name,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  if (isExpanded && widget.onWalletNameUpdate != null) ...[
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 20),
+                      onPressed: () => _showEditDialog(wallet),
+                      padding: const EdgeInsets.all(4),
+                      constraints: const BoxConstraints(),
+                      splashRadius: 20,
+                    ),
+                    if (!isActive && widget.onWalletDelete != null)
+                      IconButton(
+                        icon: const Icon(Icons.delete, size: 20),
+                        onPressed: () => _showDeleteDialog(wallet),
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
+                        splashRadius: 20,
+                      ),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(width: 8),
-            // 소유자 프로필 표시 (펼쳐져 있지 않을 때만)
             if (!isExpanded &&
                 wallet.owners != null &&
                 wallet.owners!.isNotEmpty)
@@ -108,6 +135,64 @@ class _WalletCardState extends State<WalletCard> {
           style: TextStyle(color: Colors.grey[600], fontSize: 12),
         ),
       ],
+    );
+  }
+
+  /// 지갑 이름 수정 다이얼로그 표시
+  void _showEditDialog(Wallet wallet) {
+    final TextEditingController controller = TextEditingController(text: wallet.name);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('지갑 이름 수정'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: '새 지갑 이름',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                widget.onWalletNameUpdate?.call(wallet.id, controller.text);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('수정'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 지갑 삭제 확인 다이얼로그 표시
+  void _showDeleteDialog(Wallet wallet) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('지갑 삭제'),
+        content: const Text('정말로 이 지갑을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              widget.onWalletDelete?.call(wallet.id);
+              Navigator.pop(context);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
     );
   }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/user.dart';
 import 'package:kkuk_kkuk/domain/entities/wallet.dart';
-import 'package:kkuk_kkuk/domain/usecases/user/get_user_profile_usecase.dart';
 import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/profile_card.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/wallet_card.dart';
@@ -14,15 +13,16 @@ class MyPageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 컨트롤러 초기화
     final controller = ref.watch(myPageControllerProvider(ref));
+    // Add this line to watch for refresh triggers
+    ref.watch(controller.refreshNotifierProvider);
 
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: FutureBuilder<User>(
-            future: ref.read(getUserProfileUseCaseProvider).execute(),
+          child: FutureBuilder<User?>(
+            future: controller.refreshUserInfo(), // Changed this line
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -77,6 +77,31 @@ class MyPageView extends ConsumerWidget {
                         return WalletCard(
                           wallets: wallets,
                           activeWalletAddress: activeWalletAddress,
+                          onWalletNameUpdate: (walletId, newName) async {
+                            try {
+                              await controller.updateWalletName(
+                                walletId,
+                                newName,
+                              );
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('지갑 이름 수정 실패: $e')),
+                                );
+                              }
+                            }
+                          },
+                          onWalletDelete: (walletId) async {
+                            try {
+                              await controller.deleteWallet(walletId);
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('지갑 삭제 실패: $e')),
+                                );
+                              }
+                            }
+                          },
                         );
                       },
                     ),

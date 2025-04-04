@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_detail_response.dart';
+import 'package:kkuk_kkuk/domain/entities/user.dart';
 import 'package:kkuk_kkuk/domain/entities/wallet.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
+import 'package:kkuk_kkuk/domain/usecases/user/get_user_profile_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/wallet/wallet_usecase_providers.dart';
 import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
@@ -11,8 +13,26 @@ import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 /// 마이페이지 컨트롤러 - 마이페이지의 비즈니스 로직을 처리하는 클래스
 class MyPageController {
   final WidgetRef ref;
+  final refreshNotifierProvider = StateProvider<int>((ref) => 0);
 
   MyPageController(this.ref);
+
+  /// 화면 새로고침 트리거
+  /// TODO: User 데이터 갱신 방법 개선 필요
+  void triggerRefresh() {
+    ref.read(refreshNotifierProvider.notifier).state++;
+  }
+
+  /// 사용자 정보 새로고침
+  Future<User?> refreshUserInfo() async {
+    try {
+      final getUserProfileUseCase = ref.read(getUserProfileUseCaseProvider);
+      return await getUserProfileUseCase.execute();
+    } catch (e) {
+      print('사용자 정보 조회 실패: $e');
+      rethrow;
+    }
+  }
 
   /// 로그아웃 처리 함수
   Future<void> handleLogout(BuildContext context) async {
@@ -99,6 +119,30 @@ class MyPageController {
     }
 
     return updatedWallets;
+  }
+
+  /// 지갑 이름 수정 함수
+  Future<void> updateWalletName(int walletId, String newName) async {
+    try {
+      final updateWalletUseCase = ref.read(updateWalletUseCaseProvider);
+      await updateWalletUseCase.execute(walletId: walletId, name: newName);
+      triggerRefresh(); // Add this line
+    } catch (e) {
+      print('지갑 이름 수정 실패: $e');
+      rethrow;
+    }
+  }
+
+  /// 지갑 삭제 함수
+  Future<void> deleteWallet(int walletId) async {
+    try {
+      final deleteWalletUseCase = ref.read(deleteWalletUseCaseProvider);
+      await deleteWalletUseCase.execute(walletId);
+      triggerRefresh(); // Add this line
+    } catch (e) {
+      print('지갑 삭제 실패: $e');
+      rethrow;
+    }
   }
 }
 
