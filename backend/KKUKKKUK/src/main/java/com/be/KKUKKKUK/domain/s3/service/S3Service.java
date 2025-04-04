@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.s3.service<br>
@@ -40,9 +41,11 @@ public class S3Service {
      * @return 저장된 이미지 url
      */
     public String uploadImage(Integer relativeId, RelatedType relatedType, MultipartFile imageFile) {
-        s3Repository.findByRelatedIdAndRelatedType(relativeId, relatedType).ifPresent(s3 -> {
-            s3Uploader.deleteImage(s3.getUrl());
-        });
+        Optional<S3> s3 = s3Repository.findByRelatedIdAndRelatedType(relativeId, relatedType);
+        if(s3.isPresent()) {
+            s3Uploader.deleteImage(s3.get().getUrl());
+            s3Repository.delete(s3.get());
+        }
 
         String image = s3Uploader.uploadPermanent(imageFile, relatedType.name());
 
