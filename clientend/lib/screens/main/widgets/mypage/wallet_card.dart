@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/domain/entities/wallet.dart';
 
+/// 최대 표시할 소유자 수
+const int _maxDisplayedOwners = 3;
+
 /// 지갑 정보 카드 위젯
 class WalletCard extends StatelessWidget {
   final List<Wallet> wallets;
   final String? activeWalletAddress;
 
   const WalletCard({
-    super.key, 
+    super.key,
     required this.wallets,
     this.activeWalletAddress,
   });
@@ -42,9 +45,20 @@ class WalletCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            wallet.name,
-                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          Row(
+                            children: [
+                              Text(
+                                wallet.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // 소유자 프로필 표시
+                              if (wallet.owners != null &&
+                                  wallet.owners!.isNotEmpty)
+                                ..._buildOwnerAvatars(wallet.owners!),
+                            ],
                           ),
                           Text(
                             '${wallet.address.substring(0, 10)}...${wallet.address.substring(wallet.address.length - 8)}',
@@ -85,5 +99,53 @@ class WalletCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 소유자 아바타 목록 생성
+  List<Widget> _buildOwnerAvatars(List<Owner> owners) {
+    // 최대 표시할 소유자 수 제한
+    final displayedOwners =
+        owners.length > _maxDisplayedOwners
+            ? owners.sublist(0, _maxDisplayedOwners)
+            : owners;
+
+    final avatars =
+        displayedOwners.map((owner) {
+          return Tooltip(
+            message: owner.name,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.grey[200],
+                backgroundImage:
+                    owner.image != null ? NetworkImage(owner.image!) : null,
+                child:
+                    owner.image == null
+                        ? const Icon(Icons.person, size: 12, color: Colors.grey)
+                        : null,
+              ),
+            ),
+          );
+        }).toList();
+
+    // 표시되지 않는 소유자가 있는 경우 +N 표시 추가
+    if (owners.length > _maxDisplayedOwners) {
+      avatars.add(
+        Tooltip(
+          message: '${owners.length - _maxDisplayedOwners}명의 소유자 더 보기',
+          child: CircleAvatar(
+            radius: 12,
+            backgroundColor: Colors.grey[300],
+            child: Text(
+              '+${owners.length - _maxDisplayedOwners}',
+              style: const TextStyle(fontSize: 10, color: Colors.black54),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return avatars;
   }
 }

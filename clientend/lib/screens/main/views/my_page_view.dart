@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/domain/entities/wallet.dart';
 import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/profile_card.dart';
@@ -48,12 +49,21 @@ class MyPageView extends ConsumerWidget {
             if (user != null &&
                 user.wallets != null &&
                 user.wallets!.isNotEmpty)
-              FutureBuilder<String?>(
-                future: activeWalletAddressFuture,
+              FutureBuilder<Map<String, dynamic>>(
+                future: _getWalletData(ref, user.wallets!),
                 builder: (context, snapshot) {
-                  final activeWalletAddress = snapshot.data;
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final data =
+                      snapshot.data ??
+                      {'wallets': user.wallets!, 'activeAddress': null};
+                  final wallets = data['wallets'] as List<Wallet>;
+                  final activeWalletAddress = data['activeAddress'] as String?;
+
                   return WalletCard(
-                    wallets: user.wallets!,
+                    wallets: wallets,
                     activeWalletAddress: activeWalletAddress,
                   );
                 },
@@ -83,5 +93,28 @@ class MyPageView extends ConsumerWidget {
       print('활성화된 지갑 주소 조회 실패: $e');
       return null;
     }
+  }
+
+  /// 지갑 데이터와 활성화된 지갑 주소를 함께 가져오기
+  Future<Map<String, dynamic>> _getWalletData(
+    WidgetRef ref,
+    List<Wallet> wallets,
+  ) async {
+    final controller = ref.read(myPageControllerProvider(ref));
+
+    // 병렬로 데이터 가져오기
+    final activeAddressFuture = _getActiveWalletAddress(ref);
+    final walletsWithOwnersFuture = controller.getWalletsWithOwners(wallets);
+
+    // 두 Future 모두 완료될 때까지 기다림
+    final results = await Future.wait([
+      activeAddressFuture,
+      walletsWithOwnersFuture,
+    ]);
+
+    return {
+      'activeAddress': results[0] as String?,
+      'wallets': results[1] as List<Wallet>,
+    };
   }
 }
