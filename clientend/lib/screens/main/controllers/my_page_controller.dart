@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
+import 'package:kkuk_kkuk/viewmodels/wallet_view_model.dart';
 
 /// 마이페이지 컨트롤러 - 마이페이지의 비즈니스 로직을 처리하는 클래스
 class MyPageController {
@@ -36,15 +37,23 @@ class MyPageController {
     }
   }
 
+  static const String _privateKeyKey = 'eth_private_key';
+
   /// 지갑 정보 삭제 함수
   Future<void> handleWalletDelete(BuildContext context) async {
     final secureStorage = ref.read(secureStorageProvider);
-    await secureStorage.clearAll();
+    await secureStorage.removeValue(_privateKeyKey);
+
+    // Reset wallet view model before navigation
+    ref.read(walletViewModelProvider.notifier).reset();
 
     if (context.mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('지갑 정보가 삭제되었습니다.')));
+
+      // TODO: navigate 수정 필요 push -> go, 로그인->지갑생성 로직 같이 수정
+      context.push('/wallet-creation', extra: walletViewModelProvider);
     }
   }
 }

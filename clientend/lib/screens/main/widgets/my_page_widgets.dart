@@ -139,7 +139,7 @@ class MyPageWidgets {
             // 지갑 삭제 버튼
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('지갑 정보 삭제'),
+              title: const Text('지갑 변경'),
               onTap: onWalletDelete,
             ),
             // 로그아웃 버튼
