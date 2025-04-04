@@ -1,13 +1,10 @@
 package com.be.KKUKKKUK.domain.drug.service;
-//TODO 사용하지 않은 import 문 정리해주세요
 import com.be.KKUKKKUK.domain.drug.dto.response.DrugResponse;
-import com.be.KKUKKKUK.domain.drug.entity.Drug;
 import com.be.KKUKKKUK.global.service.RedisService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -30,8 +27,8 @@ import java.util.Set;
 public class DrugAutoCorrectService {
     private final DrugService drugService;
     private final RedisService redisService;
-    private final String SUFFIX = "*"; //TODO 상수 사용할때 어떤식으로 사용해야하는지
-    private final int MAX_SIZE = 10;
+    private static final String SUFFIX = "*";
+    private static final int MAX_SIZE = 10;
 
     /**
      * 서버 실행 시 약품을 조회해서 redis에 저장합니다.

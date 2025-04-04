@@ -2,7 +2,6 @@ package com.be.KKUKKKUK.domain.drug.repository;
 
 
 import com.be.KKUKKKUK.domain.drug.entity.Drug;
-import com.be.KKUKKKUK.domain.pet.entity.Pet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

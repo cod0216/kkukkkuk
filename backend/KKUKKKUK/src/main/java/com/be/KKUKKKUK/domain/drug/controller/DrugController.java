@@ -2,10 +2,8 @@ package com.be.KKUKKKUK.domain.drug.controller;
 
 
 import com.be.KKUKKKUK.domain.drug.dto.response.DrugResponse;
-import com.be.KKUKKKUK.domain.drug.entity.Drug;
 import com.be.KKUKKKUK.domain.drug.service.DrugAutoCorrectService;
 import com.be.KKUKKKUK.domain.drug.service.DrugService;
-import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

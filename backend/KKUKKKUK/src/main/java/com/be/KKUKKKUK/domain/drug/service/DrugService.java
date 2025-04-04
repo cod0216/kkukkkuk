@@ -6,10 +6,7 @@ import com.be.KKUKKKUK.domain.drug.dto.mapper.DrugMapper;
 import com.be.KKUKKKUK.domain.drug.repository.DrugRepository;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
-import com.be.KKUKKKUK.global.service.RedisService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
