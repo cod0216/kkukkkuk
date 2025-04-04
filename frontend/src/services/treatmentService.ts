@@ -19,8 +19,16 @@
  */
 
 import { TreatmentResponse } from '@/interfaces/treatment';
-import { BlockChainRecord, BlockChainRecordResponse } from '@/interfaces/blockChain';
+import { BlockChainRecord, BlockChainRecordResponse, ExaminationTreatment, MedicationTreatment, VaccinationTreatment } from '@/interfaces/blockChain';
+import { PetBasicInfo } from '@/interfaces/pet';
 import { didRegistryABI } from '@/utils/constants';
+import { 
+  isRecordDeletedFromString, 
+  hasTroublesomePattern, 
+  extractValueFromJsonString, 
+  sanitizeJsonString, 
+  safeJsonParse, 
+} from '@/utils/jsonParser';
 
 // DID 레지스트리 컨트랙트 ABI 정의
 export const DID_REGISTRY_ABI = didRegistryABI;
@@ -48,88 +56,6 @@ export const parseTreatmentResponse = (data: any[]): TreatmentResponse => {
       breedName: item.breed_name || ''
     }))
   };
-};
-
-/**
- * JSON 문자열에서 잘못된 제어 문자를 제거하는 함수
- * @param jsonString JSON 문자열
- * @returns 정제된 JSON 문자열
- */
-const sanitizeJsonString = (jsonString: string): string => {
-  if (!jsonString) return jsonString;
-  
-  // JSON에서 허용되지 않는 제어 문자 제거 (U+0000에서 U+001F까지)
-  let sanitized = jsonString.replace(/[\u0000-\u001F]/g, '');
-  
-  // 추가 JSON 구문 오류 처리: 문자열 내의 이스케이프되지 않은 인용 부호 처리
-  sanitized = sanitized.replace(/([^\\])(")([^,}\]:"'])/g, '$1\\"$3');
-  
-  // 속성 값 뒤에 올바른 구분자가 오도록 수정
-  sanitized = sanitized.replace(/([^,}\]:"'\s])(\s*})(\s*$)/g, '$1$2');
-  sanitized = sanitized.replace(/([^,}\]:"'\s])(\s*])(\s*$)/g, '$1$2');
-  
-  // 중복 쉼표 제거
-  sanitized = sanitized.replace(/,\s*,/g, ',');
-  
-  // 마지막 아이템 뒤의 쉼표 제거 (JSON에서는 허용되지 않음)
-  sanitized = sanitized.replace(/,\s*}/g, '}');
-  sanitized = sanitized.replace(/,\s*]/g, ']');
-  
-  // 키와 값 사이에 콜론이 있는지 확인
-  sanitized = sanitized.replace(/"([^"]+)"\s*([^:\s])/g, '"$1": $2');
-  
-  return sanitized;
-};
-
-/**
- * JSON 문자열을 안전하게 파싱하는 함수
- * @param jsonString JSON 문자열
- * @returns 파싱된 객체 또는 기본값
- */
-const safeJsonParse = (jsonString: string, defaultValue: any = {}): any => {
-  try {
-    // 문자열 내용으로 새로운 JSON 문자열 재생성
-    // 이렇게 하면 원본 문자열에 있을 수 있는 특수 문자나 BOM이 제거됨
-    if (jsonString && jsonString.startsWith('{')) {
-      return JSON.parse(jsonString);
-    }
-    
-    // 정상적인 JSON이 아니면 기본값 반환
-    return defaultValue;
-  } catch (error) {
-    console.error('JSON 파싱 오류:', error, '원본 문자열:', jsonString);
-    // 파싱에 실패하면 기본값 반환
-    return defaultValue;
-  }
-};
-
-/**
- * 객체의 모든 문자열 속성에서 제어 문자를 제거
- * @param obj 정제할 객체
- * @returns 정제된 객체
- */
-const sanitizeObject = (obj: any): any => {
-  if (!obj) return obj;
-  
-  if (typeof obj === 'string') {
-    return sanitizeJsonString(obj);
-  }
-  
-  if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeObject(item));
-  }
-  
-  if (typeof obj === 'object') {
-    const result: any = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        result[key] = sanitizeObject(obj[key]);
-      }
-    }
-    return result;
-  }
-  
-  return obj;
 };
 
 /**
@@ -181,45 +107,89 @@ export const getBlockchainTreatments = async (petDID: string, didRegistryAddress
     const accessGranted = await contract.hasAccess(petDID, currentUserAddress);
     
     if (!accessGranted) {
-      console.error('이 반려동물 정보에 접근할 권한이 없습니다.');
+      console.error('접근 권한이 없습니다.');
       return { 
         success: false, 
-        error: '이 반려동물 정보에 접근할 권한이 없습니다.',
+        error: '이 반려동물에 대한 접근 권한이 없습니다.',
         treatments: [] 
       };
     }
     
-    // 모든 속성 조회
-    const [names, values, expireDates] = await contract.getAllAttributes(petDID);
-    console.log('블록체인 데이터 조회 성공:', { namesCount: names.length });
+    // 진료 기록 조회를 위한 모든 속성 가져오기
+    console.log('진료 기록 조회 중...');
+    const [names, values, _expireDates] = await contract.getAllAttributes(petDID);
     
-    // 의료기록만 필터링
+    // 진료 기록 목록
     const treatments: BlockChainRecord[] = [];
     
+    // 진료 기록 간의 관계를 추적하기 위한 맵
+    const recordMap: { [key: string]: BlockChainRecord } = {};
+    const recordHistory: { [key: string]: string[] } = {};  // key: 원본 기록, value: 수정 기록 목록
+    
+    console.log(`총 ${names.length}개의 속성을 검색합니다.`);
+    
+    // 1단계: 모든 진료 기록을 파싱하고 맵에 저장
     for (let i = 0; i < names.length; i++) {
       const name = names[i];
       const value = values[i];
-      const expireDate = expireDates[i];
       
+      // 의료 기록 필터링 (medical_로 시작하는 것만)
       if (name.startsWith('medical_record_') || name.startsWith('medical_')) {
         try {
-          // 안전한 JSON 파싱 사용
-          const recordData = safeJsonParse(value, {
-            diagnosis: '진단 정보 없음',
-            doctorName: '의사 정보 없음',
-            hospitalName: '병원 정보 없음',
-            hospitalAddress: '병원 주소 없음',
+          // 파싱 전에 삭제된 기록인지 확인 (문자열 패턴 기반)
+          if (isRecordDeletedFromString(value)) {
+            console.log('파싱 전 확인: 삭제된 기록 건너뜀:', name);
+            continue;
+          }
+          
+          // 처리하기 어려운 패턴인지 확인
+          if (hasTroublesomePattern(value)) {
+            console.log('처리하기 어려운 패턴 발견, 단순화된 처리 적용:', name);
+            
+            // 간단한 정보만 추출
+            const diagnosis = extractValueFromJsonString(value, 'diagnosis', '기록 없음');
+            const hospitalName = extractValueFromJsonString(value, 'hospitalName', '병원 정보 없음');
+            const doctorName = extractValueFromJsonString(value, 'doctorName', '');
+            const createdAt = extractValueFromJsonString(value, 'createdAt', '0');
+            
+            // 간단한 기록 생성
+            const simplifiedRecord: BlockChainRecord = {
+              id: name,
+              diagnosis: diagnosis,
+              hospitalName: hospitalName,
+              doctorName: doctorName,
+              notes: '이 기록은 복잡한 형식으로 인해 단순화되었습니다.',
+              createdAt: String(parseInt(createdAt) || 0),
+              timestamp: parseInt(createdAt) || 0,
             isDeleted: false,
+              pictures: [],
+              previousRecord: '',
+              hospitalAddress: '',
             treatments: {
               examinations: [],
               medications: [],
               vaccinations: []
-            },
-            notes: '',
-            pictures: [],
-            status: 'IN_PROGRESS',
-            flagCertificated: true
-          });
+              }
+            };
+            
+            recordMap[name] = simplifiedRecord;
+            continue;
+          }
+          
+          // 문자열 정제 및 안전한 JSON 파싱 사용
+          const sanitizedValue = sanitizeJsonString(value);
+          const recordData = safeJsonParse(sanitizedValue, {});
+          
+          if (!recordData || typeof recordData !== 'object') {
+            console.warn('JSON 파싱 후 유효한 객체가 아님, 건너뜀:', name);
+            continue;
+          }
+          
+          // 삭제된 기록 확인
+          if (recordData.isDeleted) {
+            console.log('삭제된 진료 기록 건너뜀:', name);
+            continue;
+          }
           
           // timestamp 변환
           let timestamp = 0;
@@ -239,243 +209,135 @@ export const getBlockchainTreatments = async (petDID: string, didRegistryAddress
             }
           }
           
-          const treatment: BlockChainRecord = {
-            id: name,
-            timestamp: timestamp,
-            diagnosis: recordData.diagnosis || '진단 정보 없음',
-            doctorName: recordData.doctorName || '의사 정보 없음',
-            hospitalName: recordData.hospitalName || '병원 정보 없음',
-            hospitalAddress: recordData.hospitalAddress || '병원 주소 없음',
-            isDeleted: recordData.isDeleted || false,
-            expireDate: Number(expireDate),
-            createdAt: formatDate(timestamp),
-            treatments: recordData.treatments || {
-              examinations: [],
-              medications: [],
-              vaccinations: []
-            },
-            notes: recordData.notes || '',
-            pictures: recordData.pictures || [],
-            status: recordData.status || 'IN_PROGRESS',
-            flagCertificated: recordData.flagCertificated !== undefined ? recordData.flagCertificated : true
+          // 사진 데이터 처리
+          let pictures: string[] = [];
+          if (recordData.pictures && Array.isArray(recordData.pictures)) {
+            pictures = recordData.pictures.map((pic: any) => 
+              typeof pic === 'string' ? pic : (pic.url || '')
+            );
+          }
+          
+          // 처치 데이터 처리
+          let treatments = {
+            examinations: [],
+            medications: [],
+            vaccinations: []
           };
           
-          treatments.push(treatment);
+          if (recordData.treatments) {
+            // examinations 처리
+            if (recordData.treatments.examinations && Array.isArray(recordData.treatments.examinations)) {
+              treatments.examinations = recordData.treatments.examinations.map((exam: any) => 
+                typeof exam === 'string' ? { name: exam } : exam
+              );
+            }
+            
+            // medications 처리
+            if (recordData.treatments.medications && Array.isArray(recordData.treatments.medications)) {
+              treatments.medications = recordData.treatments.medications.map((med: any) => 
+                typeof med === 'string' ? { name: med } : med
+              );
+            }
+            
+            // vaccinations 처리
+            if (recordData.treatments.vaccinations && Array.isArray(recordData.treatments.vaccinations)) {
+              treatments.vaccinations = recordData.treatments.vaccinations.map((vac: any) => 
+                typeof vac === 'string' ? { name: vac } : vac
+              );
+            }
+          }
+          
+          // 진료 기록 객체 생성
+          const treatment: BlockChainRecord = {
+            id: name,
+            diagnosis: recordData.diagnosis || '정보 없음',
+            hospitalName: recordData.hospitalName || '병원 정보 없음',
+            doctorName: recordData.doctorName || '',
+            notes: recordData.notes || '',
+            createdAt: String(timestamp),
+            timestamp: timestamp,
+            isDeleted: false,
+            hospitalAddress: recordData.hospitalAddress || '',
+            pictures: pictures,
+            previousRecord: recordData.previousRecord || '',
+            treatments: treatments
+          };
+          
+          // 기록 맵에 추가
+          recordMap[name] = treatment;
+          
+          // 이전 기록 참조가 있으면 기록 히스토리에 추가
+          if (recordData.previousRecord) {
+            if (!recordHistory[recordData.previousRecord]) {
+              recordHistory[recordData.previousRecord] = [];
+            }
+            recordHistory[recordData.previousRecord].push(name);
+          }
         } catch (error) {
           console.error('의료 기록 파싱 오류:', error);
         }
       }
     }
     
-    return { success: true, treatments };
-  } catch (error: any) {
-    console.error('진료기록 조회 중 오류가 발생했습니다:', error.message || error);
-    return { 
-      success: false, 
-      error: `진료기록 조회 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`,
-      treatments: [] 
-    };
-  }
-};
-
-/**
- * 병원(현재 계정)이 접근 가능한 반려동물 목록을 가져오고 각 반려동물의 진료기록을 조회합니다.
- * @param didRegistryAddress DID 레지스트리 컨트랙트 주소
- * @returns 병원이 접근 가능한 반려동물 목록과 진료 기록 데이터
- */
-export const getHospitalPetsWithRecords = async (didRegistryAddress: string): Promise<{
-  success: boolean;
-  error?: string;
-  pets: {
-    petDID: string;
-    name: string;
-    birth?: string;
-    gender?: string;
-    breed?: string;
-    records: BlockChainRecord[];
-  }[];
-}> => {
-  // 필수 파라미터 확인
-  if (!didRegistryAddress) {
-    console.error('필수 파라미터가 누락되었습니다:', { didRegistryAddress });
-    return { 
-      success: false, 
-      error: 'DID 레지스트리 주소가 누락되었습니다.',
-      pets: [] 
-    };
-  }
-
-  try {
-    // 블록체인 인증 서비스를 통해 계정 연결 및 Provider, Signer, 계약 가져오기
-    const { getSigner, getProvider, getRegistryContract, getContractAddresses } = await import('@/services/blockchainAuthService');
-    const provider = await getProvider();
-    const signer = await getSigner();
-    const registryContract = await getRegistryContract();
-    const contractAddresses = getContractAddresses();
+    // 2단계: 수정 기록이 없는 최신 기록만 처리
+    const processedKeys = new Set<string>();
     
-    if (!provider || !signer || !registryContract) {
-      return {
-        success: false,
-        error: 'MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.',
-        pets: []
-      };
-    }
-    
-    console.log('블록체인 연결 시도:', { didRegistryAddress });
-    const currentUserAddress = await signer.getAddress();
-    
-    try {
-      // 레지스트리 컨트랙트 사용하여 병원이 권한을 가진 반려동물 목록 조회
-      console.log('레지스트리 컨트랙트 인스턴스:', registryContract ? '존재함' : '없음');
-      console.log('레지스트리 컨트랙트 주소:', contractAddresses.didRegistry);
-      console.log('계정 주소:', currentUserAddress);
+    // 모든 키를 먼저 처리
+    for (const key in recordMap) {
+      if (processedKeys.has(key)) continue;
       
-      // 레지스트리 컨트랙트에서 병원이 권한을 가진 반려동물 목록 조회
-      console.log('레지스트리 컨트랙트에서 getHospitalPets 호출', { currentUserAddress });
+      const record = recordMap[key];
+      processedKeys.add(key);
       
-      // 함수의 존재 여부를 자세히 확인
-      try {
-        const fnDesc = registryContract.interface.getFunction('getHospitalPets');
-        console.log('레지스트리 함수 설명:', fnDesc);
-      } catch (e) {
-        console.error('레지스트리 함수 정보 조회 실패:', e);
-        return {
-          success: false,
-          error: '컨트랙트 함수를 찾을 수 없습니다.',
-          pets: []
-        };
+      // 이 기록에 대한 수정 기록 있는지 확인
+      if (recordHistory[key] && recordHistory[key].length > 0) {
+        // 수정 기록이 있으면 처리하지 않음 (나중에 최신 버전으로 처리됨)
+        continue;
       }
       
-      // 병원이 권한을 가진 반려동물 주소 목록 가져오기
-      const petAddresses = await registryContract.getHospitalPets(currentUserAddress);
-      
-      if (!petAddresses || petAddresses.length === 0) {
-        console.warn('접근 가능한 반려동물이 없습니다.');
+      // 이 기록이 다른 기록의 수정본인지 확인
+      if (record.previousRecord) {
+        // 가장 최신 수정본 찾기
+        let currentKey = key;
+        let latestModification = record;
+        
+        // 이 기록의 최신 수정본 찾기
+        while (recordHistory[currentKey] && recordHistory[currentKey].length > 0) {
+          const nextKey = recordHistory[currentKey][0]; // 첫 번째 수정본 사용
+          if (processedKeys.has(nextKey)) break;
+          
+          processedKeys.add(nextKey);
+          latestModification = recordMap[nextKey];
+          currentKey = nextKey;
+        }
+        
+        // 최신 수정본 사용
+        treatments.push(latestModification);
+      } else {
+        // 수정 기록이 없는 기록 추가
+        treatments.push(record);
+      }
+    }
+    
+    // 정렬 (날짜 기준 내림차순)
+    treatments.sort((a, b) => {
+      const timeA = typeof a.timestamp === 'number' ? a.timestamp : parseInt(a.createdAt);
+      const timeB = typeof b.timestamp === 'number' ? b.timestamp : parseInt(b.createdAt);
+      return timeB - timeA;
+    });
+    
+    console.log(`총 ${treatments.length}개의 진료 기록을 찾았습니다.`);
+    
         return { 
           success: true, 
-          pets: [] 
-        };
-      }
-      
-      console.log('조회된 반려동물 주소:', petAddresses);
-      
-      // 각 반려동물의 진료 기록 조회
-      const petsWithRecords = await Promise.all(
-        petAddresses.map(async (petDID: string) => {
-          try {
-            // 각 반려동물의 속성 정보 조회
-            const [names, values, expireDates] = await registryContract.getAllAttributes(petDID);
-            
-            // 반려동물 기본 정보 추출
-            const petAttributes: {[key: string]: string} = {};
-            for (let i = 0; i < names.length; i++) {
-              if (["name", "gender", "speciesName", "breedName", "birth", "flagNeutering", "profileUrl"].includes(names[i])) {
-                petAttributes[names[i]] = values[i];
-              }
-            }
-            
-            // 각 반려동물의 진료 기록 필터링
-            const records: BlockChainRecord[] = [];
-            for (let i = 0; i < names.length; i++) {
-              const name = names[i];
-              const value = values[i];
-              const expireDate = expireDates[i];
-              
-              if (name.startsWith('medical_record_') || name.startsWith('medical_')) {
-                try {
-                  // 안전한 JSON 파싱 사용
-                  const recordData = safeJsonParse(value, {
-                    timestamp: 0,
-                    createdAt: '',
-                    isDeleted: false,
-                    notes: '',
-                    status: 'IN_PROGRESS',
-                    flagCertificated: true
-                  });
-                  
-                  // timestamp 변환
-                  let timestamp = 0;
-                  if (recordData.createdAt) {
-                    timestamp = Number(recordData.createdAt);
-                  } else if (recordData.timestamp) {
-                    timestamp = Number(recordData.timestamp);
-                  } else if (name.startsWith('medical_record_')) {
-                    // medical_record_TIMESTAMP_ADDRESS 형식에서 타임스탬프 추출
-                    const parts = name.split('_');
-                    if (parts.length >= 3) {
-                      try {
-                        timestamp = Number(parts[2]);
-                      } catch (e) {
-                        timestamp = 0;
-                      }
-                    }
-                  }
-                  
-                  const record: BlockChainRecord = {
-                    id: name,
-                    timestamp: timestamp,
-                    diagnosis: recordData.diagnosis || '진단 정보 없음',
-                    doctorName: recordData.doctorName || '의사 정보 없음',
-                    hospitalName: recordData.hospitalName || '병원 정보 없음',
-                    hospitalAddress: recordData.hospitalAddress || '병원 주소 없음',
-                    isDeleted: recordData.isDeleted || false,
-                    expireDate: Number(expireDate),
-                    createdAt: formatDate(timestamp),
-                    treatments: recordData.treatments || {
-                      examinations: [],
-                      medications: [],
-                      vaccinations: []
-                    },
-                    notes: recordData.notes || '',
-                    pictures: recordData.pictures || [],
-                    status: recordData.status || 'IN_PROGRESS',
-                    flagCertificated: recordData.flagCertificated !== undefined ? recordData.flagCertificated : true
-                  };
-                  
-                  records.push(record);
+      treatments: treatments
+    };
                 } catch (error) {
-                  console.error('의료 기록 파싱 오류:', error);
-                }
-              }
-            }
-            
-            return {
-              petDID,
-              name: petAttributes.name || '이름 없음',
-              birth: petAttributes.birth,
-              gender: petAttributes.gender,
-              breed: petAttributes.breedName,
-              records
-            };
-          } catch (error) {
-            console.error(`${petDID} 정보 조회 중 오류:`, error);
-            return {
-              petDID,
-              name: '정보 조회 실패',
-              records: []
-            };
-          }
-        })
-      );
-      
-      return { 
-        success: true, 
-        pets: petsWithRecords.filter(pet => pet !== null)
-      };
-    } catch (contractError: any) {
-      console.error('컨트랙트 호출 오류:', contractError);
+    console.error('블록체인 진료 기록 조회 오류:', error);
       return {
         success: false,
-        error: `컨트랙트 호출 오류: ${contractError.message || '알 수 없는 오류'}`,
-        pets: []
-      };
-    }
-  } catch (error: any) {
-    console.error('반려동물 목록 조회 중 오류가 발생했습니다:', error.message || error);
-    return { 
-      success: false, 
-      error: `반려동물 목록 조회 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`,
-      pets: [] 
+      error: `블록체인 데이터 조회 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
+      treatments: []
     };
   }
 };
@@ -485,9 +347,11 @@ export const getHospitalPetsWithRecords = async (didRegistryAddress: string): Pr
  * @param timestamp 타임스탬프
  * @returns 포맷된 날짜 문자열
  */
-const formatDate = (timestamp: number): string => {
+const formatDate = (timestamp: number | string): string => {
   try {
-    const date = new Date(timestamp);
+    // 문자열인 경우 숫자로 변환
+    const numTimestamp = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
+    const date = new Date(numTimestamp);
     return date.toLocaleString('ko-KR', {
       year: 'numeric',
       month: '2-digit',
@@ -501,298 +365,84 @@ const formatDate = (timestamp: number): string => {
 };
 
 /**
- * 블록체인에 저장하기 위한 데이터를 최적화합니다.
- * 빈 배열/객체를 제거하고 데이터 크기를 최소화합니다.
- * @param data 최적화할 데이터
- * @returns 최적화된 데이터
+ * 의료기록 항목을 포맷팅하는 함수
+ * @param record 의료기록
+ * @returns 포맷팅된 결과
  */
-const optimizeBlockchainData = (data: any): any => {
-  if (!data) return data;
-
-  // 배열인 경우 빈 배열이 아닌지 확인하고 각 요소 재귀적 최적화
-  if (Array.isArray(data)) {
-    if (data.length === 0) return undefined; // 빈 배열 제거
-    return data.map(item => optimizeBlockchainData(item)).filter(item => item !== undefined);
-  }
-
-  // 객체인 경우 빈 객체가 아닌지 확인하고 각 속성 재귀적 최적화
-  if (typeof data === 'object') {
-    const result: any = {};
-    let hasProperties = false;
-
-    for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        const optimizedValue = optimizeBlockchainData(data[key]);
-        if (optimizedValue !== undefined) {
-          result[key] = optimizedValue;
-          hasProperties = true;
-        }
-      }
-    }
-
-    return hasProperties ? result : undefined; // 빈 객체 제거
-  }
-
-  // 기본값은 그대로 반환
-  return data;
-};
-
-/**
- * 블록체인에 진료 기록을 작성하는 서비스
- * @param petDID 반려동물 DID 주소
- * @param record 작성할 진료 기록 데이터
- * @returns 성공 여부와 에러 메시지
- */
-export const createBlockchainTreatment = async (
-  petDID: string,
-  record: BlockChainRecord
-): Promise<{ success: boolean; error?: string }> => {
+export const formatMedicalRecord = (record: BlockChainRecord): { 
+  basic: string; 
+  treatments: string; 
+  preview: string;
+} => {
   try {
-    // 블록체인 인증 서비스를 통해 계정 연결 및 Provider, Registry 컨트랙트 가져오기
-    const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
-    const contract = await getRegistryContract();
-    const signer = await getSigner();
+    // 기본 정보
+    let basic = `진단명: ${record.diagnosis || '기록 없음'}\n`;
+    basic += `병원: ${record.hospitalName || '기록 없음'}\n`;
+    basic += `수의사: ${record.doctorName || '기록 없음'}\n`;
+    basic += `작성일: ${formatDate(record.createdAt)}\n\n`;
+    basic += `${record.notes || ''}`;
     
-    if (!contract || !signer) {
-      return { 
-        success: false, 
-        error: 'MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.' 
-      };
-    }
-
-    // 반려동물 존재 여부 확인
-    const exists = await contract.petExists(petDID);
-    if (!exists) {
-      return { 
-        success: false, 
-        error: '등록되지 않은 반려동물입니다.' 
-      };
-    }
-
-    // 접근 권한 확인
-    const currentUserAddress = await signer.getAddress();
-    const accessGranted = await contract.hasAccess(petDID, currentUserAddress);
+    // 치료 정보
+    let treatments = '';
     
-    if (!accessGranted) {
-      return { 
-        success: false, 
-        error: '이 반려동물 정보에 접근할 권한이 없습니다.' 
-      };
-    }
-
-    // 진료 기록 데이터 준비
-    const recordData = {
-      diagnosis: record.diagnosis,
-      doctorName: record.doctorName,
-      hospitalName: record.hospitalName,
-      hospitalAddress: record.hospitalAddress,
-      isDeleted: record.isDeleted,
-      treatments: record.treatments,
-      notes: record.notes,
-      pictures: record.pictures,
-      status: record.status,
-      flagCertificated: record.flagCertificated
-    };
-
-    // 데이터 정제 후 블록체인에 기록 작성
-    const sanitizedRecordData = sanitizeObject(recordData);
-    
-    // 추가: 데이터 최적화 및 크기 확인
-    const optimizedRecordData = optimizeBlockchainData(sanitizedRecordData);
-    
-    // 데이터 크기 계산 및 로깅
-    const jsonData = JSON.stringify(optimizedRecordData);
-    const dataSizeKB = (jsonData.length * 2) / 1024; // UTF-16 문자 기준 대략적 크기 (KB)
-    
-    console.log(`블록체인 저장 데이터 크기: ${dataSizeKB.toFixed(2)}KB`);
-    console.log(`처방 항목 수: 검사(${optimizedRecordData.treatments?.examinations?.length || 0}), ` + 
-                `약물(${optimizedRecordData.treatments?.medications?.length || 0}), ` + 
-                `접종(${optimizedRecordData.treatments?.vaccinations?.length || 0})`);
-    
-    if (dataSizeKB > 100) {
-      console.warn(`경고: 데이터 크기가 100KB를 초과합니다. 트랜잭션이 실패할 가능성이 있습니다.`);
+    // 검사 항목
+    if (record.treatments.examinations && record.treatments.examinations.length > 0) {
+      treatments += '■ 검사 항목\n';
+      record.treatments.examinations.forEach((exam: ExaminationTreatment | any) => {
+        treatments += `• ${exam.type || exam.name || '이름 없음'}`;
+        if (exam.value || exam.result) treatments += `: ${exam.value || exam.result}`;
+        treatments += '\n';
+      });
+      treatments += '\n';
     }
     
-    const tx = await contract.setAttribute(
-      petDID,
-      record.id,
-      jsonData,
-      record.expireDate,
-      { gasLimit: 300000000 } // 가스 제한 증가: 500,000 → 300,000,000
-    );
-
-    // 트랜잭션 완료 대기
-    await tx.wait();
+    // 약물 처방
+    if (record.treatments.medications && record.treatments.medications.length > 0) {
+      treatments += '■ 처방 약물\n';
+      record.treatments.medications.forEach((med: MedicationTreatment | any) => {
+        treatments += `• ${med.type || med.name || '이름 없음'}`;
+        if (med.value || med.dosage) treatments += ` (${med.value || med.dosage})`;
+        if (med.instructions) treatments += `\n  ${med.instructions}`;
+        treatments += '\n';
+      });
+      treatments += '\n';
+    }
     
-    console.log('진료 기록 작성 성공:', tx.hash);
-    return { success: true };
-  } catch (error: any) {
-    console.error('진료 기록 작성 중 오류 발생:', error);
+    // 예방접종
+    if (record.treatments.vaccinations && record.treatments.vaccinations.length > 0) {
+      treatments += '■ 예방접종\n';
+      record.treatments.vaccinations.forEach((vac: VaccinationTreatment | any) => {
+        treatments += `• ${vac.type || vac.name || '이름 없음'}`;
+        if (vac.value || vac.date) treatments += ` (접종일: ${vac.value || vac.date})`;
+        if (vac.nextDate) treatments += `\n  다음 접종 예정일: ${vac.nextDate}`;
+        treatments += '\n';
+      });
+    }
+    
+    // 미리보기 요약
+    let preview = record.diagnosis || '진단 기록 없음';
+    preview = preview.length > 20 ? preview.substring(0, 20) + '...' : preview;
+    
     return { 
-      success: false, 
-      error: `진료 기록 작성 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}` 
+      basic,
+      treatments,
+      preview
+    };
+  } catch (error) {
+    console.error('의료기록 포맷팅 오류:', error);
+    return { 
+      basic: '기록 오류: 표시할 수 없는 형식입니다.',
+      treatments: '',
+      preview: '오류'
     };
   }
 };
 
 /**
- * 블록체인에서 반려동물의 기본 속성 정보를 조회합니다.
+ * 블록체인 데이터에서 접수일자와 만료일 사이에 진료기록 존재여부 확인
  * @param petDID 반려동물 DID 주소
- * @returns 반려동물의 기본 정보
- */
-export const getPetBasicInfo = async (petDID: string): Promise<{
-  success: boolean;
-  error?: string;
-  petInfo?: {
-    name: string;
-    gender: string;
-    birth: string;
-    flagNeutering: boolean | string;
-    breedName: string;
-    speciesName: string;
-    profileUrl: string;
-  };
-}> => {
-  // 필수 파라미터 확인
-  if (!petDID) {
-    console.error('필수 파라미터가 누락되었습니다:', { petDID });
-    return { 
-      success: false, 
-      error: '반려동물 DID 주소가 누락되었습니다.'
-    };
-  }
-
-  try {
-    console.log(`반려동물 기본 정보 조회 시작 (DID: ${petDID})`);
-    
-    // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
-    const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
-    const contract = await getRegistryContract();
-    const signer = await getSigner();
-    
-    if (!contract || !signer) {
-      console.error('MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.');
-      return { 
-        success: false, 
-        error: 'MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.'
-      };
-    }
-    
-    console.log(`컨트랙트 연결 완료, 반려동물 존재 확인 중 (DID: ${petDID})`);
-    
-    // 반려동물 존재 여부 확인
-    let exists = false;
-    try {
-      exists = await contract.petExists(petDID);
-      console.log(`반려동물 존재 여부 확인 결과: ${exists} (DID: ${petDID})`);
-    } catch (existsError) {
-      console.error('반려동물 존재 여부 확인 중 오류:', existsError);
-      return { 
-        success: false, 
-        error: `반려동물 존재 여부 확인 중 오류: ${existsError}`
-      };
-    }
-    
-    if (!exists) {
-      console.error('등록되지 않은 반려동물입니다:', petDID);
-      return { 
-        success: false, 
-        error: '등록되지 않은 반려동물입니다.'
-      };
-    }
-    
-    // 현재 사용자 주소 가져오기
-    const currentUserAddress = await signer.getAddress();
-    console.log(`현재 사용자 주소: ${currentUserAddress}`);
-    
-    // 접근 권한 확인 - 오류로 인해 접근 권한 확인에 실패하더라도 정보를 가져오도록 수정
-    let accessGranted = false;
-    try {
-      accessGranted = await contract.hasAccess(petDID, currentUserAddress);
-      console.log(`반려동물 접근 권한 확인 결과: ${accessGranted} (DID: ${petDID})`);
-    } catch (accessError) {
-      console.error('반려동물 접근 권한 확인 중 오류:', accessError);
-      // 접근 권한 확인 오류가 발생해도 계속 진행 (병원 계정이므로 접근 권한이 있다고 가정)
-      accessGranted = true;
-    }
-    
-    if (!accessGranted) {
-      console.error('이 반려동물 정보에 접근할 권한이 없습니다:', petDID);
-      return { 
-        success: false, 
-        error: '이 반려동물 정보에 접근할 권한이 없습니다.'
-      };
-    }
-    
-    console.log(`모든 속성 조회 시작 (DID: ${petDID})`);
-    
-    // 모든 속성 조회
-    const [names, values, _expireDates] = await contract.getAllAttributes(petDID);
-    console.log(`반려동물 기본 정보 조회 성공. 속성 개수: ${names.length} (DID: ${petDID})`);
-    
-    // 기본 속성 정보만 필터링
-    const petAttributes: {[key: string]: any} = {
-      name: '이름 없음',
-      gender: '성별 정보 없음',
-      birth: '출생일 정보 없음',
-      flagNeutering: 'false',
-      breedName: '품종 정보 없음',
-      speciesName: '종류 정보 없음',
-      profileUrl: '프로필 이미지 정보 없음'
-    };
-    
-    // 조회된 속성 디버깅
-    console.log(`조회된 속성 목록:`, names);
-    
-    for (let i = 0; i < names.length; i++) {
-      const name = names[i];
-      const value = values[i];
-      
-      if (name === 'name') {
-        petAttributes.name = value;
-      } else if (name === 'gender') {
-        petAttributes.gender = value;
-      } else if (name === 'birth') {
-        petAttributes.birth = value;
-      } else if (name === 'flagNeutering') {
-        petAttributes.flagNeutering = value;
-      } else if (name === 'breedName') {
-        petAttributes.breedName = value;
-      } else if (name === 'speciesName') {
-        petAttributes.speciesName = value;
-      } else if (name === 'profileUrl') {
-        petAttributes.profileUrl = value;
-      }
-    }
-    
-    console.log(`조회된 반려동물 정보:`, petAttributes);
-    
-    return { 
-      success: true, 
-      petInfo: {
-        name: petAttributes.name,
-        gender: petAttributes.gender,
-        birth: petAttributes.birth,
-        flagNeutering: petAttributes.flagNeutering,
-        breedName: petAttributes.breedName,
-        speciesName: petAttributes.speciesName,
-        profileUrl: petAttributes.profileUrl
-      }
-    };
-  } catch (error: any) {
-    console.error('반려동물 기본 정보 조회 중 오류가 발생했습니다:', error.message || error);
-    return { 
-      success: false, 
-      error: `반려동물 기본 정보 조회 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
-    };
-  }
-};
-
-/**
- * 접수일자와 만료일 사이에 기록된 진료기록이 있는지 확인합니다.
- * @param petDID 반려동물 DID 주소
- * @param createdAt 접수일자 (유닉스 타임스탬프)
- * @param expireDate 만료일자 (유닉스 타임스탬프)
+ * @param createdAt 접수일자 (Unix 타임스탬프)
+ * @param expireDate 만료일 (Unix 타임스탬프)
  * @returns 진료기록 존재 여부
  */
 export const hasTreatmentRecords = async (
@@ -801,7 +451,16 @@ export const hasTreatmentRecords = async (
   expireDate: number
 ): Promise<{ success: boolean; hasTreatment: boolean; error?: string }> => {
   try {
-    // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
+    // 필수 파라미터 확인
+    if (!petDID) {
+      return { 
+        success: false, 
+        hasTreatment: false,
+        error: '필수 파라미터(petDID)가 누락되었습니다.'
+      };
+    }
+
+    // 블록체인 인증 서비스를 통해 계정 연결 및 Provider, Registry 컨트랙트 가져오기
     const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
     const contract = await getRegistryContract();
     const signer = await getSigner();
@@ -832,12 +491,12 @@ export const hasTreatmentRecords = async (
       return { 
         success: false, 
         hasTreatment: false,
-        error: '이 반려동물 정보에 접근할 권한이 없습니다.'
+        error: '이 반려동물에 대한 접근 권한이 없습니다.'
       };
     }
     
-    // 모든 속성 조회
-    const [names, values, _expireDates] = await contract.getAllAttributes(petDID);
+    // 진료 기록 조회를 위한 모든 속성 가져오기
+    const [names, values] = await contract.getAllAttributes(petDID);
     
     // 의료기록만 필터링하여 접수일자와 만료일 사이에 기록된 진료기록이 있는지 확인
     for (let i = 0; i < names.length; i++) {
@@ -846,6 +505,12 @@ export const hasTreatmentRecords = async (
       
       if (name.startsWith('medical_record_') || name.startsWith('medical_')) {
         try {
+          // 파싱 전에 삭제된 기록인지 확인 (문자열 패턴 기반)
+          if (isRecordDeletedFromString(value)) {
+            console.log('파싱 전 확인: 삭제된 기록 건너뜀:', name);
+            continue;
+          }
+          
           // 안전한 JSON 파싱 사용
           const recordData = safeJsonParse(value, {
             timestamp: 0,
@@ -887,226 +552,34 @@ export const hasTreatmentRecords = async (
     
     // 진료기록이 없는 경우
     return { success: true, hasTreatment: false };
-  } catch (error: any) {
-    console.error('진료기록 확인 중 오류가 발생했습니다:', error.message || error);
+  } catch (error) {
+    console.error('블록체인 진료 기록 조회 오류:', error);
     return { 
       success: false, 
       hasTreatment: false,
-      error: `진료기록 확인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
+      error: `진료 기록 확인 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
     };
   }
 };
 
 /**
- * 가장 최근 진료 기록의 상태를 조회합니다.
- * @param petDid 반려동물 DID
- * @returns 최근 진료 상태 정보
+ * 블록체인에서 반려동물 기본 정보를 조회하는 함수
+ * @param petDID 반려동물 DID 주소
+ * @returns 조회된 반려동물 기본 정보
  */
-export const getLatestTreatmentStatus = async (petDid: string): Promise<{
+export const getPetBasicInfo = async (petDID: string): Promise<{
   success: boolean;
-  status: 'IN_PROGRESS' | 'COMPLETED' | null;
-  message?: string;
+  petInfo?: PetBasicInfo;
+  error?: string;
 }> => {
   try {
-    // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
-    const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
-    const contract = await getRegistryContract();
-    const signer = await getSigner();
-    
-    if (!contract || !signer) {
-      return { 
-        success: false, 
-        status: null,
-        message: 'MetaMask에 연결할 수 없습니다.'
+    if (!petDID) {
+      return {
+        success: false,
+        error: '반려동물 DID가 제공되지 않았습니다.'
       };
     }
-    
-    // 반려동물 존재 여부 확인
-    const exists = await contract.petExists(petDid);
-    if (!exists) {
-      return { 
-        success: false, 
-        status: null,
-        message: '등록되지 않은 반려동물입니다.'
-      };
-    }
-    
-    // 접근 권한 확인
-    const currentUserAddress = await signer.getAddress();
-    const accessGranted = await contract.hasAccess(petDid, currentUserAddress);
-    
-    if (!accessGranted) {
-      return { 
-        success: false, 
-        status: null,
-        message: '이 반려동물 정보에 접근할 권한이 없습니다.'
-      };
-    }
-    
-    // 모든 속성 조회
-    const [names, values, _expireDates] = await contract.getAllAttributes(petDid);
-    
-    // 최신 진료 기록 찾기
-    let latestRecord: any = null;
-    let latestTimestamp = 0;
-    
-    for (let i = 0; i < names.length; i++) {
-      const name = names[i];
-      const value = values[i];
-      
-      if (name.startsWith('medical_record_') || name.startsWith('medical_')) {
-        try {
-          // 안전한 JSON 파싱 사용
-          const recordData = safeJsonParse(value, {
-            timestamp: 0,
-            createdAt: '',
-            isDeleted: false,
-            notes: '',
-            status: 'IN_PROGRESS',
-            flagCertificated: true
-          });
-          
-          // timestamp 변환
-          let timestamp = 0;
-          if (recordData.createdAt) {
-            timestamp = Number(recordData.createdAt);
-          } else if (recordData.timestamp) {
-            timestamp = Number(recordData.timestamp);
-          } else if (name.startsWith('medical_record_')) {
-            // medical_record_TIMESTAMP_ADDRESS 형식에서 타임스탬프 추출
-            const parts = name.split('_');
-            if (parts.length >= 3) {
-              try {
-                timestamp = Number(parts[2]);
-              } catch (e) {
-                timestamp = 0;
-              }
-            }
-          }
-          
-          // 최신 기록인지 확인
-          if (timestamp > latestTimestamp && !recordData.isDeleted) {
-            latestTimestamp = timestamp;
-            latestRecord = recordData;
-            console.log('최신 기록 후보 원본 값:', value);
-            console.log('최신 기록 후보 파싱 결과:', latestRecord);
-          }
-        } catch (error) {
-          console.error('의료 기록 파싱 오류:', error);
-        }
-      }
-    }
-    
-    // 진료 기록이 없는 경우
-    if (!latestRecord) {
-      return { 
-        success: true, 
-        status: null,
-        message: '진료 기록이 없습니다.'
-      };
-    }
-    
-    // status 필드를 통해 최종 진료 여부 확인
-    const isCompleted = latestRecord.status === 'COMPLETED';
-    console.log(latestRecord.status);
 
-    return {
-      success: true,
-      status: isCompleted ? 'COMPLETED' : 'IN_PROGRESS',
-      message: `최근 진료 상태: ${isCompleted ? '완료됨' : '진행 중'}`
-    };
-  } catch (error: any) {
-    console.error('최근 진료 상태 조회 중 오류:', error);
-    return {
-      success: false,
-      status: null,
-      message: '진료 상태 조회 중 오류가 발생했습니다: ' + (error.message || '')
-    };
-  }
-};
-
-/**
- * 블록체인에 저장된 진료 기록의 변경 사항을 확인하는 함수
- * @param originalRecord 원본 진료 기록
- * @param updatedRecord 수정된 진료 기록
- * @returns 변경된 내용을 설명하는 문자열 배열
- */
-export const getRecordChanges = (
-  originalRecord: BlockChainRecord,
-  updatedRecord: BlockChainRecord
-): string[] => {
-  const changes: string[] = [];
-  
-  // 진단명 변경 확인
-  if (originalRecord.diagnosis !== updatedRecord.diagnosis) {
-    changes.push(`진단명: "${originalRecord.diagnosis}" → "${updatedRecord.diagnosis}"`);
-  }
-  
-  // 담당의 변경 확인
-  if (originalRecord.doctorName !== updatedRecord.doctorName) {
-    changes.push(`담당의: "${originalRecord.doctorName}" → "${updatedRecord.doctorName}"`);
-  }
-  
-  // 최종 진료 상태 변경 확인
-  const wasFinalized = (originalRecord.status || 'IN_PROGRESS') === 'COMPLETED';
-  const isFinalized = (updatedRecord.status || 'IN_PROGRESS') === 'COMPLETED';
-  if (wasFinalized !== isFinalized) {
-    changes.push(isFinalized ? '최종 진료로 표시' : '최종 진료 표시 해제');
-  }
-  
-  // 노트 내용 변경 확인
-  if (originalRecord.notes !== updatedRecord.notes) {
-    changes.push('진료 노트 수정');
-  }
-  
-  // 처방 변경 확인
-  const originalExams = JSON.stringify(originalRecord.treatments?.examinations || []);
-  const newExams = JSON.stringify(updatedRecord.treatments?.examinations || []);
-  if (originalExams !== newExams) {
-    changes.push('검사 정보 수정');
-  }
-  
-  const originalMeds = JSON.stringify(originalRecord.treatments?.medications || []);
-  const newMeds = JSON.stringify(updatedRecord.treatments?.medications || []);
-  if (originalMeds !== newMeds) {
-    changes.push('약물 정보 수정');
-  }
-  
-  const originalVacs = JSON.stringify(originalRecord.treatments?.vaccinations || []);
-  const newVacs = JSON.stringify(updatedRecord.treatments?.vaccinations || []);
-  if (originalVacs !== newVacs) {
-    changes.push('접종 정보 수정');
-  }
-  
-  // 사진 변경 확인
-  const originalPics = JSON.stringify(originalRecord.pictures || []);
-  const newPics = JSON.stringify(updatedRecord.pictures || []);
-  if (originalPics !== newPics) {
-    if ((originalRecord.pictures || []).length < (updatedRecord.pictures || []).length) {
-      changes.push('사진 추가');
-    } else if ((originalRecord.pictures || []).length > (updatedRecord.pictures || []).length) {
-      changes.push('사진 삭제');
-    } else {
-      changes.push('사진 수정');
-    }
-  }
-  
-  return changes;
-};
-
-/**
- * 블록체인에 저장된 진료 기록을 수정하는 함수
- * @param petDID 반려동물 DID 주소
- * @param updatedRecord 수정된 진료 기록
- * @param changes 변경 내역 설명 배열 (비어있으면 자동으로 계산됨)
- * @returns 성공 여부와 오류 메시지, 성공 시 새 기록 ID
- */
-export const updateBlockchainTreatment = async (
-  petDID: string,
-  updatedRecord: BlockChainRecord,
-  changes: string[] = []
-): Promise<{ success: boolean; error?: string; newRecordId?: string }> => {
-  try {
     // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
     const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
     const contract = await getRegistryContract();
@@ -1122,6 +595,7 @@ export const updateBlockchainTreatment = async (
     // 반려동물 존재 여부 확인
     const exists = await contract.petExists(petDID);
     if (!exists) {
+      console.error('등록되지 않은 반려동물입니다.');
       return { 
         success: false, 
         error: '등록되지 않은 반려동물입니다.'
@@ -1133,212 +607,266 @@ export const updateBlockchainTreatment = async (
     const accessGranted = await contract.hasAccess(petDID, currentUserAddress);
     
     if (!accessGranted) {
+      console.error('접근 권한이 없습니다.');
       return { 
         success: false, 
-        error: '이 반려동물 정보에 접근할 권한이 없습니다.'
+        error: '이 반려동물에 대한 접근 권한이 없습니다.'
       };
     }
     
-    // 원본 기록 ID 확인
-    const previousRecordKey = updatedRecord.id;
-    if (!previousRecordKey) {
+    // 반려동물 기본 속성 가져오기
+    const [names, values] = await contract.getAllAttributes(petDID);
+    
+    // PetBasicInfo 인터페이스를 활용한 정보 추출
+    const petInfo: PetBasicInfo = {
+      name: '',
+      gender: '',
+      breedName: '',
+      birth: '',
+      profileUrl: '',
+      flagNeutering: false,
+      speciesName: '',
+      petDID: petDID // DID 정보도 포함
+    };
+    
+    // 속성 매핑
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      const value = values[i];
+      
+      switch (name) {
+        case 'name':
+          petInfo.name = value;
+          break;
+        case 'gender':
+          petInfo.gender = value;
+          break;
+        case 'breedName':
+          petInfo.breedName = value;
+          break;
+        case 'birth':
+          petInfo.birth = value;
+          break;
+        case 'profileUrl':
+          petInfo.profileUrl = value;
+          break;
+        case 'flagNeutering':
+          // PetBasicInfo 인터페이스는 string | boolean을 허용
+          petInfo.flagNeutering = value === 'true' ? true : 
+                                 value === 'false' ? false : 
+                                 value;
+          break;
+        case 'speciesName':
+          petInfo.speciesName = value;
+          break;
+      }
+    }
+    
+    // 필수 정보 확인
+    if (!petInfo.name) {
       return {
         success: false,
-        error: '원본 기록 ID가 없습니다.'
+        error: '반려동물 이름을 찾을 수 없습니다.'
       };
     }
     
-    // 원본 기록 가져오기
-    const [originalValue, _expireDate] = await contract.getAttribute(petDID, previousRecordKey);
-    if (!originalValue) {
-      return {
-        success: false,
-        error: '해당 기록을 찾을 수 없습니다.'
-      };
-    }
-    
-    // 원본 기록 파싱
-    let originalRecord;
-    try {
-      // 안전한 JSON 파싱 사용
-      originalRecord = safeJsonParse(originalValue, {
-        id: previousRecordKey,
-        timestamp: updatedRecord.timestamp,
-        diagnosis: '',
-        doctorName: '',
-        hospitalName: '',
-        hospitalAddress: '',
-        isDeleted: false,
-        createdAt: '',
-        treatments: {
-          examinations: [],
-          medications: [],
-          vaccinations: []
-        },
-        notes: '',
-        pictures: [],
-        status: 'IN_PROGRESS',
-        flagCertificated: true
-      });
-      
-      // BlockChainRecord 인터페이스에 맞게 형식 변환
-      originalRecord = {
-        id: previousRecordKey,
-        timestamp: originalRecord.timestamp || updatedRecord.timestamp,
-        diagnosis: originalRecord.diagnosis || '',
-        doctorName: originalRecord.doctorName || '',
-        hospitalName: originalRecord.hospitalName || '',
-        hospitalAddress: originalRecord.hospitalAddress || '',
-        isDeleted: originalRecord.isDeleted || false,
-        createdAt: originalRecord.createdAt || '',
-        treatments: originalRecord.treatments || {
-          examinations: [],
-          medications: [],
-          vaccinations: []
-        },
-        notes: originalRecord.notes || '',
-        pictures: originalRecord.pictures || [],
-        status: originalRecord.status || '',
-        flagCertificated: originalRecord.flagCertificated || true
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: '기록 데이터 파싱 오류'
-      };
-    }
-    
-    // 변경 사항 자동 계산 (changes 파라미터가 비어있는 경우)
-    if (changes.length === 0) {
-      changes = getRecordChanges(originalRecord, updatedRecord);
-      
-      if (changes.length === 0) {
-        return {
-          success: false,
-          error: '변경된 내용이 없습니다.'
-        };
-      }
-    }
-    
-    // 현재 timestamp로 새 레코드의 ID 생성
-    const timestamp = Math.floor(Date.now() / 1000);
-    const newRecordKey = `medical_${timestamp}_${(updatedRecord.doctorName || '').replace(/\s+/g, '_')}`;
-    
-    // 노트에 수정 내역 추가
-    const changeLog = `[수정내역] ${changes.join(', ')}`;
-    const updatedNotes = updatedRecord.notes ? `${updatedRecord.notes}\n\n${changeLog}` : changeLog;
-    
-    // 정제된 노트 내용 생성
-    const sanitizedNotes = sanitizeObject(updatedNotes);
-    
-    // JSON 형식으로 변환할 배열 생성 (약물, 검사, 접종)
-    const sanitizedTreatments = sanitizeObject(updatedRecord.treatments || { examinations: [], medications: [], vaccinations: [] });
-    const sanitizedPictures = sanitizeObject(updatedRecord.pictures || []);
-    
-    // 각 항목의 기본값 설정 및 엄격한 검증
-    const examinationsJson = JSON.stringify(sanitizedTreatments.examinations || []);
-    const medicationsJson = JSON.stringify(sanitizedTreatments.medications || []);
-    const vaccinationsJson = JSON.stringify(sanitizedTreatments.vaccinations || []);
-    const picturesJson = JSON.stringify(sanitizedPictures || []);
-    
-    console.log('새 진료 기록 ID:', newRecordKey);
-    console.log('트랜잭션 데이터 검증:', {
-      petDID,
-      previousRecordKey,
-      diagnosis: sanitizeObject(updatedRecord.diagnosis || ''),
-      hospitalName: sanitizeObject(updatedRecord.hospitalName || ''),
-      doctorName: sanitizeObject(updatedRecord.doctorName || ''),
-      notesLength: sanitizedNotes ? sanitizedNotes.length : 0,
-      examinationsLength: examinationsJson.length,
-      medicationsLength: medicationsJson.length,
-      vaccinationsLength: vaccinationsJson.length,
-      picturesLength: picturesJson.length
-    });
-    
-    try {
-      // appendMedicalRecord 함수 호출하여 이전 기록을 참조하는 새 기록 생성
-      const tx = await contract.appendMedicalRecord(
-        petDID,
-        previousRecordKey,
-        sanitizeObject(updatedRecord.diagnosis || ''),
-        sanitizeObject(updatedRecord.hospitalName || ''),
-        sanitizeObject(updatedRecord.doctorName || ''),
-        sanitizedNotes || '',
-        examinationsJson || '[]',
-        medicationsJson || '[]',
-        vaccinationsJson || '[]',
-        picturesJson || '[]',
-        { gasLimit: 800000 }  // 가스 한도 증가
-      );
-      
-      // 트랜잭션 완료 대기
-      const receipt = await tx.wait();
-      
-      // 트랜잭션 상태 확인
-      if (receipt.status === 0) {
-        console.error('트랜잭션이 실패했습니다:', receipt);
-        return {
-          success: false,
-          error: '블록체인 트랜잭션이 실패했습니다. 가스 한도나 네트워크 상태를 확인해주세요.'
-        };
-      }
-      
-      // 이벤트 로그에서 새 레코드 ID 찾기
-      let actualRecordId = newRecordKey;
-      try {
-        // MedicalRecordAdded 이벤트 찾기
-        const medicalRecordAddedEvent = receipt.events?.find(
-          (event: any) => event.event === 'MedicalRecordAdded'
-        );
-        
-        if (medicalRecordAddedEvent && medicalRecordAddedEvent.args) {
-          // 이벤트의 두 번째 인자가 새 레코드 ID (recordKey)
-          actualRecordId = medicalRecordAddedEvent.args[1];
-          console.log('이벤트에서 찾은 레코드 ID:', actualRecordId);
-        }
-      } catch (error) {
-        console.warn('새 레코드 ID를 이벤트에서 찾지 못했습니다:', error);
-      }
-      
-      return {
-        success: true,
-        newRecordId: actualRecordId
-      };
-    } catch (error: any) {
-      console.error('진료 기록 수정 중 오류:', error);
-      
-      // 오류 메시지 개선
-      let errorMessage = error.message || '진료 기록 수정 중 오류가 발생했습니다.';
-      
-      // 가스 부족 오류
-      if (errorMessage.includes('out of gas')) {
-        errorMessage = '트랜잭션 가스가 부족합니다. 데이터가 너무 큽니다.';
-      }
-      // 트랜잭션 거부 오류
-      else if (errorMessage.includes('reverted')) {
-        errorMessage = '트랜잭션이 블록체인에서 거부되었습니다.';
-      }
-      
-      return {
-        success: false,
-        error: errorMessage
-      };
-    }
+    return {
+      success: true,
+      petInfo
+    };
   } catch (error: any) {
-    console.error('진료 기록 수정 준비 중 오류:', error);
+    console.error('반려동물 기본 정보 조회 오류:', error);
     return {
       success: false,
-      error: error.message || '진료 기록 수정 준비 중 오류가 발생했습니다.'
+      error: `반려동물 정보 조회 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
     };
   }
 };
 
-export default {
-  getBlockchainTreatments,
-  getHospitalPetsWithRecords,
-  createBlockchainTreatment,
-  getPetBasicInfo,
-  hasTreatmentRecords,
-  getLatestTreatmentStatus,
-  updateBlockchainTreatment
+/**
+ * 반려동물의 최신 진료 상태를 조회하는 함수
+ * @param petDID 반려동물 DID 주소
+ * @returns 최신 진료 상태 (IN_PROGRESS, COMPLETED, NONE)
+ */
+export const getLatestTreatmentStatus = async (
+  petDID: string
+): Promise<{ 
+  success: boolean; 
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'NONE' | null;
+  error?: string;
+}> => {
+  try {
+    if (!petDID) {
+      return {
+        success: false,
+        status: null,
+        error: '반려동물 DID가 제공되지 않았습니다.'
+      };
+    }
+
+    // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
+    const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
+    const contract = await getRegistryContract();
+    const signer = await getSigner();
+    
+    if (!contract || !signer) {
+      return { 
+        success: false, 
+        status: null,
+        error: 'MetaMask에 연결할 수 없습니다. 계정 연결 상태를 확인해주세요.'
+      };
+    }
+    
+    // 반려동물 존재 여부 확인
+    const exists = await contract.petExists(petDID);
+    if (!exists) {
+      return { 
+        success: false, 
+        status: null,
+        error: '등록되지 않은 반려동물입니다.'
+      };
+    }
+    
+    // 접근 권한 확인
+    const currentUserAddress = await signer.getAddress();
+    const accessGranted = await contract.hasAccess(petDID, currentUserAddress);
+    
+    if (!accessGranted) {
+      return { 
+        success: false, 
+        status: null,
+        error: '이 반려동물에 대한 접근 권한이 없습니다.'
+      };
+    }
+
+    try {
+      // 원본 의료기록 키 목록 가져오기
+      const originalRecordKeys = await contract.getPetOriginalRecords(petDID);
+      
+      if (!originalRecordKeys || originalRecordKeys.length === 0) {
+        return {
+          success: true,
+          status: 'NONE' // 의료기록이 없음
+        };
+      }
+      
+      // 최신 기록 키 (타임스탬프 내림차순 정렬 후)
+      const sortedKeys = [...originalRecordKeys].sort((a, b) => {
+        // medical_record_TIMESTAMP_ADDRESS 형식에서 타임스탬프 추출
+        const timestampA = parseInt(a.split('_')[2]) || 0;
+        const timestampB = parseInt(b.split('_')[2]) || 0;
+        return timestampB - timestampA; // 내림차순 (최신순)
+      });
+      
+      const latestOriginalKey = sortedKeys[0];
+      
+      // 원본 기록과 수정 기록들 가져오기
+      const [originalRecord, updateRecords] = await contract.getMedicalRecordWithUpdates(petDID, latestOriginalKey);
+      
+      // 원본 기록 파싱
+      const parsedOriginal = safeJsonParse(originalRecord, {});
+      
+      if (parsedOriginal.isDeleted) {
+        // 원본이 삭제되었다면 다음 기록 확인
+        if (sortedKeys.length > 1) {
+          const nextOriginalKey = sortedKeys[1];
+          const [nextOriginalRecord, nextUpdateRecords] = await contract.getMedicalRecordWithUpdates(petDID, nextOriginalKey);
+          const parsedNextOriginal = safeJsonParse(nextOriginalRecord, {});
+          
+          if (parsedNextOriginal.isDeleted) {
+            // 그 다음 기록도 삭제되었다면 'NONE'으로 처리
+      return { 
+        success: true, 
+              status: 'NONE'
+            };
+          }
+          
+          // 최신 업데이트 기록 중 삭제되지 않은 것이 있는지 확인
+          const validUpdates = nextUpdateRecords
+            .map((record: string) => safeJsonParse(record, { isDeleted: true }))
+            .filter((record: any) => !record.isDeleted);
+          
+          if (validUpdates.length > 0) {
+            // 가장 최신 업데이트 기록 사용
+            const latestUpdate = validUpdates.sort((a: any, b: any) => {
+              const timeA = parseInt(a.timestamp || a.createdAt || '0');
+              const timeB = parseInt(b.timestamp || b.createdAt || '0');
+              return timeB - timeA; // 내림차순 (최신순)
+            })[0];
+            
+      return {
+        success: true,
+              status: latestUpdate.status || 'IN_PROGRESS'
+      };
+          } else {
+            // 유효한 업데이트가 없으면 원본 기록 상태 반환
+      return {
+        success: true,
+              status: parsedNextOriginal.status || 'IN_PROGRESS'
+      };
+          }
+    } else {
+          // 다른 원본 기록이 없으면 'NONE'으로 처리
+      return {
+        success: true,
+            status: 'NONE'
+          };
+        }
+      }
+      
+      // 업데이트 기록 확인
+      if (updateRecords && updateRecords.length > 0) {
+        // 모든 업데이트 기록 파싱
+        const parsedUpdates = updateRecords
+          .map((record: string) => safeJsonParse(record, { isDeleted: true }))
+          .filter((record: any) => !record.isDeleted);
+        
+        if (parsedUpdates.length > 0) {
+          // 가장 최신 업데이트 기록 사용
+          const latestUpdate = parsedUpdates.sort((a: any, b: any) => {
+            const timeA = parseInt(a.timestamp || a.createdAt || '0');
+            const timeB = parseInt(b.timestamp || b.createdAt || '0');
+            return timeB - timeA; // 내림차순 (최신순)
+          })[0];
+          
+          return {
+            success: true,
+            status: latestUpdate.status || 'IN_PROGRESS'
+          };
+        }
+      }
+      
+      // 업데이트 기록이 없거나 모두 삭제된 경우 원본 기록 상태 반환
+      return {
+        success: true,
+        status: parsedOriginal.status || 'IN_PROGRESS'
+      };
+  } catch (error: any) {
+      console.error('진료 상태 조회 중 오류:', error);
+    return {
+      success: false,
+      status: null,
+        error: `진료 상태 조회 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
+      };
+    }
+  } catch (error: any) {
+    console.error('진료 상태 조회 준비 중 오류:', error);
+    return {
+      success: false,
+      status: null,
+      error: `진료 상태 조회 준비 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`
+    };
+  }
 };
+
+// 다른 함수들은 이곳에 추가...
+
+// treatmentRecordService 모든 함수 re-export
+export {
+  createBlockchainTreatment,
+  updateBlockchainTreatment,
+  softDeleteMedicalRecord,
+  getHospitalPetsWithRecords,
+  getRecordChanges,
+  getLatestPetRecords
+} from '@/services/treatmentRecordService';
