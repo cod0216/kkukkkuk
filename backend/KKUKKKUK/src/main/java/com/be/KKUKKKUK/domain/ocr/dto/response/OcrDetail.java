@@ -17,7 +17,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OcrDetail {
-    String type;
+    String type; //TODO 접근 제어자 설정 안한 이유가 있을까요?
     String key;
     String value;
 }

@@ -92,7 +92,7 @@ public class OcrService {
         String fullPrompt = prompt + "\n\n입력 데이터:\n" + text;
         String gptResult = openAiApiClient.sendPrompt(fullPrompt);
 
-        System.out.println("gptResult = " + gptResult);
+        System.out.println("gptResult = " + gptResult); //TODO log 를 활용해주세요
 
         if (gptResult.contains("\"error\"")) {
             throw new ApiException(ErrorCode.GPT_API_ERROR);

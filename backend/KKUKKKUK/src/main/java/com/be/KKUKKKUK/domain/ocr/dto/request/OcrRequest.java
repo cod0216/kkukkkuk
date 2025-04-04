@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor //TODO request dto에는 어떤게 필요할까요?
 public class OcrRequest {
     private String text;
 }
