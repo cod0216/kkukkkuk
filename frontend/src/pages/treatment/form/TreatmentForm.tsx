@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Doctor, BlockChainRecord, TreatmentType } from '@/interfaces';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
-import { createBlockchainTreatment } from '@/services/treatmentService';
+import { createBlockchainTreatment } from '@/services/treatmentRecordService';
 import { getAccountAddress } from '@/services/blockchainAuthService';
 import { uploadImage } from '@/services/treatmentImageService';
 /**
