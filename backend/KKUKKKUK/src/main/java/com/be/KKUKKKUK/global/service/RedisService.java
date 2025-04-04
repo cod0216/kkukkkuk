@@ -3,9 +3,6 @@ package com.be.KKUKKKUK.global.service;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,7 +10,6 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,11 +24,15 @@ import java.util.Set;
  * -----------------------------------------------------------<br>
  * 25.03.18          haelim           최초 생성<br>
  * 25.03.31          haelim           getKeys 메서드 추가, 특정 패턴에 맞는 모든 key 조회<br>
+ * 25.04.03          eunchang         Drug autoCorrect 관련 메서드 추가 <br>
  */
 @Service
 @RequiredArgsConstructor
 public class RedisService {
     private final RedisTemplate<String, String> redisTemplate;
+    private final String KEY = "autocorrect";
+    private final int SCORE = 0;
+    private final int SEARCH_RANGE = 200;
 
     /**
      * Redis 에 특정 키와 값을 저장합니다.
@@ -83,4 +83,34 @@ public class RedisService {
 
         return keys;
     }
+
+    /**
+     * 단어를 Redis Sorted Set에 저장합니다.
+     *
+     * @param keyword 저장할 단어
+     */
+    public void addToSortedSet(String keyword) {
+        redisTemplate.opsForZSet().add(KEY, keyword, SCORE);
+    }
+
+    /**
+     * Redis Sorted Set에서 주어진 키워드의 인덱스를 조회합니다.
+     *
+     * @param keyword 조회할 단어
+     * @return 키워드의 정렬 순위
+     */
+    public Long findFromSortedSet(String keyword) {
+        return redisTemplate.opsForZSet().rank(KEY, keyword);
+    }
+
+    /**
+     * 키워드로 조회한 인덱스로부터 자동완성 최대 200개를 반환합니다.
+     *
+     * @param index 조회를 시작할 인덱스
+     * @return 키워드로 시작하는 단어 최대 200개 반환
+     */
+    public Set<String> findAllValuesAfterIndexFromSortedSet(Long index) {
+        return redisTemplate.opsForZSet().range(KEY, index, index + SEARCH_RANGE);
+    }
+
 }

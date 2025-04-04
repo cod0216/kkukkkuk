@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.domain.walletowner.dto.mapper;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * -----------------------------------------------------------<br>
  * 25.03.28          haelim           최초생성<br>
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface WalletOwnerMapper {
     List<WalletShortInfoResponse> mapToWalletInfos(List<Wallet> wallets);
 

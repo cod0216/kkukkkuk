@@ -20,6 +20,5 @@ import lombok.Data;
 public class WalletShortInfoResponse {
     private Integer id;
     private String name;
-    private String did;
     private String address;
 }

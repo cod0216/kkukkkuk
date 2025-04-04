@@ -18,6 +18,7 @@ import java.math.BigDecimal;
  * -----------------------------------------------------------<br>
  * 25.03.13          haelim           최초 생성<br>
  * 25.03.29          haelim           라이센스 삭제<br>
+ * 25.04.01          haelim           공용키 삭제<br>
  */
 @Data
 @AllArgsConstructor
@@ -34,9 +35,7 @@ public class HospitalDetailInfoResponse {
     private String account;
 
     private String address;
-
-    private String publicKey;
-
+    
     private String authorizationNumber;
 
     private BigDecimal xAxis;

@@ -62,20 +62,16 @@ public class OwnerComplexService {
 
     /**
      * Owner 로그인 또는 회원가입을 처리하는 메서드입니다.
-     *
+     * 요청을 통해 보호자 회원의 로그인 혹은 회원가입을 처리하고, 프로필 이미지를 조회합니다.
+     * 로그인 성공 시, 로그인한 사용자의 지갑 정보와 JWT 이중 토큰이 함께 주어집니다.
      * @param request 로그인 요청 정보 (providerId, name, email 등)
      * @return OwnerLoginResponse 로그인 응답 정보 (소유자 정보, JWT 토큰, 지갑 정보)
      */
-    @Transactional
     public OwnerLoginResponse loginOrSignup(OwnerLoginRequest request) {
-        // 1. 사용자 정보 불러오기
         OwnerInfoResponse ownerInfo = ownerService.tryLoginOrSignUp(request);
         ownerInfo.setImage(s3Service.getImage(ownerInfo.getId(), RelatedType.OWNER));
 
-        // 2. 사용자 지갑 정보 요청
         List<WalletShortInfoResponse> wallets = walletOwnerService.getWalletShortInfoByOwnerId(ownerInfo.getId());
-
-        // 3. JWT 토큰 발급
         JwtTokenPairResponse tokenPair = tokenService.generateTokens(ownerInfo.getId(), ownerInfo.getName(), RelatedType.OWNER);
 
         return new OwnerLoginResponse(ownerInfo, tokenPair, wallets);
@@ -90,5 +86,14 @@ public class OwnerComplexService {
     public OwnerImageResponse updateOwnerImage(Integer ownerId, MultipartFile imageFile) {
         String image = s3Service.uploadImage(ownerId, RelatedType.OWNER, imageFile);
         return new OwnerImageResponse(image);
+    }
+
+    /**
+     * 보호자 계정을 탈퇴합니다.
+     * @param ownerId 탈퇴할 보호자 ID
+     */
+    public void unsubscribeOwner(Integer ownerId) {
+        s3Service.deleteImage(ownerId, RelatedType.OWNER);
+        ownerService.deleteOwner(ownerId);
     }
 }

@@ -51,6 +51,7 @@ public enum ErrorCode {
 
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "DOCTOR-001", "의사 정보를 찾을 수 없습니다."),
     DOCTOR_NOT_ALLOWED(HttpStatus.FORBIDDEN, "DOCTOR-002", "의사에 대한 권한이 없습니다."),
+    DOCTOR_MINIMUM_LIMIT(HttpStatus.CONFLICT, "DOCTOR-003", "의사는 반드시 한 명 이상이어야 합니다."),
 
     WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "WALLET-001", "지갑 정보를 찾을 수 없습니다."),
     WALLET_ALREADY_EXIST(HttpStatus.CONFLICT, "WALLET-002", "이미 등록된 지갑입니다."),
@@ -66,6 +67,8 @@ public enum ErrorCode {
     PET_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PET-002", "반려동물에 대한 권한이 없습니다."),
 
     BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다."),
+
+    DRUG_NOT_FOUND(HttpStatus.NOT_FOUND, "DRUG-001", "해당 약품을 찾을 수 없습니다."),
 
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "OCR-001", "많은 요청을 보내고 있습니다."),
     GPT_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-002", "GPT API 호출 중 오류가 발생했습니다."),

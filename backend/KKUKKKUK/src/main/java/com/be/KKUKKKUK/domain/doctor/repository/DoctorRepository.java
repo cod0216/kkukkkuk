@@ -21,4 +21,6 @@ import java.util.List;
 public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
 
     List<DoctorInfoResponse> getDoctorsByHospitalId(Integer hospitalId);
+
+    void deleteByHospitalId(Integer hospitalId);
 }

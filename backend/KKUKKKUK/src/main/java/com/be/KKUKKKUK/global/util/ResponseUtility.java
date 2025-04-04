@@ -2,12 +2,9 @@ package com.be.KKUKKKUK.global.util;
 
 import com.be.KKUKKKUK.global.api.ApiResponse;
 import com.be.KKUKKKUK.global.api.StatusEnum;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * packageName    : com.be.KKUKKKUK.global.util<br>
@@ -22,15 +19,13 @@ import java.util.Set;
  * 2025-03-14        haelim            최초생성<br>
  * 2025-03-16        haelim            final 로 변경 및 상태 코드 커스텀 메소드 추가<br>
  * 2025-03-29        haelim            emptyResponse 메소드 추가<br>
- * 2025-03-31        haelim            안쓰는 메서드 정리, EMPTY MAP 싱글톤 처리 <br>
+ * 2025-03-31        haelim            안쓰는 메서드 정리 <br>
  *
  */
-// TODO : 싱글톤
 public final class ResponseUtility {
 
     /**
      * 요청이 성공했을 때 커스텀 메시지와 함께 200 OK 응답을 반환합니다.
-     *
      * @param message 응답 메시지
      * @param data    응답 데이터
      * @param <T>     응답 데이터의 타입
@@ -42,12 +37,11 @@ public final class ResponseUtility {
 
     /**
      * 삭제 요청 시 No Content 대신 빈 객체를 반환합니다.
-     *
      * @param message 응답 메시지
-     * @return 200 OK 응답을 포함한 {@link ResponseEntity}, 빈 객체 반환
+     * @return 200 OK 응답을 포함한 {@link ResponseEntity}
      */
     public static ResponseEntity<ApiResponse<Object>> emptyResponse(String message) {
-        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, EMPTY_MAP));
+        return ResponseEntity.ok(new ApiResponse<>(StatusEnum.SUCCESS, message, Collections.emptyMap()));
     }
 
     /**
@@ -56,7 +50,4 @@ public final class ResponseUtility {
     private ResponseUtility() {
         throw new UnsupportedOperationException("Utility Class");
     }
-
-    private static final  Map<Object, Object> EMPTY_MAP = Collections.emptyMap();
-
 }

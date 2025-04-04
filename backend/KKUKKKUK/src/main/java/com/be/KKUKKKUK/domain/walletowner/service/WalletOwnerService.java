@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * -----------------------------------------------------------<br>
  * 25.03.29          haelim           최초 생성<br>
  */
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -37,7 +38,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 보호자와 지갑을 연결합니다.
-     *
      * @param owner  보호자
      * @param wallet 지갑
      * @throws ApiException 이미 연결된 지갑인 경우 예외 발생
@@ -51,7 +51,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 보호자와 지갑 간의 연결을 해제합니다.
-     *
      * @param ownerId  보호자 ID
      * @param walletId 지갑 ID
      */
@@ -62,7 +61,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 보호자와 지갑이 연결되어 있는지 확인합니다.
-     *
      * @param ownerId  보호자 ID
      * @param walletId 지갑 ID
      * @return 연결된 WalletOwner 엔티티 객체
@@ -76,7 +74,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 보호자의 지갑 목록을 반환합니다.
-     *
      * @param ownerId 보호자 ID
      * @return 해당 보호자의 지갑 목록
      */
@@ -90,7 +87,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 지갑에 연결된 보호자 목록을 반환합니다.
-     *
      * @param walletId 지갑 ID
      * @return 해당 지갑의 보호자 목록
      */
@@ -104,7 +100,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 보호자의 지갑 목록을 요약 정보로 변환하여 반환합니다.
-     *
      * @param ownerId 보호자 ID
      * @return 지갑 요약 정보 목록
      */
@@ -114,7 +109,6 @@ public class WalletOwnerService {
 
     /**
      * 특정 보호자의 지갑이 연결되어 있는지 확인합니다.
-     *
      * @param ownerId  보호자 ID
      * @param walletId 지갑 ID
      * @return 연결 여부 (true: 연결됨, false: 연결되지 않음)

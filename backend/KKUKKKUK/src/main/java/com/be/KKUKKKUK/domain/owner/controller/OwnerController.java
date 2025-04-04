@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,8 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
  * 25.03.17          haelim           최초 생성<br>
  * 25.03.22          haelim           swagger 작성<br>
  * 25.03.30          haelim           프로필 이미지 수정<br>
+ * 25.04.01          haelim           회원 탈퇴 api <br>
  */
 @Tag(name = "보호자 API", description = "보호자 정보를 관리하는 API입니다.")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/owners")
@@ -74,6 +78,22 @@ public class OwnerController {
         return ResponseUtility.success("계정 정보가 성공적으로 업데이트되었습니다.", ownerService.updateOwnerInfo(ownerId, request));
     }
 
+    /**
+     * 현재 로그인된 보호자 회원 계정을 탈퇴합니다.
+     * @param ownerDetails 인증된 보호자 계정 정보
+     */
+    @Operation(summary = "계정 탈퇴", description = "현재 로그인한 계정을 탈퇴합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 수정 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    @DeleteMapping("/me")
+    public ResponseEntity<?> unsubscribeOwner(@AuthenticationPrincipal OwnerDetails ownerDetails) {
+        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
+        ownerComplexService.unsubscribeOwner(ownerId);
+        return ResponseUtility.emptyResponse("보호자 계정이 정상적으로 탈퇴되었습니다.");
+    }
+
     @Operation(summary = "프로필 수정", description = "현재 로그인한 계정의 프로필 이미지를 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "이미지 수정 성공"),
@@ -83,7 +103,7 @@ public class OwnerController {
     })
     @PostMapping(path = "/me/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateOwnerImage(@AuthenticationPrincipal OwnerDetails ownerDetails,
-                                              @RequestParam("image") MultipartFile imageFile
+                                              @RequestParam("image") @NotNull MultipartFile imageFile
     ){
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("계정 프로필이 성공적으로 업데이트되었습니다.", ownerComplexService.updateOwnerImage(ownerId, imageFile));

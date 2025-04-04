@@ -20,4 +20,6 @@ import java.util.Optional;
  */
 public interface S3Repository extends JpaRepository<S3, Integer> {
     Optional<S3> findByRelatedIdAndRelatedType(Integer ownerId, RelatedType relatedType);
+
+    void deleteByRelatedIdAndRelatedType(Integer relativeId, RelatedType relatedType);
 }

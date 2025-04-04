@@ -60,6 +60,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HospitalDetailService hospitalDetailService;
     private final OwnerDetailService ownerDetailService;
 
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String HEADER_BEARER = "Bearer ";
+    private static final int HEADER_BEARER_LENGTH = HEADER_BEARER.length();
+
     private static final String[] ALLOWED_URLS = new String[]{
             "/",
             "/error",
@@ -99,14 +103,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 2. 헤더에서 access token 확인
-        String authHeader = request.getHeader("Authorization");
-        if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
+        String authHeader = request.getHeader(HEADER_AUTHORIZATION);
+        if (Objects.isNull(authHeader) || !authHeader.startsWith(HEADER_BEARER)) {
             writeErrorResponse(response, ErrorCode.NO_ACCESS_TOKEN);
             return;
         }
 
         // 3. access token 유효성 검증
-        String accessToken = authHeader.substring(7);  // "Bearer "를 제외한 토큰 부분
+        String accessToken = authHeader.substring(HEADER_BEARER_LENGTH);  // "Bearer "를 제외한 토큰 부분
         if (jwtUtility.validateToken(accessToken)) {
             // 3-1. 액세스 토큰이 유효하면 블랙리스트 검증
             if (checkTokenBlacklisted(accessToken)) {
@@ -210,7 +214,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean flagAllowed = Arrays.stream(ALLOWED_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri));
         boolean flagException = Arrays.stream(NOT_ALLOWED_URLS).anyMatch(pattern -> pathMatcher.match(pattern, uri));
 
-        // 허용된 URL이면서 예외 URL이 아닌 경우 통과
         return flagAllowed && !flagException;
     }
 
