@@ -19,7 +19,7 @@ abstract class UserProfileResponse with _$UserProfileResponse {
 abstract class UserProfileData with _$UserProfileData {
   const factory UserProfileData({
     required OwnerProfileInfo owner,
-    WalletProfileInfo? wallet,
+    List<WalletProfileInfo>? wallets,
   }) = _UserProfileData;
 
   factory UserProfileData.fromJson(Map<String, dynamic> json) =>
@@ -44,7 +44,7 @@ abstract class OwnerProfileInfo with _$OwnerProfileInfo {
 abstract class WalletProfileInfo with _$WalletProfileInfo {
   const factory WalletProfileInfo({
     required int id,
-    required String did,
+    required String name,
     required String address,
   }) = _WalletProfileInfo;
 
