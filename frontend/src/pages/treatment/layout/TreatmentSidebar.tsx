@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHand
 import { FaSearch, FaSortAmountDown, FaSortAmountUp, FaFont, FaCalendarAlt, FaTimesCircle } from 'react-icons/fa';
 import PetListItem from '@/pages/treatment/layout/PetListItem';
 import { Treatment, TreatmentState } from '@/interfaces';
-import { getHospitalPetsWithRecords, hasTreatmentRecords, getPetBasicInfo } from '@/services/treatmentService';
-import { DID_REGISTRY_ADDRESS } from '@/utils/constants';
+import { hasTreatmentRecords, getPetBasicInfo, getLatestTreatmentStatus } from '@/services/treatmentService';
+import { getHospitalPetsWithRecords } from '@/services/treatmentRecordService';
 import { getAccountAddress } from '@/services/blockchainAuthService';
 import { 
   initWebSocketProvider, 
@@ -311,12 +311,11 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                     );
                     
                     // 3. 가장 최근 진료 기록의 상태 확인 (API 호출 추가 필요)
-                    let latestRecordStatus: 'IN_PROGRESS' | 'COMPLETED' | null = null;
+                    let latestRecordStatus: 'IN_PROGRESS' | 'COMPLETED' | 'NONE' | null = null;
                     
                     try {
                         // 블록체인 또는 API에서 가장 최근 진료 기록 상태 조회
                         // 임시 Mock 데이터: 실제로는 API 호출로 대체되어야 함
-                        const { getLatestTreatmentStatus } = await import('@/services/treatmentService');
                         const statusResult = await getLatestTreatmentStatus(pet.petDid);
                         
                         if (statusResult.success) {
@@ -344,6 +343,9 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                             if (latestRecordStatus === 'COMPLETED') {
                                 // 마지막 진료가 완료 상태면 전체 완료
                                 newState = TreatmentState.COMPLETED;
+                            } else if (latestRecordStatus === 'NONE') {
+                                // 마지막 진료가 NONE 상태면 진료 전
+                                newState = TreatmentState.WAITING;
                             } else {
                                 // 그렇지 않으면 진행 중
                                 newState = TreatmentState.IN_PROGRESS;
@@ -359,6 +361,9 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                         if (latestRecordStatus === 'COMPLETED') {
                             // 마지막 진료가 완료 상태면 전체 완료
                             newState = TreatmentState.COMPLETED;
+                        } else if (latestRecordStatus === 'NONE') {
+                            // 마지막 진료가 NONE 상태면 진료 전
+                            newState = TreatmentState.WAITING;
                         } else {
                             // 그렇지 않으면 진행 중 (추가 진료 가능)
                             newState = TreatmentState.IN_PROGRESS;
@@ -638,15 +643,16 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
         
         console.log('반려동물 목록 새로고침 시작...');
         
-        const result = await getHospitalPetsWithRecords(DID_REGISTRY_ADDRESS);
+        // treatmentRecordService의 getHospitalPetsWithRecords 함수 사용
+        const petsWithRecords = await getHospitalPetsWithRecords();
         
-        if (result.success) {
+        if (petsWithRecords && petsWithRecords.length >= 0) {
           // 디버깅: 블록체인에서 받아온 원본 데이터 확인
-          console.log('블록체인에서 받아온 반려동물 원본 데이터:', result.pets);
+          console.log('블록체인에서 받아온 반려동물 원본 데이터:', petsWithRecords);
           
           // 각 반려동물에 대해 공유 계약 정보 조회 및 처리
           const treatments = await Promise.all(
-              result.pets.map(async (pet, index) => {
+              petsWithRecords.map(async (pet, index) => {
                   if (!pet.petDID) {
                       console.warn('반려동물 DID 주소 누락:', pet);
                       return null;
@@ -660,8 +666,14 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
                       );
                       
                       if (petWithAgreement) {
-                          // Treatment 형식으로 변환
-                          return convertPetToTreatment(petWithAgreement, index);
+                          // PetWithAgreement를 Treatment 형식으로 변환
+                          const treatmentObj = convertPetToTreatment(petWithAgreement, index);
+                          
+                          // 의료 기록 정보 추가 (이미 getHospitalPetsWithRecords에서 가져온 정보)
+                          return {
+                              ...treatmentObj,
+                              records: pet.records || [] // 추가: 의료 기록 정보
+                          };
                       }
                   } catch (error) {
                       console.error(`반려동물 처리 중 오류(${pet.petDID}):`, error);
@@ -692,7 +704,7 @@ const TreatmentSidebar = forwardRef<TreatmentSidebarRef, SidebarProps>(({
             onBlockchainPetsLoad(sortedTreatments);
           }
         } else {
-          setError(result.error || '반려동물 목록을 가져오는데 실패했습니다.');
+          setError('반려동물 목록을 가져오는데 실패했습니다.');
         }
       } catch (err: any) {
         console.error('반려동물 목록 가져오기 오류:', err);
