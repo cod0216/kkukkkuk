@@ -73,7 +73,7 @@ class MyPageView extends ConsumerWidget {
               // 설정 섹션
               SettingsCard(
                 user: user,
-                onWalletDelete: () => controller.handleWalletDelete(context),
+                onWalletChange: () => controller.handleWalletChange(context),
                 onLogout: () => controller.handleLogout(context),
               ),
 

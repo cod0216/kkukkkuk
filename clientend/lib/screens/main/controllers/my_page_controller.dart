@@ -40,7 +40,7 @@ class MyPageController {
   }
 
   /// 지갑 정보 삭제 함수
-  Future<void> handleWalletDelete(BuildContext context) async {
+  Future<void> handleWalletChange(BuildContext context) async {
     ref.read(walletViewModelProvider.notifier).reset();
 
     if (context.mounted) {
