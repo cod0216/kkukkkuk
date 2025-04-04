@@ -20,64 +20,67 @@ class MyPageView extends ConsumerWidget {
     // 컨트롤러 초기화
     final controller = ref.watch(myPageControllerProvider(ref));
 
-    // 현재 활성화된 지갑 주소 가져오기
-    final activeWalletAddressFuture = _getActiveWalletAddress(ref);
-
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 헤더 섹션
-            const Text(
-              '마이페이지',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
+        // Replace Column with SingleChildScrollView + Column
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 헤더 섹션
+              const Text(
+                '마이페이지',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 24),
 
-            // 사용자 정보가 없는 경우
-            if (user == null)
-              const Center(child: Text('로그인이 필요합니다.'))
-            else
-              // 사용자 프로필 섹션
-              ProfileCard(user: user),
+              // 사용자 정보가 없는 경우
+              if (user == null)
+                const Center(child: Text('로그인이 필요합니다.'))
+              else
+                // 사용자 프로필 섹션
+                ProfileCard(user: user),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // 지갑 정보 섹션
-            if (user != null &&
-                user.wallets != null &&
-                user.wallets!.isNotEmpty)
-              FutureBuilder<Map<String, dynamic>>(
-                future: _getWalletData(ref, user.wallets!),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+              // 지갑 정보 섹션
+              if (user != null &&
+                  user.wallets != null &&
+                  user.wallets!.isNotEmpty)
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _getWalletData(ref, user.wallets!),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  final data =
-                      snapshot.data ??
-                      {'wallets': user.wallets!, 'activeAddress': null};
-                  final wallets = data['wallets'] as List<Wallet>;
-                  final activeWalletAddress = data['activeAddress'] as String?;
+                    final data =
+                        snapshot.data ??
+                        {'wallets': user.wallets!, 'activeAddress': null};
+                    final wallets = data['wallets'] as List<Wallet>;
+                    final activeWalletAddress =
+                        data['activeAddress'] as String?;
 
-                  return WalletCard(
-                    wallets: wallets,
-                    activeWalletAddress: activeWalletAddress,
-                  );
-                },
+                    return WalletCard(
+                      wallets: wallets,
+                      activeWalletAddress: activeWalletAddress,
+                    );
+                  },
+                ),
+
+              const SizedBox(height: 24), // Replace Spacer with SizedBox
+              // 설정 섹션
+              SettingsCard(
+                user: user,
+                onWalletDelete: () => controller.handleWalletDelete(context),
+                onLogout: () => controller.handleLogout(context),
               ),
 
-            const Spacer(),
-
-            // 설정 섹션
-            SettingsCard(
-              user: user,
-              onWalletDelete: () => controller.handleWalletDelete(context),
-              onLogout: () => controller.handleLogout(context),
-            ),
-          ],
+              // Add some bottom padding for better scrolling experience
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
