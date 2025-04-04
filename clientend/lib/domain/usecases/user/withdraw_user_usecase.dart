@@ -1,6 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/repositories/auth/token_repository.dart';
-import 'package:kkuk_kkuk/data/repositories/user/user_repository.dart';
 import 'package:kkuk_kkuk/domain/repositories/auth/token_repository_interface.dart';
 import 'package:kkuk_kkuk/domain/repositories/user/user_repository_interface.dart';
 
@@ -29,9 +26,3 @@ class WithdrawUserUseCase {
     }
   }
 }
-
-final withdrawUserUseCaseProvider = Provider<WithdrawUserUseCase>((ref) {
-  final userRepository = ref.watch(userRepositoryProvider);
-  final tokenRepository = ref.watch(tokenRepositoryProvider);
-  return WithdrawUserUseCase(userRepository, tokenRepository);
-});
