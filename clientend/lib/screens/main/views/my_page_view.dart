@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/viewmodels/auth_view_model.dart';
 import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/my_page_widgets.dart';
+import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
 
 class MyPageView extends ConsumerWidget {
   const MyPageView({super.key});
@@ -15,6 +16,9 @@ class MyPageView extends ConsumerWidget {
 
     // 컨트롤러 초기화
     final controller = ref.watch(myPageControllerProvider(ref));
+
+    // 현재 활성화된 지갑 주소 가져오기 (비동기 작업이지만 UI에서는 간단하게 처리)
+    final activeWalletAddressFuture = _getActiveWalletAddress(ref);
 
     return SafeArea(
       child: Padding(
@@ -42,7 +46,16 @@ class MyPageView extends ConsumerWidget {
             if (user != null &&
                 user.wallets != null &&
                 user.wallets!.isNotEmpty)
-              MyPageWidgets.buildWalletCard(user.wallets!),
+              FutureBuilder<String?>(
+                future: activeWalletAddressFuture,
+                builder: (context, snapshot) {
+                  final activeWalletAddress = snapshot.data;
+                  return MyPageWidgets.buildWalletCard(
+                    user.wallets!,
+                    activeWalletAddress: activeWalletAddress,
+                  );
+                },
+              ),
 
             const Spacer(),
 
@@ -56,5 +69,19 @@ class MyPageView extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// 현재 활성화된 지갑 주소 가져오기
+  Future<String?> _getActiveWalletAddress(WidgetRef ref) async {
+    try {
+      final secureStorage = ref.read(secureStorageProvider);
+      // 로컬 저장소에서 지갑 주소 가져오기
+      // 참고: 실제 구현에서는 지갑 주소를 저장하는 키가 다를 수 있음
+      final walletAddress = await secureStorage.getValue('eth_address');
+      return walletAddress;
+    } catch (e) {
+      print('활성화된 지갑 주소 조회 실패: $e');
+      return null;
+    }
   }
 }

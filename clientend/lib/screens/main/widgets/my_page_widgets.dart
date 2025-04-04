@@ -69,7 +69,11 @@ class MyPageWidgets {
   }
 
   /// 지갑 정보 카드 위젯
-  static Widget buildWalletCard(List<Wallet> wallets) {
+  /// 지갑 카드 위젯 생성
+  static Widget buildWalletCard(
+    List<Wallet> wallets, {
+    String? activeWalletAddress,
+  }) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -81,37 +85,62 @@ class MyPageWidgets {
               '내 지갑',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
-            ...wallets.map(
-              (wallet) => Padding(
+            const SizedBox(height: 16),
+
+            // 지갑 목록
+            ...wallets.map((wallet) {
+              final isActive =
+                  activeWalletAddress != null &&
+                  wallet.address.toLowerCase() ==
+                      activeWalletAddress.toLowerCase();
+
+              return Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.account_balance_wallet,
-                      color: Colors.blue,
-                    ),
-                    const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             wallet.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            wallet.address,
-                            style: const TextStyle(fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
+                            '${wallet.address.substring(0, 10)}...${wallet.address.substring(wallet.address.length - 8)}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
                     ),
+
+                    // 활성화된 지갑 표시
+                    if (isActive)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          '활성화됨',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
-              ),
-            ),
+              );
+            }).toList(),
           ],
         ),
       ),
