@@ -41,14 +41,8 @@ public class S3Service {
      * @return 저장된 이미지 url
      */
     public String uploadImage(Integer relativeId, RelatedType relatedType, MultipartFile imageFile) {
-        Optional<S3> s3 = s3Repository.findByRelatedIdAndRelatedType(relativeId, relatedType);
-        if(s3.isPresent()) {
-            s3Uploader.deleteImage(s3.get().getUrl());
-            s3Repository.delete(s3.get());
-        }
-
+        deleteImage(relativeId, relatedType);
         String image = s3Uploader.uploadPermanent(imageFile, relatedType.name());
-
         return s3Repository.save(new S3(relativeId, relatedType, image, LocalDateTime.now())).getUrl();
     }
 
@@ -71,9 +65,8 @@ public class S3Service {
      */
     public void deleteImage(Integer relativeId, RelatedType relatedType) {
         String s3Image = getImage(relativeId, relatedType);
-        if(Objects.nonNull(s3Image)) {
-            s3Uploader.deleteImage(s3Image);
-        }
+        if(Objects.isNull(s3Image)) return;
+        s3Uploader.deleteImage(s3Image);
         s3Repository.deleteByRelatedIdAndRelatedType(relativeId, relatedType);
     }
 }

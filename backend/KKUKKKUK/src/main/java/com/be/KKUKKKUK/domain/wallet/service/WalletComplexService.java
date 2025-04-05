@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.domain.wallet.service;
 import com.be.KKUKKKUK.domain.owner.dto.response.OwnerShortInfoResponse;
 import com.be.KKUKKKUK.domain.owner.entity.Owner;
 import com.be.KKUKKKUK.domain.owner.service.OwnerService;
+import com.be.KKUKKKUK.domain.s3.service.S3Service;
 import com.be.KKUKKKUK.domain.wallet.dto.mapper.WalletMapper;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletRegisterRequest;
 import com.be.KKUKKKUK.domain.wallet.dto.request.WalletUpdateRequest;
@@ -10,6 +11,7 @@ import com.be.KKUKKKUK.domain.wallet.dto.response.WalletInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.dto.response.WalletShortInfoResponse;
 import com.be.KKUKKKUK.domain.wallet.entity.Wallet;
 import com.be.KKUKKKUK.domain.walletowner.service.WalletOwnerService;
+import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +36,12 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class WalletComplexService {
+    private final S3Service s3Service;
     private final OwnerService ownerService;
     private final WalletService walletService;
     private final WalletOwnerService walletOwnerService;
 
     private final WalletMapper walletMapper;
-
-
 
     /**
      * 보호자 회원의 ID 를 통해 디지털 지갑을 찾고, 지갑 정보를 반환합니다.
@@ -62,11 +63,7 @@ public class WalletComplexService {
     @Transactional(readOnly = true)
     public WalletInfoResponse getWalletInfoByWalletId(Integer ownerId, Integer walletId) {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
-
-        List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
-        List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-
-        return walletMapper.mapToWalletInfoResponse(wallet, ownerInfos);
+        return buildWalletInfoResponse(wallet, walletId);
     }
 
     /**
@@ -83,11 +80,7 @@ public class WalletComplexService {
                 .orElseGet(() -> walletService.saveWallet(request.toWalletEntity()));
 
         walletOwnerService.connectWalletAndOwner(owner, wallet);
-
-        List<Owner> owners = walletOwnerService.getOwnersByWalletId(wallet.getId());
-        List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-
-        return  walletMapper.mapToWalletInfoResponse(wallet, ownerInfos);
+        return buildWalletInfoResponse(wallet, wallet.getId());
     }
 
     /**
@@ -102,11 +95,7 @@ public class WalletComplexService {
         Wallet wallet = walletOwnerService.findWalletOwner(ownerId, walletId).getWallet();
         walletMapper.updateWalletFromRequest(wallet, request);
         Wallet updateWallet = walletService.saveWallet(wallet);
-
-        List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
-        List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
-
-        return  walletMapper.mapToWalletInfoResponse(updateWallet, ownerInfos);
+        return buildWalletInfoResponse(updateWallet, walletId);
     }
 
     /**
@@ -118,5 +107,18 @@ public class WalletComplexService {
         walletOwnerService.disconnectWalletAndOwner(ownerId, walletId);
     }
 
+    /**
+     * WalletInfoResponse 객체를 만드는 공통 로직 메서드입니다.
+     * @param wallet 지갑 entity 객체
+     * @param walletId 지갑 ID
+     * @return 지갑 정보에 대한 response
+     */
+    private WalletInfoResponse buildWalletInfoResponse(Wallet wallet, Integer walletId) {
+        List<Owner> owners = walletOwnerService.getOwnersByWalletId(walletId);
+        List<OwnerShortInfoResponse> ownerInfos = walletMapper.mapOwnersToOwnerShortInfos(owners);
+        ownerInfos.forEach(ownerInfo ->
+                ownerInfo.setImage(s3Service.getImage(ownerInfo.getId(), RelatedType.OWNER))
+        );
+        return walletMapper.mapToWalletInfoResponse(wallet, ownerInfos);
+    }
 }
-
