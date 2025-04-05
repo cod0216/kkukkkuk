@@ -30,71 +30,31 @@ class MyPageController {
     ref.read(refreshNotifierProvider.notifier).state++;
   }
 
-  /// 이미지 크롭 처리
-  Future<File?> _cropImage(BuildContext context, String imagePath) async {
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: imagePath,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: '이미지 편집',
-          toolbarColor: Theme.of(context).primaryColor,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: true,
-        ),
-        IOSUiSettings(
-          title: '이미지 편집',
-          aspectRatioLockEnabled: true,
-          resetAspectRatioEnabled: false,
-        ),
-      ],
-    );
-
-    if (croppedFile == null) return null;
-    return File(croppedFile.path);
-  }
-
-  /// 이미지 처리 - 펫 이미지 뷰의 로직 참고하여 수정
-  Future<File?> _processImage(BuildContext context, XFile pickedImage) async {
-    try {
-      // 이미지 크롭 처리
-      final File? croppedImage = await _cropImage(context, pickedImage.path);
-      print('croppedImage: $croppedImage');
-      print('pickedImage: $pickedImage');
-      print('pickedImage.path: ${pickedImage.path}');
-      return croppedImage;
-    } catch (e) {
-      print('이미지 처리 중 오류 발생: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('이미지 처리 중 오류가 발생했습니다: $e')));
-      }
-      return null;
-    }
-  }
-
   /// 이미지 업로드
   Future<void> _uploadImage(BuildContext context, File croppedImage) async {
-    // 로딩 다이얼로그 표시
-    if (context.mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (context) => const AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('프로필 이미지 업로드 중...'),
-                ],
-              ),
-            ),
-      );
-    }
+    // 컨텍스트가 유효한지 확인
+    if (!context.mounted) return;
+
+    // 로딩 다이얼로그를 표시하고 BuildContext를 저장
+    BuildContext? dialogContext;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        dialogContext = context;
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('프로필 이미지 업로드 중...'),
+            ],
+          ),
+        );
+      },
+    );
 
     try {
       // 프로필 이미지 업로드 유스케이스 호출
@@ -103,12 +63,10 @@ class MyPageController {
       );
       await uploadProfileImageUseCase.execute(croppedImage);
 
-      // 화면 새로고침
-      triggerRefresh();
-
-      // 로딩 다이얼로그 닫기
-      if (context.mounted) {
-        Navigator.of(context).pop();
+      // 로딩 다이얼로그 닫기 - 저장된 dialogContext 사용
+      if (dialogContext != null &&
+          Navigator.of(dialogContext!, rootNavigator: true).canPop()) {
+        Navigator.of(dialogContext!, rootNavigator: true).pop();
       }
 
       // 성공 메시지
@@ -118,99 +76,16 @@ class MyPageController {
         ).showSnackBar(const SnackBar(content: Text('프로필 이미지가 업데이트되었습니다.')));
       }
     } catch (e) {
-      // 로딩 다이얼로그 닫기
-      if (context.mounted) {
-        Navigator.of(context).pop();
+      // 로딩 다이얼로그 닫기 - 저장된 dialogContext 사용
+      if (dialogContext != null &&
+          Navigator.of(dialogContext!, rootNavigator: true).canPop()) {
+        Navigator.of(dialogContext!, rootNavigator: true).pop();
       }
 
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('프로필 이미지 업로드 실패: $e')));
-      }
-    }
-  }
-
-  /// 카메라로 사진 촬영
-  Future<void> _takePicture(BuildContext context) async {
-    final hasPermission = await _permissionManager.handlePermissionRequest(
-      context,
-      Permission.camera,
-    );
-
-    if (!hasPermission) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('카메라 접근 권한이 필요합니다.')));
-      }
-      return;
-    }
-
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 85,
-        maxWidth: 1024,
-        maxHeight: 1024,
-      );
-
-      if (image != null && context.mounted) {
-        final File? processedImage = await _processImage(context, image);
-        if (processedImage != null && context.mounted) {
-          await _uploadImage(context, processedImage);
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('사진 촬영 중 오류가 발생했습니다: $e')));
-      }
-    }
-  }
-
-  /// 갤러리에서 이미지 선택
-  Future<void> _pickFromGallery(BuildContext context) async {
-    final permission =
-        Platform.isAndroid ? Permission.photos : Permission.storage;
-
-    final hasPermission = await _permissionManager.handlePermissionRequest(
-      context,
-      permission,
-    );
-
-    if (!hasPermission) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('갤러리 접근 권한이 필요합니다.')));
-      }
-      return;
-    }
-
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-        maxWidth: 1024,
-        maxHeight: 1024,
-      );
-      print('image: $image');
-      print('image.mt: ${image?.mimeType}');
-      print('image.path: ${image?.path}');
-
-      if (image != null && context.mounted) {
-        final File? processedImage = await _processImage(context, image);
-        if (processedImage != null && context.mounted) {
-          await _uploadImage(context, processedImage);
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('이미지 선택 중 오류가 발생했습니다: $e')));
       }
     }
   }
@@ -339,7 +214,7 @@ class MyPageController {
 
   /// 프로필 이미지 변경 다이얼로그 표시
   Future<void> showProfileImageDialog(BuildContext context) async {
-    await showDialog(
+    final ImageSource? source = await showDialog<ImageSource>(
       context: context,
       builder:
           (context) => AlertDialog(
@@ -351,30 +226,159 @@ class MyPageController {
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
                   title: const Text('카메라로 촬영'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _takePicture(context);
-                  },
+                  onTap: () => Navigator.of(context).pop(ImageSource.camera),
                 ),
                 // 갤러리 옵션
                 ListTile(
                   leading: const Icon(Icons.photo_library),
                   title: const Text('갤러리에서 선택'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _pickFromGallery(context);
-                  },
+                  onTap: () => Navigator.of(context).pop(ImageSource.gallery),
                 ),
               ],
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(context).pop(null),
                 child: const Text('취소'),
               ),
             ],
           ),
     );
+
+    // 사용자가 취소했거나 대화 상자가 닫혔일 때
+    if (source == null || !context.mounted) return;
+
+    // 선택된 소스에 따라 이미지 처리
+    if (source == ImageSource.camera) {
+      await _takePicture(context);
+    } else {
+      await _pickFromGallery(context);
+    }
+  }
+
+  /// 카메라로 사진 촬영
+  Future<void> _takePicture(BuildContext context) async {
+    final hasPermission = await _permissionManager.handlePermissionRequest(
+      context,
+      Permission.camera,
+    );
+
+    if (!hasPermission || !context.mounted) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('카메라 접근 권한이 필요합니다.')));
+      }
+      return;
+    }
+
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      // 이미지가 선택되지 않았거나 컨텍스트가 유효하지 않은 경우
+      if (image == null || !context.mounted) return;
+
+      // 이미지 크롭 처리
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: '이미지 편집',
+            toolbarColor: Theme.of(context).primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: '이미지 편집',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+          ),
+        ],
+      );
+
+      // 크롭된 이미지가 없거나 컨텍스트가 유효하지 않은 경우
+      if (croppedFile == null || !context.mounted) return;
+
+      // 이미지 업로드
+      await _uploadImage(context, File(croppedFile.path));
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('사진 촬영 중 오류가 발생했습니다: $e')));
+      }
+    }
+  }
+
+  /// 갤러리에서 이미지 선택
+  Future<void> _pickFromGallery(BuildContext context) async {
+    final permission =
+        Platform.isAndroid ? Permission.photos : Permission.storage;
+
+    final hasPermission = await _permissionManager.handlePermissionRequest(
+      context,
+      permission,
+    );
+
+    if (!hasPermission || !context.mounted) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('갤러리 접근 권한이 필요합니다.')));
+      }
+      return;
+    }
+
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      // 이미지가 선택되지 않았거나 컨텍스트가 유효하지 않은 경우
+      if (image == null || !context.mounted) return;
+
+      // 이미지 크롭 처리
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: '이미지 편집',
+            toolbarColor: Theme.of(context).primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: '이미지 편집',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+          ),
+        ],
+      );
+
+      // 크롭된 이미지가 없거나 컨텍스트가 유효하지 않은 경우
+      if (croppedFile == null || !context.mounted) return;
+
+      // 이미지 업로드
+      await _uploadImage(context, File(croppedFile.path));
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('이미지 선택 중 오류가 발생했습니다: $e')));
+      }
+    }
   }
 }
 
