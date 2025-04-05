@@ -2,14 +2,13 @@ package com.be.KKUKKKUK.domain.ocr.service;
 
 import com.be.KKUKKKUK.domain.ocr.client.OpenAiApiClient;
 import com.be.KKUKKKUK.domain.ocr.dto.mapper.OcrMapper;
-import com.be.KKUKKKUK.domain.ocr.dto.request.OcrRequest;
 import com.be.KKUKKKUK.domain.ocr.dto.response.OcrResponse;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpRequest;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -26,7 +25,7 @@ import java.util.Objects;
  * 25.04.02          eunchang           최초 생성<br>
  */
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OcrService {
@@ -92,7 +91,7 @@ public class OcrService {
         String fullPrompt = prompt + "\n\n입력 데이터:\n" + text;
         String gptResult = openAiApiClient.sendPrompt(fullPrompt);
 
-        System.out.println("gptResult = " + gptResult); //TODO log 를 활용해주세요
+        log.info("gptResult = {}", gptResult);
 
         if (gptResult.contains("\"error\"")) {
             throw new ApiException(ErrorCode.GPT_API_ERROR);

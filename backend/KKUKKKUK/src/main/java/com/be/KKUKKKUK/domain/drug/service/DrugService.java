@@ -52,18 +52,4 @@ public class DrugService {
         List<Drug> drugs = drugRepository.findByNameKrContainingIgnoreCaseOrNameEnContainingIgnoreCase(keyword, keyword);
         return drugMapper.mapToDrugResponseList(drugs);
     }
-
-    /**
-     * 검색한 단어로 약품을 조회입니다.
-     *
-     * @param name 약품 이름
-     * @return 해당 약품 Entity
-     * @throws ApiException 검색한 약품이 없는 경우 예외 발생
-     */
-    @Transactional(readOnly = true) //TODO 사용하지 않은건 삭제 해주세요
-    public DrugResponse getDrug(String name){
-        Drug drug = drugRepository.findByNameKrOrNameEn(name, name)
-                .orElseThrow(() -> new ApiException(ErrorCode.DRUG_NOT_FOUND));
-        return drugMapper.mapToDrugResponse(drug);
-    }
 }

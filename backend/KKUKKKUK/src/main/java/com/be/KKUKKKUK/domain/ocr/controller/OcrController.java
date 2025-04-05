@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @Tag(name = "OCR API", description = "모바일에서 받은 OCR을 정보를 정제하는 API입니다.")
 @RestController
-@RequestMapping("/api/ocr")//TODO 명사는 복수 형태로 해주세요
+@RequestMapping("/api/ocrs")
 @RequiredArgsConstructor
 public class OcrController {
     private final OcrService ocrService;
@@ -45,7 +45,7 @@ public class OcrController {
             @ApiResponse(responseCode = "500", description = "GPT 결과를 OcrResponse로 매핑하는 데 실패했습니다.")
     })
     @PostMapping("/extract")
-    public ResponseEntity<?> extractOcr(@RequestBody Map<String, String> request) { //TODO 이건 Map으로 한 이유 궁금합니다.
+    public ResponseEntity<?> extractOcr(@RequestBody Map<String, String> request) {
         return ResponseUtility.success("OCR 파싱 데이터 가공에 성공하였습니다", ocrService.getOcrResult(request));
     }
 }
