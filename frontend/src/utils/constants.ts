@@ -13,7 +13,7 @@ export const NETWORK_CONFIG = {
 };
 
 // 컨트랙트 주소
-export const DID_REGISTRY_ADDRESS = '0x4dF9845a5608d4C461e4dc5a2171d2D83EA71E04';
+export const DID_REGISTRY_ADDRESS = '0x437b7C81dC9e4f0AcE47C98AB505235C437B972E';
 
 // 가스 설정
 export const GAS_SETTINGS = {
@@ -523,6 +523,11 @@ export const didRegistryABI = [
         "internalType": "bool",
         "name": "flagCertificated",
         "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "treatmentDate",
+        "type": "uint256"
       }
     ],
     "name": "addMedicalRecord",
@@ -591,6 +596,11 @@ export const didRegistryABI = [
         "internalType": "bool",
         "name": "flagCertificated",
         "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "treatmentDate",
+        "type": "uint256"
       }
     ],
     "name": "appendMedicalRecord",
@@ -791,6 +801,54 @@ export const didRegistryABI = [
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "originalRecordKey",
+        "type": "string"
+      }
+    ],
+    "name": "getMedicalRecordUpdates",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "petAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "originalRecordKey",
+        "type": "string"
+      }
+    ],
+    "name": "getMedicalRecordWithUpdates",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "originalRecord",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "updateRecords",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "owner",
         "type": "address"
@@ -821,6 +879,25 @@ export const didRegistryABI = [
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "petAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getPetOriginalRecords",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
@@ -915,6 +992,25 @@ export const didRegistryABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "recordKey",
+        "type": "string"
+      }
+    ],
+    "name": "isOriginalRecord",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {

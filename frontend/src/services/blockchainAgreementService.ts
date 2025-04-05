@@ -197,6 +197,156 @@ const getHospitalInfoFromToken = (token: string): { hospitalName: string; doctor
 };
 
 /**
+ * JSON 문자열에서 isDeleted가 true인지 빠르게 확인하는 함수 (파싱 없이)
+ * @param jsonString JSON 문자열
+ * @returns isDeleted가 true인지 여부
+ */
+const isRecordDeletedFromString = (jsonString: string): boolean => {
+  if (!jsonString || typeof jsonString !== 'string') {
+    return false;
+  }
+  
+  // "isDeleted":true 패턴 검색 (공백이 있을 수 있음)
+  const deletedPattern = /"isDeleted"\s*:\s*true/i;
+  return deletedPattern.test(jsonString);
+};
+
+/**
+ * JSON 문자열에서 특정 키의 값을 안전하게 추출하는 함수 (파싱 없이)
+ * @param jsonString JSON 문자열
+ * @param key 추출할 키 이름
+ * @param defaultValue 기본값
+ * @returns 추출된 값 또는 기본값
+ */
+const extractValueFromJsonString = (
+  jsonString: string, 
+  key: string, 
+  defaultValue: string = ''
+): string => {
+  if (!jsonString || typeof jsonString !== 'string') {
+    return defaultValue;
+  }
+  
+  try {
+    // "key":"value" 패턴 검색 (공백이 있을 수 있음)
+    const regex = new RegExp(`"${key}"\\s*:\\s*"([^"]*)"`, 'i');
+    const match = jsonString.match(regex);
+    
+    if (match && match[1]) {
+      return match[1];
+    }
+    
+    // 숫자 값인 경우를 위한 추가 패턴 (따옴표 없음)
+    // "key":123 패턴
+    const numRegex = new RegExp(`"${key}"\\s*:\\s*([0-9]+)`, 'i');
+    const numMatch = jsonString.match(numRegex);
+    
+    if (numMatch && numMatch[1]) {
+      return numMatch[1];
+    }
+    
+    return defaultValue;
+  } catch (error) {
+    console.error(`JSON 문자열에서 ${key} 추출 중 오류:`, error);
+    return defaultValue;
+  }
+};
+
+// /**
+//  * JSON 문자열을 안전하게 파싱하는 함수
+//  * @param jsonString JSON 문자열
+//  * @returns 파싱된 객체 또는 기본값
+//  */
+// const safeJsonParse = (jsonString: string, defaultValue: any = {}): any => {
+//   if (!jsonString || typeof jsonString !== 'string') {
+//     return defaultValue;
+//   }
+  
+//   try {
+//     // 문자열 내용으로 새로운 JSON 문자열 재생성
+//     // 이렇게 하면 원본 문자열에 있을 수 있는 특수 문자나 BOM이 제거됨
+//     if (jsonString && jsonString.startsWith('{')) {
+//       return JSON.parse(jsonString);
+//     }
+    
+//     // 정상적인 JSON이 아니면 기본값 반환
+//     return defaultValue;
+//   } catch (error) {
+//     console.error('JSON 파싱 오류:', error, '원본 문자열:', jsonString);
+    
+//     // 특정 오류 패턴 처리 시도
+//     try {
+//       // 큰따옴표 닫기 누락 패턴 찾기
+//       let fixedJson = jsonString;
+      
+//       // 1. "deletedAt":"숫자, 패턴 확인 (마지막 따옴표 누락)
+//       const unclosedTimestampPattern = /"deletedAt":"(\d+),/g;
+//       if (fixedJson.match(unclosedTimestampPattern)) {
+//         fixedJson = fixedJson.replace(unclosedTimestampPattern, '"deletedAt":"$1",');
+//       }
+      
+//       // 2. "deletedAt":"숫자 패턴 확인 (닫는 따옴표와 콤마 누락)
+//       const missingQuoteTimestampPattern = /"deletedAt":"(\d+)(\s|,|\})/g;
+//       if (fixedJson.match(missingQuoteTimestampPattern)) {
+//         fixedJson = fixedJson.replace(missingQuoteTimestampPattern, '"deletedAt":"$1"$2');
+//       }
+      
+//       // 3. "deletedBy":"0x... 패턴 확인 (이더리움 주소의 닫는 따옴표 누락)
+//       const missingQuoteAddressPattern = /"deletedBy":"(0x[a-fA-F0-9]+)(\s|,|\})/g;
+//       if (fixedJson.match(missingQuoteAddressPattern)) {
+//         fixedJson = fixedJson.replace(missingQuoteAddressPattern, '"deletedBy":"$1"$2');
+//       }
+      
+//       // 4. "[수정내역]"를 포함하는 경우 특별히 처리 (notes 필드의 수정 내역 관련 문제)
+//       if (fixedJson.includes('[수정내역]')) {
+//         // 수정 내역 문자열 패턴은 복잡하므로 문제가 될 수 있는 부분을 단순화
+//         fixedJson = fixedJson.replace(/\[수정내역\][^"]*"[^"]*"[^,}]*/g, '수정 기록');
+//       }
+      
+//       // 5. 일반적인 속성 뒤의 닫는 따옴표 누락 패턴
+//       const generalMissingQuotePattern = /"([^"]+)":"([^",]*[^",\s])(\s*)(,|\})/g;
+//       if (fixedJson.match(generalMissingQuotePattern)) {
+//         fixedJson = fixedJson.replace(generalMissingQuotePattern, '"$1":"$2"$3$4');
+//       }
+      
+//       // 6. 마지막 괄호 닫기 확인
+//       if (!fixedJson.endsWith('}') && fixedJson.includes('{')) {
+//         fixedJson = fixedJson + '}';
+//       }
+      
+//       // 고친 문자열로 다시 시도
+//       if (fixedJson !== jsonString) {
+//         console.log('JSON 문자열 수정 시도:', fixedJson);
+//         return JSON.parse(fixedJson);
+//       }
+//     } catch (fixError) {
+//       console.error('JSON 수정 시도 실패:', fixError);
+//     }
+    
+//     // 파싱에 실패하면 기본값 반환
+//     return defaultValue;
+//   }
+// };
+
+/**
+ * JSON 문자열에 처리하기 어려운 패턴이 있는지 확인하는 함수
+ * @param jsonString JSON 문자열
+ * @returns 처리하기 어려운 패턴이 있으면 true, 없으면 false
+ */
+const hasTroublesomePattern = (jsonString: string): boolean => {
+  if (!jsonString || typeof jsonString !== 'string') {
+    return false;
+  }
+  
+  // 수정내역 패턴 확인
+  if (jsonString.includes('[수정내역]') && jsonString.includes('\"')) {
+    return true;
+  }
+  // 트러블한 패턴이 없으면 false 반환
+  return false;
+};
+
+/**
  * 병원에서 진료 취소 처리를 위한 특별 의료기록을 작성합니다.
  * 실제 공유 계약은 취소하지 않고, 특별 의료기록을 추가하여 UI에서 취소 상태를 표시합니다.
  * @param petDID 반려동물 DID 주소
@@ -319,17 +469,46 @@ export const checkCancellationStatus = async (
     
     for (let i = 0; i < names.length; i++) {
       const name = names[i];
+      const value = values[i];
       
       // 의료기록 키인지 확인
       if (name.startsWith('medical_record_')) {
         try {
-          // 의료기록 JSON 파싱
-          const recordData = JSON.parse(values[i]);
+          // 삭제된 기록인지 먼저 확인 (파싱 전)
+          if (isRecordDeletedFromString(value)) {
+            console.log('파싱 전 확인: 삭제된 기록 건너뜀:', name);
+            continue;
+          }
+          
+          // 처리하기 어려운 패턴 확인
+          if (hasTroublesomePattern(value)) {
+            console.log('파싱 전 확인: 문제가 될 수 있는 패턴 감지, 건너뜀:', name);
+            continue;
+          }
+          
+          // JSON 파싱 대신 문자열 패턴 매칭으로 진단명과 병원 주소 추출
+          const diagnosis = extractValueFromJsonString(value, 'diagnosis', '');
+          const recordHospitalAddress = extractValueFromJsonString(value, 'hospitalAddress', '');
           
           // 진단명이 "CANCELED"인 취소 기록인지 확인
-          if (recordData.diagnosis === "CANCELED" && recordData.hospitalAddress.toLowerCase() === hospitalAddress.toLowerCase()) {
+          if (diagnosis === "CANCELED" && recordHospitalAddress.toLowerCase() === hospitalAddress.toLowerCase()) {
             // 타임스탬프 추출 (키에서 추출 또는 createdAt 필드에서 추출)
-            const timestamp = recordData.createdAt || parseInt(name.split('_')[2], 10);
+            let timestamp = 0;
+            const createdAt = extractValueFromJsonString(value, 'createdAt', '0');
+            
+            if (createdAt && createdAt !== '0') {
+              timestamp = parseInt(createdAt, 10);
+            } else {
+              // 키에서 타임스탬프 추출 시도
+              const parts = name.split('_');
+              if (parts.length >= 3) {
+                try {
+                  timestamp = parseInt(parts[2], 10);
+                } catch (e) {
+                  timestamp = 0;
+                }
+              }
+            }
             
             // 가장 최근 취소 기록 갱신
             if (!latestCancellation || timestamp > latestCancellation.timestamp) {

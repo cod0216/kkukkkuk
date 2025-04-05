@@ -18,7 +18,7 @@ import { useState } from "react";
 import { SignUpRequest, HospitalBase } from "@/interfaces";
 import axios from "axios";
 import HospitalSearchModal from "./HospitalSearchModal";
-import { FaPaw, FaUser, FaLock, FaHospital, FaEnvelope } from "react-icons/fa";
+import { FaPaw, FaUser, FaLock, FaHospital, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 import useAppNavigation from "@/hooks/useAppNavigation";
 
 const BASE_URL = import.meta.env.VITE_SERVER_URL;
@@ -72,6 +72,7 @@ function SignUp() {
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [isAccountAvailable, setIsAccountAvailable] = useState<boolean>(false);
   const [accountError, setAccountError] = useState<string | null>(null);
@@ -339,6 +340,14 @@ function SignUp() {
     }
   };
 
+  /**
+   * 비밀번호 표시 상태를 토글하는 함수
+   * @returns {void}
+   */
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="min-h-screen flex justify-center items-center">
       <div className="w-full max-w-sm flex flex-col items-center">
@@ -384,7 +393,7 @@ function SignUp() {
             <div className="relative">
               <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 pointer-events-none" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 id="password"
                 className="w-full pl-10 px-3 py-2 text-sm border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -393,6 +402,13 @@ function SignUp() {
                 placeholder="비밀번호"
                 required
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
             {passwordError && (
               <p className="text-secondary-500 text-sm mt-1">{passwordError}</p>
