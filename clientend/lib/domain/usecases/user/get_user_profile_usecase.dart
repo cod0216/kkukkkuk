@@ -26,6 +26,7 @@ class GetUserProfileUseCase {
       birthDay: ownerInfo.birth?.substring(4) ?? '',
       gender: '',
       providerId: 0,
+      profileImage: ownerInfo.image,
       wallets:
           walletInfoList
               ?.map(

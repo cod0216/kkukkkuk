@@ -42,6 +42,7 @@ _OwnerProfileInfo _$OwnerProfileInfoFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       email: json['email'] as String,
       birth: json['birth'] as String?,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$OwnerProfileInfoToJson(_OwnerProfileInfo instance) =>
@@ -51,6 +52,7 @@ Map<String, dynamic> _$OwnerProfileInfoToJson(_OwnerProfileInfo instance) =>
       'name': instance.name,
       'email': instance.email,
       'birth': instance.birth,
+      'image': instance.image,
     };
 
 _WalletProfileInfo _$WalletProfileInfoFromJson(Map<String, dynamic> json) =>

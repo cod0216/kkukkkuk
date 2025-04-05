@@ -335,7 +335,7 @@ $OwnerProfileInfoCopyWith<$Res> get owner {
 /// @nodoc
 mixin _$OwnerProfileInfo {
 
- int get id; String? get did; String get name; String get email; String? get birth;
+ int get id; String? get did; String get name; String get email; String? get birth; String? get image;
 /// Create a copy of OwnerProfileInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -348,16 +348,16 @@ $OwnerProfileInfoCopyWith<OwnerProfileInfo> get copyWith => _$OwnerProfileInfoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerProfileInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.birth, birth) || other.birth == birth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerProfileInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.birth, birth) || other.birth == birth)&&(identical(other.image, image) || other.image == image));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,did,name,email,birth);
+int get hashCode => Object.hash(runtimeType,id,did,name,email,birth,image);
 
 @override
 String toString() {
-  return 'OwnerProfileInfo(id: $id, did: $did, name: $name, email: $email, birth: $birth)';
+  return 'OwnerProfileInfo(id: $id, did: $did, name: $name, email: $email, birth: $birth, image: $image)';
 }
 
 
@@ -368,7 +368,7 @@ abstract mixin class $OwnerProfileInfoCopyWith<$Res>  {
   factory $OwnerProfileInfoCopyWith(OwnerProfileInfo value, $Res Function(OwnerProfileInfo) _then) = _$OwnerProfileInfoCopyWithImpl;
 @useResult
 $Res call({
- int id, String? did, String name, String email, String? birth
+ int id, String? did, String name, String email, String? birth, String? image
 });
 
 
@@ -385,13 +385,14 @@ class _$OwnerProfileInfoCopyWithImpl<$Res>
 
 /// Create a copy of OwnerProfileInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,Object? birth = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,Object? birth = freezed,Object? image = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,did: freezed == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,birth: freezed == birth ? _self.birth : birth // ignore: cast_nullable_to_non_nullable
+as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -403,7 +404,7 @@ as String?,
 @JsonSerializable()
 
 class _OwnerProfileInfo implements OwnerProfileInfo {
-  const _OwnerProfileInfo({required this.id, this.did, required this.name, required this.email, this.birth});
+  const _OwnerProfileInfo({required this.id, this.did, required this.name, required this.email, this.birth, this.image});
   factory _OwnerProfileInfo.fromJson(Map<String, dynamic> json) => _$OwnerProfileInfoFromJson(json);
 
 @override final  int id;
@@ -411,6 +412,7 @@ class _OwnerProfileInfo implements OwnerProfileInfo {
 @override final  String name;
 @override final  String email;
 @override final  String? birth;
+@override final  String? image;
 
 /// Create a copy of OwnerProfileInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -425,16 +427,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerProfileInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.birth, birth) || other.birth == birth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerProfileInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.birth, birth) || other.birth == birth)&&(identical(other.image, image) || other.image == image));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,did,name,email,birth);
+int get hashCode => Object.hash(runtimeType,id,did,name,email,birth,image);
 
 @override
 String toString() {
-  return 'OwnerProfileInfo(id: $id, did: $did, name: $name, email: $email, birth: $birth)';
+  return 'OwnerProfileInfo(id: $id, did: $did, name: $name, email: $email, birth: $birth, image: $image)';
 }
 
 
@@ -445,7 +447,7 @@ abstract mixin class _$OwnerProfileInfoCopyWith<$Res> implements $OwnerProfileIn
   factory _$OwnerProfileInfoCopyWith(_OwnerProfileInfo value, $Res Function(_OwnerProfileInfo) _then) = __$OwnerProfileInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? did, String name, String email, String? birth
+ int id, String? did, String name, String email, String? birth, String? image
 });
 
 
@@ -462,13 +464,14 @@ class __$OwnerProfileInfoCopyWithImpl<$Res>
 
 /// Create a copy of OwnerProfileInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,Object? birth = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,Object? birth = freezed,Object? image = freezed,}) {
   return _then(_OwnerProfileInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,did: freezed == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,birth: freezed == birth ? _self.birth : birth // ignore: cast_nullable_to_non_nullable
+as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

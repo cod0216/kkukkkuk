@@ -34,6 +34,7 @@ abstract class OwnerProfileInfo with _$OwnerProfileInfo {
     required String name,
     required String email,
     String? birth,
+    String? image,
   }) = _OwnerProfileInfo;
 
   factory OwnerProfileInfo.fromJson(Map<String, dynamic> json) =>
