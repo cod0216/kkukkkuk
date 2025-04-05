@@ -68,8 +68,13 @@ public enum ErrorCode {
 
     BREED_NOT_FOUND(HttpStatus.NOT_FOUND, "BREED-001", "해당하는 품종을 찾을 수 없습니다."),
 
-    DRUG_NOT_FOUND(HttpStatus.NOT_FOUND, "DRUG-001", "해당 약품을 찾을 수 없습니다.");
+    DRUG_NOT_FOUND(HttpStatus.NOT_FOUND, "DRUG-001", "해당 약품을 찾을 수 없습니다."),
 
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "OCR-001", "많은 요청을 보내고 있습니다."),
+    GPT_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-002", "GPT API 호출 중 오류가 발생했습니다."),
+    GPT_JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-003", "OpenAI API 응답 파싱을 실패하였습니다."),
+    GPT_MAPPER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-004", "GPT 결과를 OcrResponse로 매핑하는 데 실패했습니다."),
+    GPT_INPUT_ERROR(HttpStatus.BAD_REQUEST, "OCR-005", "입력한 데이터가 제공되지 않았습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
