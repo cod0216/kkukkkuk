@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/entities/user.dart';
+import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 
 /// 사용자 프로필 카드 위젯
-class ProfileCard extends StatelessWidget {
+class ProfileCard extends ConsumerWidget {
   final User user;
 
   const ProfileCard({super.key, required this.user});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(myPageControllerProvider(ref));
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -18,22 +22,46 @@ class ProfileCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                // 프로필 이미지
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage:
-                      user.profileImage != null
-                          ? NetworkImage(user.profileImage!)
-                          : null,
-                  child:
-                      user.profileImage == null
-                          ? const Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.grey,
-                          )
-                          : null,
+                // 프로필 이미지 (클릭 가능)
+                GestureDetector(
+                  onTap: () => controller.showProfileImageDialog(context),
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage:
+                            user.profileImage != null
+                                ? NetworkImage(user.profileImage!)
+                                : null,
+                        child:
+                            user.profileImage == null
+                                ? const Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.grey,
+                                )
+                                : null,
+                      ),
+                      // 카메라 아이콘 오버레이
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 16),
                 // 사용자 기본 정보
