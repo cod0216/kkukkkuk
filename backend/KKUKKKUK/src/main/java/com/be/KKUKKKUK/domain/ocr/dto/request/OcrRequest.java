@@ -17,11 +17,10 @@ import java.util.Map;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.02          eunchang           최초 생성<br>
+ * 25.04.05          eunchang           에노테이션 제거<br>
  */
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OcrRequest {
     private String text;
 }

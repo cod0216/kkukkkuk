@@ -28,6 +28,7 @@ import java.util.Map;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.03          eunchang           최초 생성<br>
+ * 25.04.05          eunchang           END POINT 수정<br>
  */
 @Tag(name = "OCR API", description = "모바일에서 받은 OCR을 정보를 정제하는 API입니다.")
 @RestController
