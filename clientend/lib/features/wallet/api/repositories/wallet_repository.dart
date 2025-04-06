@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/shared/api/api_client.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_delete_response.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_detail_response.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_info_response.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_registration_request.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_registration_response.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_update_request.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_update_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_delete_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_detail_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_info_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_registration_request.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_registration_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_update_request.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_update_response.dart';
 import 'package:kkuk_kkuk/features/wallet/api/repositories/wallet_repository_interface.dart';
 
 class WalletRepository implements IWalletRepository {

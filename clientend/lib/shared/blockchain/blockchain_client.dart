@@ -2,12 +2,9 @@ import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/io.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/shared/config/app_config.dart';
 
 class BlockchainClient {
-  static const String rpcUrl = 'https://rpc.ssafy-blockchain.com';
-  static const String wsUrl = 'wss://ws.ssafy-blockchain.com';
-  static const int chainId = 31221;
-
   final Web3Client client;
   final http.Client httpClient;
   final IOWebSocketChannel webSocketChannel;
@@ -20,9 +17,11 @@ class BlockchainClient {
 
   factory BlockchainClient() {
     final httpClient = http.Client();
-    final webSocketChannel = IOWebSocketChannel.connect(wsUrl);
+    final webSocketChannel = IOWebSocketChannel.connect(
+      AppConfig.blockchainWsUrl,
+    ); // 변경
     final client = Web3Client(
-      rpcUrl,
+      AppConfig.blockchainRpcUrl, // 변경
       httpClient,
       socketConnector: () => webSocketChannel.cast<String>(),
     );
@@ -57,7 +56,7 @@ class BlockchainClient {
     return await client.sendTransaction(
       credentials,
       transaction,
-      chainId: chainId,
+      chainId: AppConfig.blockchainChainId,
     );
   }
 

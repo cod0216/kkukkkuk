@@ -7,11 +7,11 @@ import 'package:kkuk_kkuk/features/image/api/repositories/image_repository_impl.
 import 'package:permission_handler/permission_handler.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_register_controller.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/custom_image_placeholder.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/image_source_button.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/skip_button.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/dual_buttons.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/custom_header.dart';
+import 'package:kkuk_kkuk/widgets/custom_image_placeholder.dart';
+import 'package:kkuk_kkuk/widgets/image_source_button.dart';
+import 'package:kkuk_kkuk/widgets/skip_button.dart';
+import 'package:kkuk_kkuk/widgets/dual_buttons.dart';
+import 'package:kkuk_kkuk/widgets/custom_header.dart';
 import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
 
 // 반려동물 이미지 등록 화면

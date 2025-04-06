@@ -1,7 +1,12 @@
-class Examination {
-  final String type;
-  final String key;
-  final String value;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  Examination({required this.type, required this.key, required this.value});
+part 'examination.freezed.dart';
+
+@freezed
+abstract class Examination with _$Examination {
+  const factory Examination({
+    required String type,
+    required String key,
+    required String value,
+  }) = _Examination;
 }

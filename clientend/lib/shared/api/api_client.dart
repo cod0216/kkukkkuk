@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/shared/api/interceptors/error_handler.dart';
 import 'package:kkuk_kkuk/shared/api/interceptors/token_interceptor.dart';
 import 'package:kkuk_kkuk/shared/api/interceptors/logging_interceptor.dart';
+import 'package:kkuk_kkuk/shared/config/app_config.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -82,9 +83,7 @@ class ApiClient {
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://kukkkukk.duckdns.org',
-      // connectTimeout: const Duration(milliseconds: 5000),
-      // receiveTimeout: const Duration(milliseconds: 3000),
+      baseUrl: AppConfig.apiBaseUrl,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

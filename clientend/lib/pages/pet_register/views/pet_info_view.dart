@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_register_controller.dart';
 import 'package:kkuk_kkuk/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/custom_dropdown_field.dart';
+import 'package:kkuk_kkuk/widgets/custom_dropdown_field.dart';
 import 'package:kkuk_kkuk/pages/pet_register/widgets/pet_gender_selector.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/custom_text_field.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/dual_buttons.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/custom_header.dart';
+import 'package:kkuk_kkuk/widgets/custom_text_field.dart';
+import 'package:kkuk_kkuk/widgets/dual_buttons.dart';
+import 'package:kkuk_kkuk/widgets/custom_header.dart';
 
 // 반려동물 기본 정보 입력 화면
 class PetInfoView extends ConsumerStatefulWidget {

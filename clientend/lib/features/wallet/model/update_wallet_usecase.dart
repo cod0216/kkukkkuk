@@ -1,5 +1,5 @@
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_update_request.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_update_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_update_request.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_update_response.dart';
 import 'package:kkuk_kkuk/features/wallet/api/repositories/wallet_repository_interface.dart';
 
 class UpdateWalletUseCase {

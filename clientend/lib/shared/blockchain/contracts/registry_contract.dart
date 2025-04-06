@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:kkuk_kkuk/shared/config/app_config.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/shared/blockchain/blockchain_client.dart';
 
 class RegistryContract {
-  static const String contractAddress =
-      '0x4dF9845a5608d4C461e4dc5a2171d2D83EA71E04';
-
   final BlockchainClient _blockchainClient;
   late final DeployedContract _contract;
 
@@ -45,7 +43,7 @@ class RegistryContract {
 
       _contract = DeployedContract(
         ContractAbi.fromJson(jsonEncode(abi), 'PetRegistry'),
-        EthereumAddress.fromHex(contractAddress),
+        EthereumAddress.fromHex(AppConfig.petRegistryContractAddress),
       );
 
       // 함수 초기화

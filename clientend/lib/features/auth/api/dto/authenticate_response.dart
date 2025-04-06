@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:kkuk_kkuk/entities/auth/owner_info.dart';
-import 'package:kkuk_kkuk/entities/auth/token_info.dart';
-import 'package:kkuk_kkuk/entities/wallet/wallet_info.dart';
+import 'package:kkuk_kkuk/features/auth/api/dto/owner_info.dart';
+import 'package:kkuk_kkuk/features/auth/api/dto/token_info.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_info.dart';
 
 part 'authenticate_response.freezed.dart';
 part 'authenticate_response.g.dart';

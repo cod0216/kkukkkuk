@@ -5,7 +5,7 @@ import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_provider.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/pet/card/pet_card.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/widgets/loading_indicator.dart';
 
 class PetSelectionView extends ConsumerStatefulWidget {
   final HospitalQRData hospitalData;

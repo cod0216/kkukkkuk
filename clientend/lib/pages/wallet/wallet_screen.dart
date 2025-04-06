@@ -7,7 +7,7 @@ import 'package:kkuk_kkuk/pages/wallet/views/mnemonic_display_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/mnemonic_confirmation_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_recovery_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_naming_view.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/pages/common/error_view.dart';
 
 /// 지갑 설정 화면

@@ -38,7 +38,9 @@ class MedicalRecordQueryState {
 /// 진료 기록 조회 상태 관리 노티파이어
 class MedicalRecordQueryNotifier
     extends StateNotifier<MedicalRecordQueryState> {
-  MedicalRecordQueryNotifier() : super(MedicalRecordQueryState());
+  final Ref ref;
+
+  MedicalRecordQueryNotifier(this.ref) : super(MedicalRecordQueryState());
 
   /// 진료 기록 상태 초기화
   void clearRecords() {
@@ -81,5 +83,5 @@ final medicalRecordQueryProvider =
     StateNotifierProvider<MedicalRecordQueryNotifier, MedicalRecordQueryState>((
       ref,
     ) {
-      return MedicalRecordQueryNotifier();
+      return MedicalRecordQueryNotifier(ref);
     });

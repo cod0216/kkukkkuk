@@ -1,5 +1,9 @@
-class Medication {
-  final String key;
-  final String value;
-  Medication({required this.key, required this.value});
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'medication.freezed.dart';
+
+@freezed
+abstract class Medication with _$Medication {
+  const factory Medication({required String key, required String value}) =
+      _Medication;
 }

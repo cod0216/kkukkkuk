@@ -3,11 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/qr_scanner_controller.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
-import 'package:kkuk_kkuk/pages/qr_scanner/views/qr_scanner_view.dart';
-import 'package:kkuk_kkuk/pages/qr_scanner/views/hospital_qr_result_view.dart';
-import 'package:kkuk_kkuk/pages/qr_scanner/views/pet_selection_view.dart';
-import 'package:kkuk_kkuk/pages/qr_scanner/views/sharing_result_view.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/features/qr_scanner/ui/views/hospital_qr_result_view.dart';
+import 'package:kkuk_kkuk/features/qr_scanner/ui/views/pet_selection_view.dart';
+import 'package:kkuk_kkuk/features/qr_scanner/ui/views/qr_scanner_view.dart';
+import 'package:kkuk_kkuk/features/qr_scanner/ui/views/sharing_result_view.dart';
 
 final List<RouteBase> qrScannerRoutes = [
   GoRoute(

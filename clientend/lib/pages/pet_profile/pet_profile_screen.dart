@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/medical_record/model/medical_record_query_controller.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/pet/model/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_usecase_providers.dart';
@@ -24,7 +23,6 @@ class PetProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
-  late final MedicalRecordQueryController _controller;
   late final GetAllAtributesUseCase _getMedicalRecordsFromBlockchainUseCase;
 
   // TODO: 화면 새로고침 기능 추가 (진료기록을 아래로 스크롤하면 새로 로드)
@@ -38,7 +36,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = ref.read(medicalRecordQueryControllerProvider);
     _getMedicalRecordsFromBlockchainUseCase = ref.read(
       getAllAtributesUseCaseProvider,
     );
@@ -49,7 +46,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   void dispose() {
     // 화면이 종료될 때 진료 기록 상태 초기화
     Future.microtask(() {
-      _controller.clearRecords();
+      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
     });
     _refreshController.dispose(); // 컨트롤러 해제
     super.dispose();
@@ -59,7 +56,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   Future<void> _onRefresh() async {
     try {
       // 진료 기록 상태 초기화
-      _controller.clearRecords();
+      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
 
       // 블록체인에서 데이터 다시 로드
       if (widget.pet.did != null && widget.pet.did!.isNotEmpty) {
@@ -83,7 +80,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   void _loadMedicalRecords() {
     // 진료 기록 상태 초기화 후 새로운 데이터 로드
     Future.microtask(() {
-      _controller.clearRecords();
+      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
     });
     // 기존 DB에서 진료 기록 조회
     Future.microtask(() async {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/primary_button.dart';
+import 'package:kkuk_kkuk/widgets/primary_button.dart';
 
 class ErrorView extends StatelessWidget {
   final String message;

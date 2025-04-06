@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/auth/ui/widgets/kakao_login_button.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/app_logo.dart';
+import 'package:kkuk_kkuk/widgets/app_logo.dart';
 import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
 
 /// 로그인 화면

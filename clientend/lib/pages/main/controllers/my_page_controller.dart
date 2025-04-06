@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kkuk_kkuk/entities/wallet/owner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
-import 'package:kkuk_kkuk/features/wallet/api/repositories/dto/wallet_detail_response.dart';
+import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_detail_response.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/features/auth/model/usecases/auth_usecase_providers.dart';

@@ -6,7 +6,7 @@ import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
 import 'package:kkuk_kkuk/features/auth/ui/views/login_view.dart';
 import 'package:kkuk_kkuk/features/auth/ui/views/network_connection_view.dart';
 import 'package:kkuk_kkuk/features/auth/ui/views/wallet_guide_view.dart';
-import 'package:kkuk_kkuk/pages/common/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/widgets/loading_indicator.dart';
 import 'package:kkuk_kkuk/pages/common/error_view.dart';
 import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
 
