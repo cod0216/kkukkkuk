@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/domain/entities/user.dart';
+import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/oauth/oauth_usecase_providers.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -17,7 +17,7 @@ class AddMedicalRecordUseCase {
   /// [record] - 추가할 진료 기록 객체
   Future<String> execute({
     required String petDid,
-    required PetMedicalRecord record,
+    required MedicalRecord record,
   }) async {
     try {
       // 개인 키 가져오기

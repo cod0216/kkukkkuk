@@ -1,4 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:kkuk_kkuk/entities/auth/owner_info.dart';
+import 'package:kkuk_kkuk/entities/auth/token_info.dart';
+import 'package:kkuk_kkuk/entities/wallet/wallet_info.dart';
 
 part 'authenticate_response.freezed.dart';
 part 'authenticate_response.g.dart';
@@ -25,42 +28,4 @@ abstract class AuthenticateData with _$AuthenticateData {
 
   factory AuthenticateData.fromJson(Map<String, dynamic> json) =>
       _$AuthenticateDataFromJson(json);
-}
-
-@freezed
-abstract class OwnerInfo with _$OwnerInfo {
-  const factory OwnerInfo({
-    required int id,
-    String? did,
-    required String name,
-    required String email,
-    String? birth,
-    String? image,
-  }) = _OwnerInfo;
-
-  factory OwnerInfo.fromJson(Map<String, dynamic> json) =>
-      _$OwnerInfoFromJson(json);
-}
-
-@freezed
-abstract class TokenInfo with _$TokenInfo {
-  const factory TokenInfo({
-    @JsonKey(name: 'access_token') required String accessToken,
-    @JsonKey(name: 'refresh_token') required String refreshToken,
-  }) = _TokenInfo;
-
-  factory TokenInfo.fromJson(Map<String, dynamic> json) =>
-      _$TokenInfoFromJson(json);
-}
-
-@freezed
-abstract class WalletInfo with _$WalletInfo {
-  const factory WalletInfo({
-    required int id,
-    String? name,
-    required String address,
-  }) = _WalletInfo;
-
-  factory WalletInfo.fromJson(Map<String, dynamic> json) =>
-      _$WalletInfoFromJson(json);
 }

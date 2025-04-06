@@ -1,6 +1,6 @@
 import 'package:kkuk_kkuk/data/dtos/auth/authenticate_request.dart';
-import 'package:kkuk_kkuk/domain/entities/user.dart';
-import 'package:kkuk_kkuk/domain/entities/wallet.dart';
+import 'package:kkuk_kkuk/entities/user/user.dart';
+import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/domain/repositories/auth/auth_repository_interface.dart';
 
 class LoginWithKakaoUseCase {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/certification_badge.dart';
 
 class MedicalRecordCard extends StatelessWidget {
-  final PetMedicalRecord record;
+  final MedicalRecord record;
 
   const MedicalRecordCard({super.key, required this.record});
 

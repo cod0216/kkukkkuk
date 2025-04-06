@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
+import 'package:kkuk_kkuk/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
 
 class GetBreedsUseCase {

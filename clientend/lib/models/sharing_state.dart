@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
 
 enum SharingStatus {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/models/sharing_state.dart';
 import 'package:kkuk_kkuk/controllers/sharing_controller.dart';

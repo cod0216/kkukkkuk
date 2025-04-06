@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
 
 /// 진료 기록 조회 상태 관리 클래스
 class MedicalRecordQueryState {
-  final List<PetMedicalRecord> records; // 진료 기록 목록
+  final List<MedicalRecord> records; // 진료 기록 목록
   final bool isLoading; // 로딩 상태
   final String? error; // 에러 메시지
   final DateTime? lastQueryDate; // 마지막 조회 일시
@@ -21,7 +21,7 @@ class MedicalRecordQueryState {
 
   /// 상태 복사 메서드
   MedicalRecordQueryState copyWith({
-    List<PetMedicalRecord>? records,
+    List<MedicalRecord>? records,
     bool? isLoading,
     String? error,
     DateTime? lastQueryDate,
@@ -46,14 +46,14 @@ class MedicalRecordQueryNotifier
   }
 
   /// 블록체인에서 조회한 진료 기록 추가
-  void addBlockchainRecords(List<PetMedicalRecord> blockchainRecords) {
+  void addBlockchainRecords(List<MedicalRecord> blockchainRecords) {
     if (blockchainRecords.isEmpty) return;
 
     // TODO: hash[medicalKey] = set<medical> 2차원구조로 최신 데이터를 가져올수있도록함
     final allRecords = [...state.records, ...blockchainRecords];
 
     // Remove duplicates based on treatment date and diagnosis
-    final uniqueRecords = <PetMedicalRecord>[];
+    final uniqueRecords = <MedicalRecord>[];
     final recordKeys = <String>{};
 
     for (final record in allRecords) {

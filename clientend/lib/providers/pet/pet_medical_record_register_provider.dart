@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/entities/medical_record/examination.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medication.dart';
+import 'package:kkuk_kkuk/entities/medical_record/vaccination.dart';
 
 class MedicalRecordRegisterState {
   final bool isLoading;
@@ -41,7 +44,7 @@ class MedicalRecordRegisterNotifier
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final record = PetMedicalRecord(
+      final record = MedicalRecord(
         treatmentDate: DateTime.parse(data['date']),
         diagnosis: data['diagnosis'],
         veterinarian: data['doctorName'],

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/controllers/medical_record_query_controller.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_medical_record_provider.dart';

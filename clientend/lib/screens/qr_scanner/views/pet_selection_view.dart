@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/models/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_provider.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/card/pet_card.dart';

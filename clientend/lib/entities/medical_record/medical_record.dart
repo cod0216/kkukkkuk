@@ -1,4 +1,8 @@
-class PetMedicalRecord {
+import 'package:kkuk_kkuk/entities/medical_record/examination.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medication.dart';
+import 'package:kkuk_kkuk/entities/medical_record/vaccination.dart';
+
+class MedicalRecord {
   final DateTime treatmentDate;
   final String diagnosis;
   final String veterinarian;
@@ -12,7 +16,7 @@ class PetMedicalRecord {
   final bool flagCertificated;
   final List<String> pictures;
 
-  PetMedicalRecord({
+  MedicalRecord({
     required this.treatmentDate,
     required this.diagnosis,
     required this.veterinarian,
@@ -26,24 +30,4 @@ class PetMedicalRecord {
     required this.flagCertificated,
     this.pictures = const [],
   });
-}
-
-class Examination {
-  final String type;
-  final String key;
-  final String value;
-
-  Examination({required this.type, required this.key, required this.value});
-}
-
-class Medication {
-  final String key;
-  final String value;
-  Medication({required this.key, required this.value});
-}
-
-class Vaccination {
-  final String key;
-  final String value;
-  Vaccination({required this.key, required this.value});
 }

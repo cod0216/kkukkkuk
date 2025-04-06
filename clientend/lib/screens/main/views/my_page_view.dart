@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/user.dart';
-import 'package:kkuk_kkuk/domain/entities/wallet.dart';
+import 'package:kkuk_kkuk/entities/user/user.dart';
+import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/profile_card.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/wallet_card.dart';

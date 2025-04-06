@@ -1,5 +1,5 @@
-import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/breed.dart';
+import 'package:kkuk_kkuk/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/entities/pet/breed.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 레포지토리 인터페이스

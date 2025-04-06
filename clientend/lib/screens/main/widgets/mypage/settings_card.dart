@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/domain/entities/user.dart';
+import 'package:kkuk_kkuk/entities/user/user.dart';
 
 /// 설정 카드 위젯
 class SettingsCard extends StatelessWidget {

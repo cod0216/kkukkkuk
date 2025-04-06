@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/domain/entities/user.dart';
+import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 
 /// 사용자 프로필 카드 위젯

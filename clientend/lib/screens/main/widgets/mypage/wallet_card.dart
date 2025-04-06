@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/domain/entities/wallet.dart';
+import 'package:kkuk_kkuk/entities/wallet/owner.dart';
+import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 
 /// 지갑 정보 카드 위젯
 class WalletCard extends StatefulWidget {
@@ -140,34 +141,35 @@ class _WalletCardState extends State<WalletCard> {
 
   /// 지갑 이름 수정 다이얼로그 표시
   void _showEditDialog(Wallet wallet) {
-    final TextEditingController controller = TextEditingController(text: wallet.name);
-    
+    final TextEditingController controller = TextEditingController(
+      text: wallet.name,
+    );
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('지갑 이름 수정'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: '새 지갑 이름',
+      builder:
+          (context) => AlertDialog(
+            title: const Text('지갑 이름 수정'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(labelText: '새 지갑 이름'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (controller.text.isNotEmpty) {
+                    widget.onWalletNameUpdate?.call(wallet.id, controller.text);
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text('수정'),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                widget.onWalletNameUpdate?.call(wallet.id, controller.text);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('수정'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -175,24 +177,25 @@ class _WalletCardState extends State<WalletCard> {
   void _showDeleteDialog(Wallet wallet) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('지갑 삭제'),
-        content: const Text('정말로 이 지갑을 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('지갑 삭제'),
+            content: const Text('정말로 이 지갑을 삭제하시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () {
+                  widget.onWalletDelete?.call(wallet.id);
+                  Navigator.pop(context);
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('삭제'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              widget.onWalletDelete?.call(wallet.id);
-              Navigator.pop(context);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
     );
   }
 

@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/domain/entities/user.dart';
+import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/domain/repositories/auth/oauth_repository_interface.dart';
 
 class KakaoLoginUseCase {

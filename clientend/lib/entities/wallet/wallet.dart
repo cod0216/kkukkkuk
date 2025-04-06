@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:kkuk_kkuk/entities/wallet/owner.dart';
 
 part 'wallet.freezed.dart';
 
@@ -10,10 +11,4 @@ abstract class Wallet with _$Wallet {
     required String name,
     List<Owner>? owners,
   }) = _Wallet;
-}
-
-@freezed
-abstract class Owner with _$Owner {
-  const factory Owner({required int id, required String name, String? image}) =
-      _Owner;
 }

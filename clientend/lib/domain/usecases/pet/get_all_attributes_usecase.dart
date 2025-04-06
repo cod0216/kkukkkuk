@@ -1,7 +1,10 @@
 import 'dart:convert';
 
-import 'package:kkuk_kkuk/domain/entities/pet/pet_medical_record.dart';
+import 'package:kkuk_kkuk/entities/medical_record/examination.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/entities/medical_record/medication.dart';
+import 'package:kkuk_kkuk/entities/medical_record/vaccination.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스
@@ -16,7 +19,7 @@ class GetAllAtributesUseCase {
   ///
   /// [petAddress] 반려동물 주소
   /// 반환값: 진료 기록 목록
-  Future<List<PetMedicalRecord>> execute(String petAddress) async {
+  Future<List<MedicalRecord>> execute(String petAddress) async {
     try {
       // DID 형식(did:pet:0x...)에서 이더리움 주소 추출
       String cleanAddress = _extractEthereumAddress(petAddress);
@@ -47,10 +50,10 @@ class GetAllAtributesUseCase {
   ///
   /// [attributes] 블록체인에서 조회한 반려동물 속성
   /// 반환값: 변환된 진료 기록 목록
-  List<PetMedicalRecord> _convertAttributesToMedicalRecords(
+  List<MedicalRecord> _convertAttributesToMedicalRecords(
     Map<String, dynamic> attributes,
   ) {
-    final List<PetMedicalRecord> records = [];
+    final List<MedicalRecord> records = [];
 
     print('attributes: $attributes');
     // 속성에서 진료 기록 데이터 추출 및 변환
@@ -84,7 +87,7 @@ class GetAllAtributesUseCase {
   }
 
   /// 블록체인 진료 기록 데이터를 PetMedicalRecord 객체로 변환
-  PetMedicalRecord _convertBlockchainRecordToPetMedicalRecord(
+  MedicalRecord _convertBlockchainRecordToPetMedicalRecord(
     Map<String, dynamic> recordData,
     String recordKey,
   ) {
@@ -129,7 +132,7 @@ class GetAllAtributesUseCase {
       }
     }
 
-    return PetMedicalRecord(
+    return MedicalRecord(
       treatmentDate: treatmentDate,
       diagnosis: recordData['diagnosis'] ?? '',
       veterinarian: recordData['doctorName'] ?? '',

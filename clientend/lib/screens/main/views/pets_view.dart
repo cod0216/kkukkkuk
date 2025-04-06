@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/controllers/pet_controller.dart';
-import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_provider.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/pet/add_pet_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/add_circle_icon.dart';
