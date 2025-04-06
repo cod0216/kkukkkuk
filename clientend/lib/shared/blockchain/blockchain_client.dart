@@ -34,10 +34,10 @@ class BlockchainClient {
     );
   }
 
-  // Add this method if it doesn't already exist
+  /// 연결 상태 확인
   Future<bool> isConnected() async {
     try {
-      // Simple check to see if we can get the network ID
+      // 네트워크 ID를 가져와서 연결 상태 확인
       await client.getNetworkId();
       return true;
     } catch (e) {
@@ -45,10 +45,10 @@ class BlockchainClient {
     }
   }
 
-  Future<EtherAmount> getBalance(String address) async {
-    final ethAddress = EthereumAddress.fromHex(address);
-    return await client.getBalance(ethAddress);
-  }
+  // Future<EtherAmount> getBalance(String address) async {
+  //   final ethAddress = EthereumAddress.fromHex(address);
+  //   return await client.getBalance(ethAddress);
+  // }
 
   Future<String> sendTransaction({
     required Credentials credentials,

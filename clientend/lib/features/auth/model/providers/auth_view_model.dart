@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/features/auth/model/states/auth_state.dart';
 import 'package:kkuk_kkuk/features/auth/model/usecases/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/auth/model/usecases/oauth/oauth_usecase_providers.dart';
-import 'package:kkuk_kkuk/shared/blockchain/blockchain_connection_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/shared/blockchain/blockchain_client.dart';
 
 /// 로그인 결과를 담는 클래스
 class AuthResult {
@@ -64,10 +64,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
     );
 
     try {
-      final checkConnectionUseCase = ref.read(
-        checkBlockchainConnectionUseCaseProvider,
-      );
-      final isConnected = await checkConnectionUseCase.execute();
+      final blockchainClient = ref.read(blockchainClientProvider);
+      final isConnected = await blockchainClient.isConnected();
 
       if (isConnected) {
         state = state.copyWith(
