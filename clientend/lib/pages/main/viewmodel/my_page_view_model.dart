@@ -6,15 +6,15 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kkuk_kkuk/entities/wallet/owner.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/shared/lib/permission/permission_manager.dart';
 import 'package:kkuk_kkuk/features/wallet/api/dto/wallet_detail_response.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/features/auth/model/usecases/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/user/model/user_usecase_providers.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_usecase_providers.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/usecase/wallet_usecase_providers.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 /// 마이페이지 컨트롤러 - 마이페이지의 비즈니스 로직을 처리하는 클래스
 class MyPageViewModel {
@@ -110,7 +110,7 @@ class MyPageViewModel {
       await logoutUseCase.execute();
 
       // 로그아웃 후 상태 초기화
-      ref.read(authViewModelProvider.notifier).reset();
+      ref.read(authNotifierProvider.notifier).reset();
 
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -129,10 +129,10 @@ class MyPageViewModel {
 
   /// 지갑 정보 삭제 함수
   Future<void> handleWalletChange(BuildContext context) async {
-    ref.read(walletViewModelProvider.notifier).reset();
+    ref.read(walletNotifierProvider.notifier).reset();
 
     if (context.mounted) {
-      context.push('/wallet-creation', extra: walletViewModelProvider);
+      context.push('/wallet-creation', extra: walletNotifierProvider);
     }
   }
 

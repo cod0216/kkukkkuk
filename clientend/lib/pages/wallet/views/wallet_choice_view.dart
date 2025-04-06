@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 class WalletChoiceView extends ConsumerWidget {
-  final WalletViewModel controller;
-
-  const WalletChoiceView({super.key, required this.controller});
+  const WalletChoiceView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,13 +20,19 @@ class WalletChoiceView extends ConsumerWidget {
           const SizedBox(height: 32),
 
           ElevatedButton(
-            onPressed: () => controller.handleNewWallet(),
+            onPressed:
+                () =>
+                    ref.read(walletNotifierProvider.notifier).handleNewWallet(),
             child: const Text('새 지갑 생성'),
           ),
           const SizedBox(height: 16),
 
           OutlinedButton(
-            onPressed: () => controller.handleWalletRecovery(),
+            onPressed:
+                () =>
+                    ref
+                        .read(walletNotifierProvider.notifier)
+                        .handleWalletRecovery(),
             child: const Text('니모닉으로 지갑 복구'),
           ),
         ],

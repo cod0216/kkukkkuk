@@ -2,27 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
-import 'package:kkuk_kkuk/pages/main/controllers/my_page_view_model.dart';
+import 'package:kkuk_kkuk/pages/main/viewmodel/my_page_view_model.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/mypage/profile_card.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/mypage/wallet_card.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/mypage/settings_card.dart';
-import 'package:kkuk_kkuk/shared/storage/secure_storage.dart';
+import 'package:kkuk_kkuk/shared/lib/storage/secure_storage.dart';
 
 class MyPageView extends ConsumerWidget {
   const MyPageView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(myPageViewModelProvider(ref));
+    final myPageViewModel = ref.watch(myPageViewModelProvider(ref));
     // Add this line to watch for refresh triggers
-    ref.watch(controller.refreshNotifierProvider);
+    ref.watch(myPageViewModel.refreshNotifierProvider);
 
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: FutureBuilder<User?>(
-            future: controller.refreshUserInfo(), // Changed this line
+            future: myPageViewModel.refreshUserInfo(), // Changed this line
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -79,7 +79,7 @@ class MyPageView extends ConsumerWidget {
                           activeWalletAddress: activeWalletAddress,
                           onWalletNameUpdate: (walletId, newName) async {
                             try {
-                              await controller.updateWalletName(
+                              await myPageViewModel.updateWalletName(
                                 walletId,
                                 newName,
                               );
@@ -93,7 +93,7 @@ class MyPageView extends ConsumerWidget {
                           },
                           onWalletDelete: (walletId) async {
                             try {
-                              await controller.deleteWallet(walletId);
+                              await myPageViewModel.deleteWallet(walletId);
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -111,8 +111,8 @@ class MyPageView extends ConsumerWidget {
                   SettingsCard(
                     user: user,
                     onWalletChange:
-                        () => controller.handleWalletChange(context),
-                    onLogout: () => controller.handleLogout(context),
+                        () => myPageViewModel.handleWalletChange(context),
+                    onLogout: () => myPageViewModel.handleLogout(context),
                   ),
 
                   const SizedBox(height: 16),
@@ -142,11 +142,13 @@ class MyPageView extends ConsumerWidget {
     WidgetRef ref,
     List<Wallet> wallets,
   ) async {
-    final controller = ref.read(myPageViewModelProvider(ref));
+    final myPageViewModel = ref.read(myPageViewModelProvider(ref));
 
     // 병렬로 데이터 가져오기
     final activeAddressFuture = _getActiveWalletAddress(ref);
-    final walletsWithOwnersFuture = controller.getWalletsWithOwners(wallets);
+    final walletsWithOwnersFuture = myPageViewModel.getWalletsWithOwners(
+      wallets,
+    );
 
     // 두 Future 모두 완료될 때까지 기다림
     final results = await Future.wait([

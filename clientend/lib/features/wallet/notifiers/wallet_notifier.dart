@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/model/mnemonic_usecase_provider.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_usecase_providers.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/usecase/mnemonic_usecase_provider.dart';
+import 'package:kkuk_kkuk/features/wallet/usecase/wallet_usecase_providers.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
 
 /// 니모닉 지갑 생성 및 설정 단계
 enum WalletStatus {
@@ -95,10 +95,10 @@ class WalletResult {
 }
 
 /// 니모닉 지갑 상태 관리 노티파이어
-class WalletViewModel extends StateNotifier<WalletState> {
+class WalletNotifier extends StateNotifier<WalletState> {
   final Ref ref;
 
-  WalletViewModel(this.ref) : super(WalletState());
+  WalletNotifier(this.ref) : super(WalletState());
 
   /// 니모닉 생성
   Future<void> generateMnemonic() async {
@@ -219,7 +219,7 @@ class WalletViewModel extends StateNotifier<WalletState> {
       );
 
       // 사용자의 지갑 목록에서 중복 확인
-      final authState = ref.read(authViewModelProvider);
+      final authState = ref.read(authNotifierProvider);
       final userWallets = authState.user?.wallets;
 
       // 중복 지갑 확인
@@ -320,7 +320,7 @@ class WalletViewModel extends StateNotifier<WalletState> {
 
   /// 에러 발생 시 이전 상태로 돌아가기
   void handleErrorRetry() {
-    ref.read(walletViewModelProvider.notifier).returnToPreviousState();
+    ref.read(walletNotifierProvider.notifier).returnToPreviousState();
   }
 
   /// 니모닉 확인 단계로 진행
@@ -338,13 +338,13 @@ class WalletViewModel extends StateNotifier<WalletState> {
 
   /// 새 지갑 생성 처리
   void handleNewWallet() {
-    ref.read(walletViewModelProvider.notifier).generateMnemonic();
+    ref.read(walletNotifierProvider.notifier).generateMnemonic();
   }
 
   /// 니모닉으로 지갑 복구 처리
   void handleWalletRecovery() {
-    ref.read(walletViewModelProvider.notifier).reset();
-    ref.read(walletViewModelProvider.notifier).startWalletRecovery();
+    ref.read(walletNotifierProvider.notifier).reset();
+    ref.read(walletNotifierProvider.notifier).startWalletRecovery();
   }
 
   /// 니모닉으로 지갑 복구 - 결과를 반환하도록 수정
@@ -392,7 +392,7 @@ class WalletViewModel extends StateNotifier<WalletState> {
       );
 
       // 사용자의 지갑 목록에서 중복 확인
-      final authState = ref.read(authViewModelProvider);
+      final authState = ref.read(authNotifierProvider);
       final userWallets = authState.user?.wallets;
 
       // 중복 지갑 확인
@@ -452,7 +452,7 @@ class WalletViewModel extends StateNotifier<WalletState> {
 }
 
 /// 니모닉 지갑 프로바이더
-final walletViewModelProvider =
-    StateNotifierProvider<WalletViewModel, WalletState>((ref) {
-      return WalletViewModel(ref);
+final walletNotifierProvider =
+    StateNotifierProvider<WalletNotifier, WalletState>((ref) {
+      return WalletNotifier(ref);
     });

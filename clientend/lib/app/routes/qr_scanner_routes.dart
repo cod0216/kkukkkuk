@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/qr_scanner/model/qr_scanner_controller.dart';
+import 'package:kkuk_kkuk/features/qr_scanner/notifiers/qr_scanner_notifier.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/ui/views/hospital_qr_result_view.dart';
@@ -18,11 +18,13 @@ final List<RouteBase> qrScannerRoutes = [
         appBar: AppBar(title: const Text('QR 스캐너')),
         body: Consumer(
           builder: (context, ref, _) {
-            final controller = ref.watch(qrScannerProvider.notifier);
+            final qrScannerNotifierProvier = ref.watch(
+              qrScannerNotifierProvider.notifier,
+            );
 
             return QRScannerView(
               onScanSuccess: (hospitalData) {
-                controller.setHospitalData(hospitalData);
+                qrScannerNotifierProvier.setHospitalData(hospitalData);
                 // 스캔 성공 시 바로 펫 선택 화면으로 이동하지 않고 결과 화면으로 이동
                 context.push('/qr-scanner/result', extra: hospitalData);
               },

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:kkuk_kkuk/shared/config/app_config.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/shared/blockchain/blockchain_client.dart';
+import 'package:kkuk_kkuk/shared/blockchain/client/blockchain_client.dart';
 
 class RegistryContract {
   final BlockchainClient _blockchainClient;

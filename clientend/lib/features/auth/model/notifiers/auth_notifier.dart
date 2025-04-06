@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/features/auth/model/states/auth_state.dart';
 import 'package:kkuk_kkuk/features/auth/model/usecases/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/auth/model/usecases/oauth/oauth_usecase_providers.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
-import 'package:kkuk_kkuk/shared/blockchain/blockchain_client.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/shared/blockchain/client/blockchain_client.dart';
 
 /// 로그인 결과를 담는 클래스
 class AuthResult {
@@ -18,12 +18,12 @@ class AuthResult {
 }
 
 /// 인증 관련 비즈니스 로직을 처리하는 뷰 모델
-class AuthViewModel extends StateNotifier<AuthState> {
+class AuthNotifier extends StateNotifier<AuthState> {
   final Ref ref;
   final _secureStorage = const FlutterSecureStorage();
   static const String _privateKeyKey = 'eth_private_key';
 
-  AuthViewModel(this.ref) : super(AuthState());
+  AuthNotifier(this.ref) : super(AuthState());
 
   /// 인증 초기화
   void initializeAuth() {
@@ -102,7 +102,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
       if (result.hasWallet) {
         moveToNetworkConnection();
       } else {
-        ref.read(walletViewModelProvider.notifier).reset();
+        ref.read(walletNotifierProvider.notifier).reset();
         moveToWalletSetup();
       }
     } catch (e) {
@@ -117,12 +117,12 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   /// 지갑 생성 화면으로 이동
   void moveToWalletCreation(BuildContext context) {
-    ref.read(walletViewModelProvider.notifier).reset();
+    ref.read(walletNotifierProvider.notifier).reset();
 
     // Update state before navigation
     state = state.copyWith(currentStep: AuthStep.walletCreation);
 
-    context.push('/wallet-creation', extra: walletViewModelProvider);
+    context.push('/wallet-creation', extra: walletNotifierProvider);
   }
 
   /// 네트워크 연결 단계로 이동
@@ -137,19 +137,19 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   /// 에러 발생 시 이전 상태로 돌아가기
   void handleErrorRetry() {
-    ref.read(walletViewModelProvider.notifier).returnToPreviousState();
+    ref.read(walletNotifierProvider.notifier).returnToPreviousState();
   }
 
   /// 인증 흐름 초기화
   void reset() {
-    ref.read(walletViewModelProvider.notifier).reset();
+    ref.read(walletNotifierProvider.notifier).reset();
     state = AuthState();
   }
 }
 
 /// 인증 뷰 모델 프로바이더
-final authViewModelProvider = StateNotifierProvider<AuthViewModel, AuthState>((
+final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
   ref,
 ) {
-  return AuthViewModel(ref);
+  return AuthNotifier(ref);
 });

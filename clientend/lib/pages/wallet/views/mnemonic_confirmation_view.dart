@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 /// 니모닉 확인 화면
 class MnemonicConfirmationView extends ConsumerWidget {
   final WalletState walletState;
-  final WalletViewModel controller;
-
-  const MnemonicConfirmationView({
-    super.key,
-    required this.walletState,
-    required this.controller,
-  });
+  const MnemonicConfirmationView({super.key, required this.walletState});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,7 +44,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                     if (index ==
                         (walletState.selectedWordIndices?.length ?? 0) - 1) {
                       ref
-                          .read(walletViewModelProvider.notifier)
+                          .read(walletNotifierProvider.notifier)
                           .removeLastSelectedWord();
                     }
                   },
@@ -86,7 +80,7 @@ class MnemonicConfirmationView extends ConsumerWidget {
                           ? null
                           : () {
                             ref
-                                .read(walletViewModelProvider.notifier)
+                                .read(walletNotifierProvider.notifier)
                                 .selectMnemonicWord(index);
                           },
                   child: Container(
@@ -119,7 +113,10 @@ class MnemonicConfirmationView extends ConsumerWidget {
             onPressed:
                 walletState.status != WalletStatus.creatingWallet &&
                         walletState.status != WalletStatus.registeringWallet
-                    ? () => controller.confirmMnemonic()
+                    ? () =>
+                        ref
+                            .read(walletNotifierProvider.notifier)
+                            .confirmMnemonic()
                     : null,
             child:
                 walletState.status == WalletStatus.creatingWallet ||

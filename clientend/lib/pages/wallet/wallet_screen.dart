@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/mnemonic_display_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/mnemonic_confirmation_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_recovery_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_naming_view.dart';
-import 'package:kkuk_kkuk/widgets/loading_indicator.dart';
-import 'package:kkuk_kkuk/pages/common/error_view.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/error_view.dart';
 
 /// 지갑 설정 화면
 class WalletScreen extends ConsumerWidget {
-  final StateNotifierProvider<WalletViewModel, WalletState> viewModel;
+  final StateNotifierProvider<WalletNotifier, WalletState> viewModel;
 
   const WalletScreen({super.key, required this.viewModel});
 
@@ -65,33 +65,27 @@ class WalletScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     WalletState walletState,
-    WalletViewModel viewModel,
+    WalletNotifier viewModel,
   ) {
     switch (walletState.status) {
       case WalletStatus.initial:
       case WalletStatus.walletChoice:
-        return WalletChoiceView(controller: viewModel);
+        return WalletChoiceView();
 
       case WalletStatus.generatingMnemonic:
         return _buildGeneratingView();
 
       case WalletStatus.mnemonicGenerated:
-        return MnemonicDisplayView(
-          walletState: walletState,
-          controller: viewModel,
-        );
+        return MnemonicDisplayView(walletState: walletState);
 
       case WalletStatus.mnemonicConfirmation:
-        return MnemonicConfirmationView(
-          walletState: walletState,
-          controller: viewModel,
-        );
+        return MnemonicConfirmationView(walletState: walletState);
 
       case WalletStatus.recoveringWallet:
-        return WalletRecoveryView(controller: viewModel);
+        return WalletRecoveryView();
 
       case WalletStatus.namingWallet:
-        return WalletNamingView(controller: viewModel);
+        return WalletNamingView();
 
       case WalletStatus.creatingWallet:
       case WalletStatus.registeringWallet:
@@ -106,7 +100,7 @@ class WalletScreen extends ConsumerWidget {
       case WalletStatus.completed:
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // First update auth state
-          ref.read(authViewModelProvider.notifier).moveToNetworkConnection();
+          ref.read(authNotifierProvider.notifier).moveToNetworkConnection();
           // Then close the screen
           Navigator.of(context).pop();
         });

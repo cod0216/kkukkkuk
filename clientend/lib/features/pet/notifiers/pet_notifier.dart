@@ -128,7 +128,7 @@ class PetNotifier extends StateNotifier<PetState> {
 }
 
 /// 반려동물 프로바이더
-final petProvider = StateNotifierProvider<PetNotifier, PetState>((ref) {
+final petNotifierProvider = StateNotifierProvider<PetNotifier, PetState>((ref) {
   final getPetListUseCase = ref.watch(getPetListUseCaseProvider);
   final registerPetUseCase = ref.watch(registerPetUseCaseProvider);
 

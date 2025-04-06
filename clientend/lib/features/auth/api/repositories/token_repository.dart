@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/shared/storage/secure_storage.dart';
+import 'package:kkuk_kkuk/shared/lib/storage/secure_storage.dart';
 import 'package:kkuk_kkuk/features/auth/api/interfaces/token_repository_interface.dart';
 
 class TokenRepository implements ITokenRepository {

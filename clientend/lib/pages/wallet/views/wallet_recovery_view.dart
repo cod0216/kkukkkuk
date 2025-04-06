@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 class WalletRecoveryView extends ConsumerStatefulWidget {
-  final WalletViewModel controller;
-
-  const WalletRecoveryView({super.key, required this.controller});
+  const WalletRecoveryView({super.key});
 
   @override
   ConsumerState<WalletRecoveryView> createState() => _WalletRecoveryViewState();
@@ -48,7 +46,7 @@ class _WalletRecoveryViewState extends ConsumerState<WalletRecoveryView> {
 
   @override
   Widget build(BuildContext context) {
-    final walletState = ref.watch(walletViewModelProvider);
+    final walletState = ref.watch(walletNotifierProvider);
 
     return Expanded(
       child: Column(
@@ -111,8 +109,9 @@ class _WalletRecoveryViewState extends ConsumerState<WalletRecoveryView> {
             onPressed:
                 walletState.status != WalletStatus.creatingWallet &&
                         walletState.status != WalletStatus.registeringWallet
-                    ? () =>
-                        widget.controller.recoverWallet(_getMnemonicString())
+                    ? () => ref
+                        .read(walletNotifierProvider.notifier)
+                        .recoverWallet(_getMnemonicString())
                     : null,
             child:
                 walletState.status == WalletStatus.creatingWallet ||

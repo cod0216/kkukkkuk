@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/auth/ui/widgets/kakao_login_button.dart';
-import 'package:kkuk_kkuk/widgets/app_logo.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/app_logo.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
 
 /// 로그인 화면
 class LoginView extends ConsumerWidget {
-  final AuthViewModel viewModel;
+  final AuthNotifier viewModel;
 
   const LoginView({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authViewModelProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     return Center(
       child: Padding(

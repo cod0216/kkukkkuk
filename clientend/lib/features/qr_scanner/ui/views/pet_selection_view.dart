@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_provider.dart';
+import 'package:kkuk_kkuk/features/pet/notifiers/pet_notifier.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/pet/card/pet_card.dart';
-import 'package:kkuk_kkuk/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/loading_indicator.dart';
 
 class PetSelectionView extends ConsumerStatefulWidget {
   final HospitalQRData hospitalData;
@@ -29,10 +29,10 @@ class _PetSelectionViewState extends ConsumerState<PetSelectionView> {
   }
 
   void _loadPets() {
-    final petState = ref.read(petProvider);
+    final petState = ref.read(petNotifierProvider);
     if (petState.pets.isEmpty && !petState.isLoading && !_isInitialized) {
       _isInitialized = true;
-      ref.read(petProvider.notifier).getPetList();
+      ref.read(petNotifierProvider.notifier).getPetList();
     }
   }
 
@@ -45,7 +45,7 @@ class _PetSelectionViewState extends ConsumerState<PetSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    final petState = ref.watch(petProvider);
+    final petState = ref.watch(petNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('반려동물 선택')),

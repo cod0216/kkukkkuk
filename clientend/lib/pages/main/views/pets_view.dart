@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_provider.dart';
+import 'package:kkuk_kkuk/features/pet/notifiers/pet_notifier.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/pet/add_pet_button.dart';
-import 'package:kkuk_kkuk/widgets/add_circle_icon.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/add_circle_icon.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/pet/pet_carousel.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/pet/qr_scan_button.dart';
 
@@ -35,7 +35,7 @@ class _PetsViewState extends ConsumerState<PetsView>
 
   void _refreshPetList() {
     print('PetsView: _refreshPetList called'); // 클래스 이름 변경
-    ref.read(petProvider.notifier).getPetList();
+    ref.read(petNotifierProvider.notifier).getPetList();
   }
 
   @override
@@ -52,7 +52,7 @@ class _PetsViewState extends ConsumerState<PetsView>
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 사용 시 필요
-    final petState = ref.watch(petProvider);
+    final petState = ref.watch(petNotifierProvider);
     final pets = petState.pets;
 
     return SafeArea(
@@ -70,7 +70,7 @@ class _PetsViewState extends ConsumerState<PetsView>
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
-                    ref.read(petProvider.notifier).getPetList();
+                    ref.read(petNotifierProvider.notifier).getPetList();
                     // 새로고침 피드백
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

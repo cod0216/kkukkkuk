@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/features/auth/model/states/auth_state.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 import 'package:kkuk_kkuk/features/auth/ui/views/login_view.dart';
 import 'package:kkuk_kkuk/features/auth/ui/views/network_connection_view.dart';
 import 'package:kkuk_kkuk/features/auth/ui/views/wallet_guide_view.dart';
-import 'package:kkuk_kkuk/widgets/loading_indicator.dart';
-import 'package:kkuk_kkuk/pages/common/error_view.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/loading_indicator.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/error_view.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
 
 /// 인증 화면
 class AuthScreen extends ConsumerStatefulWidget {
@@ -34,15 +34,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   /// 인증 초기화 함수
   void _initializeAuth() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authViewModelProvider.notifier).initializeAuth();
+      ref.read(authNotifierProvider.notifier).initializeAuth();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authViewModelProvider);
-    final viewModel = ref.read(authViewModelProvider.notifier);
-    final mnemonicState = ref.watch(walletViewModelProvider);
+    final authState = ref.watch(authNotifierProvider);
+    final viewModel = ref.read(authNotifierProvider.notifier);
+    final mnemonicState = ref.watch(walletNotifierProvider);
 
     // 인증 완료시 홈 화면으로 이동
     if (authState.currentStep == AuthStep.completed) {
@@ -103,7 +103,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   /// 현재 인증 단계에 따른 화면 구성
   Widget _buildCurrentStep(
     AuthStep step,
-    AuthViewModel viewModel,
+    AuthNotifier viewModel,
     WalletState mnemonicState,
   ) {
     switch (step) {

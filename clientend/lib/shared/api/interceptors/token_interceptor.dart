@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/shared/api/api_client.dart';
+import 'package:kkuk_kkuk/shared/api/client/api_client.dart';
 import 'package:kkuk_kkuk/features/auth/api/dto/token_refresh_response.dart';
 import 'package:kkuk_kkuk/features/auth/api/repositories/token_repository.dart';
 import 'package:kkuk_kkuk/features/auth/api/interfaces/token_repository_interface.dart';

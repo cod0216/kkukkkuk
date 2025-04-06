@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/pet/breed.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
-import 'package:kkuk_kkuk/widgets/custom_dropdown_field.dart';
+import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/custom_dropdown_field.dart';
 import 'package:kkuk_kkuk/pages/pet_register/widgets/pet_gender_selector.dart';
-import 'package:kkuk_kkuk/widgets/custom_text_field.dart';
-import 'package:kkuk_kkuk/widgets/dual_buttons.dart';
-import 'package:kkuk_kkuk/widgets/custom_header.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/custom_text_field.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/dual_buttons.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/custom_header.dart';
 
 // 반려동물 기본 정보 입력 화면
 class PetInfoView extends ConsumerStatefulWidget {
@@ -49,7 +49,8 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   Future<void> _loadSpecies() async {
     setState(() => _isLoading = true);
     try {
-      final species = await ref.read(petRegisterProvider.notifier).getSpecies();
+      final species =
+          await ref.read(petRegisterNotifierProvider.notifier).getSpecies();
       setState(() {
         _speciesList = species;
         _isLoading = false;
@@ -65,7 +66,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
     setState(() => _isLoading = true);
     try {
       final breeds = await ref
-          .read(petRegisterProvider.notifier)
+          .read(petRegisterNotifierProvider.notifier)
           .getBreeds(species);
       setState(() {
         _breedsList = breeds;
@@ -137,7 +138,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
       ref
-          .read(petRegisterProvider.notifier)
+          .read(petRegisterNotifierProvider.notifier)
           .setBasicInfo(
             name: _nameController.text,
             species: _selectedSpecies,
@@ -147,13 +148,13 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
             flagNeutering: _isNeutered, // 중성화 여부 전달
           );
 
-      ref.read(petRegisterProvider.notifier).moveToNextStep();
+      ref.read(petRegisterNotifierProvider.notifier).moveToNextStep();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final petRegisterState = ref.watch(petRegisterProvider);
+    final petRegisterState = ref.watch(petRegisterNotifierProvider);
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());

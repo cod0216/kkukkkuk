@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/shared/api/api_client.dart';
+import 'package:kkuk_kkuk/shared/api/client/api_client.dart';
 import 'package:kkuk_kkuk/features/image/api/repositories/image_repository.dart';
 
 /// 이미지 저장소 구현체

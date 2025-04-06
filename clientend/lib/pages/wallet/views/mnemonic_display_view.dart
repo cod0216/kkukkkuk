@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 /// 니모닉 표시 화면
 class MnemonicDisplayView extends ConsumerWidget {
   final WalletState walletState;
-  final WalletViewModel controller;
 
-  const MnemonicDisplayView({
-    super.key,
-    required this.walletState,
-    required this.controller,
-  });
+  const MnemonicDisplayView({super.key, required this.walletState});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,7 +52,7 @@ class MnemonicDisplayView extends ConsumerWidget {
           ElevatedButton(
             onPressed: () {
               ref
-                  .read(walletViewModelProvider.notifier)
+                  .read(walletNotifierProvider.notifier)
                   .startMnemonicConfirmation();
             },
             child: const Text('니모닉 저장 완료'),

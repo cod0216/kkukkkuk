@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
-import 'package:kkuk_kkuk/widgets/status_indicator.dart';
-import 'package:kkuk_kkuk/widgets/dual_buttons.dart';
+import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/status_indicator.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/dual_buttons.dart';
 
 // 반려동물 등록 완료 화면
 class PetRegisterCompleteView extends ConsumerWidget {
@@ -11,7 +11,7 @@ class PetRegisterCompleteView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 반려동물 등록 상태 관리
-    final petRegisterState = ref.watch(petRegisterProvider);
+    final petRegisterState = ref.watch(petRegisterNotifierProvider);
     final petName = petRegisterState.pet?.name ?? '반려동물';
 
     // TODO: 등록 실패 시 에러 처리 및 표시
@@ -46,7 +46,8 @@ class PetRegisterCompleteView extends ConsumerWidget {
             // 네비게이션 버튼
             DualButtons(
               onLeft: () => Navigator.of(context).pop(),
-              onRight: () => ref.read(petRegisterProvider.notifier).reset(),
+              onRight:
+                  () => ref.read(petRegisterNotifierProvider.notifier).reset(),
               leftLabel: '아니오',
               rightLabel: '예',
             ),

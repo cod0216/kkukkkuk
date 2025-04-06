@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
 import 'package:kkuk_kkuk/features/auth/model/states/auth_state.dart';
 
 /// 네트워크 연결 화면
 class NetworkConnectionView extends ConsumerStatefulWidget {
-  final AuthViewModel viewModel;
+  final AuthNotifier viewModel;
 
   const NetworkConnectionView({super.key, required this.viewModel});
 
@@ -34,7 +34,7 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authViewModelProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     return Center(
       child: Padding(

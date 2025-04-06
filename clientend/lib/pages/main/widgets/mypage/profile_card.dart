@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
-import 'package:kkuk_kkuk/pages/main/controllers/my_page_view_model.dart';
+import 'package:kkuk_kkuk/pages/main/viewmodel/my_page_view_model.dart';
 
 /// 사용자 프로필 카드 위젯
 class ProfileCard extends ConsumerWidget {

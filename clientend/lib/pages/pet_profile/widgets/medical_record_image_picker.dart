@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/shared/lib/permission/permission_manager.dart';
 
 class MedicalRecordImagePicker {
   final BuildContext context;

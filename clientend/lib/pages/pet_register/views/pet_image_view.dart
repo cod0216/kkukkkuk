@@ -5,13 +5,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:kkuk_kkuk/features/image/api/repositories/image_repository_impl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
-import 'package:kkuk_kkuk/widgets/custom_image_placeholder.dart';
-import 'package:kkuk_kkuk/widgets/image_source_button.dart';
-import 'package:kkuk_kkuk/widgets/skip_button.dart';
-import 'package:kkuk_kkuk/widgets/dual_buttons.dart';
-import 'package:kkuk_kkuk/widgets/custom_header.dart';
-import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/custom_image_placeholder.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/image_source_button.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/skip_button.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/dual_buttons.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/custom_header.dart';
+import 'package:kkuk_kkuk/shared/lib/permission/permission_manager.dart';
 
 // 반려동물 이미지 등록 화면
 class PetImageView extends ConsumerStatefulWidget {
@@ -31,7 +31,7 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
 
   // 이전 단계로 이동
   void _onPrevious() {
-    ref.read(petRegisterProvider.notifier).moveToPreviousStep();
+    ref.read(petRegisterNotifierProvider.notifier).moveToPreviousStep();
   }
 
   // 다음 단계로 이동
@@ -46,7 +46,7 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
   // 반려동물 등록 처리
   Future<void> _registerPet() async {
     if (_selectedImage == null) {
-      ref.read(petRegisterProvider.notifier).registerPet();
+      ref.read(petRegisterNotifierProvider.notifier).registerPet();
       return;
     }
 
@@ -60,10 +60,10 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
       );
 
       // 반려동물 정보에 이미지 URL 설정
-      ref.read(petRegisterProvider.notifier).setImageUrl(imageUrl);
+      ref.read(petRegisterNotifierProvider.notifier).setImageUrl(imageUrl);
 
       // 반려동물 등록
-      ref.read(petRegisterProvider.notifier).registerPet();
+      ref.read(petRegisterNotifierProvider.notifier).registerPet();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -224,7 +224,7 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
 
   @override
   Widget build(BuildContext context) {
-    final petRegisterState = ref.watch(petRegisterProvider);
+    final petRegisterState = ref.watch(petRegisterNotifierProvider);
     final petName = petRegisterState.pet?.name ?? '반려동물';
 
     if (_isLoading) {

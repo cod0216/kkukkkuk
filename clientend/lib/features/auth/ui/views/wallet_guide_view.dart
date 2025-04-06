@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
+import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
 
 class WalletGuideView extends ConsumerWidget {
-  final AuthViewModel viewModel;
+  final AuthNotifier viewModel;
 
   const WalletGuideView({super.key, required this.viewModel});
 

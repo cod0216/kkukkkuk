@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
-import 'package:kkuk_kkuk/features/qr_scanner/model/qr_scanner_controller.dart';
+import 'package:kkuk_kkuk/features/qr_scanner/notifiers/qr_scanner_notifier.dart';
 
 class QRScannerView extends ConsumerStatefulWidget {
   final Function(HospitalQRData) onScanSuccess;
@@ -26,7 +26,7 @@ class _QRScannerViewState extends ConsumerState<QRScannerView> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(qrScannerProvider.notifier).resetScanner();
+      ref.read(qrScannerNotifierProvider.notifier).resetScanner();
     });
   }
 
@@ -41,7 +41,9 @@ class _QRScannerViewState extends ConsumerState<QRScannerView> {
         MobileScanner(
           controller: controller,
           onDetect: (capture) {
-            final scannerController = ref.read(qrScannerProvider.notifier);
+            final scannerController = ref.read(
+              qrScannerNotifierProvider.notifier,
+            );
 
             // 이미 처리 중이면 무시
             if (scannerController.isProcessing) return;

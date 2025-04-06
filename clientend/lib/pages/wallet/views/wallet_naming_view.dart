@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 class WalletNamingView extends ConsumerStatefulWidget {
-  final WalletViewModel controller;
-
-  const WalletNamingView({super.key, required this.controller});
+  const WalletNamingView({super.key});
 
   @override
   ConsumerState<WalletNamingView> createState() => _WalletNamingViewState();
@@ -85,9 +83,9 @@ class _WalletNamingViewState extends ConsumerState<WalletNamingView> {
     });
 
     try {
-      await widget.controller.setWalletNameAndRegister(
-        _nameController.text.trim(),
-      );
+      await ref
+          .read(walletNotifierProvider.notifier)
+          .setWalletNameAndRegister(_nameController.text.trim());
     } finally {
       if (mounted) {
         setState(() {

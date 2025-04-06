@@ -11,7 +11,7 @@ import 'package:kkuk_kkuk/pages/pet_register/pet_register_screen.dart';
 // QR 스캐너 라우트 import 추가
 import 'package:kkuk_kkuk/app/routes/qr_scanner_routes.dart';
 import 'package:kkuk_kkuk/pages/wallet/wallet_screen.dart';
-import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
+import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
 
 final router = GoRouter(
   initialLocation: '/',
@@ -26,7 +26,7 @@ final router = GoRouter(
           (context, state) => WalletScreen(
             viewModel:
                 state.extra
-                    as StateNotifierProvider<WalletViewModel, WalletState>,
+                    as StateNotifierProvider<WalletNotifier, WalletState>,
           ),
     ),
 
