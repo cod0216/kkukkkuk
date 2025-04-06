@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/examination.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
-import 'package:kkuk_kkuk/features/medical_record/model/add_medical_record_usecase.dart';
+import 'package:kkuk_kkuk/features/pet/model/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medication.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/vaccination.dart';

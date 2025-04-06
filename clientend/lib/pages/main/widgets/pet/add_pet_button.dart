@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/widgets/add_circle_icon.dart';
+import 'package:kkuk_kkuk/shared/ui/widgets/add_circle_icon.dart';
 
 class AddPetButton extends StatelessWidget {
   final VoidCallback? onTap;

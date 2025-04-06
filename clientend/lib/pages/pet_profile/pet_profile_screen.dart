@@ -5,7 +5,7 @@ import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/pet/model/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/pet/notifiers/pet_medical_record_notifier.dart';
-import 'package:kkuk_kkuk/features/medical_record/model/pet_medical_record_register_provider.dart';
+import 'package:kkuk_kkuk/features/pet/notifiers/pet_medical_record_register_provider.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/widgets/empty_medical_records.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/widgets/medical_record_card.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/widgets/pet_profile_header.dart';

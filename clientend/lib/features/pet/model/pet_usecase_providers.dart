@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository.dart';
 import 'package:kkuk_kkuk/features/pet/model/add_hospital_with_sharing_usecase.dart';
-import 'package:kkuk_kkuk/features/medical_record/model/add_medical_record_usecase.dart';
+import 'package:kkuk_kkuk/features/pet/model/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/get_species_usecase.dart';
-import 'package:kkuk_kkuk/features/medical_record/model/process_medical_record_image_usecase.dart';
+import 'package:kkuk_kkuk/features/pet/model/process_medical_record_image_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/update_pet_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/model/delete_pet_usecase.dart';
