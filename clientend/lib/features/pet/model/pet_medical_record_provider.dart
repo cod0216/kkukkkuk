@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 
 /// 진료 기록 조회 상태 관리 클래스
 class MedicalRecordQueryState {

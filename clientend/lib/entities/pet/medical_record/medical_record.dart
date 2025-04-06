@@ -1,6 +1,6 @@
-import 'package:kkuk_kkuk/entities/medical_record/examination.dart';
-import 'package:kkuk_kkuk/entities/medical_record/medication.dart';
-import 'package:kkuk_kkuk/entities/medical_record/vaccination.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/examination.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medication.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/vaccination.dart';
 
 class MedicalRecord {
   final DateTime treatmentDate;

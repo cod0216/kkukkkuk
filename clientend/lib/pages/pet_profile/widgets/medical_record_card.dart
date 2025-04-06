@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/widgets/certification_badge.dart';
 
 class MedicalRecordCard extends StatelessWidget {

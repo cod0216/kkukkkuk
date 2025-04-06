@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository_interface.dart';
 import 'package:web3dart/web3dart.dart';
 

@@ -1,11 +1,10 @@
 import 'dart:convert';
 
-import 'package:kkuk_kkuk/entities/medical_record/examination.dart';
-import 'package:kkuk_kkuk/entities/medical_record/medical_record.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/examination.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository_interface.dart';
-import 'package:kkuk_kkuk/entities/medical_record/medication.dart';
-import 'package:kkuk_kkuk/entities/medical_record/vaccination.dart';
-import 'package:web3dart/web3dart.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medication.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/vaccination.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스
 ///
