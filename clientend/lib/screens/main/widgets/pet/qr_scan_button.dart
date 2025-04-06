@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/core/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
 
 class QrScanCard extends StatelessWidget {
   final VoidCallback? onTap;

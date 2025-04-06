@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/core/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_detail_response.dart';
 import 'package:kkuk_kkuk/domain/entities/user.dart';
 import 'package:kkuk_kkuk/domain/entities/wallet.dart';

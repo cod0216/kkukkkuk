@@ -1,4 +1,4 @@
-import 'package:kkuk_kkuk/data/datasource/contracts/blockchain_client.dart';
+import 'package:kkuk_kkuk/shared/blockchain/blockchain_client.dart';
 
 class CheckBlockchainConnectionUseCase {
   final BlockchainClient _blockchainClient;

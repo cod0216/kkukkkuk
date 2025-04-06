@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
+import 'package:kkuk_kkuk/shared/api/api_client.dart';
 import 'package:kkuk_kkuk/data/dtos/user/user_profile_response.dart';
 import 'package:kkuk_kkuk/data/dtos/user/user_withdrawal_response.dart';
 import 'package:kkuk_kkuk/data/dtos/user/user_update_response.dart';

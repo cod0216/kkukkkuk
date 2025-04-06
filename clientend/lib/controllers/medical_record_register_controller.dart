@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/domain/usecases/pet/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/providers/pet/pet_medical_record_register_provider.dart';
-import 'package:kkuk_kkuk/services/ocr_service.dart';
+import 'package:kkuk_kkuk/shared/ocr/ocr_service.dart';
 
 class MedicalRecordRegisterController {
   final Ref ref;

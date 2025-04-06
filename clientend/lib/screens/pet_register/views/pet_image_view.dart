@@ -12,7 +12,7 @@ import 'package:kkuk_kkuk/screens/common/widgets/image_source_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/skip_button.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/dual_buttons.dart';
 import 'package:kkuk_kkuk/screens/common/widgets/custom_header.dart';
-import 'package:kkuk_kkuk/core/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
 
 // 반려동물 이미지 등록 화면
 class PetImageView extends ConsumerStatefulWidget {

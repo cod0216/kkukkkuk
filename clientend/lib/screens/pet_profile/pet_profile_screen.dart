@@ -12,7 +12,7 @@ import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_card.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/pet_profile_header.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/last_treatment_date.dart';
 import 'package:kkuk_kkuk/screens/pet_profile/widgets/medical_record_image_picker.dart';
-import 'package:kkuk_kkuk/services/ocr_service.dart';
+import 'package:kkuk_kkuk/shared/ocr/ocr_service.dart';
 
 class PetProfileScreen extends ConsumerStatefulWidget {
   final Pet pet;

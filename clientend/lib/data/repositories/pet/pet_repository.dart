@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
-import 'package:kkuk_kkuk/data/datasource/contracts/registry_contract.dart';
+import 'package:kkuk_kkuk/shared/api/api_client.dart';
+import 'package:kkuk_kkuk/shared/blockchain/contracts/registry_contract.dart';
 import 'package:kkuk_kkuk/data/dtos/pet/breed/breeds_response.dart';
 import 'package:kkuk_kkuk/domain/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/domain/repositories/pet/pet_repository_interface.dart';

@@ -6,7 +6,7 @@ import 'package:kkuk_kkuk/screens/main/controllers/my_page_controller.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/profile_card.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/wallet_card.dart';
 import 'package:kkuk_kkuk/screens/main/widgets/mypage/settings_card.dart';
-import 'package:kkuk_kkuk/data/datasource/local/secure_storage.dart';
+import 'package:kkuk_kkuk/shared/storage/secure_storage.dart';
 
 class MyPageView extends ConsumerWidget {
   const MyPageView({super.key});

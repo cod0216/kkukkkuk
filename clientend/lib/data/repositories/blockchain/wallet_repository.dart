@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/data/datasource/api/api_client.dart';
+import 'package:kkuk_kkuk/shared/api/api_client.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_delete_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_detail_response.dart';
 import 'package:kkuk_kkuk/data/dtos/wallet/wallet_info_response.dart';

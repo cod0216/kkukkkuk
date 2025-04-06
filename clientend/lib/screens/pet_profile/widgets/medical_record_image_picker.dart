@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/core/permission/permission_manager.dart';
+import 'package:kkuk_kkuk/shared/permission/permission_manager.dart';
 
 class MedicalRecordImagePicker {
   final BuildContext context;
   final Function(File) onImageSelected;
-  
+
   final ImagePicker _imagePicker = ImagePicker();
   final _permissionManager = PermissionManager();
 
@@ -19,34 +19,36 @@ class MedicalRecordImagePicker {
   void showImageSourceDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('진료기록 이미지 선택'),
-        content: const Text('진료기록 이미지를 어떤 방식으로 추가하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.camera);
-            },
-            child: const Text('카메라로 촬영'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('진료기록 이미지 선택'),
+            content: const Text('진료기록 이미지를 어떤 방식으로 추가하시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+                child: const Text('카메라로 촬영'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+                child: const Text('갤러리에서 선택'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.gallery);
-            },
-            child: const Text('갤러리에서 선택'),
-          ),
-        ],
-      ),
     );
   }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final permission = source == ImageSource.camera
-          ? Permission.camera
-          : Platform.isAndroid
+      final permission =
+          source == ImageSource.camera
+              ? Permission.camera
+              : Platform.isAndroid
               ? Permission.photos
               : Permission.storage;
 
@@ -81,19 +83,20 @@ class MedicalRecordImagePicker {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => WillPopScope(
-          onWillPop: () async => false,
-          child: const AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('이미지를 처리하는 중입니다...\n잠시만 기다려주세요.'),
-              ],
+        builder:
+            (context) => WillPopScope(
+              onWillPop: () async => false,
+              child: const AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('이미지를 처리하는 중입니다...\n잠시만 기다려주세요.'),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
       );
 
       // Call the callback with the selected image
@@ -107,9 +110,9 @@ class MedicalRecordImagePicker {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('이미지 선택 중 오류가 발생했습니다: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('이미지 선택 중 오류가 발생했습니다: $e')));
     }
   }
 }
