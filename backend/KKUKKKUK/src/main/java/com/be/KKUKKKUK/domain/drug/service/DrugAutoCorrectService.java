@@ -28,7 +28,7 @@ public class DrugAutoCorrectService {
     private final DrugService drugService;
     private final RedisService redisService;
     private static final String SUFFIX = "*";
-    private static final int MAX_SIZE = 10;
+    private static final int MAX_SIZE = 100;
 
     /**
      * 서버 실행 시 약품을 조회해서 redis에 저장합니다.
