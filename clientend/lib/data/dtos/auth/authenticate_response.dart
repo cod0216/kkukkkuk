@@ -20,7 +20,7 @@ abstract class AuthenticateData with _$AuthenticateData {
   const factory AuthenticateData({
     required OwnerInfo owner,
     required TokenInfo tokens,
-    WalletInfo? wallet,
+    List<WalletInfo>? wallets,
   }) = _AuthenticateData;
 
   factory AuthenticateData.fromJson(Map<String, dynamic> json) =>
@@ -34,6 +34,8 @@ abstract class OwnerInfo with _$OwnerInfo {
     String? did,
     required String name,
     required String email,
+    String? birth,
+    String? image,
   }) = _OwnerInfo;
 
   factory OwnerInfo.fromJson(Map<String, dynamic> json) =>
@@ -55,7 +57,7 @@ abstract class TokenInfo with _$TokenInfo {
 abstract class WalletInfo with _$WalletInfo {
   const factory WalletInfo({
     required int id,
-    required String did,
+    String? name,
     required String address,
   }) = _WalletInfo;
 

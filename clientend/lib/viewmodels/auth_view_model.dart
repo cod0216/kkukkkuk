@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kkuk_kkuk/domain/entities/user.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/domain/usecases/auth/oauth/oauth_usecase_providers.dart';
 import 'package:kkuk_kkuk/domain/usecases/block_chain/connection/blockchain_connection_usecase_providers.dart';
@@ -38,12 +39,16 @@ class AuthState {
   // 인증 흐름 상태
   final AuthStep currentStep;
 
+  // 사용자 정보
+  final User? user;
+
   AuthState({
     this.isLoginLoading = false,
     this.loginError,
     this.networkStatus = NetworkConnectionStatus.initial,
     this.networkError,
     this.currentStep = AuthStep.login,
+    this.user,
   });
 
   AuthState copyWith({
@@ -52,6 +57,7 @@ class AuthState {
     NetworkConnectionStatus? networkStatus,
     String? networkError,
     AuthStep? currentStep,
+    User? user,
   }) {
     return AuthState(
       isLoginLoading: isLoginLoading ?? this.isLoginLoading,
@@ -59,6 +65,7 @@ class AuthState {
       networkStatus: networkStatus ?? this.networkStatus,
       networkError: networkError ?? this.networkError,
       currentStep: currentStep ?? this.currentStep,
+      user: user ?? this.user,
     );
   }
 }
@@ -94,9 +101,10 @@ class AuthViewModel extends StateNotifier<AuthState> {
       final userInfo = await kakaoLoginUseCase.execute();
       // 카카오 로그인 성공 시 로그인 처리
       final loginUseCase = ref.read(loginUseCaseProvider);
-      await loginUseCase.execute(userInfo);
+      final user = await loginUseCase.execute(userInfo);
 
-      state = state.copyWith(isLoginLoading: false);
+      // 사용자 정보 저장
+      state = state.copyWith(isLoginLoading: false, user: user);
 
       // 로컬 스토리지에 개인키 저장 확인
       // TODO: UseCase로 변경

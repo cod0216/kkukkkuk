@@ -6,10 +6,10 @@ class DeleteWalletUseCase {
 
   DeleteWalletUseCase(this._walletRepository);
 
-  /// 현재 로그인한 사용자의 지갑 정보 삭제
-  Future<WalletDeleteResponse> execute() async {
+  /// 지갑 정보 삭제
+  Future<WalletDeleteResponse> execute(int walletId) async {
     try {
-      return await _walletRepository.deleteWallet();
+      return await _walletRepository.deleteWallet(walletId);
     } catch (e) {
       print('지갑 정보 삭제 실패: $e');
       throw Exception('지갑 정보 삭제에 실패했습니다: $e');

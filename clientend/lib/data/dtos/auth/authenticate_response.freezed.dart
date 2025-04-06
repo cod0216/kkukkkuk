@@ -173,7 +173,7 @@ $AuthenticateDataCopyWith<$Res> get data {
 /// @nodoc
 mixin _$AuthenticateData {
 
- OwnerInfo get owner; TokenInfo get tokens; WalletInfo? get wallet;
+ OwnerInfo get owner; TokenInfo get tokens; List<WalletInfo>? get wallets;
 /// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -186,16 +186,16 @@ $AuthenticateDataCopyWith<AuthenticateData> get copyWith => _$AuthenticateDataCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthenticateData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.wallet, wallet) || other.wallet == wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthenticateData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&const DeepCollectionEquality().equals(other.wallets, wallets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,owner,tokens,wallet);
+int get hashCode => Object.hash(runtimeType,owner,tokens,const DeepCollectionEquality().hash(wallets));
 
 @override
 String toString() {
-  return 'AuthenticateData(owner: $owner, tokens: $tokens, wallet: $wallet)';
+  return 'AuthenticateData(owner: $owner, tokens: $tokens, wallets: $wallets)';
 }
 
 
@@ -206,11 +206,11 @@ abstract mixin class $AuthenticateDataCopyWith<$Res>  {
   factory $AuthenticateDataCopyWith(AuthenticateData value, $Res Function(AuthenticateData) _then) = _$AuthenticateDataCopyWithImpl;
 @useResult
 $Res call({
- OwnerInfo owner, TokenInfo tokens, WalletInfo? wallet
+ OwnerInfo owner, TokenInfo tokens, List<WalletInfo>? wallets
 });
 
 
-$OwnerInfoCopyWith<$Res> get owner;$TokenInfoCopyWith<$Res> get tokens;$WalletInfoCopyWith<$Res>? get wallet;
+$OwnerInfoCopyWith<$Res> get owner;$TokenInfoCopyWith<$Res> get tokens;
 
 }
 /// @nodoc
@@ -223,12 +223,12 @@ class _$AuthenticateDataCopyWithImpl<$Res>
 
 /// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? owner = null,Object? tokens = null,Object? wallet = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? owner = null,Object? tokens = null,Object? wallets = freezed,}) {
   return _then(_self.copyWith(
 owner: null == owner ? _self.owner : owner // ignore: cast_nullable_to_non_nullable
 as OwnerInfo,tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
-as TokenInfo,wallet: freezed == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
-as WalletInfo?,
+as TokenInfo,wallets: freezed == wallets ? _self.wallets : wallets // ignore: cast_nullable_to_non_nullable
+as List<WalletInfo>?,
   ));
 }
 /// Create a copy of AuthenticateData
@@ -249,18 +249,6 @@ $TokenInfoCopyWith<$Res> get tokens {
   return $TokenInfoCopyWith<$Res>(_self.tokens, (value) {
     return _then(_self.copyWith(tokens: value));
   });
-}/// Create a copy of AuthenticateData
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$WalletInfoCopyWith<$Res>? get wallet {
-    if (_self.wallet == null) {
-    return null;
-  }
-
-  return $WalletInfoCopyWith<$Res>(_self.wallet!, (value) {
-    return _then(_self.copyWith(wallet: value));
-  });
 }
 }
 
@@ -269,12 +257,20 @@ $WalletInfoCopyWith<$Res>? get wallet {
 @JsonSerializable()
 
 class _AuthenticateData implements AuthenticateData {
-  const _AuthenticateData({required this.owner, required this.tokens, this.wallet});
+  const _AuthenticateData({required this.owner, required this.tokens, final  List<WalletInfo>? wallets}): _wallets = wallets;
   factory _AuthenticateData.fromJson(Map<String, dynamic> json) => _$AuthenticateDataFromJson(json);
 
 @override final  OwnerInfo owner;
 @override final  TokenInfo tokens;
-@override final  WalletInfo? wallet;
+ final  List<WalletInfo>? _wallets;
+@override List<WalletInfo>? get wallets {
+  final value = _wallets;
+  if (value == null) return null;
+  if (_wallets is EqualUnmodifiableListView) return _wallets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
 
 /// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
@@ -289,16 +285,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthenticateData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.wallet, wallet) || other.wallet == wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthenticateData&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.tokens, tokens) || other.tokens == tokens)&&const DeepCollectionEquality().equals(other._wallets, _wallets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,owner,tokens,wallet);
+int get hashCode => Object.hash(runtimeType,owner,tokens,const DeepCollectionEquality().hash(_wallets));
 
 @override
 String toString() {
-  return 'AuthenticateData(owner: $owner, tokens: $tokens, wallet: $wallet)';
+  return 'AuthenticateData(owner: $owner, tokens: $tokens, wallets: $wallets)';
 }
 
 
@@ -309,11 +305,11 @@ abstract mixin class _$AuthenticateDataCopyWith<$Res> implements $AuthenticateDa
   factory _$AuthenticateDataCopyWith(_AuthenticateData value, $Res Function(_AuthenticateData) _then) = __$AuthenticateDataCopyWithImpl;
 @override @useResult
 $Res call({
- OwnerInfo owner, TokenInfo tokens, WalletInfo? wallet
+ OwnerInfo owner, TokenInfo tokens, List<WalletInfo>? wallets
 });
 
 
-@override $OwnerInfoCopyWith<$Res> get owner;@override $TokenInfoCopyWith<$Res> get tokens;@override $WalletInfoCopyWith<$Res>? get wallet;
+@override $OwnerInfoCopyWith<$Res> get owner;@override $TokenInfoCopyWith<$Res> get tokens;
 
 }
 /// @nodoc
@@ -326,12 +322,12 @@ class __$AuthenticateDataCopyWithImpl<$Res>
 
 /// Create a copy of AuthenticateData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? owner = null,Object? tokens = null,Object? wallet = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? owner = null,Object? tokens = null,Object? wallets = freezed,}) {
   return _then(_AuthenticateData(
 owner: null == owner ? _self.owner : owner // ignore: cast_nullable_to_non_nullable
 as OwnerInfo,tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
-as TokenInfo,wallet: freezed == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
-as WalletInfo?,
+as TokenInfo,wallets: freezed == wallets ? _self._wallets : wallets // ignore: cast_nullable_to_non_nullable
+as List<WalletInfo>?,
   ));
 }
 
@@ -353,18 +349,6 @@ $TokenInfoCopyWith<$Res> get tokens {
   return $TokenInfoCopyWith<$Res>(_self.tokens, (value) {
     return _then(_self.copyWith(tokens: value));
   });
-}/// Create a copy of AuthenticateData
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$WalletInfoCopyWith<$Res>? get wallet {
-    if (_self.wallet == null) {
-    return null;
-  }
-
-  return $WalletInfoCopyWith<$Res>(_self.wallet!, (value) {
-    return _then(_self.copyWith(wallet: value));
-  });
 }
 }
 
@@ -372,7 +356,7 @@ $WalletInfoCopyWith<$Res>? get wallet {
 /// @nodoc
 mixin _$OwnerInfo {
 
- int get id; String? get did; String get name; String get email;
+ int get id; String? get did; String get name; String get email; String? get birth; String? get image;
 /// Create a copy of OwnerInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -385,16 +369,16 @@ $OwnerInfoCopyWith<OwnerInfo> get copyWith => _$OwnerInfoCopyWithImpl<OwnerInfo>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OwnerInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.birth, birth) || other.birth == birth)&&(identical(other.image, image) || other.image == image));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,did,name,email);
+int get hashCode => Object.hash(runtimeType,id,did,name,email,birth,image);
 
 @override
 String toString() {
-  return 'OwnerInfo(id: $id, did: $did, name: $name, email: $email)';
+  return 'OwnerInfo(id: $id, did: $did, name: $name, email: $email, birth: $birth, image: $image)';
 }
 
 
@@ -405,7 +389,7 @@ abstract mixin class $OwnerInfoCopyWith<$Res>  {
   factory $OwnerInfoCopyWith(OwnerInfo value, $Res Function(OwnerInfo) _then) = _$OwnerInfoCopyWithImpl;
 @useResult
 $Res call({
- int id, String? did, String name, String email
+ int id, String? did, String name, String email, String? birth, String? image
 });
 
 
@@ -422,13 +406,15 @@ class _$OwnerInfoCopyWithImpl<$Res>
 
 /// Create a copy of OwnerInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,Object? birth = freezed,Object? image = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,did: freezed == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,
+as String,birth: freezed == birth ? _self.birth : birth // ignore: cast_nullable_to_non_nullable
+as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -439,13 +425,15 @@ as String,
 @JsonSerializable()
 
 class _OwnerInfo implements OwnerInfo {
-  const _OwnerInfo({required this.id, this.did, required this.name, required this.email});
+  const _OwnerInfo({required this.id, this.did, required this.name, required this.email, this.birth, this.image});
   factory _OwnerInfo.fromJson(Map<String, dynamic> json) => _$OwnerInfoFromJson(json);
 
 @override final  int id;
 @override final  String? did;
 @override final  String name;
 @override final  String email;
+@override final  String? birth;
+@override final  String? image;
 
 /// Create a copy of OwnerInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -460,16 +448,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OwnerInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.birth, birth) || other.birth == birth)&&(identical(other.image, image) || other.image == image));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,did,name,email);
+int get hashCode => Object.hash(runtimeType,id,did,name,email,birth,image);
 
 @override
 String toString() {
-  return 'OwnerInfo(id: $id, did: $did, name: $name, email: $email)';
+  return 'OwnerInfo(id: $id, did: $did, name: $name, email: $email, birth: $birth, image: $image)';
 }
 
 
@@ -480,7 +468,7 @@ abstract mixin class _$OwnerInfoCopyWith<$Res> implements $OwnerInfoCopyWith<$Re
   factory _$OwnerInfoCopyWith(_OwnerInfo value, $Res Function(_OwnerInfo) _then) = __$OwnerInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? did, String name, String email
+ int id, String? did, String name, String email, String? birth, String? image
 });
 
 
@@ -497,13 +485,15 @@ class __$OwnerInfoCopyWithImpl<$Res>
 
 /// Create a copy of OwnerInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? did = freezed,Object? name = null,Object? email = null,Object? birth = freezed,Object? image = freezed,}) {
   return _then(_OwnerInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,did: freezed == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,
+as String,birth: freezed == birth ? _self.birth : birth // ignore: cast_nullable_to_non_nullable
+as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -650,7 +640,7 @@ as String,
 /// @nodoc
 mixin _$WalletInfo {
 
- int get id; String get did; String get address;
+ int get id; String? get name; String get address;
 /// Create a copy of WalletInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -663,16 +653,16 @@ $WalletInfoCopyWith<WalletInfo> get copyWith => _$WalletInfoCopyWithImpl<WalletI
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.address, address) || other.address == address));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,did,address);
+int get hashCode => Object.hash(runtimeType,id,name,address);
 
 @override
 String toString() {
-  return 'WalletInfo(id: $id, did: $did, address: $address)';
+  return 'WalletInfo(id: $id, name: $name, address: $address)';
 }
 
 
@@ -683,7 +673,7 @@ abstract mixin class $WalletInfoCopyWith<$Res>  {
   factory $WalletInfoCopyWith(WalletInfo value, $Res Function(WalletInfo) _then) = _$WalletInfoCopyWithImpl;
 @useResult
 $Res call({
- int id, String did, String address
+ int id, String? name, String address
 });
 
 
@@ -700,11 +690,11 @@ class _$WalletInfoCopyWithImpl<$Res>
 
 /// Create a copy of WalletInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? did = null,Object? address = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = freezed,Object? address = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,did: null == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
-as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -716,11 +706,11 @@ as String,
 @JsonSerializable()
 
 class _WalletInfo implements WalletInfo {
-  const _WalletInfo({required this.id, required this.did, required this.address});
+  const _WalletInfo({required this.id, this.name, required this.address});
   factory _WalletInfo.fromJson(Map<String, dynamic> json) => _$WalletInfoFromJson(json);
 
 @override final  int id;
-@override final  String did;
+@override final  String? name;
 @override final  String address;
 
 /// Create a copy of WalletInfo
@@ -736,16 +726,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.did, did) || other.did == did)&&(identical(other.address, address) || other.address == address));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,did,address);
+int get hashCode => Object.hash(runtimeType,id,name,address);
 
 @override
 String toString() {
-  return 'WalletInfo(id: $id, did: $did, address: $address)';
+  return 'WalletInfo(id: $id, name: $name, address: $address)';
 }
 
 
@@ -756,7 +746,7 @@ abstract mixin class _$WalletInfoCopyWith<$Res> implements $WalletInfoCopyWith<$
   factory _$WalletInfoCopyWith(_WalletInfo value, $Res Function(_WalletInfo) _then) = __$WalletInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String did, String address
+ int id, String? name, String address
 });
 
 
@@ -773,11 +763,11 @@ class __$WalletInfoCopyWithImpl<$Res>
 
 /// Create a copy of WalletInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? did = null,Object? address = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = freezed,Object? address = null,}) {
   return _then(_WalletInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,did: null == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
-as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

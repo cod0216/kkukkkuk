@@ -9,7 +9,7 @@ abstract class WalletInfoResponse with _$WalletInfoResponse {
   const factory WalletInfoResponse({
     required String status,
     required String message,
-    WalletInfoData? data,
+    required List<WalletInfo> data,
   }) = _WalletInfoResponse;
 
   factory WalletInfoResponse.fromJson(Map<String, dynamic> json) =>
@@ -18,13 +18,13 @@ abstract class WalletInfoResponse with _$WalletInfoResponse {
 
 /// 지갑 정보 데이터 DTO
 @freezed
-abstract class WalletInfoData with _$WalletInfoData {
-  const factory WalletInfoData({
-    @JsonKey(name: 'wallet-id') required int walletId,
-    @JsonKey(name: 'wallet-did') required String walletDid,
-    @JsonKey(name: 'wallet-address') required String walletAddress,
-  }) = _WalletInfoData;
+abstract class WalletInfo with _$WalletInfo {
+  const factory WalletInfo({
+    required int id,
+    String? name,
+    required String address,
+  }) = _WalletInfo;
 
-  factory WalletInfoData.fromJson(Map<String, dynamic> json) =>
-      _$WalletInfoDataFromJson(json);
+  factory WalletInfo.fromJson(Map<String, dynamic> json) =>
+      _$WalletInfoFromJson(json);
 }

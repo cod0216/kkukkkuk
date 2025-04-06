@@ -24,13 +24,31 @@ Map<String, dynamic> _$WalletRegistrationResponseToJson(
 
 _WalletData _$WalletDataFromJson(Map<String, dynamic> json) => _WalletData(
   id: (json['id'] as num).toInt(),
-  did: json['did'] as String,
   address: json['address'] as String,
+  name: json['name'] as String?,
+  owners:
+      (json['owners'] as List<dynamic>)
+          .map((e) => WalletOwner.fromJson(e as Map<String, dynamic>))
+          .toList(),
 );
 
 Map<String, dynamic> _$WalletDataToJson(_WalletData instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'did': instance.did,
       'address': instance.address,
+      'name': instance.name,
+      'owners': instance.owners,
+    };
+
+_WalletOwner _$WalletOwnerFromJson(Map<String, dynamic> json) => _WalletOwner(
+  id: (json['id'] as num).toInt(),
+  name: json['name'] as String,
+  image: json['image'] as String?,
+);
+
+Map<String, dynamic> _$WalletOwnerToJson(_WalletOwner instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'image': instance.image,
     };

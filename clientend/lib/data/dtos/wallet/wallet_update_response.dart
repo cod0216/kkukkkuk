@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:kkuk_kkuk/data/dtos/wallet/wallet_registration_response.dart';
 
 part 'wallet_update_response.freezed.dart';
 part 'wallet_update_response.g.dart';
@@ -15,4 +14,31 @@ abstract class WalletUpdateResponse with _$WalletUpdateResponse {
 
   factory WalletUpdateResponse.fromJson(Map<String, dynamic> json) =>
       _$WalletUpdateResponseFromJson(json);
+}
+
+/// 지갑 데이터 DTO
+@freezed
+abstract class WalletData with _$WalletData {
+  const factory WalletData({
+    required int id,
+    required String address,
+    required String name,
+    required List<WalletOwner> owners,
+  }) = _WalletData;
+
+  factory WalletData.fromJson(Map<String, dynamic> json) =>
+      _$WalletDataFromJson(json);
+}
+
+/// 지갑 소유자 정보 DTO
+@freezed
+abstract class WalletOwner with _$WalletOwner {
+  const factory WalletOwner({
+    required int id,
+    required String name,
+    String? image,
+  }) = _WalletOwner;
+
+  factory WalletOwner.fromJson(Map<String, dynamic> json) =>
+      _$WalletOwnerFromJson(json);
 }

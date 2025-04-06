@@ -44,6 +44,14 @@ class ApiClient {
     return _dio.delete(path, data: data, queryParameters: queryParameters);
   }
 
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    return _dio.patch(path, data: data, queryParameters: queryParameters);
+  }
+
   Future<Response> multipartPost(
     String path, {
     dynamic data,

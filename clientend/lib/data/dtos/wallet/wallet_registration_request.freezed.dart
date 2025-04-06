@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WalletRegistrationRequest {
 
- String get did; String get address;@JsonKey(name: 'private_key') String get privateKey;@JsonKey(name: 'public_key') String get publicKey;
+ String get name; String get address;
 /// Create a copy of WalletRegistrationRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,16 @@ $WalletRegistrationRequestCopyWith<WalletRegistrationRequest> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletRegistrationRequest&&(identical(other.did, did) || other.did == did)&&(identical(other.address, address) || other.address == address)&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletRegistrationRequest&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,did,address,privateKey,publicKey);
+int get hashCode => Object.hash(runtimeType,name,address);
 
 @override
 String toString() {
-  return 'WalletRegistrationRequest(did: $did, address: $address, privateKey: $privateKey, publicKey: $publicKey)';
+  return 'WalletRegistrationRequest(name: $name, address: $address)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $WalletRegistrationRequestCopyWith<$Res>  {
   factory $WalletRegistrationRequestCopyWith(WalletRegistrationRequest value, $Res Function(WalletRegistrationRequest) _then) = _$WalletRegistrationRequestCopyWithImpl;
 @useResult
 $Res call({
- String did, String address,@JsonKey(name: 'private_key') String privateKey,@JsonKey(name: 'public_key') String publicKey
+ String name, String address
 });
 
 
@@ -66,12 +66,10 @@ class _$WalletRegistrationRequestCopyWithImpl<$Res>
 
 /// Create a copy of WalletRegistrationRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? did = null,Object? address = null,Object? privateKey = null,Object? publicKey = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? address = null,}) {
   return _then(_self.copyWith(
-did: null == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
-as String,privateKey: null == privateKey ? _self.privateKey : privateKey // ignore: cast_nullable_to_non_nullable
-as String,publicKey: null == publicKey ? _self.publicKey : publicKey // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -83,13 +81,11 @@ as String,
 @JsonSerializable()
 
 class _WalletRegistrationRequest implements WalletRegistrationRequest {
-  const _WalletRegistrationRequest({required this.did, required this.address, @JsonKey(name: 'private_key') required this.privateKey, @JsonKey(name: 'public_key') required this.publicKey});
+  const _WalletRegistrationRequest({required this.name, required this.address});
   factory _WalletRegistrationRequest.fromJson(Map<String, dynamic> json) => _$WalletRegistrationRequestFromJson(json);
 
-@override final  String did;
+@override final  String name;
 @override final  String address;
-@override@JsonKey(name: 'private_key') final  String privateKey;
-@override@JsonKey(name: 'public_key') final  String publicKey;
 
 /// Create a copy of WalletRegistrationRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -104,16 +100,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletRegistrationRequest&&(identical(other.did, did) || other.did == did)&&(identical(other.address, address) || other.address == address)&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletRegistrationRequest&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,did,address,privateKey,publicKey);
+int get hashCode => Object.hash(runtimeType,name,address);
 
 @override
 String toString() {
-  return 'WalletRegistrationRequest(did: $did, address: $address, privateKey: $privateKey, publicKey: $publicKey)';
+  return 'WalletRegistrationRequest(name: $name, address: $address)';
 }
 
 
@@ -124,7 +120,7 @@ abstract mixin class _$WalletRegistrationRequestCopyWith<$Res> implements $Walle
   factory _$WalletRegistrationRequestCopyWith(_WalletRegistrationRequest value, $Res Function(_WalletRegistrationRequest) _then) = __$WalletRegistrationRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String did, String address,@JsonKey(name: 'private_key') String privateKey,@JsonKey(name: 'public_key') String publicKey
+ String name, String address
 });
 
 
@@ -141,12 +137,10 @@ class __$WalletRegistrationRequestCopyWithImpl<$Res>
 
 /// Create a copy of WalletRegistrationRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? did = null,Object? address = null,Object? privateKey = null,Object? publicKey = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? address = null,}) {
   return _then(_WalletRegistrationRequest(
-did: null == did ? _self.did : did // ignore: cast_nullable_to_non_nullable
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
-as String,privateKey: null == privateKey ? _self.privateKey : privateKey // ignore: cast_nullable_to_non_nullable
-as String,publicKey: null == publicKey ? _self.publicKey : publicKey // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

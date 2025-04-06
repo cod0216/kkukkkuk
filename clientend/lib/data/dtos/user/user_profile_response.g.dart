@@ -24,16 +24,16 @@ Map<String, dynamic> _$UserProfileResponseToJson(
 _UserProfileData _$UserProfileDataFromJson(Map<String, dynamic> json) =>
     _UserProfileData(
       owner: OwnerProfileInfo.fromJson(json['owner'] as Map<String, dynamic>),
-      wallet:
-          json['wallet'] == null
-              ? null
-              : WalletProfileInfo.fromJson(
-                json['wallet'] as Map<String, dynamic>,
-              ),
+      wallets:
+          (json['wallets'] as List<dynamic>?)
+              ?.map(
+                (e) => WalletProfileInfo.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
     );
 
 Map<String, dynamic> _$UserProfileDataToJson(_UserProfileData instance) =>
-    <String, dynamic>{'owner': instance.owner, 'wallet': instance.wallet};
+    <String, dynamic>{'owner': instance.owner, 'wallets': instance.wallets};
 
 _OwnerProfileInfo _$OwnerProfileInfoFromJson(Map<String, dynamic> json) =>
     _OwnerProfileInfo(
@@ -42,6 +42,7 @@ _OwnerProfileInfo _$OwnerProfileInfoFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       email: json['email'] as String,
       birth: json['birth'] as String?,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$OwnerProfileInfoToJson(_OwnerProfileInfo instance) =>
@@ -51,18 +52,19 @@ Map<String, dynamic> _$OwnerProfileInfoToJson(_OwnerProfileInfo instance) =>
       'name': instance.name,
       'email': instance.email,
       'birth': instance.birth,
+      'image': instance.image,
     };
 
 _WalletProfileInfo _$WalletProfileInfoFromJson(Map<String, dynamic> json) =>
     _WalletProfileInfo(
       id: (json['id'] as num).toInt(),
-      did: json['did'] as String,
+      name: json['name'] as String,
       address: json['address'] as String,
     );
 
 Map<String, dynamic> _$WalletProfileInfoToJson(_WalletProfileInfo instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'did': instance.did,
+      'name': instance.name,
       'address': instance.address,
     };
