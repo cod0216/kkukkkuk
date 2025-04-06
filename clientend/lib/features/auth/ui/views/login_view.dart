@@ -6,9 +6,9 @@ import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
 
 /// 로그인 화면
 class LoginView extends ConsumerWidget {
-  final AuthViewModel controller;
+  final AuthViewModel viewModel;
 
-  const LoginView({super.key, required this.controller});
+  const LoginView({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,7 +24,7 @@ class LoginView extends ConsumerWidget {
             const AppLogo(),
             const SizedBox(height: 40),
             KakaoLoginButton(
-              onPressed: () => controller.handleLogin(),
+              onPressed: () => viewModel.handleLogin(),
               isLoading: authState.isLoginLoading,
             ),
             const Spacer(flex: 1),

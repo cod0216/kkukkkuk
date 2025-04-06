@@ -17,13 +17,13 @@ import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
 import 'package:kkuk_kkuk/features/wallet/model/wallet_view_model.dart';
 
 /// 마이페이지 컨트롤러 - 마이페이지의 비즈니스 로직을 처리하는 클래스
-class MyPageController {
+class MyPageViewModel {
   final WidgetRef ref;
   final refreshNotifierProvider = StateProvider<int>((ref) => 0);
   final _permissionManager = PermissionManager();
   final _imagePicker = ImagePicker();
 
-  MyPageController(this.ref);
+  MyPageViewModel(this.ref);
 
   /// 화면 새로고침 트리거
   /// TODO: User 데이터 갱신 방법 개선 필요
@@ -384,6 +384,6 @@ class MyPageController {
 }
 
 /// 마이페이지 컨트롤러 프로바이더
-final myPageControllerProvider = Provider.family<MyPageController, WidgetRef>(
-  (ref, widgetRef) => MyPageController(widgetRef),
+final myPageViewModelProvider = Provider.family<MyPageViewModel, WidgetRef>(
+  (ref, widgetRef) => MyPageViewModel(widgetRef),
 );

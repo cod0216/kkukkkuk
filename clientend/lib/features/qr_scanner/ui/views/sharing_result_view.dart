@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/features/pet/model/sharing_state.dart';
-import 'package:kkuk_kkuk/features/pet/model/sharing_controller.dart';
+import 'package:kkuk_kkuk/features/pet/model/sharing_view_model.dart';
 
 class SharingResultView extends ConsumerStatefulWidget {
   final Pet pet;
@@ -28,7 +28,7 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
     // 권한 부여 시작
     Future.microtask(() {
       ref
-          .read(sharingProvider.notifier)
+          .read(sharingViewModel.notifier)
           .startSharing(pet: widget.pet, hospital: widget.hospital);
     });
   }
@@ -46,13 +46,13 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
   // 재시도 로직
   void _retry() {
     ref
-        .read(sharingProvider.notifier)
+        .read(sharingViewModel.notifier)
         .startSharing(pet: widget.pet, hospital: widget.hospital);
   }
 
   @override
   Widget build(BuildContext context) {
-    final sharingState = ref.watch(sharingProvider);
+    final sharingState = ref.watch(sharingViewModel);
 
     return Scaffold(
       appBar: AppBar(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_register_controller.dart';
 import 'package:kkuk_kkuk/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
 import 'package:kkuk_kkuk/widgets/custom_dropdown_field.dart';
@@ -11,9 +10,7 @@ import 'package:kkuk_kkuk/widgets/custom_header.dart';
 
 // 반려동물 기본 정보 입력 화면
 class PetInfoView extends ConsumerStatefulWidget {
-  final PetRegisterController controller;
-
-  const PetInfoView({super.key, required this.controller});
+  const PetInfoView({super.key});
 
   @override
   ConsumerState<PetInfoView> createState() => _PetInfoViewState();
@@ -52,7 +49,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   Future<void> _loadSpecies() async {
     setState(() => _isLoading = true);
     try {
-      final species = await widget.controller.getSpecies();
+      final species = await ref.read(petRegisterProvider.notifier).getSpecies();
       setState(() {
         _speciesList = species;
         _isLoading = false;
@@ -67,7 +64,9 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   Future<void> _loadBreeds(int species) async {
     setState(() => _isLoading = true);
     try {
-      final breeds = await widget.controller.getBreeds(species);
+      final breeds = await ref
+          .read(petRegisterProvider.notifier)
+          .getBreeds(species);
       setState(() {
         _breedsList = breeds;
         _isLoading = false;
@@ -137,16 +136,18 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
   // 다음 단계로 이동
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
-      widget.controller.setBasicInfo(
-        name: _nameController.text,
-        species: _selectedSpecies,
-        breed: _selectedBreed,
-        birth: _selectedBirthDate,
-        gender: _selectedGender,
-        flagNeutering: _isNeutered, // 중성화 여부 전달
-      );
+      ref
+          .read(petRegisterProvider.notifier)
+          .setBasicInfo(
+            name: _nameController.text,
+            species: _selectedSpecies,
+            breed: _selectedBreed,
+            birth: _selectedBirthDate,
+            gender: _selectedGender,
+            flagNeutering: _isNeutered, // 중성화 여부 전달
+          );
 
-      widget.controller.moveToNextStep();
+      ref.read(petRegisterProvider.notifier).moveToNextStep();
     }
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
-import 'package:kkuk_kkuk/pages/main/controllers/my_page_controller.dart';
+import 'package:kkuk_kkuk/pages/main/controllers/my_page_view_model.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/mypage/profile_card.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/mypage/wallet_card.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/mypage/settings_card.dart';
@@ -13,7 +13,7 @@ class MyPageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(myPageControllerProvider(ref));
+    final controller = ref.watch(myPageViewModelProvider(ref));
     // Add this line to watch for refresh triggers
     ref.watch(controller.refreshNotifierProvider);
 
@@ -142,7 +142,7 @@ class MyPageView extends ConsumerWidget {
     WidgetRef ref,
     List<Wallet> wallets,
   ) async {
-    final controller = ref.read(myPageControllerProvider(ref));
+    final controller = ref.read(myPageViewModelProvider(ref));
 
     // 병렬로 데이터 가져오기
     final activeAddressFuture = _getActiveWalletAddress(ref);

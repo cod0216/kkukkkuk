@@ -5,14 +5,14 @@ import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/features/pet/model/sharing_state.dart';
 import 'package:kkuk_kkuk/features/pet/model/add_hospital_with_sharing_usecase.dart';
 
-final sharingProvider = StateNotifierProvider<SharingController, SharingState>(
-  (ref) => SharingController(ref.read(grantHospitalAccessUseCaseProvider)),
+final sharingViewModel = StateNotifierProvider<SharingViewModel, SharingState>(
+  (ref) => SharingViewModel(ref.read(grantHospitalAccessUseCaseProvider)),
 );
 
-class SharingController extends StateNotifier<SharingState> {
+class SharingViewModel extends StateNotifier<SharingState> {
   final AddHospitalWithSharingUseCase _grantHospitalAccessUseCase;
 
-  SharingController(this._grantHospitalAccessUseCase)
+  SharingViewModel(this._grantHospitalAccessUseCase)
     : super(SharingState.initial());
 
   // 권한 부여 시작

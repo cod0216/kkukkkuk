@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
-import 'package:kkuk_kkuk/pages/main/controllers/my_page_controller.dart';
+import 'package:kkuk_kkuk/pages/main/controllers/my_page_view_model.dart';
 
 /// 사용자 프로필 카드 위젯
 class ProfileCard extends ConsumerWidget {
@@ -11,7 +11,7 @@ class ProfileCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(myPageControllerProvider(ref));
+    final myPageViewModel = ref.read(myPageViewModelProvider(ref));
 
     return Card(
       elevation: 2,
@@ -24,7 +24,7 @@ class ProfileCard extends ConsumerWidget {
               children: [
                 // 프로필 이미지 (클릭 가능)
                 GestureDetector(
-                  onTap: () => controller.showProfileImageDialog(context),
+                  onTap: () => myPageViewModel.showProfileImageDialog(context),
                   child: Stack(
                     children: [
                       CircleAvatar(

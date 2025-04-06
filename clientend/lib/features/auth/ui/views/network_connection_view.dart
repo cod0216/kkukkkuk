@@ -5,9 +5,9 @@ import 'package:kkuk_kkuk/features/auth/model/states/auth_state.dart';
 
 /// 네트워크 연결 화면
 class NetworkConnectionView extends ConsumerStatefulWidget {
-  final AuthViewModel controller;
+  final AuthViewModel viewModel;
 
-  const NetworkConnectionView({super.key, required this.controller});
+  const NetworkConnectionView({super.key, required this.viewModel});
 
   @override
   ConsumerState<NetworkConnectionView> createState() =>
@@ -24,9 +24,9 @@ class _NetworkConnectionViewState extends ConsumerState<NetworkConnectionView> {
   /// 네트워크 연결 시도
   Future<void> _connectToNetwork() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.controller.connectToNetwork().then((success) {
+      widget.viewModel.connectToNetwork().then((success) {
         if (success) {
-          widget.controller.completeAuth();
+          widget.viewModel.completeAuth();
         }
       });
     });

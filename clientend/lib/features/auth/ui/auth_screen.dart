@@ -108,14 +108,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   ) {
     switch (step) {
       case AuthStep.login:
-        return LoginView(controller: viewModel);
+        return LoginView(viewModel: viewModel);
 
       case AuthStep.walletSetup:
       case AuthStep.walletCreation:
-        return WalletGuideView(controller: viewModel);
+        return WalletGuideView(viewModel: viewModel);
 
       case AuthStep.networkConnection:
-        return NetworkConnectionView(controller: viewModel);
+        return NetworkConnectionView(viewModel: viewModel);
 
       case AuthStep.error:
         return ErrorView(

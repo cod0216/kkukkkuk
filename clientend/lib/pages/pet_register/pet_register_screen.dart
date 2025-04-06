@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_register_controller.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_register_provider.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_info_view.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_image_view.dart';
@@ -15,20 +14,10 @@ class PetRegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _PetRegisterScreenState extends ConsumerState<PetRegisterScreen> {
-  // 반려동물 등록 컨트롤러
-  late final PetRegisterController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    // 컨트롤러 초기화
-    _controller = ref.read(petRegisterControllerProvider);
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.reset();
+      ref.read(petRegisterProvider.notifier).reset();
     });
     super.dispose();
   }
@@ -45,7 +34,7 @@ class _PetRegisterScreenState extends ConsumerState<PetRegisterScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             // 뒤로가기 시 상태 초기화 후 화면 종료
-            _controller.reset();
+            ref.read(petRegisterProvider.notifier).reset();
             Navigator.of(context).pop();
           },
         ),
@@ -61,9 +50,9 @@ class _PetRegisterScreenState extends ConsumerState<PetRegisterScreen> {
   Widget _buildCurrentView(PetRegisterStep step) {
     switch (step) {
       case PetRegisterStep.info:
-        return PetInfoView(controller: _controller); // 기본 정보 입력 화면
+        return PetInfoView(); // 기본 정보 입력 화면
       case PetRegisterStep.image:
-        return PetImageView(controller: _controller); // 이미지 등록 화면
+        return PetImageView(); // 이미지 등록 화면
       case PetRegisterStep.completed:
         return const PetRegisterCompleteView(); // 등록 완료 화면
     }

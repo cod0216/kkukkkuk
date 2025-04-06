@@ -34,16 +34,13 @@ class _PetsViewState extends ConsumerState<PetsView>
   }
 
   void _refreshPetList() {
-    // initState 이후에도 호출될 수 있으므로 addPostFrameCallback 제거
     print('PetsView: _refreshPetList called'); // 클래스 이름 변경
-    // controller 대신 ref.read 로 Notifier 직접 호출
     ref.read(petProvider.notifier).getPetList();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 의존성 변경 시 (예: 화면 첫 로드 시) 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshPetList();
     });
@@ -73,7 +70,6 @@ class _PetsViewState extends ConsumerState<PetsView>
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
-                    // controller 대신 ref.read 로 Notifier 직접 호출
                     ref.read(petProvider.notifier).getPetList();
                     // 새로고침 피드백
                     ScaffoldMessenger.of(context).showSnackBar(

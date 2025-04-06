@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/auth/model/providers/auth_view_model.dart';
 
 class WalletGuideView extends ConsumerWidget {
-  final AuthViewModel controller;
+  final AuthViewModel viewModel;
 
-  const WalletGuideView({super.key, required this.controller});
+  const WalletGuideView({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +38,7 @@ class WalletGuideView extends ConsumerWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () => controller.moveToWalletCreation(context),
+            onPressed: () => viewModel.moveToWalletCreation(context),
             child: const Text('지갑 생성하기'),
           ),
         ],
