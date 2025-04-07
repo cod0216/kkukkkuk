@@ -17,9 +17,8 @@ abstract class UserImageUploadResponse with _$UserImageUploadResponse {
 
 @freezed
 abstract class UserImageUploadData with _$UserImageUploadData {
-  const factory UserImageUploadData({
-    required String image,
-  }) = _UserImageUploadData;
+  const factory UserImageUploadData({required String image}) =
+      _UserImageUploadData;
 
   factory UserImageUploadData.fromJson(Map<String, dynamic> json) =>
       _$UserImageUploadDataFromJson(json);
