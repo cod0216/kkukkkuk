@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/app_logo.dart';
+import 'package:kkuk_kkuk/widgets/common/app_logo.dart';
 
 /// 앱 실행 시 처음 표시되는 스플래시 화면
 class SplashScreen extends StatefulWidget {

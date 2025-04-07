@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/pages/pet_register/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/pages/pet_register/state/pet_register_step.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_info_view.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_image_view.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_register_complete_view.dart';

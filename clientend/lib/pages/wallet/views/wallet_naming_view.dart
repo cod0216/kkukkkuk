@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
 
 class WalletNamingView extends ConsumerStatefulWidget {
   const WalletNamingView({super.key});

@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/breed.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
-import 'package:kkuk_kkuk/features/pet/model/pet_usecase_providers.dart';
+import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
 import 'package:web3dart/web3dart.dart';
 
 class PetEditView extends ConsumerStatefulWidget {

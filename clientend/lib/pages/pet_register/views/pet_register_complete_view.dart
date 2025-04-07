@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/status_indicator.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/dual_buttons.dart';
+import 'package:kkuk_kkuk/pages/pet_register/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/widgets/common/status_indicator.dart';
+import 'package:kkuk_kkuk/widgets/common/dual_buttons.dart';
 
 // 반려동물 등록 완료 화면
 class PetRegisterCompleteView extends ConsumerWidget {

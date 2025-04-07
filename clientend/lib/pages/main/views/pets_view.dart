@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
-import 'package:kkuk_kkuk/features/pet/notifiers/pet_notifier.dart';
-import 'package:kkuk_kkuk/pages/main/widgets/pet/add_pet_button.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/add_circle_icon.dart';
-import 'package:kkuk_kkuk/pages/main/widgets/pet/pet_carousel.dart';
-import 'package:kkuk_kkuk/pages/main/widgets/pet/qr_scan_button.dart';
+import 'package:kkuk_kkuk/pages/main/notifiers/pet_notifier.dart';
+import 'package:kkuk_kkuk/widgets/pet/add_pet_button.dart';
+import 'package:kkuk_kkuk/widgets/common/add_circle_icon.dart';
+import 'package:kkuk_kkuk/widgets/pet/pet_carousel.dart';
+import 'package:kkuk_kkuk/widgets/pet/qr_scan_button.dart';
 
 class PetsView extends ConsumerStatefulWidget {
   const PetsView({super.key});
