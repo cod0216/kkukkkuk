@@ -31,6 +31,10 @@ class MyApp extends StatelessWidget {
           foregroundColor: Color.fromARGB(255, 30, 64, 175),
           backgroundColor: Colors.white,
         ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 30, 64, 175),
+          primary: const Color.fromARGB(255, 30, 64, 175),
+        ),
       ),
     );
   }
