@@ -43,11 +43,11 @@ class PermissionManager {
       name: '사진',
       description: '사진 접근 권한이 필요합니다.',
     ),
-    // PermissionInfo(
-    //   permission: Permission.location,
-    //   name: '위치',
-    //   description: '현재 위치 기반 서비스 제공을 위해 위치 접근 권한이 필요합니다.',
-    // ),
+    PermissionInfo(
+      permission: Permission.location,
+      name: '위치',
+      description: '현재 위치 기반 서비스 제공을 위해 위치 접근 권한이 필요합니다.',
+    ),
   ];
 
   /// 모든 권한의 상태를 확인합니다.
