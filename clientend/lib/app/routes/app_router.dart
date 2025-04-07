@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
+import 'package:kkuk_kkuk/pages/pet_edit/pet_edit_view.dart';
 import 'package:kkuk_kkuk/pages/splash_screen.dart';
 import 'package:kkuk_kkuk/pages/main/main_screen.dart';
 import 'package:kkuk_kkuk/pages/main/views/pets_view.dart';
@@ -67,7 +68,10 @@ final router = GoRouter(
       path: '/pet-detail',
       builder: (context, state) => PetProfileScreen(pet: state.extra as Pet),
     ),
-
+    GoRoute(
+      path: '/pet/edit',
+      builder: (context, state) => PetEditView(pet: state.extra as Pet),
+    ),
     // QR 스캐너 라우트 추가
     ...qrScannerRoutes,
   ],

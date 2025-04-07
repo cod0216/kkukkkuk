@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/pet/model/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/pages/main/widgets/pet/card/pet_card_image.dart';
@@ -66,25 +67,58 @@ class PetProfileHeader extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // 삭제 버튼
-          ElevatedButton(
-            onPressed: () => _showDeleteConfirmation(context, ref),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade100,
-              foregroundColor: Colors.red.shade900,
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.delete_outline, size: 18),
-                SizedBox(width: 8),
-                Text('반려동물 삭제'),
-              ],
-            ),
+          // 버튼 영역
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 수정 버튼
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _navigateToEditPet(context, pet),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade100,
+                    foregroundColor: Colors.blue.shade900,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.edit_outlined, size: 18),
+                      SizedBox(width: 8),
+                      Text('반려동물 수정'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 삭제 버튼
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _showDeleteConfirmation(context, ref),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade100,
+                    foregroundColor: Colors.red.shade900,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.delete_outline, size: 18),
+                      SizedBox(width: 8),
+                      Text('반려동물 삭제'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  /// 반려동물 수정 화면으로 이동
+  void _navigateToEditPet(BuildContext context, Pet pet) {
+    // 수정 화면으로 이동하면서 현재 반려동물 정보 전달
+    context.push('/pet/edit', extra: pet);
   }
 
   /// 삭제 확인 다이얼로그 표시
