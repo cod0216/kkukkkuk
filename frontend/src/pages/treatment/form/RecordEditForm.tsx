@@ -575,6 +575,7 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
               setPrescriptionType={setPrescriptionType}
               prescriptionDosage={prescriptionDosage}
               setPrescriptionDosage={setPrescriptionDosage}
+              petSpecies={(record as any).petSpecies || (record as any).petBreed || ''}
             />
           </div>
         </div>
@@ -605,14 +606,14 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
                   <><FaCamera className="text-gray-400 mr-1" /> 사진 선택</>
                 )}
               </label>
-              <span className="text-xs text-gray-500">{uploadedImages.length}개 이미지</span>
+              <span className="text-xs text-gray-500">{(typeof window !== 'undefined' && window._tempImageUrls && window._tempImageUrls[tempStoreKey]) ? window._tempImageUrls[tempStoreKey].length : 0}개 이미지</span>
             </div>
             
             {/* 업로드된 URL 목록 표시 (미리보기 대신) */}
-            {uploadedImages.length > 0 && (
+            {(typeof window !== 'undefined' && window._tempImageUrls && window._tempImageUrls[tempStoreKey] && window._tempImageUrls[tempStoreKey].length > 0) && (
               <div className="border border-gray-200 rounded-md p-2 bg-gray-50">
                 <p className="text-xs font-medium text-gray-700 mb-1">업로드된 이미지 URL:</p>
-                {uploadedImages.map((url, index) => (
+                {window._tempImageUrls[tempStoreKey].map((url, index) => (
                   <div key={`url-${index}`} className="flex items-center justify-between text-xs mb-1 last:mb-0 p-1 bg-white rounded border border-gray-200">
                     <div className="truncate flex-1 pr-2">
                       <span className="font-mono text-blue-600 text-[10px] break-all">{url}</span>

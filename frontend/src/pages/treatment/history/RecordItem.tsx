@@ -47,45 +47,45 @@ interface RecordItemProps {
   sortDirection?: SortDirection;
 }
 
-/**
- * 진료 상태에 따른 스타일을 반환하는 함수
- */
-const getStatusStyle = (status: string): string => {
-  switch (status.toUpperCase()) {
-    case 'WAITING':
-      return 'bg-gray-100 text-gray-700';
-    case 'IN_PROGRESS':
-      return 'bg-blue-100 text-blue-700';
-    case 'COMPLETED':
-      return 'bg-green-100 text-green-700';
-    case 'CANCELLED':
-      return 'bg-red-100 text-red-700';
-    case 'SHARED':
-      return 'bg-purple-100 text-purple-700';
-    default:
-      return 'bg-gray-100 text-gray-700';
-  }
-};
+// /**
+//  * 진료 상태에 따른 스타일을 반환하는 함수
+//  */
+// const getStatusStyle = (status: string): string => {
+//   switch (status.toUpperCase()) {
+//     case 'WAITING':
+//       return 'bg-gray-100 text-gray-700';
+//     case 'IN_PROGRESS':
+//       return 'bg-blue-100 text-blue-700';
+//     case 'COMPLETED':
+//       return 'bg-green-100 text-green-700';
+//     case 'CANCELLED':
+//       return 'bg-red-100 text-red-700';
+//     case 'SHARED':
+//       return 'bg-purple-100 text-purple-700';
+//     default:
+//       return 'bg-gray-100 text-gray-700';
+//   }
+// };
 
-/**
- * 진료 상태 코드를 표시용 텍스트로 변환하는 함수
- */
-const getStatusText = (status: string): string => {
-  switch (status.toUpperCase()) {
-    case 'WAITING':
-      return '진료전';
-    case 'IN_PROGRESS':
-      return '진료중';
-    case 'COMPLETED':
-      return '진료완료';
-    case 'CANCELLED':
-      return '취소됨';
-    case 'SHARED':
-      return '공유중';
-    default:
-      return '';
-  }
-};
+// /**
+//  * 진료 상태 코드를 표시용 텍스트로 변환하는 함수
+//  */
+// const getStatusText = (status: string): string => {
+//   switch (status.toUpperCase()) {
+//     case 'WAITING':
+//       return '진료전';
+//     case 'IN_PROGRESS':
+//       return '진료중';
+//     case 'COMPLETED':
+//       return '진료완료';
+//     case 'CANCELLED':
+//       return '취소됨';
+//     case 'SHARED':
+//       return '공유중';
+//     default:
+//       return '';
+//   }
+// };
 
 /**
  * 반려동물 의료 기록을 테이블 형식으로 표시하는 컴포넌트
@@ -154,13 +154,12 @@ const RecordItem: React.FC<RecordItemProps> = ({
               {renderSortHeader('병원명', 'hospitalName')}
               {renderSortHeader('담당의사', 'doctorName')}
               <th className="px-2 py-1 text-center text-xs">처방</th>
-              <th className="px-2 py-1 text-center text-xs">상태</th>
             </tr>
           </thead>
           <tbody>
             {records.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-2 py-2 text-center border-b text-xs">
+                <td colSpan={5} className="px-2 py-2 text-center border-b text-xs">
                   진료기록이 없습니다.
                 </td>
               </tr>
@@ -228,13 +227,6 @@ const RecordItem: React.FC<RecordItemProps> = ({
                           <span className="invisible text-xs px-2 py-1">처방 없음</span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-2 py-1 text-center">
-                      {record.status ? (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getStatusStyle(record.status)}`}>
-                          {getStatusText(record.status)}
-                        </span>
-                      ) : null}
                     </td>
                   </tr>
                 );
