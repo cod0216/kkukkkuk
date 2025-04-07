@@ -33,6 +33,18 @@ import java.io.IOException;
 public class ExceptionHandlingFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
+
+    /**
+     * 실제 필터링 로직이 수행되는 메서드입니다.<br>
+     * 요청 처리 중 ApiException 또는 일반적인 예외(Exception)가 발생하면
+     * {@link #setErrorResponse(HttpServletResponse, ErrorCode)} 를 호출하여 에러 응답을 생성합니다.
+     *
+     * @param request     클라이언트의 HTTP 요청
+     * @param response    서버가 클라이언트에게 보낼 HTTP 응답
+     * @param filterChain 현재 필터 체인
+     * @throws ServletException 서블릿 예외 발생 시
+     * @throws IOException      입출력 예외 발생 시
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -46,6 +58,13 @@ public class ExceptionHandlingFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * 예외 상황에 따라 적절한 에러 정보를 JSON 형태로 클라이언트에 응답하는 메서드입니다.
+     *
+     * @param response   클라이언트에게 반환할 응답 객체
+     * @param errorCode  발생한 예외에 대한 ErrorCode
+     * @throws IOException JSON 변환 중 예외 발생 시
+     */
     private void setErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json; charset=UTF-8");
