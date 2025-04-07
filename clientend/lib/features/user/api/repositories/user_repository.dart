@@ -65,7 +65,22 @@ class UserRepository implements IUserRepository {
         '/api/owners/me/images',
         data: formData,
       );
-      return UserImageUploadResponse.fromJson(response.data);
+
+      // 응답 처리
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        if (response.data == null) {
+          throw Exception('서버 응답이 없습니다.');
+        }
+
+        // Create a UserImageUploadResponse with the string data
+        return UserImageUploadResponse(
+          status: 'SUCCESS',
+          message: '프로필 이미지 업로드 성공',
+          data: UserImageUploadData(image: response.data.toString()),
+        );
+      } else {
+        throw Exception('이미지 업로드 실패: ${response.statusCode}');
+      }
     } catch (e) {
       print('프로필 이미지 업로드 실패: $e');
       rethrow;
