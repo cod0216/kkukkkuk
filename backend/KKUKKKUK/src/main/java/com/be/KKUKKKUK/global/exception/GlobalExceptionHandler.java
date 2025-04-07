@@ -2,14 +2,21 @@ package com.be.KKUKKKUK.global.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 
 
 /**
@@ -42,7 +49,7 @@ public class GlobalExceptionHandler {
      * @return 에러 코드에 기반한 HTTP 응답 엔터티
      */
     @ExceptionHandler(ApiException.class)
-    protected ResponseEntity<ErrorResponseEntity> handleBusinessException(final ApiException e) {
+    private ResponseEntity<ErrorResponseEntity> handleBusinessException(final ApiException e) {
         return ErrorResponseEntity.toResponseEntity(e.getErrorCode());
     }
 
@@ -60,7 +67,7 @@ public class GlobalExceptionHandler {
      * @return 내부 서버 에러를 나타내는 HTTP 응답 엔터티
      */
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponseEntity> handleException(Exception e) {
+    private ResponseEntity<ErrorResponseEntity> handleException(Exception e) {
         log.error("handle not business exception", e);
         return ErrorResponseEntity.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
     }
@@ -84,7 +91,7 @@ public class GlobalExceptionHandler {
      * @return 검증 실패에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<ErrorResponseEntity> handleValidException(Exception e) {
+    private ResponseEntity<ErrorResponseEntity> handleValidException(Exception e) {
         String errorMessages;
 
         if (e instanceof MethodArgumentNotValidException) {
@@ -115,7 +122,7 @@ public class GlobalExceptionHandler {
      * @return 엔드포인트 예외에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponseEntity> handleNoResourceFoundException(NoResourceFoundException e) {
+    private ResponseEntity<ErrorResponseEntity> handleNoResourceFoundException(NoResourceFoundException e) {
         String errorMessages = String.format("[%s] 에 해당하는 엔드포인트를 찾을 수 없습니다.", e.getResourcePath());
         return ErrorResponseEntity.toResponseEntity(ErrorCode.NO_ENDPOINT, errorMessages);
     }
@@ -126,8 +133,87 @@ public class GlobalExceptionHandler {
      * @return 메서드 예외에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponseEntity> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+    private ResponseEntity<ErrorResponseEntity> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         String errorMessages = String.format("[%s] 는 허용되지 않는 메소드입니다.", e.getMethod());
-        return ErrorResponseEntity.toResponseEntity(ErrorCode.METHOD_NOT_ALLOWED, errorMessages);
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
     }
+
+    /**
+     * 요청 파라미터의 타입이 일치하지 않을 경우 발생하는 예외를 처리합니다.
+     * @param e 타입이 일치하지 않아 발생한 예외
+     * @return 잘못된 타입의 요청 파라미터에 대한 응답
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    private ResponseEntity<ErrorResponseEntity> handleMissingServletRequestParameterException(MethodArgumentTypeMismatchException e) {
+        String paramName = e.getName();
+        String providedValue = e.getValue() != null ? e.getValue().toString() : "null";
+        String requiredType = e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "알 수 없음";
+
+        String errorMessages = String.format(
+                "요청 파라미터 [%s]의 값 [%s]는 허용되지 않습니다. 올바른 형식: %s",
+                paramName, providedValue, requiredType
+        );
+
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
+    /**
+     * 요청 파라미터가 누락된 경우 발생하는 예외를 처리합니다.
+     * @param e MissingServletRequestParameterException
+     * @return 적절한 에러 응답
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    private ResponseEntity<ErrorResponseEntity> handleMissingServletRequestParameter(MissingServletRequestParameterException e) {
+        String errorMessages = String.format("필수 요청 파라미터 [%s] 가 누락되었습니다.", e.getParameterName());
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
+    /**
+     * 경로 변수 누락 시 발생하는 예외를 처리합니다.
+     * @param e MissingPathVariableException
+     * @return 적절한 에러 응답
+     */
+    @ExceptionHandler(MissingPathVariableException.class)
+    private ResponseEntity<ErrorResponseEntity> handleMissingPathVariable(MissingPathVariableException e) {
+        String errorMessages = String.format("필수 경로 변수 [%s] 가 누락되었습니다.", e.getVariableName());
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
+    /**
+     * 타입 불일치 (형변환 실패) 예외를 처리합니다.
+     * @param e TypeMismatchException
+     * @return 적절한 에러 응답
+     */
+    @ExceptionHandler(TypeMismatchException.class)
+    private ResponseEntity<ErrorResponseEntity> handleTypeMismatch(TypeMismatchException e) {
+        String errorMessages = String.format("파라미터 [%s] 값이 잘못되었습니다. 필요한 타입: [%s]", e.getPropertyName(), e.getRequiredType());
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
+
+    /**
+     * Multipart 요청에서 파일 등 필요한 part 가 누락된 경우 처리합니다.
+     */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    private ResponseEntity<ErrorResponseEntity> handleMissingServletRequestPart(MissingServletRequestPartException e) {
+        String errorMessages = String.format("요청에 필요한 part [%s] 가 누락되었습니다.", e.getRequestPartName());
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
+
+    /**
+     * RequestParam 등에서 바인딩 실패 시 발생
+     */
+    @ExceptionHandler(BindException.class)
+    private ResponseEntity<ErrorResponseEntity> handleBindException(BindException e) {
+        String errorMessages = e.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> String.format("[%s](은)는 %s", fieldError.getField(), fieldError.getDefaultMessage()))
+                .reduce((msg1, msg2) -> msg1 + ". " + msg2)
+                .orElse("요청 파라미터 바인딩 중 오류가 발생했습니다.");
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
+
+
+
 }
