@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import RecordItem from '@/pages/treatment/history/RecordItem';
 import RecordDetail from '@/pages/treatment/history/RecordDetail';
 import RecordEditForm from '@/pages/treatment/form/RecordEditForm';
@@ -96,6 +96,10 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   
   // 의사 목록
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  
+  // 선택된 반려동물 DID 변경 추적을 위한 ref
+  const prevPetDidRef = useRef<string | undefined>(undefined);
+  const prevHospitalPetsLengthRef = useRef<number>(0);
   
   // 정렬 방향 토글 핸들러
   const toggleSort = (field: SortField) => {
@@ -287,8 +291,20 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
         setSelectedRecordId('');
       }
       
-      // 기록이 변경되면 페이지를 1페이지로 초기화
-      setCurrentPage(1);
+      // 기록이 변경되면 페이지를 1페이지로 초기화 (조건부)
+      // 1. 반려동물이 변경되었거나
+      // 2. 반려동물 목록의 길이가 변경되었을 때만 페이지 초기화
+      const petDidChanged = prevPetDidRef.current !== selectedPetDid;
+      const hospitalPetsChanged = prevHospitalPetsLengthRef.current !== hospitalPets.length;
+      
+      if (petDidChanged || hospitalPetsChanged) {
+        console.log('반려동물 변경 또는 목록 변경으로 인한 페이지 초기화');
+        setCurrentPage(1);
+      }
+      
+      // 현재 값을 이전 값으로 저장
+      prevPetDidRef.current = selectedPetDid;
+      prevHospitalPetsLengthRef.current = hospitalPets.length;
     } else if (!selectedPetDid) {
       // 선택된 반려동물이 없으면 빈 기록 설정
       setBlockchainRecords([]);
