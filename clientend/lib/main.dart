@@ -21,6 +21,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(title: '꾹꾹', routerConfig: router);
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: '꾹꾹',
+      routerConfig: router,
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          foregroundColor: Color.fromARGB(255, 30, 64, 175),
+          backgroundColor: Colors.white,
+        ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 30, 64, 175),
+          primary: const Color.fromARGB(255, 30, 64, 175),
+        ),
+      ),
+    );
   }
 }

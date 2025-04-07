@@ -5,12 +5,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:kkuk_kkuk/features/image/api/repositories/image_repository_impl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/custom_image_placeholder.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/image_source_button.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/skip_button.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/dual_buttons.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/custom_header.dart';
+import 'package:kkuk_kkuk/pages/pet_register/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/widgets/common/custom_image_placeholder.dart';
+import 'package:kkuk_kkuk/widgets/common/image_source_button.dart';
+import 'package:kkuk_kkuk/widgets/common/skip_button.dart';
+import 'package:kkuk_kkuk/widgets/common/dual_buttons.dart';
+import 'package:kkuk_kkuk/widgets/common/custom_header.dart';
 import 'package:kkuk_kkuk/shared/lib/permission/permission_manager.dart';
 
 // 반려동물 이미지 등록 화면

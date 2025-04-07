@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/pet/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/pages/pet_register/notifiers/pet_register_notifier.dart';
+import 'package:kkuk_kkuk/pages/pet_register/state/pet_register_step.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_info_view.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_image_view.dart';
 import 'package:kkuk_kkuk/pages/pet_register/views/pet_register_complete_view.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 
 // 반려동물 등록 화면 위젯
 class PetRegisterScreen extends ConsumerStatefulWidget {
@@ -27,17 +29,7 @@ class _PetRegisterScreenState extends ConsumerState<PetRegisterScreen> {
     final currentStep = ref.watch(petRegisterNotifierProvider).currentStep;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('반려동물 등록'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // 뒤로가기 시 상태 초기화 후 화면 종료
-            ref.read(petRegisterNotifierProvider.notifier).reset();
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
+      appBar: CustomAppBar(),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _buildCurrentView(currentStep),

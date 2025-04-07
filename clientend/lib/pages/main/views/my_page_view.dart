@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/pages/main/viewmodel/my_page_view_model.dart';
-import 'package:kkuk_kkuk/pages/main/widgets/mypage/profile_card.dart';
-import 'package:kkuk_kkuk/pages/main/widgets/mypage/wallet_card.dart';
-import 'package:kkuk_kkuk/pages/main/widgets/mypage/settings_card.dart';
+import 'package:kkuk_kkuk/widgets/common/primary_section.dart';
+import 'package:kkuk_kkuk/widgets/mypage/my_settings_section.dart';
+import 'package:kkuk_kkuk/widgets/mypage/user_profile/user_profile_form.dart';
 import 'package:kkuk_kkuk/shared/lib/storage/secure_storage.dart';
+import 'package:kkuk_kkuk/widgets/mypage/wallet_list_section.dart';
 
 class MyPageView extends ConsumerWidget {
   const MyPageView({super.key});
@@ -74,7 +75,7 @@ class MyPageView extends ConsumerWidget {
                         final activeWalletAddress =
                             data['activeAddress'] as String?;
 
-                        return WalletCard(
+                        return WalletListSection(
                           wallets: wallets,
                           activeWalletAddress: activeWalletAddress,
                           onWalletNameUpdate: (walletId, newName) async {
@@ -83,6 +84,7 @@ class MyPageView extends ConsumerWidget {
                                 walletId,
                                 newName,
                               );
+                              // 성공 시 UI 갱신 필요 -> ViewModel의 triggerRefresh() 호출
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -92,8 +94,10 @@ class MyPageView extends ConsumerWidget {
                             }
                           },
                           onWalletDelete: (walletId) async {
+                            // 삭제 확인 다이얼로그는 _WalletItem 내부에서 처리
                             try {
                               await myPageViewModel.deleteWallet(walletId);
+                              // 성공 시 UI 갱신 필요 -> ViewModel의 triggerRefresh() 호출
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -104,11 +108,25 @@ class MyPageView extends ConsumerWidget {
                           },
                         );
                       },
+                    )
+                  else if (user != null) // 지갑이 없는 경우 메시지 표시
+                    PrimarySection(
+                      title: '내 지갑',
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text('등록된 지갑이 없습니다.'),
+                      ),
                     ),
 
                   const SizedBox(height: 24),
+
                   // 설정 섹션
-                  SettingsCard(
+                  MySettingsSection(
                     user: user,
                     onWalletChange:
                         () => myPageViewModel.handleWalletChange(context),
