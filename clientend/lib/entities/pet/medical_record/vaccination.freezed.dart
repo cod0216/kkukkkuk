@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Vaccination {
 
- String get key; String get value;
+ String? get key; String? get value;
 /// Create a copy of Vaccination
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,7 +46,7 @@ abstract mixin class $VaccinationCopyWith<$Res>  {
   factory $VaccinationCopyWith(Vaccination value, $Res Function(Vaccination) _then) = _$VaccinationCopyWithImpl;
 @useResult
 $Res call({
- String key, String value
+ String? key, String? value
 });
 
 
@@ -63,11 +63,11 @@ class _$VaccinationCopyWithImpl<$Res>
 
 /// Create a copy of Vaccination
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? key = null,Object? value = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? key = freezed,Object? value = freezed,}) {
   return _then(_self.copyWith(
-key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as String,
+key: freezed == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String?,value: freezed == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -78,11 +78,11 @@ as String,
 
 
 class _Vaccination implements Vaccination {
-  const _Vaccination({required this.key, required this.value});
+  const _Vaccination({this.key, this.value});
   
 
-@override final  String key;
-@override final  String value;
+@override final  String? key;
+@override final  String? value;
 
 /// Create a copy of Vaccination
 /// with the given fields replaced by the non-null parameter values.
@@ -114,7 +114,7 @@ abstract mixin class _$VaccinationCopyWith<$Res> implements $VaccinationCopyWith
   factory _$VaccinationCopyWith(_Vaccination value, $Res Function(_Vaccination) _then) = __$VaccinationCopyWithImpl;
 @override @useResult
 $Res call({
- String key, String value
+ String? key, String? value
 });
 
 
@@ -131,11 +131,11 @@ class __$VaccinationCopyWithImpl<$Res>
 
 /// Create a copy of Vaccination
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? key = null,Object? value = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? key = freezed,Object? value = freezed,}) {
   return _then(_Vaccination(
-key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as String,
+key: freezed == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String?,value: freezed == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

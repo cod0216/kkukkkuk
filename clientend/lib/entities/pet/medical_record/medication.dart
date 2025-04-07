@@ -4,6 +4,5 @@ part 'medication.freezed.dart';
 
 @freezed
 abstract class Medication with _$Medication {
-  const factory Medication({required String key, required String value}) =
-      _Medication;
+  const factory Medication({String? key, String? value}) = _Medication;
 }

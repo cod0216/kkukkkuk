@@ -4,6 +4,5 @@ part 'vaccination.freezed.dart';
 
 @freezed
 abstract class Vaccination with _$Vaccination {
-  const factory Vaccination({required String key, required String value}) =
-      _Vaccination;
+  const factory Vaccination({String? key, String? value}) = _Vaccination;
 }

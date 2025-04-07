@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Examination {
 
- String get type; String get key; String get value;
+ String? get type; String? get key; String? get value;
 /// Create a copy of Examination
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,7 +46,7 @@ abstract mixin class $ExaminationCopyWith<$Res>  {
   factory $ExaminationCopyWith(Examination value, $Res Function(Examination) _then) = _$ExaminationCopyWithImpl;
 @useResult
 $Res call({
- String type, String key, String value
+ String? type, String? key, String? value
 });
 
 
@@ -63,12 +63,12 @@ class _$ExaminationCopyWithImpl<$Res>
 
 /// Create a copy of Examination
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? key = null,Object? value = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? type = freezed,Object? key = freezed,Object? value = freezed,}) {
   return _then(_self.copyWith(
-type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as String,
+type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String?,key: freezed == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String?,value: freezed == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -79,12 +79,12 @@ as String,
 
 
 class _Examination implements Examination {
-  const _Examination({required this.type, required this.key, required this.value});
+  const _Examination({this.type, this.key, this.value});
   
 
-@override final  String type;
-@override final  String key;
-@override final  String value;
+@override final  String? type;
+@override final  String? key;
+@override final  String? value;
 
 /// Create a copy of Examination
 /// with the given fields replaced by the non-null parameter values.
@@ -116,7 +116,7 @@ abstract mixin class _$ExaminationCopyWith<$Res> implements $ExaminationCopyWith
   factory _$ExaminationCopyWith(_Examination value, $Res Function(_Examination) _then) = __$ExaminationCopyWithImpl;
 @override @useResult
 $Res call({
- String type, String key, String value
+ String? type, String? key, String? value
 });
 
 
@@ -133,12 +133,12 @@ class __$ExaminationCopyWithImpl<$Res>
 
 /// Create a copy of Examination
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? key = null,Object? value = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? type = freezed,Object? key = freezed,Object? value = freezed,}) {
   return _then(_Examination(
-type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as String,
+type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String?,key: freezed == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String?,value: freezed == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

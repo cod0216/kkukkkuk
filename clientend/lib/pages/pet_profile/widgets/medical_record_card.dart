@@ -29,12 +29,14 @@ class MedicalRecordCard extends StatelessWidget {
               const SizedBox(height: 12),
               _buildMemo(),
             ],
-            if (record.examinations.isNotEmpty) ...[
+            if (record.examinations?.isNotEmpty ?? false) ...[
               const SizedBox(height: 12),
               _buildExaminations(),
             ],
-            if (record.medications.isNotEmpty ||
-                record.vaccinations.isNotEmpty) ...[
+            if (record.medications?.isNotEmpty ??
+                false ||
+                    (record.vaccinations != null &&
+                        record.vaccinations!.isNotEmpty)) ...[
               const SizedBox(height: 12),
               _buildTreatments(),
             ],
@@ -83,7 +85,7 @@ class MedicalRecordCard extends StatelessWidget {
       children: [
         const Text('검사 결과', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        ...record.examinations.map(
+        ...record.examinations!.map(
           (exam) => Padding(
             padding: const EdgeInsets.only(bottom: 2),
             child: Text('${exam.key}: ${exam.value}'),
@@ -97,16 +99,18 @@ class MedicalRecordCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (record.medications.isNotEmpty) ...[
+        if (record.medications?.isNotEmpty ?? false) ...[
           const Text('처방 약물', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          ...record.medications.map((med) => Text('${med.key} ${med.value}')),
+          ...(record.medications ?? []).map(
+            (med) => Text('${med.key} ${med.value}'),
+          ),
           const SizedBox(height: 8),
         ],
-        if (record.vaccinations.isNotEmpty) ...[
+        if (record.vaccinations?.isNotEmpty ?? false) ...[
           const Text('예방 접종', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          ...record.vaccinations.map((vac) => Text('${vac.key} ${vac.value}')),
+          ...record.vaccinations!.map((vac) => Text('${vac.key} ${vac.value}')),
         ],
       ],
     );

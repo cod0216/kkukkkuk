@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Medication {
 
- String get key; String get value;
+ String? get key; String? get value;
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,7 +46,7 @@ abstract mixin class $MedicationCopyWith<$Res>  {
   factory $MedicationCopyWith(Medication value, $Res Function(Medication) _then) = _$MedicationCopyWithImpl;
 @useResult
 $Res call({
- String key, String value
+ String? key, String? value
 });
 
 
@@ -63,11 +63,11 @@ class _$MedicationCopyWithImpl<$Res>
 
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? key = null,Object? value = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? key = freezed,Object? value = freezed,}) {
   return _then(_self.copyWith(
-key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as String,
+key: freezed == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String?,value: freezed == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -78,11 +78,11 @@ as String,
 
 
 class _Medication implements Medication {
-  const _Medication({required this.key, required this.value});
+  const _Medication({this.key, this.value});
   
 
-@override final  String key;
-@override final  String value;
+@override final  String? key;
+@override final  String? value;
 
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
@@ -114,7 +114,7 @@ abstract mixin class _$MedicationCopyWith<$Res> implements $MedicationCopyWith<$
   factory _$MedicationCopyWith(_Medication value, $Res Function(_Medication) _then) = __$MedicationCopyWithImpl;
 @override @useResult
 $Res call({
- String key, String value
+ String? key, String? value
 });
 
 
@@ -131,11 +131,11 @@ class __$MedicationCopyWithImpl<$Res>
 
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? key = null,Object? value = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? key = freezed,Object? value = freezed,}) {
   return _then(_Medication(
-key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
-as String,
+key: freezed == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String?,value: freezed == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

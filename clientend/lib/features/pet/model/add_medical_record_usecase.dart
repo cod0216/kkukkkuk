@@ -36,21 +36,21 @@ class AddMedicalRecordUseCase {
       // 검사 결과를 JSON으로 변환
       final examinationsJson = jsonEncode(
         record.examinations
-            .map((e) => {'type': e.type, 'key': e.key, 'value': e.value})
+            ?.map((e) => {'type': e.type, 'key': e.key, 'value': e.value})
             .toList(),
       );
 
       // 약물 정보를 JSON으로 변환
       final medicationsJson = jsonEncode(
         record.medications
-            .map((med) => {'key': med.key, 'value': med.value})
+            ?.map((med) => {'key': med.key, 'value': med.value})
             .toList(),
       );
 
       // 예방 접종 정보를 JSON으로 변환
       final vaccinationsJson = jsonEncode(
         record.vaccinations
-            .map((vac) => {'key': vac.key, 'value': vac.value})
+            ?.map((vac) => {'key': vac.key, 'value': vac.value})
             .toList(),
       );
 

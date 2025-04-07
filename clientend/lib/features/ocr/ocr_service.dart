@@ -14,16 +14,17 @@ class OcrService {
       );
       Map<String, dynamic> result = {};
 
-      // Extract text and organize it for server processing
       int wordIndex = 0;
       for (TextBlock block in recognizedText.blocks) {
         for (TextLine line in block.lines) {
-          result['line_${wordIndex++}'] = line.text;
+          result['word_$wordIndex'] = line.text;
+          wordIndex++;
         }
       }
 
       return result;
     } catch (e) {
+      print('OCR 처리 중 오류가 발생했습니다: $e');
       throw Exception('OCR 처리 중 오류가 발생했습니다: $e');
     } finally {
       _textRecognizer.close();

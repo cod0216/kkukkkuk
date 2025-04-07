@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository_interface.dart';
 import 'package:kkuk_kkuk/entities/pet/breed.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:kkuk_kkuk/features/pet/api/dto/ocr_response.dart';
 
 class PetRepository implements IPetRepository {
   final RegistryContract _registryContract;
@@ -388,32 +390,70 @@ class PetRepository implements IPetRepository {
   Future<Map<String, dynamic>> processMedicalRecordImage(
     Map<String, dynamic> ocrData,
   ) async {
-    // TODO: 실제 서버 API 엔드포인트 연동
-    // TODO: API 요청/응답 모델 정의
-    // TODO: API 에러 처리 추가
+    try {
+      final jsonBody = const JsonEncoder().convert(ocrData);
 
-    await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      final response = await _apiClient.post(
+        '/api/ocrs/extract',
+        data: jsonBody,
+      );
 
-    // Dummy response
-    return {
-      "diagnosis": "감기",
-      "notes": "목이 부었음",
-      "doctorName": "김닥터",
-      "hospitalName": "일곡동물병원",
-      "examinations": [
-        {"type": "검사", "key": "혈액검사", "value": "백혈구수치130"},
-        {"type": "검사", "key": "xray검사", "value": "골절상"},
-      ],
-      "medications": [
-        {"type": "약물", "key": "타이레놀", "value": "350ml"},
-        {"type": "약물", "key": "이부부로펜", "value": "40ml"},
-      ],
-      "vaccinations": [
-        {"type": "접종", "key": "파상풍주사", "value": "1차"},
-        {"type": "접종", "key": "예방접종", "value": "2차"},
-      ],
-      "date": DateTime.now().toIso8601String().split('T')[0],
-    };
+      // Check response status
+      if (response.statusCode != 200) {
+        throw Exception('OCR 데이터 처리 실패: ${response.statusCode}');
+      }
+
+      // Parse the response
+      final ocrResponse = OcrResponse.fromJson(response.data);
+
+      // Check response status
+      if (ocrResponse.status != 'SUCCESS') {
+        throw Exception('OCR 데이터 처리 실패: ${ocrResponse.message}');
+      }
+
+      // Instead of converting to entity objects, return the raw data as Map objects
+      // This allows accessing with [] notation
+      final examinations =
+          ocrResponse.data.examinations
+              .map((e) => {'type': e.type, 'key': e.key, 'value': e.value})
+              .toList();
+
+      final medications =
+          ocrResponse.data.medications
+              .map((m) => {'key': m.key, 'value': m.value})
+              .toList();
+
+      final vaccinations =
+          ocrResponse.data.vaccinations
+              .map((v) => {'key': v.key, 'value': v.value})
+              .toList();
+
+      // Return the processed data as Maps instead of entity objects
+      return {
+        'date': ocrResponse.data.date,
+        'diagnosis': ocrResponse.data.diagnosis,
+        'notes': ocrResponse.data.notes,
+        'doctorName': ocrResponse.data.doctorName,
+        'hospitalName': ocrResponse.data.hospitalName,
+        'examinations': examinations,
+        'medications': medications,
+        'vaccinations': vaccinations,
+      };
+    } catch (e) {
+      print('OCR 데이터 처리 오류: $e');
+
+      // Return default data on error
+      return {
+        'date': DateTime.now().toIso8601String().split('T')[0],
+        'diagnosis': '',
+        'notes': '',
+        'doctorName': '',
+        'hospitalName': '',
+        'examinations': [],
+        'medications': [],
+        'vaccinations': [],
+      };
+    }
   }
 }
 
