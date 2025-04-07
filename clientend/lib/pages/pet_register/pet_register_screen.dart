@@ -16,9 +16,8 @@ class PetRegisterScreen extends ConsumerStatefulWidget {
 class _PetRegisterScreenState extends ConsumerState<PetRegisterScreen> {
   @override
   void dispose() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(petRegisterNotifierProvider.notifier).reset();
-    });
+    // 위젯이 dispose되기 전에 직접 reset 호출
+    ref.read(petRegisterNotifierProvider.notifier).reset();
     super.dispose();
   }
 

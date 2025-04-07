@@ -44,10 +44,6 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
 
   @override
   void dispose() {
-    // 화면이 종료될 때 진료 기록 상태 초기화
-    Future.microtask(() {
-      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
-    });
     _refreshController.dispose(); // 컨트롤러 해제
     super.dispose();
   }
@@ -78,13 +74,9 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
 
   /// 진료 기록 데이터 로드
   void _loadMedicalRecords() {
-    // 진료 기록 상태 초기화 후 새로운 데이터 로드
-    Future.microtask(() {
-      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
-    });
-    // 기존 DB에서 진료 기록 조회
     Future.microtask(() async {
-      // DB 조회 후 블록체인 데이터 조회
+      // 진료 기록 상태 초기화 후 새로운 데이터 로드
+      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
       if (widget.pet.did != null && widget.pet.did!.isNotEmpty) {
         await _loadMedicalRecordsFromBlockchain(widget.pet.did!);
       }
