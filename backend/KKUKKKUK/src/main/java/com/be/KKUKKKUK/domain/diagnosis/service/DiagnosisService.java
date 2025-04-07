@@ -36,6 +36,7 @@ public class DiagnosisService {
     private final DiagnosisRepository diagnosisRepository;
     private final HospitalService hospitalService;
     private final DiagnosisMapper diagnosisMapper;
+    private final DiagnosisAutoCompleteService diagnosisAutoCompleteService;
 
     /**
      * 작성한 검사항목을 모두 조회힙니다.
@@ -90,7 +91,7 @@ public class DiagnosisService {
     }
 
     /**
-     *  검사항목을 생성 반환합니다.
+     *  검사항목을 생성 반환 및 레디스에 추가합니다.
      * @param hospitalId 병원 id
      * @param request 생성할 검사 이름
      * @return 생성된 검사 항목을 반환합니다.
@@ -99,6 +100,7 @@ public class DiagnosisService {
     public DiagnosisResponse createDiagnoses(Integer hospitalId, DiagnosisRequest request){
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
         if(Objects.nonNull(diagnosisRepository.findByName(request.getName()))) throw new ApiException(ErrorCode.DIA_DUPLICATE_NAME);
+        diagnosisAutoCompleteService.addDiagnosisToRedis(new Diagnosis(request.getName(),hospital));
         return diagnosisMapper.mapDiagnosisToDiagnosisResponse(diagnosisRepository.save(new Diagnosis(request.getName(), hospital)));
     }
 

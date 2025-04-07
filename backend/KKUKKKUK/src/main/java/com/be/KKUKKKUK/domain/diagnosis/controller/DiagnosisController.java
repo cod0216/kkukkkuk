@@ -3,6 +3,7 @@ package com.be.KKUKKKUK.domain.diagnosis.controller;
 
 import com.be.KKUKKKUK.domain.diagnosis.dto.request.DiagnosisRequest;
 import com.be.KKUKKKUK.domain.diagnosis.dto.response.DiagnosisResponse;
+import com.be.KKUKKKUK.domain.diagnosis.service.DiagnosisAutoCompleteService;
 import com.be.KKUKKKUK.domain.diagnosis.service.DiagnosisService;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
@@ -35,6 +36,19 @@ import java.util.List;
 @RequestMapping("api/diagnoses")
 public class DiagnosisController {
     private final DiagnosisService diagnosisService;
+    private final DiagnosisAutoCompleteService diagnosisAutoCompleteService;
+
+
+    @Operation(summary = "포함된 검사 항목 생성", description = "이름이 포함된 검사 항목을 생성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "생성 성공"),
+    })
+    @PostMapping
+    public ResponseEntity<?> createDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
+                                             @RequestBody DiagnosisRequest request){
+        DiagnosisResponse response= diagnosisService.createDiagnoses(hospital.getHospital().getId(), request);
+        return ResponseUtility.success("검사 항목이 성공적으로 생성되었습니다.", response);
+    }
 
     @DeleteMapping("/{diagnosisId}")
     public ResponseEntity<?> deleteDiagnosis(@AuthenticationPrincipal HospitalDetails hospitalDetails,
@@ -82,17 +96,15 @@ public class DiagnosisController {
         return ResponseUtility.success("요청하신 이름이 포함된 검사 항목입니다.", response);
     }
 
-    @Operation(summary = "포함된 검사 항목 생성", description = "이름이 포함된 검사 항목을 생성합니다.")
+
+
+    @Operation(summary = "검사 항목 자동완성", description = "검색어에 따른 검사 항목 자동완성 목록을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "생성 성공"),
+            @ApiResponse(responseCode = "200", description = "자동완성 조회 성공")
     })
-    @PostMapping
-    public ResponseEntity<?> createDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
-                                             @RequestBody DiagnosisRequest request){
-       DiagnosisResponse response= diagnosisService.createDiagnoses(hospital.getHospital().getId(), request);
-        return ResponseUtility.success("검사 항목이 성공적으로 생성되었습니다.", response);
+    @GetMapping("/auto-correct")
+    public ResponseEntity<?> autoCorrectDiagnoses(@RequestParam("search") String search) {
+        List<String> suggestions = diagnosisAutoCompleteService.autocorrectKeyword(search);
+        return ResponseUtility.success("검색어에 따른 검사 항목 자동완성 결과입니다.", suggestions);
     }
-
-    //TODO 검사 항목 자동 완성
-
 }

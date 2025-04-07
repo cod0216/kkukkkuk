@@ -76,6 +76,7 @@ public class DrugAutoCorrectService {
         return allValuesAfterIndexFromSortedSet.stream()
                 .filter(value -> value.endsWith(SUFFIX) && value.startsWith(keyword))
                 .map(value -> StringUtils.removeEnd(value, SUFFIX))
+                .sorted()
                 .limit(MAX_SIZE)
                 .toList();
     }
