@@ -15,14 +15,18 @@ class PetCarousel extends StatelessWidget {
       itemCount: pets.length,
       options: CarouselOptions(
         height: 400,
-        viewportFraction: 0.8,
+        viewportFraction: 0.75,
         enlargeCenterPage: true,
-        enableInfiniteScroll: pets.length > 1,
-        enlargeStrategy: CenterPageEnlargeStrategy.height,
+        enlargeStrategy: CenterPageEnlargeStrategy.scale,
+        enlargeFactor: 0.3,
+        enableInfiniteScroll: false,
       ),
       itemBuilder: (context, index, realIndex) {
         final pet = pets[index];
-        return PetCard(pet: pet, onTap: onPetTap!);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: PetCard(pet: pet, onTap: onPetTap ?? (_) {}),
+        );
       },
     );
   }
