@@ -85,8 +85,8 @@ public class DiagnosisService {
      * @param name 조회할 검사 이름
      * @return 조회할 검사 이름이 포함된 검사 항목들을 반환합니다.
      */
-    public List<DiagnosisResponse> searchDiagnoses(String name){
-        List<Diagnosis> diagnosisList = diagnosisRepository.findByNameContaining(name);
+    public List<DiagnosisResponse> searchDiagnoses(Integer hospitalId, String name){
+        List<Diagnosis> diagnosisList = diagnosisRepository.findByHospitalIdAndNameContaining(hospitalId, name);
         return diagnosisMapper.mapDiagnosisToDiagnosisResponseList(diagnosisList);
     }
 

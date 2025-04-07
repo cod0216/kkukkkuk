@@ -52,11 +52,14 @@ public class DiagnosisAutoCompleteService {
      * @param diagnosis 저장할 검사 항목
      */
     public void addDiagnosisToRedis(Diagnosis diagnosis) {
+        Integer hospitalId = diagnosis.getHospital().getId();
+        String redisKey = "autocorrect:diagnosis:" + hospitalId;
+
         String name = diagnosis.getName();
         if (name == null || name.isEmpty()) return;
-        redisService.addToSortedSet(name + SUFFIX);
+        redisService.addToSortedSet(redisKey, name + SUFFIX);
         for (int i = name.length(); i > 0; i--) {
-            redisService.addToSortedSet(name.substring(0, i));
+            redisService.addToSortedSet(redisKey, name.substring(0, i));
         }
     }
 
@@ -66,12 +69,13 @@ public class DiagnosisAutoCompleteService {
      * @param keyword 검색어
      * @return 검색어로 시작하는 검사 항목 목록
      */
-    public List<String> autocorrectKeyword(String keyword) {
-        Long keywordIndex = redisService.findFromSortedSet(keyword);
+    public List<String> autocorrectKeyword(Integer hospitalId, String keyword) {
+        String redisKey = "autocorrect:diagnosis:" + hospitalId;
+        Long keywordIndex = redisService.findFromSortedSet(redisKey, keyword);
         if (Objects.isNull(keywordIndex)) {
             return Collections.emptyList();
         }
-        Set<String> allValues = redisService.findAllValuesAfterIndexFromSortedSet(keywordIndex);
+        Set<String> allValues = redisService.findAllValuesAfterIndexFromSortedSet(redisKey, keywordIndex);
         return allValues.stream()
                 .filter(value -> value.endsWith(SUFFIX) && value.startsWith(keyword))
                 .map(value -> StringUtils.removeEnd(value, SUFFIX))

@@ -91,8 +91,9 @@ public class DiagnosisController {
             @ApiResponse(responseCode = "403", description = "해당 병원에서 입력한 검사가 아닙니다.")
     })
     @GetMapping("/{diagnosisName}")
-    public ResponseEntity<?> updateDiagnosis(@PathVariable String diagnosisName) {
-        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(diagnosisName);
+    public ResponseEntity<?> containDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
+                                              @PathVariable String diagnosisName) {
+        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(hospital.getHospital().getId(), diagnosisName);
         return ResponseUtility.success("요청하신 이름이 포함된 검사 항목입니다.", response);
     }
 
@@ -103,8 +104,9 @@ public class DiagnosisController {
             @ApiResponse(responseCode = "200", description = "자동완성 조회 성공")
     })
     @GetMapping("/auto-correct")
-    public ResponseEntity<?> autoCorrectDiagnoses(@RequestParam("search") String search) {
-        List<String> suggestions = diagnosisAutoCompleteService.autocorrectKeyword(search);
+    public ResponseEntity<?> autoCorrectDiagnoses(@AuthenticationPrincipal HospitalDetails hospital,
+                                                  @RequestParam("search") String search) {
+        List<String> suggestions = diagnosisAutoCompleteService.autocorrectKeyword(hospital.getHospital().getId(), search);
         return ResponseUtility.success("검색어에 따른 검사 항목 자동완성 결과입니다.", suggestions);
     }
 }
