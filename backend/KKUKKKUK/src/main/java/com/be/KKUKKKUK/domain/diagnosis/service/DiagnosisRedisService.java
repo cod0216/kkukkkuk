@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * packageName    : com.be.KKUKKKUK.domain.diagnosis.service<br>
- * fileName       : DiagnosisAutoCompleteService.java<br>
+ * fileName       : DiagnosisRedisService.java<br>
  * author         : eunchang<br>
  * date           : 2025-04-07<br>
  * description    : 검사 자동 완성 기능을 제공하는 service 클래스입니다.<br>
@@ -24,15 +25,17 @@ import java.util.stream.Collectors;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초 생성<br>
+ * 25.04.07          eunchang           코드 리뷰 제거 <br>
  */
 
 @Service
 @RequiredArgsConstructor
-public class DiagnosisAutoCompleteService { //TODO 이름에 redis 서비스라는 것을 명시 하면 좋지 않을까요?
+public class DiagnosisRedisService {
 
     private final DiagnosisRepository diagnosisRepository;
     private final RedisService redisService;
     private static final String SUFFIX = "*";
+    private static final String PREFIX = " autocorrect:diagnosis:";
     private static final int MAX_SIZE = 100;
 
     /**
@@ -53,7 +56,7 @@ public class DiagnosisAutoCompleteService { //TODO 이름에 redis 서비스라�
      */
     public void addDiagnosisToRedis(Diagnosis diagnosis) {
         Integer hospitalId = diagnosis.getHospital().getId();
-        String redisKey = "autocorrect:diagnosis:" + hospitalId; //TODO 이런 값도 상수로 두는건 어떨까요?
+        String redisKey = PREFIX + hospitalId;
 
         String name = diagnosis.getName();
         if (name == null || name.isEmpty()) return;
@@ -70,7 +73,7 @@ public class DiagnosisAutoCompleteService { //TODO 이름에 redis 서비스라�
      * @return 검색어로 시작하는 검사 항목 목록
      */
     public List<String> autocorrectKeyword(Integer hospitalId, String keyword) {
-        String redisKey = "autocorrect:diagnosis:" + hospitalId; //TODO 이런 값도 상수로 두는건 어떨까요?
+        String redisKey = PREFIX + hospitalId;
         Long keywordIndex = redisService.findFromSortedSet(redisKey, keyword);
         if (Objects.isNull(keywordIndex)) {
             return Collections.emptyList();

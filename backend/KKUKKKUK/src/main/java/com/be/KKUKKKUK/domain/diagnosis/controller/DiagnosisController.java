@@ -3,7 +3,7 @@ package com.be.KKUKKKUK.domain.diagnosis.controller;
 
 import com.be.KKUKKKUK.domain.diagnosis.dto.request.DiagnosisRequest;
 import com.be.KKUKKKUK.domain.diagnosis.dto.response.DiagnosisResponse;
-import com.be.KKUKKKUK.domain.diagnosis.service.DiagnosisAutoCompleteService;
+import com.be.KKUKKKUK.domain.diagnosis.service.DiagnosisRedisService;
 import com.be.KKUKKKUK.domain.diagnosis.service.DiagnosisService;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -27,16 +29,17 @@ import java.util.List;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초생성<br>
+ * 25.04.07          eunchang           중복 코드 제거<br>
  * <br>
  */
 
-@Tag( name = "진료 관련 API", description = "병원에서 검사 항목을 조회, 추가, 삭제하는 API입니다.")
+@Tag(name = "진료 관련 API", description = "병원에서 검사 항목을 조회, 추가, 삭제하는 API입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/diagnoses")
 public class DiagnosisController {
     private final DiagnosisService diagnosisService;
-    private final DiagnosisAutoCompleteService diagnosisAutoCompleteService;
+    private final DiagnosisRedisService diagnosisRedisService;
 
 
     @Operation(summary = "포함된 검사 항목 생성", description = "이름이 포함된 검사 항목을 생성합니다.")
@@ -45,15 +48,15 @@ public class DiagnosisController {
     })
     @PostMapping
     public ResponseEntity<?> createDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
-                                             @RequestBody DiagnosisRequest request){
-        DiagnosisResponse response= diagnosisService.createDiagnoses(hospital.getHospital().getId(), request); //TODO hospital.getHospital().getId() 중복 코드가 존재합니다.
+                                             @RequestBody @Valid DiagnosisRequest request) {
+        DiagnosisResponse response = diagnosisService.createDiagnoses(Integer.parseInt(hospital.getUsername()), request);
         return ResponseUtility.success("검사 항목이 성공적으로 생성되었습니다.", response);
     }
 
     @DeleteMapping("/{diagnosisId}")
     public ResponseEntity<?> deleteDiagnosis(@AuthenticationPrincipal HospitalDetails hospitalDetails,
                                              @PathVariable Integer diagnosisId
-    ){
+    ) {
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         diagnosisService.deleteDiagnosis(hospitalId, diagnosisId);
         return ResponseUtility.emptyResponse("검사 항목이 성공적으로 제거 되었습니다.");
@@ -80,8 +83,8 @@ public class DiagnosisController {
     @PutMapping("/{diagnosisId}")
     public ResponseEntity<?> updateDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
                                              @PathVariable Integer diagnosisId,
-                                             @RequestBody DiagnosisRequest request) {
-        DiagnosisResponse response = diagnosisService.updateDiagnosis(hospital.getHospital().getId(), diagnosisId, request);
+                                             @RequestBody @Valid DiagnosisRequest request) {
+        DiagnosisResponse response = diagnosisService.updateDiagnosis(Integer.parseInt(hospital.getUsername()), diagnosisId, request);
         return ResponseUtility.success("검사 항목이 올바르게 수정되었습니다.", response);
     }
 
@@ -93,10 +96,9 @@ public class DiagnosisController {
     @GetMapping("/{search}")
     public ResponseEntity<?> containDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
                                               @PathVariable String search) {
-        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(hospital.getHospital().getId(), search);
+        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(Integer.parseInt(hospital.getUsername()), search);
         return ResponseUtility.success("요청하신 이름이 포함된 검사 항목입니다.", response);
     }
-
 
 
     @Operation(summary = "검사 항목 자동완성", description = "검색어에 따른 검사 항목 자동완성 목록을 조회합니다.")
@@ -106,7 +108,7 @@ public class DiagnosisController {
     @GetMapping("/auto-correct")
     public ResponseEntity<?> autoCorrectDiagnoses(@AuthenticationPrincipal HospitalDetails hospital,
                                                   @RequestParam("search") String search) {
-        List<String> suggestions = diagnosisAutoCompleteService.autocorrectKeyword(hospital.getHospital().getId(), search);
+        List<String> suggestions = diagnosisRedisService.autocorrectKeyword(Integer.parseInt(hospital.getUsername()), search);
         return ResponseUtility.success("검색어에 따른 검사 항목 자동완성 결과입니다.", suggestions);
     }
 }

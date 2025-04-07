@@ -36,7 +36,7 @@ public class DiagnosisService {
     private final DiagnosisRepository diagnosisRepository;
     private final HospitalService hospitalService;
     private final DiagnosisMapper diagnosisMapper;
-    private final DiagnosisAutoCompleteService diagnosisAutoCompleteService;
+    private final DiagnosisRedisService diagnosisRedisService;
 
     /**
      * 작성한 검사항목을 모두 조회힙니다.
@@ -44,7 +44,8 @@ public class DiagnosisService {
      * @param HospitalId 동물병원 Id
      * @return 해당 동물 병원에서 작성한 검사 항목 모두 조회
      */
-    public List<DiagnosisResponse> getDiagnoses(Integer HospitalId) { //TODO 조회만 하는 거면 readOnly  설정을 하는건 어떨까요?
+    @Transactional(readOnly = true)
+    public List<DiagnosisResponse> getDiagnoses(Integer HospitalId) {
         List<Diagnosis> diagnosisList = diagnosisRepository.getDiagnosesByHospitalId(HospitalId);
         return diagnosisMapper.mapDiagnosisToDiagnosisResponseList(diagnosisList);
     }
@@ -101,19 +102,20 @@ public class DiagnosisService {
      */
     public DiagnosisResponse createDiagnoses(Integer hospitalId, DiagnosisRequest request) {
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
-        if (Objects.nonNull(diagnosisRepository.findByName(request.getName())))
+        if (Boolean.TRUE.equals(diagnosisRepository.existsByName(request.getName())))
             throw new ApiException(ErrorCode.DIA_DUPLICATE_NAME);
-        diagnosisAutoCompleteService.addDiagnosisToRedis(new Diagnosis(request.getName(), hospital));
+        diagnosisRedisService.addDiagnosisToRedis(new Diagnosis(request.getName(), hospital));
         return diagnosisMapper.mapDiagnosisToDiagnosisResponse(diagnosisRepository.save(new Diagnosis(request.getName(), hospital)));
     }
 
     /**
-     * 해당 동물병원과 핸들링할 검사 Entitiy의 hospitalId가 일치한지 확인합니다.ㄴ //TODO ㄴ 지워주세요
+     * 해당 동물병원과 핸들링할 검사 Entitiy의 hospitalId가 일치한지 확인합니다. //
      *
      * @param diagnosis  검사 항목 Entity
      * @param hospitalId 병원 Id
-     */ //TODO  exception 에 대해서 안 적으신 이유가 잇을까요?
-    private void checkPermissionToDiagnosis(Diagnosis diagnosis, Integer hospitalId) { //TODO 메서드 따로 뺀건 좋은 것 같습니다 굿굿
+     * @throws ApiException 해당 병원에서 작성한 검사 목록이 아닐 경우 에러 발생
+     */
+    private void checkPermissionToDiagnosis(Diagnosis diagnosis, Integer hospitalId) {
         if (Boolean.FALSE.equals(diagnosis.getHospital().getId().equals(hospitalId)))
             throw new ApiException(ErrorCode.DIA_AUTH_ERROR);
     }

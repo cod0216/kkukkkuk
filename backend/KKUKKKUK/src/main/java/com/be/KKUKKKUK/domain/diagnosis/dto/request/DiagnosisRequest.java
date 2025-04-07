@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.diagnosis.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.ToString;
@@ -23,6 +24,7 @@ import lombok.ToString;
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DiagnosisRequest {
-    @Size(min = 1, max = 100) //TODO nullable 한 데이터인가요? 만약 빈칸도 허용되는 데이터 인가요?
+    @NotBlank(message = "항목 이름은 필수 입니다.")
+    @Size( max = 100, message = "최대 100자까지만 가능합니다.")
     private String name;
 }
