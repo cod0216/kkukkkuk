@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/pages/main/viewmodel/my_page_view_model.dart';
+import 'package:kkuk_kkuk/widgets/mypage/my_settings_section.dart';
 import 'package:kkuk_kkuk/widgets/mypage/user_profile/user_profile_form.dart';
 import 'package:kkuk_kkuk/widgets/mypage/wallet_card.dart';
-import 'package:kkuk_kkuk/widgets/mypage/settings_card.dart';
 import 'package:kkuk_kkuk/shared/lib/storage/secure_storage.dart';
 
 class MyPageView extends ConsumerWidget {
@@ -108,7 +108,7 @@ class MyPageView extends ConsumerWidget {
 
                   const SizedBox(height: 24),
                   // 설정 섹션
-                  SettingsCard(
+                  MySettingsSection(
                     user: user,
                     onWalletChange:
                         () => myPageViewModel.handleWalletChange(context),
