@@ -28,7 +28,8 @@ interface RecordHistoryProps {
  */
 const RecordHistory: React.FC<RecordHistoryProps> = ({ historyChain }) => {
   // Unix timestamp를 날짜 형식으로 변환
-  const formatDate = (record: BlockChainRecord): string => {
+  // 현재 사용되지 않지만 향후 사용을 위해 보존
+  const _formatDate = (record: BlockChainRecord): string => {
     try {
       // 다양한 소스에서 타임스탬프 추출 시도
       let timestamp: number = 0;
@@ -143,7 +144,7 @@ const RecordHistory: React.FC<RecordHistoryProps> = ({ historyChain }) => {
                   <span className="text-xs font-medium text-gray-700">
                     {isOriginal ? '최초 작성 (원본)' : `수정 내역 #${historyChain.length - index}`}
                   </span>
-                  <span className="text-xs text-gray-500">{formatDate(record)}</span>
+                  {/* <span className="text-xs text-gray-500">{_formatDate(record)}</span> */}
                 </div>
                 <div className="text-xs text-gray-600 mb-1">
                   {record.hospitalName && <span className="font-medium">{record.hospitalName}</span>}
