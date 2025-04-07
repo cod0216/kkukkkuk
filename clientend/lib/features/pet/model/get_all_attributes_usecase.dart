@@ -90,11 +90,19 @@ class GetAllAtributesUseCase {
     Map<String, dynamic> recordData,
     String recordKey,
   ) {
-    // TODO: contract에서 treatmentDate 속성이 추가되면 변경
-    // TODO: LocalDateTime으로 변경
-    final treatmentDate = DateTime.fromMillisecondsSinceEpoch(
-      recordData['createdAt'] * 1000,
-    );
+    // Handle different timestamp field names (createdAt or timestamp)
+    int? timestampValue;
+    if (recordData['createdAt'] != null) {
+      timestampValue = recordData['createdAt'];
+    } else if (recordData['timestamp'] != null) {
+      timestampValue = int.tryParse(recordData['timestamp']);
+    }
+
+    // Default to current time if no valid timestamp found
+    final treatmentDate =
+        timestampValue != null
+            ? DateTime.fromMillisecondsSinceEpoch(timestampValue * 1000)
+            : DateTime.now();
 
     print('treatmentDate: $treatmentDate');
 
