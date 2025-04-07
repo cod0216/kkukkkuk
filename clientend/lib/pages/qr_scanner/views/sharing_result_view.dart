@@ -6,6 +6,7 @@ import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/pages/qr_scanner/states/sharing_state.dart';
 import 'package:kkuk_kkuk/pages/qr_scanner/notifiers/pet_sharing_notifier.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 
 class SharingResultView extends ConsumerStatefulWidget {
   final Pet pet;
@@ -33,16 +34,6 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
     });
   }
 
-  // 트랜잭션 해시 복사
-  Future<void> _copyTransactionHash(String hash) async {
-    await Clipboard.setData(ClipboardData(text: hash));
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('트랜잭션 해시가 복사되었습니다')));
-  }
-
   // 재시도 로직
   void _retry() {
     ref
@@ -55,10 +46,7 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
     final sharingState = ref.watch(petSharingNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('권한 부여 결과'),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: CustomAppBar(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -71,68 +59,8 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
                 Text('병원에 권한 부여 중...'),
               ],
             ),
-            SharingStatus.success => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.check_circle, size: 80, color: Colors.green),
-                const SizedBox(height: 24),
-                const Text(
-                  '권한 부여 완료',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '${sharingState.pet?.name}의 진료 기록에 대한 접근 권한이\n${sharingState.hospital?.name}에 부여되었습니다.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                if (sharingState.transactionHash != null) ...[
-                  const SizedBox(height: 16),
-                  const Text(
-                    '트랜잭션 해시:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap:
-                        () =>
-                            _copyTransactionHash(sharingState.transactionHash!),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade400),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              sharingState.transactionHash!,
-                              style: const TextStyle(fontFamily: 'monospace'),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.copy, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: () => context.go('/pets'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                  ),
-                  child: const Text('홈으로 돌아가기'),
-                ),
-              ],
+            SharingStatus.success => SharingSuccessIndicator(
+              sharingState: sharingState,
             ),
             SharingStatus.error => Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -170,6 +98,42 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
           },
         ),
       ),
+    );
+  }
+}
+
+class SharingSuccessIndicator extends StatelessWidget {
+  const SharingSuccessIndicator({super.key, required this.sharingState});
+
+  final SharingState sharingState;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.check_circle, size: 80, color: Colors.green),
+        const SizedBox(height: 24),
+        const Text(
+          '권한 부여 완료',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          '${sharingState.pet?.name}의 진료 기록에 대한 접근 권한이\n${sharingState.hospital?.name}에 부여되었습니다.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+
+        const SizedBox(height: 32),
+        ElevatedButton(
+          onPressed: () => context.go('/pets'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          ),
+          child: const Text('홈으로 돌아가기'),
+        ),
+      ],
     );
   }
 }

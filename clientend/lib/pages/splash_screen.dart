@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen>
     // TODO: 앱 버전 체크 및 업데이트 알림 기능 추가
 
     // 1.5초 후 로그인 화면으로 이동
-    Timer(const Duration(milliseconds: 1500), () {
+    Timer(const Duration(milliseconds: 15500), () {
       if (mounted) {
         context.go('/auth');
       }
@@ -70,11 +70,9 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                // 앱 로고 텍스트
-                AppLogo(),
-                const SizedBox(height: 20),
-                // TODO: 앱 버전 정보 표시 추가
-                // TODO: 로딩 상태 텍스트 추가
+                // 앱 로고
+                const AppLogo(fontSize: 40, horizontal: true),
+                const SizedBox(height: 200), // Add more space before the bottom
               ],
             ),
           ),

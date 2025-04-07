@@ -5,7 +5,8 @@ import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_notifier.dart';
-import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_register_provider.dart';
+import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_register_notifier.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/empty_medical_records.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_card.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/pet_profile_header.dart';
@@ -251,7 +252,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
     final registerState = ref.watch(medicalRecordRegisterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('반려동물 프로필')),
+      appBar: CustomAppBar(),
       body: Column(
         children: [
           PetProfileHeader(pet: widget.pet),

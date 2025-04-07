@@ -7,6 +7,7 @@ import 'package:kkuk_kkuk/pages/auth/views/login_view.dart';
 import 'package:kkuk_kkuk/pages/auth/views/network_connection_view.dart';
 import 'package:kkuk_kkuk/pages/auth/views/wallet_guide_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart';
 import 'package:kkuk_kkuk/widgets/common/error_view.dart';
 import 'package:kkuk_kkuk/pages/auth/notifiers/auth_notifier.dart';
@@ -52,7 +53,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
 
     return Scaffold(
-      appBar: _buildAppBar(authState.currentStep),
+      appBar: CustomAppBar(),
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
@@ -64,34 +65,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         ),
       ),
     );
-  }
-
-  /// 앱바 구성
-  PreferredSizeWidget _buildAppBar(AuthStep step) {
-    String title;
-
-    switch (step) {
-      case AuthStep.login:
-        title = '로그인';
-        break;
-      case AuthStep.walletSetup:
-        title = '지갑 안내';
-        break;
-      case AuthStep.walletCreation:
-        title = '지갑 생성';
-        break;
-      case AuthStep.networkConnection:
-        title = '네트워크 연결';
-        break;
-      case AuthStep.completed:
-        title = '인증 완료';
-        break;
-      case AuthStep.error:
-        title = '오류';
-        break;
-    }
-
-    return AppBar(title: Text(title));
   }
 
   /// 홈 화면 이동 처리

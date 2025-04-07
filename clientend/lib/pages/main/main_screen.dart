@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 import 'package:kkuk_kkuk/widgets/common/navigation/custom_navigation_bar.dart';
 
 class MainScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kkuk Kkuk')),
+      appBar: CustomAppBar(),
       body: navigationShell,
       bottomNavigationBar: CustomNavigationBar(
         navigationShell: navigationShell,

@@ -4,7 +4,7 @@ import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
-import 'package:kkuk_kkuk/pages/main/states/pet_state.dart';
+import 'package:kkuk_kkuk/pages/main/notifiers/states/pet_state.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// 반려동물 상태 관리 노티파이어
