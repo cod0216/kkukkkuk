@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
-import 'package:kkuk_kkuk/widgets/mypage/my_setting_item.dart'; // 새로 만든 위젯 import
+import 'package:kkuk_kkuk/widgets/common/primary_section.dart';
+import 'package:kkuk_kkuk/widgets/mypage/my_setting_item.dart';
 
-/// 마이페이지 설정 섹션 위젯
+/// 마이페이지 설정 섹션 위젯 (MyPageSection 사용하도록 리팩토링)
 class MySettingsSection extends StatelessWidget {
   final User? user;
   final VoidCallback onWalletChange;
@@ -17,37 +18,30 @@ class MySettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '설정',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ), // 타이틀 스타일
-        ),
-        const SizedBox(height: 12), // 타이틀과 항목 사이 간격
-        // 지갑 변경 버튼
-        MySettingItem(
-          icon:
-              Icons
-                  .account_balance_wallet_outlined, // 아이콘 변경 (change_circle 대신 지갑 관련 아이콘)
-          label: '지갑 변경',
-          onTap: onWalletChange,
-          iconColor: Colors.red, // 이미지 참조
-        ),
-
-        const SizedBox(height: 8), // 항목 사이 간격
-        // 로그아웃 버튼 (로그인 상태일 때만 표시)
-        if (user != null)
+    // MyPageSection 위젯을 사용하여 제목과 내용을 감쌉니다.
+    return PrimarySection(
+      title: '설정', // 섹션 제목 전달
+      child: Column(
+        // 설정 항목들을 Column으로 묶어 child로 전달
+        children: [
+          // 지갑 변경 버튼
           MySettingItem(
-            icon: Icons.logout, // 이미지 참조 (오른쪽 화살표 모양)
-            label: '로그 아웃',
-            onTap: onLogout,
-            iconColor: Colors.blue, // 이미지 참조
+            icon: Icons.account_balance_wallet_outlined,
+            label: '지갑 변경',
+            onTap: onWalletChange,
+            iconColor: Colors.red,
           ),
-      ],
+          const SizedBox(height: 8), // 항목 사이 간격
+          // 로그아웃 버튼 (로그인 상태일 때만 표시)
+          if (user != null)
+            MySettingItem(
+              icon: Icons.logout,
+              label: '로그 아웃',
+              onTap: onLogout,
+              iconColor: Colors.blue,
+            ),
+        ],
+      ),
     );
   }
 }
