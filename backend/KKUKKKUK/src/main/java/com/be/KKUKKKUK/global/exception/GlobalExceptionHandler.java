@@ -18,7 +18,6 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
-
 /**
  * packageName    : com.be.KKUKKKUK.global.exception<br>
  * fileName       : GlobalExceptionHandler.java<br>
@@ -31,6 +30,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
  * 25.03.10          Fiat_lux           최초생성<br>
  * 25.03.21          haelim             NoResourceFoundException, HttpRequestMethodNotSupportedException, 추가 <br>
  * 25.03.27          haelim             HttpMessageNotReadableException 추가<br>
+ * 25.03.27          haelim             BindException, MissingServletRequestPartException 등 valid 관련 exception 추가<br>
  *
  */
 @RestControllerAdvice
@@ -73,48 +73,52 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 사용자 입력값 검증 예외를 처리합니다.
-     *
-     * <p>
-     * 요청 바디에서 입력값 검증 실패 시 발생하는 {@link MethodArgumentNotValidException},
-     * {@link ConstraintViolationException}, {@link HttpMessageNotReadableException}을 처리합니다.
-     * 필드별 에러 메시지를 조합하여 응답에 포함합니다.
-     * </p>
-     *
-     * <p>
-     * - {@link MethodArgumentNotValidException}: @Valid 검증 실패 시 발생
-     * - {@link ConstraintViolationException}: @Validated 검증 실패 시 발생
-     * - {@link HttpMessageNotReadableException}: JSON 파싱 오류 등 요청 바디를 읽을 수 없는 경우 발생
-     * </p>
-     *
-     * @param e 입력값 검증 예외
-     * @return 검증 실패에 대한 HTTP 응답 엔터티
+     * 요청 본문의 필드 유효성 검사에 실패한 경우 발생하는 예외를 처리합니다.
+     * @param e MethodArgumentNotValidException - 유효하지 않은 필드 정보가 포함된 예외
+     * @return 잘못된 입력값에 예외에 대한 HTTP 응답 엔터티
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class, HttpMessageNotReadableException.class})
-    private ResponseEntity<ErrorResponseEntity> handleValidException(Exception e) {
-        String errorMessages;
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    private ResponseEntity<ErrorResponseEntity> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        BindingResult bindingResult = e.getBindingResult();
+        String errorMessages = bindingResult.getFieldErrors().stream()
+                .map(fieldError -> String.format("[%s](은)는 %s", fieldError.getField(), fieldError.getDefaultMessage()))
+                .reduce((message1, message2) -> message1 + ". " + message2)
+                .orElse("입력값 검증 오류가 발생했습니다.");
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
 
-        if (e instanceof MethodArgumentNotValidException) {
-            BindingResult bindingResult = ((MethodArgumentNotValidException) e).getBindingResult();
-            errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(fieldError -> String.format("[%s](은)는 %s", fieldError.getField(), fieldError.getDefaultMessage()))
-                    .reduce((message1, message2) -> message1 + ". " + message2)
-                    .orElse("입력값 검증 오류가 발생했습니다.");
-        } else if (e instanceof ConstraintViolationException constraintViolationException) {
-            errorMessages = constraintViolationException.getConstraintViolations().stream()
-                    .map(violation -> String.format("[%s](은)는 %s",
-                            violation.getPropertyPath(),
-                            violation.getMessage()))
-                    .reduce((message1, message2) -> message1 + ". " + message2)
-                    .orElse("입력값 검증 오류가 발생했습니다.");
-        } else if (e instanceof HttpMessageNotReadableException) {
-            errorMessages = "요청 body 를 읽을 수 없습니다. JSON 형식을 확인해주세요.";
-        } else {
-            errorMessages = "알 수 없는 검증 오류가 발생했습니다.";
-        }
+    /**
+     * 제약 조건을 위반한 경우 발생하는 예외를 처리합니다.
+     * @param e ConstraintViolationException - 유효성 제약 조건 위반 예외
+     * @return 잘못된 입력값 예외에 대한 HTTP 응답 엔터티
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    private ResponseEntity<ErrorResponseEntity> handleConstraintViolationException(ConstraintViolationException e) {
+        String errorMessages = e.getConstraintViolations().stream()
+                .map(violation -> {
+                    String property = violation.getPropertyPath().toString();
+                    String simpleProperty = property.contains(".") ?
+                            property.substring(property.lastIndexOf('.') + 1) :
+                            property;
+                    return String.format("[%s](은)는 %s", simpleProperty, violation.getMessage());
+                })
+                .reduce((msg1, msg2) -> msg1 + ". " + msg2)
+                .orElse("입력값 검증 오류가 발생했습니다.");
 
         return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
     }
+
+    /**
+     * JSON 등의 메시지 본문을 읽을 수 없을 때 발생하는 예외를 처리합니다.
+     * @param e HttpMessageNotReadableException - 메시지를 읽을 수 없음
+     * @return JSON 파싱 오류에 대한 HTTP 응답 엔터티
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    private ResponseEntity<ErrorResponseEntity> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        String errorMessages = "요청 body 를 읽을 수 없습니다. JSON 형식을 확인해주세요.";
+        return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
+    }
+
 
     /**
      * 클라이언트의 요청에 해당하는 엔드포인트(endpoint)가 없을 때 발생하는 예외를 처리합니다.
@@ -141,7 +145,7 @@ public class GlobalExceptionHandler {
     /**
      * 요청 파라미터의 타입이 일치하지 않을 경우 발생하는 예외를 처리합니다.
      * @param e 타입이 일치하지 않아 발생한 예외
-     * @return 잘못된 타입의 요청 파라미터에 대한 응답
+     * @return 잘못된 타입의 요청 파라미터 예외에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     private ResponseEntity<ErrorResponseEntity> handleMissingServletRequestParameterException(MethodArgumentTypeMismatchException e) {
@@ -160,7 +164,7 @@ public class GlobalExceptionHandler {
     /**
      * 요청 파라미터가 누락된 경우 발생하는 예외를 처리합니다.
      * @param e MissingServletRequestParameterException
-     * @return 적절한 에러 응답
+     * @return 요청 파라미터가 누락 예외에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     private ResponseEntity<ErrorResponseEntity> handleMissingServletRequestParameter(MissingServletRequestParameterException e) {
@@ -171,7 +175,7 @@ public class GlobalExceptionHandler {
     /**
      * 경로 변수 누락 시 발생하는 예외를 처리합니다.
      * @param e MissingPathVariableException
-     * @return 적절한 에러 응답
+     * @return 로 변수 누락 예외에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(MissingPathVariableException.class)
     private ResponseEntity<ErrorResponseEntity> handleMissingPathVariable(MissingPathVariableException e) {
@@ -182,7 +186,7 @@ public class GlobalExceptionHandler {
     /**
      * 타입 불일치 (형변환 실패) 예외를 처리합니다.
      * @param e TypeMismatchException
-     * @return 적절한 에러 응답
+     * @return 타입 변환 오류 예외에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(TypeMismatchException.class)
     private ResponseEntity<ErrorResponseEntity> handleTypeMismatch(TypeMismatchException e) {
@@ -190,9 +194,10 @@ public class GlobalExceptionHandler {
         return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
     }
 
-
     /**
      * Multipart 요청에서 파일 등 필요한 part 가 누락된 경우 처리합니다.
+     * @param e MissingServletRequestPartException
+     * @return 누락된 part 에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(MissingServletRequestPartException.class)
     private ResponseEntity<ErrorResponseEntity> handleMissingServletRequestPart(MissingServletRequestPartException e) {
@@ -202,7 +207,9 @@ public class GlobalExceptionHandler {
 
 
     /**
-     * RequestParam 등에서 바인딩 실패 시 발생
+     * RequestParam 등에서 바인딩 실패 예외를 처리합니다.
+     * @param e BindException
+     * @return 바인딩 오류에 대한 HTTP 응답 엔터티
      */
     @ExceptionHandler(BindException.class)
     private ResponseEntity<ErrorResponseEntity> handleBindException(BindException e) {
@@ -212,8 +219,5 @@ public class GlobalExceptionHandler {
                 .orElse("요청 파라미터 바인딩 중 오류가 발생했습니다.");
         return ErrorResponseEntity.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE, errorMessages);
     }
-
-
-
 
 }
