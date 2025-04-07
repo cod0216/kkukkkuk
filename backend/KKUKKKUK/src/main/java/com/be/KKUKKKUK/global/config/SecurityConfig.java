@@ -1,13 +1,8 @@
 package com.be.KKUKKKUK.global.config;
 
-import com.be.KKUKKKUK.domain.auth.service.TokenService;
-import com.be.KKUKKKUK.domain.hospital.service.HospitalDetailService;
-import com.be.KKUKKKUK.domain.owner.service.OwnerDetailService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ExceptionHandlingFilter;
 import com.be.KKUKKKUK.global.filter.JwtAuthenticationFilter;
-import com.be.KKUKKKUK.global.util.JwtUtility;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.util.Arrays;
 
@@ -43,6 +37,7 @@ import java.util.Arrays;
  * 25.03.13          haelim           최초생성<br>
  * 25.03.27          haelim           허용 url 추가(auth) <br>
  * 25.03.29          haelim           회원 유형에 따른 허용 URL 설정 <br>
+ * 25.04.07          haelim           ExceptionHandlingFilter 추가 <br>
  */
 @Configurable
 @Configuration
@@ -51,14 +46,6 @@ import java.util.Arrays;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ExceptionHandlingFilter exceptionHandlingFilter;
-
-
-    private final TokenService tokenService;
-    private final JwtUtility jwtUtility;
-    private final HospitalDetailService hospitalDetailService;
-    private final OwnerDetailService ownerDetailService;
-    private final ObjectMapper objectMapper;
-
 
     /**
      * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
@@ -109,7 +96,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 
     /**
