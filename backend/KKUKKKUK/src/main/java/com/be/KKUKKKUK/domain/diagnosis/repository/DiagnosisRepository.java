@@ -21,5 +21,7 @@ import java.util.Optional;
 
 public interface DiagnosisRepository extends JpaRepository<Diagnosis, Integer> {
     List<Diagnosis> getDiagnosesByHospitalId(Integer hospitalId);
+    List<Diagnosis> findByNameContaining(String keyword);
+    Diagnosis findByName(String name);
     Optional<Diagnosis> getDiagnosisById(Integer diagnosisId);
 }

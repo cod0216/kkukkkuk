@@ -76,8 +76,9 @@ public enum ErrorCode {
     GPT_MAPPER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-004", "GPT 결과를 OcrResponse로 매핑하는 데 실패했습니다."),
     GPT_INPUT_ERROR(HttpStatus.BAD_REQUEST, "OCR-005", "입력한 데이터가 제공되지 않았습니다."),
 
-    DIA_AUTH_ERROR(HttpStatus.FORBIDDEN,"DIG-001","해당 병원에서 입력한 진료가 아닙니다."),
-    DIA_NOT_FOUND(HttpStatus.NOT_FOUND,"DIG-002","해당 진료 품목을 제거 할 수 없습니다..");
+    DIA_AUTH_ERROR(HttpStatus.FORBIDDEN,"DIG-001","해당 병원에서 입력한 검사 항목이 아닙니다."),
+    DIA_NOT_FOUND(HttpStatus.NOT_FOUND,"DIG-002","해당 검사 품목을 찾을수없습니다."),
+    DIA_DUPLICATE_NAME(HttpStatus.CONFLICT,"DIG-003","해당 검사 품목이 이미 작성되어있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

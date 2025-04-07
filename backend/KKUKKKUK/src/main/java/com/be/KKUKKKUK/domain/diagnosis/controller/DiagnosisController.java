@@ -1,7 +1,7 @@
 package com.be.KKUKKKUK.domain.diagnosis.controller;
 
 
-import com.be.KKUKKKUK.domain.diagnosis.dto.request.DiagnosisUpdateRequest;
+import com.be.KKUKKKUK.domain.diagnosis.dto.request.DiagnosisRequest;
 import com.be.KKUKKKUK.domain.diagnosis.dto.response.DiagnosisResponse;
 import com.be.KKUKKKUK.domain.diagnosis.service.DiagnosisService;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
@@ -42,30 +42,56 @@ public class DiagnosisController {
     ){
         Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
         diagnosisService.deleteDiagnosis(hospitalId, diagnosisId);
-        return ResponseUtility.emptyResponse("진료 기록이 성공적으로 제거 되었습니다.");
+        return ResponseUtility.emptyResponse("검사 항목이 성공적으로 제거 되었습니다.");
     }
 
     @Operation(summary = "검사 항목 조회", description = "검사 항목을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
-            @ApiResponse(responseCode = "400", description = "잘aq못된 요청"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "403", description = "접근 권한 없음")
     })
     @GetMapping
     public ResponseEntity<?> getDiagnoses(@AuthenticationPrincipal HospitalDetails hospital) {
         List<DiagnosisResponse> response = diagnosisService.getDiagnoses(hospital.getHospital().getId());
-        return ResponseUtility.success("진단 전체 조회가 올바르게 성공하였습니다.", response);
+        return ResponseUtility.success("검사 전체 조회가 올바르게 성공하였습니다.", response);
     }
+
+    @Operation(summary = "검사 항목 수정", description = "검사 항목을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "400", description = "해당 검사 품목을 찾을수없습니다."),
+            @ApiResponse(responseCode = "403", description = "해당 병원에서 입력한 검사가 아닙니다.")
+    })
     @PutMapping("/{diagnosisId}")
     public ResponseEntity<?> updateDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
                                              @PathVariable Integer diagnosisId,
-                                             @RequestBody DiagnosisUpdateRequest request) {
+                                             @RequestBody DiagnosisRequest request) {
         DiagnosisResponse response = diagnosisService.updateDiagnosis(hospital.getHospital().getId(), diagnosisId, request);
-        return ResponseUtility.success("진단 전체 조회가 올바르게 성공하였습니다.", response);
+        return ResponseUtility.success("검사 항목이 올바르게 수정되었습니다.", response);
     }
 
-    //TODO 검사 항목 이름 포함 조회
+    @Operation(summary = "포함된 검사 항목 조회", description = "이름이 포함된 검사 항목을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "403", description = "해당 병원에서 입력한 검사가 아닙니다.")
+    })
+    @GetMapping("/{diagnosisName}")
+    public ResponseEntity<?> updateDiagnosis(@PathVariable String diagnosisName) {
+        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(diagnosisName);
+        return ResponseUtility.success("요청하신 이름이 포함된 검사 항목입니다.", response);
+    }
 
+    @Operation(summary = "포함된 검사 항목 생성", description = "이름이 포함된 검사 항목을 생성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "생성 성공"),
+    })
+    @PostMapping
+    public ResponseEntity<?> createDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
+                                             @RequestBody DiagnosisRequest request){
+       DiagnosisResponse response= diagnosisService.createDiagnoses(hospital.getHospital().getId(), request);
+        return ResponseUtility.success("검사 항목이 성공적으로 생성되었습니다.", response);
+    }
 
     //TODO 검사 항목 자동 완성
 

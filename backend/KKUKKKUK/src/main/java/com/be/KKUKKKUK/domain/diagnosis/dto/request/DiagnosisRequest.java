@@ -2,7 +2,6 @@ package com.be.KKUKKKUK.domain.diagnosis.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.ToString;
@@ -23,11 +22,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class DiagnosisUpdateRequest {
-
-    @NotBlank
-    private Integer id;
-
+public class DiagnosisRequest {
     @Size(min = 1, max = 100)
     private String name;
 }
