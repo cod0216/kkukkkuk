@@ -5,6 +5,7 @@ import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository_interface.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medication.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/vaccination.dart';
+import 'package:kkuk_kkuk/shared/utils/did_helper.dart';
 
 /// 블록체인 컨트랙트에서 반려동물 진료 기록을 조회하는 유스케이스
 ///
@@ -21,7 +22,7 @@ class GetAllAtributesUseCase {
   Future<List<MedicalRecord>> execute(String petAddress) async {
     try {
       // DID 형식(did:pet:0x...)에서 이더리움 주소 추출
-      String cleanAddress = _extractEthereumAddress(petAddress);
+      String cleanAddress = DidHelper.extractAddressFromDid(petAddress);
 
       // 블록체인에서 반려동물 속성 조회
       final attributes = await _repository.getAllAttributes(cleanAddress);
@@ -33,16 +34,6 @@ class GetAllAtributesUseCase {
     } catch (e) {
       throw Exception('블록체인에서 진료 기록을 조회하는데 실패했습니다: $e');
     }
-  }
-
-  /// DID 형식의 주소에서 이더리움 주소 부분만 추출
-  ///
-  /// 예: "did:pet:0x184d1595e0943c5a6460c355613548b619b58ac5" -> "0x184d1595e0943c5a6460c355613548b619b58ac5"
-  String _extractEthereumAddress(String address) {
-    if (address.startsWith('did:pet:')) {
-      return address.substring(8); // 'did:pet:' 제거 (8자)
-    }
-    return address; // 이미 이더리움 주소 형식이면 그대로 반환
   }
 
   /// 블록체인 속성을 진료 기록 객체로 변환하는 메서드

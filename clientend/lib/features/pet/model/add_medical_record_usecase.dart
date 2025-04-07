@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/shared/utils/did_helper.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AddMedicalRecordUseCase {
@@ -27,7 +28,7 @@ class AddMedicalRecordUseCase {
       }
 
       // DID에서 이더리움 주소 추출
-      final petAddress = _extractAddressFromDid(petDid);
+      final petAddress = DidHelper.extractAddressFromDid(petDid);
 
       // 자격 증명 생성
       final credentials = EthPrivateKey.fromHex(privateKeyHex);
@@ -74,22 +75,5 @@ class AddMedicalRecordUseCase {
     } catch (e) {
       throw Exception('진료 기록 추가에 실패했습니다: $e');
     }
-  }
-
-  /// DID 문자열에서 이더리움 주소 추출
-  /// 예: "did:pet:0x123..." -> "0x123..."
-  String _extractAddressFromDid(String did) {
-    // DID가 이미 이더리움 주소 형식인지 확인
-    if (did.startsWith('0x')) {
-      return did;
-    }
-
-    // did:pet: 접두사 제거
-    if (did.startsWith('did:pet:')) {
-      return did.substring(8);
-    }
-
-    // 형식이 맞지 않으면 원래 값 반환
-    return did;
   }
 }

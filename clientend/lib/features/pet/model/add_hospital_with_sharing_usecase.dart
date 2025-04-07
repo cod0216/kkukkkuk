@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository_interface.dart';
+import 'package:kkuk_kkuk/shared/utils/did_helper.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AddHospitalWithSharingUseCase {
@@ -34,9 +35,8 @@ class AddHospitalWithSharingUseCase {
         throw Exception('개인 키를 찾을 수 없습니다. 다시 로그인해주세요.');
       }
 
-      // Extract Ethereum addresses from DIDs
-      final petAddress = _extractAddressFromDid(petDid);
-      final hospitalAddress = _extractAddressFromDid(hospitalDid);
+      final petAddress = DidHelper.extractAddressFromDid(petDid);
+      final hospitalAddress = DidHelper.extractAddressFromDid(hospitalDid);
 
       print('Pet 주소: $petAddress');
       print('병원 주소: $hospitalAddress');
@@ -54,29 +54,5 @@ class AddHospitalWithSharingUseCase {
     } catch (e) {
       throw Exception('병원에 권한 부여에 실패했습니다: $e');
     }
-  }
-
-  /// DID 문자열에서 이더리움 주소 추출
-  /// 예: "did:pet:0x123..." -> "0x123..."
-  /// 또는 "did:hospital:0x123..." -> "0x123..."
-  String _extractAddressFromDid(String did) {
-    // DID가 이미 이더리움 주소 형식인지 확인
-    if (did.startsWith('0x') && did.length == 42) {
-      return did;
-    }
-
-    // DID 형식에서 주소 부분 추출
-    final parts = did.split(':');
-    if (parts.length >= 3) {
-      String address = parts[2];
-      // 주소가 0x로 시작하지 않으면 추가
-      if (!address.startsWith('0x')) {
-        address = '0x$address';
-      }
-      return address;
-    }
-
-    // 형식이 맞지 않으면 원래 값 반환
-    return did;
   }
 }
