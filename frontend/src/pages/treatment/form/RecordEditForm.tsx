@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaSave, FaTimes, FaCamera, FaTrash, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
-import { BlockChainRecord, BlockChainTreatment, TreatmentType } from '@/interfaces';
+import { BlockChainRecord, BlockChainTreatment } from '@/interfaces';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
 import { updateBlockchainTreatment, softDeleteMedicalRecord } from '@/services/treatmentRecordService';
 import { uploadImage } from '@/services/treatmentImageService';
@@ -72,9 +72,6 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
     record.status ? record.status === 'COMPLETED' : true
   );
   
-  const [prescriptionType, setPrescriptionType] = useState('');
-  const [prescriptionDosage, setPrescriptionDosage] = useState('');
-  const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
   const [hospitalAddress] = useState(record.hospitalAddress || '');
   const [flagCertificated, setFlagCertificated] = useState(record.flagCertificated !== undefined ? record.flagCertificated : true);
 
@@ -528,12 +525,6 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
             <PrescriptionSection
               prescriptions={prescriptions}
               setPrescriptions={setPrescriptions}
-              treatmentType={treatmentType}
-              setTreatmentType={setTreatmentType}
-              prescriptionType={prescriptionType}
-              setPrescriptionType={setPrescriptionType}
-              prescriptionDosage={prescriptionDosage}
-              setPrescriptionDosage={setPrescriptionDosage}
               petSpecies={(record as any).petSpecies || (record as any).petBreed || ''}
             />
           </div>
