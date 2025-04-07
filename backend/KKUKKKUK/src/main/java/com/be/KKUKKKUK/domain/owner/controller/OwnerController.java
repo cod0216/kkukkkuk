@@ -108,4 +108,19 @@ public class OwnerController {
         Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
         return ResponseUtility.success("계정 프로필이 성공적으로 업데이트되었습니다.", ownerComplexService.updateOwnerImage(ownerId, imageFile));
     }
+
+
+    @Operation(summary = "프로필 삭제", description = "현재 로그인한 계정의 프로필 이미지를 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이미지 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류"),
+    })
+    @DeleteMapping(path = "/me/images")
+    public ResponseEntity<?> deleteOwnerImage(@AuthenticationPrincipal OwnerDetails ownerDetails){
+        Integer ownerId = Integer.parseInt(ownerDetails.getUsername());
+        ownerComplexService.deleteOwnerImage(ownerId);
+        return ResponseUtility.emptyResponse("계정 프로필이 성공적으로 삭제되었습니다.");
+    }
 }
