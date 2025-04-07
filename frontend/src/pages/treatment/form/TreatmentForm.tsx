@@ -34,6 +34,7 @@ import { uploadImage } from '@/services/treatmentImageService';
  * @param {Doctor[]} props.doctors - 선택 가능한 의사 목록
  * @param {string} props.petDID - 반려동물 DID 주소
  * @param {string} props.hospitalName - 병원 이름 (선택적)
+ * @param {string} props.petSpecies - 반려동물 종류 (예: '개', '고양이' 등)
  */
 interface TreatmentFormProps {
   onSave?: (record: BlockChainRecord) => void;
@@ -41,6 +42,7 @@ interface TreatmentFormProps {
   doctors: Doctor[];
   petDID: string;
   hospitalName?: string;
+  petSpecies?: string;
 }
 
 /**
@@ -51,7 +53,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
   onCancel,
   doctors, 
   petDID,
-  hospitalName = '샘플 동물병원' 
+  hospitalName = '샘플 동물병원',
+  petSpecies = '개' // 기본값 설정
 }) => {
   // 폼 상태 관리
   const [formData, setFormData] = useState({
@@ -94,7 +97,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
   const [prescriptionType, setPrescriptionType] = useState('');
   const [prescriptionDosage, setPrescriptionDosage] = useState('');
   const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
-  const [isFinalTreatment, setIsFinalTreatment] = useState(false);
+  const [isFinalTreatment, setIsFinalTreatment] = useState(true);
   const [prescriptions, setPrescriptions] = useState({
     examinations: [],
     medications: [],
@@ -474,6 +477,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
               setPrescriptionType={setPrescriptionType}
               prescriptionDosage={prescriptionDosage}
               setPrescriptionDosage={setPrescriptionDosage}
+              petSpecies={petSpecies}
             />
           </span>
         </div>
