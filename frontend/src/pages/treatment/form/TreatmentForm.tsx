@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Save, Loader, ArrowLeft } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { Doctor, BlockChainRecord, TreatmentType } from '@/interfaces';
+import { Doctor, BlockChainRecord, ExaminationTreatment, MedicationTreatment, VaccinationTreatment } from '@/interfaces';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
 import { createBlockchainTreatment } from '@/services/treatmentRecordService';
 import { getAccountAddress } from '@/services/blockchainAuthService';
@@ -61,9 +61,6 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
     diagnosis: '',
     doctorName: '',
     notes: '',
-    examinations: [''],
-    medications: [''],
-    vaccinations: [''],
     pictures: [],
     hospitalAddress: ''
   });
@@ -94,11 +91,12 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
   const actualHospitalName = hospital?.name || hospitalName;
     
   const [notes, setNotes] = useState('');
-  const [prescriptionType, setPrescriptionType] = useState('');
-  const [prescriptionDosage, setPrescriptionDosage] = useState('');
-  const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
   const [isFinalTreatment, setIsFinalTreatment] = useState(true);
-  const [prescriptions, setPrescriptions] = useState({
+  const [prescriptions, setPrescriptions] = useState<{
+    examinations: ExaminationTreatment[];
+    medications: MedicationTreatment[];
+    vaccinations: VaccinationTreatment[];
+  }>({
     examinations: [],
     medications: [],
     vaccinations: []
@@ -247,19 +245,14 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
       const timestamp = Math.floor(Date.now() / 1000); // Unix timestamp (초 단위)
       const doctorName = doctors.find(doctor => doctor.id === doctorId)?.name || '';
       
-      // 기본값 처리를 추가하여 누락된 필드 방지
-      const safeExaminations = prescriptions.examinations || [];
-      const safeMedications = prescriptions.medications || [];
-      const safeVaccinations = prescriptions.vaccinations || [];
-      
       const record: BlockChainRecord = {
         id: `medical_record_${timestamp}_${doctorName.replace(/\s+/g, '_')}`,
         timestamp: timestamp,
         diagnosis: diagnosis || '진단 없음',
         treatments: {
-          examinations: safeExaminations,
-          medications: safeMedications,
-          vaccinations: safeVaccinations
+          examinations: prescriptions.examinations,
+          medications: prescriptions.medications,
+          vaccinations: prescriptions.vaccinations
         },
         doctorName: doctorName || '담당의사 정보 없음',
         notes: notes || '',
@@ -273,7 +266,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
         flagCertificated: true // 병원에서 작성하므로 true
       };
 
-      console.log('저장 전 처방 데이터:', prescriptions);
+      console.log('저장 전 처방 데이터:', record.treatments);
 
       // 중요: 트랜잭션 실패 시에도 UI는 정상 동작하도록 예외 처리
       try {
@@ -471,12 +464,6 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
             <PrescriptionSection
               prescriptions={prescriptions}
               setPrescriptions={setPrescriptions}
-              treatmentType={treatmentType}
-              setTreatmentType={setTreatmentType}
-              prescriptionType={prescriptionType}
-              setPrescriptionType={setPrescriptionType}
-              prescriptionDosage={prescriptionDosage}
-              setPrescriptionDosage={setPrescriptionDosage}
               petSpecies={petSpecies}
             />
           </span>
