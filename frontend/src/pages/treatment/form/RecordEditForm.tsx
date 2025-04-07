@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaSave, FaTimes, FaCamera, FaTrash, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
-import { BlockChainRecord, BlockChainTreatment, TreatmentType } from '@/interfaces';
+import { BlockChainRecord, BlockChainTreatment } from '@/interfaces';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
 import { updateBlockchainTreatment, softDeleteMedicalRecord } from '@/services/treatmentRecordService';
 import { uploadImage } from '@/services/treatmentImageService';
@@ -33,20 +33,6 @@ interface RecordEditFormProps {
   blockchainRecords?: BlockChainRecord[]; // 허브-스포크 구조를 위한 전체 기록
 }
 
-// 전역 임시 저장소 선언 (Window 객체에 추가)
-declare global {
-  interface Window {
-    _tempImageUrls: {
-      [key: string]: string[];
-    };
-  }
-}
-
-// 전역 임시 저장소 초기화
-if (typeof window !== 'undefined') {
-  window._tempImageUrls = window._tempImageUrls || {};
-}
-
 /**
  * RecordEditForm 컴포넌트
  */
@@ -59,66 +45,33 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
   petDid,
   blockchainRecords = []
 }) => {
-  // 임시 저장소 키 생성 (고유 식별자)
-  const tempStoreKey = React.useMemo(() => `record_${record.id || Math.random().toString(36).substring(2, 9)}`, [record.id]);
-  
-  // 컴포넌트 마운트 시 전역 저장소 초기화
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // 초기 이미지 설정 (propsPictures 우선, 없으면 record.pictures)
-      window._tempImageUrls[tempStoreKey] = [...(propsPictures || record.pictures || [])];
-      console.log('전역 저장소에 초기 이미지 설정:', window._tempImageUrls[tempStoreKey]);
-      
-      // 컴포넌트 언마운트 시 정리
-      return () => {
-        console.log('전역 저장소 정리 (언마운트)');
-        delete window._tempImageUrls[tempStoreKey];
-      };
-    }
-  }, [tempStoreKey, propsPictures, record.pictures]);
-  
   // 폼 상태
   const [diagnosis, setDiagnosis] = useState(record.diagnosis || '');
   const [notes, setNotes] = useState(record.notes || '');
-  const [isFinalTreatment, setIsFinalTreatment] = useState(
-    record.status === 'COMPLETED' || false
-  );
   const [doctorName, setDoctorName] = useState(record.doctorName || '');
   const [prescriptions, setPrescriptions] = useState<BlockChainTreatment>(
     record.treatments || { examinations: [], medications: [], vaccinations: [] }
   );
   
-  // 이미지 관련 상태 (단순화) - propsPictures를 우선적으로 사용
-  const [uploadedImages, setUploadedImages] = useState<string[]>(propsPictures || record.pictures || []);
+  // 이미지 관련 상태
+  const [blobImages, setBlobImages] = useState<string[]>([]); // 미리보기용 Blob URL
+  const [imageUrls, setImageUrls] = useState<string[]>(propsPictures || record.pictures || []); // 실제 업로드된 이미지 URL
   const [isUploading, setIsUploading] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState<number>(0); // 업로드 중인 파일 수
   
-  // propsPictures가 변경되면 uploadedImages 업데이트 및 전역 저장소 갱신
+  // propsPictures가 변경되면 imageUrls 업데이트
   useEffect(() => {
     if (propsPictures) {
       console.log('propsPictures 변경됨:', propsPictures);
-      setUploadedImages([...propsPictures]);
-      
-      if (typeof window !== 'undefined') {
-        window._tempImageUrls[tempStoreKey] = [...propsPictures];
-      }
+      setImageUrls([...propsPictures]);
     }
-  }, [propsPictures, tempStoreKey]);
+  }, [propsPictures]);
   
-  // 상태 변화 로깅
-  useEffect(() => {
-    console.log('uploadedImages 상태 변경됨:', uploadedImages);
-    
-    // 상태 변경 시 전역 저장소도 함께 갱신
-    if (typeof window !== 'undefined' && uploadedImages) {
-      window._tempImageUrls[tempStoreKey] = [...uploadedImages];
-      console.log('전역 저장소 이미지 배열 갱신:', window._tempImageUrls[tempStoreKey]);
-    }
-  }, [uploadedImages, tempStoreKey]);
+  // 치료완료 체크박스 - 기존 레코드의 상태를 우선적으로 적용하고, 없으면 기본값 true
+  const [isFinalTreatment, setIsFinalTreatment] = useState(
+    record.status ? record.status === 'COMPLETED' : true
+  );
   
-  const [prescriptionType, setPrescriptionType] = useState('');
-  const [prescriptionDosage, setPrescriptionDosage] = useState('');
-  const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
   const [hospitalAddress] = useState(record.hospitalAddress || '');
   const [flagCertificated, setFlagCertificated] = useState(record.flagCertificated !== undefined ? record.flagCertificated : true);
 
@@ -224,7 +177,7 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
   };
   
   /**
-   * 이미지 파일 선택 핸들러 (단순화)
+   * 이미지 파일 선택 핸들러
    */
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -235,6 +188,16 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
     setLoadingFiles(files.length);
     
     console.log('업로드 시작: 파일 개수', files.length);
+    
+    // 임시 미리보기 URL 생성
+    const newBlobUrls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const blobUrl = URL.createObjectURL(files[i]);
+      newBlobUrls.push(blobUrl);
+    }
+    
+    // 미리보기 상태 업데이트
+    setBlobImages(prev => [...prev, ...newBlobUrls]);
     
     try {
       // 각 파일을 순차적으로 업로드
@@ -247,22 +210,20 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
           const imageUrl = await uploadImage(file, 'treatment');
           
           if (imageUrl) {
-            // 반환된 URL을 상태에 추가 (불변성 유지하며)
-            setUploadedImages(prev => {
-              const updated = [...prev, imageUrl];
-              console.log('이미지 URL 직접 추가됨:', imageUrl);
-              console.log('이미지 배열 업데이트:', updated);
-              
-              // 전역 저장소에도 함께 업데이트
-              if (typeof window !== 'undefined') {
-                window._tempImageUrls[tempStoreKey] = updated;
-              }
-              
-              return updated;
-            });
+            // 반환된 URL을 상태에 추가
+            setImageUrls(prev => [...prev, imageUrl]);
+            console.log('이미지 URL 추가됨:', imageUrl);
+          } else {
+            // 업로드 실패 시 해당 미리보기 제거
+            setBlobImages(prev => prev.filter(url => url !== newBlobUrls[i]));
+            URL.revokeObjectURL(newBlobUrls[i]);
+            showMessage(`파일 업로드 실패: ${file.name}`, true);
           }
         } catch (error: any) {
           console.error(`파일 업로드 실패: ${file.name}`, error);
+          // 업로드 실패 시 해당 미리보기 제거
+          setBlobImages(prev => prev.filter(url => url !== newBlobUrls[i]));
+          URL.revokeObjectURL(newBlobUrls[i]);
           showMessage(`파일 업로드 실패: ${file.name}`, true);
         } finally {
           // 로딩 카운터 감소
@@ -271,6 +232,8 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
       }
     } catch (err: any) {
       console.error('이미지 업로드 오류:', err);
+      // 오류 발생 시 모든 임시 URL 해제
+      newBlobUrls.forEach(url => URL.revokeObjectURL(url));
       showMessage('이미지 업로드 중 오류가 발생했습니다', true);
     } finally {
       setIsUploading(false);
@@ -283,21 +246,19 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
   };
 
   /**
-   * 이미지 제거 핸들러 (단순화)
+   * 이미지 제거 핸들러
    */
   const handleRemoveImage = (index: number) => {
-    // 이미지 제거 시 상태 업데이트 (불변성 유지)
-    setUploadedImages(prev => {
-      const updated = prev.filter((_, i) => i !== index);
-      console.log(`이미지 ${index} 제거 후 배열:`, updated);
-      
-      // 전역 저장소에도 함께 업데이트
-      if (typeof window !== 'undefined') {
-        window._tempImageUrls[tempStoreKey] = updated;
-      }
-      
-      return updated;
-    });
+    // 미리보기 URL이 있으면 해제
+    if (blobImages[index]) {
+      URL.revokeObjectURL(blobImages[index]);
+    }
+    
+    // 미리보기와 업로드된 URL 모두 제거
+    setBlobImages(prev => prev.filter((_, i) => i !== index));
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
+    
+    console.log(`이미지 ${index} 제거됨`);
   };
   
   // 삭제 버튼 클릭 핸들러
@@ -361,21 +322,9 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
         return;
       }
       
-      // 전역 저장소에서 이미지 배열 가져오기 (우선), 없으면 상태 사용
-      let pictures = [];
-      if (typeof window !== 'undefined' && window._tempImageUrls[tempStoreKey]) {
-        pictures = [...window._tempImageUrls[tempStoreKey]];
-        console.log('전역 저장소에서 이미지 가져옴:', pictures);
-      } else {
-        pictures = [...uploadedImages];
-        console.log('상태에서 이미지 가져옴:', pictures);
-      }
-      
       console.log('==== 저장 시점 이미지 정보 ====');
-      console.log('이미지 배열:', pictures);
-      console.log('이미지 배열 길이:', pictures.length);
-      console.log('이미지 타입:', typeof pictures);
-      console.log('이미지 배열 내용:', JSON.stringify(pictures, null, 2));
+      console.log('이미지 URL 배열:', imageUrls);
+      console.log('이미지 배열 길이:', imageUrls.length);
       
       // 업데이트된 레코드 생성
       const updatedRecord: BlockChainRecord = {
@@ -384,7 +333,7 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
         doctorName,
         notes: notes,
         treatments: prescriptions,
-        pictures: pictures, // 전역 저장소 또는 상태에서 가져온 배열 사용
+        pictures: imageUrls, // 로컬 상태의 이미지 URL 사용
         hospitalAddress,
         petDid: record.petDid || petDid,
         status: isFinalTreatment ? 'COMPLETED' : 'IN_PROGRESS',
@@ -429,6 +378,13 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
       setIsLoading(false);
     }
   };
+
+  // 컴포넌트 언마운트 시 생성한 모든 blob URL 해제
+  useEffect(() => {
+    return () => {
+      blobImages.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   return (
     <div className="w-[350px] bg-white rounded-md border border-gray-200 h-full flex flex-col">
@@ -569,12 +525,7 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
             <PrescriptionSection
               prescriptions={prescriptions}
               setPrescriptions={setPrescriptions}
-              treatmentType={treatmentType}
-              setTreatmentType={setTreatmentType}
-              prescriptionType={prescriptionType}
-              setPrescriptionType={setPrescriptionType}
-              prescriptionDosage={prescriptionDosage}
-              setPrescriptionDosage={setPrescriptionDosage}
+              petSpecies={(record as any).petSpecies || (record as any).petBreed || ''}
             />
           </div>
         </div>
@@ -605,29 +556,33 @@ const RecordEditForm: React.FC<RecordEditFormProps> = ({
                   <><FaCamera className="text-gray-400 mr-1" /> 사진 선택</>
                 )}
               </label>
-              <span className="text-xs text-gray-500">{uploadedImages.length}개 이미지</span>
+              <span className="text-xs text-gray-500">{imageUrls.length}개 이미지</span>
             </div>
             
-            {/* 업로드된 URL 목록 표시 (미리보기 대신) */}
-            {uploadedImages.length > 0 && (
+            {/* 업로드된 URL 목록 표시 */}
+            {imageUrls.length > 0 && (
               <div className="border border-gray-200 rounded-md p-2 bg-gray-50">
-                <p className="text-xs font-medium text-gray-700 mb-1">업로드된 이미지 URL:</p>
-                {uploadedImages.map((url, index) => (
-                  <div key={`url-${index}`} className="flex items-center justify-between text-xs mb-1 last:mb-0 p-1 bg-white rounded border border-gray-200">
-                    <div className="truncate flex-1 pr-2">
-                      <span className="font-mono text-blue-600 text-[10px] break-all">{url}</span>
+                <p className="text-xs font-medium text-gray-700 mb-1">업로드된 이미지:</p>
+                <div className="flex flex-wrap gap-2">
+                  {imageUrls.map((url, index) => (
+                    <div key={`image-${index}`} className="relative">
+                      <img 
+                        src={url} 
+                        alt={`진료 이미지 ${index+1}`} 
+                        className="w-16 h-16 object-cover rounded-md border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-sm"
+                        title="이미지 삭제"
+                        disabled={isLoading || isDeleting}
+                      >
+                        <FaTimes size={10} />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="ml-1 text-red-500 hover:text-red-700 p-1"
-                      title="이미지 삭제"
-                      disabled={isLoading || isDeleting}
-                    >
-                      <FaTimes size={12} />
-                    </button>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
             

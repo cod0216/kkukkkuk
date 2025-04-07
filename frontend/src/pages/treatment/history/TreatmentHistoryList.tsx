@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import RecordItem from '@/pages/treatment/history/RecordItem';
 import RecordDetail from '@/pages/treatment/history/RecordDetail';
 import RecordEditForm from '@/pages/treatment/form/RecordEditForm';
@@ -86,6 +86,8 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   const [showOnlyMyHospitalRecords, setShowOnlyMyHospitalRecords] = useState<boolean>(false);
   const [myHospitalAddress, setMyHospitalAddress] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   
   // 수정 모드 상태
   const [editingRecord, setEditingRecord] = useState<BlockChainRecord | null>(null);
@@ -94,6 +96,10 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
   
   // 의사 목록
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  
+  // 선택된 반려동물 DID 변경 추적을 위한 ref
+  const prevPetDidRef = useRef<string | undefined>(undefined);
+  const prevHospitalPetsLengthRef = useRef<number>(0);
   
   // 정렬 방향 토글 핸들러
   const toggleSort = (field: SortField) => {
@@ -284,6 +290,21 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
         setBlockchainRecords([]);
         setSelectedRecordId('');
       }
+      
+      // 기록이 변경되면 페이지를 1페이지로 초기화 (조건부)
+      // 1. 반려동물이 변경되었거나
+      // 2. 반려동물 목록의 길이가 변경되었을 때만 페이지 초기화
+      const petDidChanged = prevPetDidRef.current !== selectedPetDid;
+      const hospitalPetsChanged = prevHospitalPetsLengthRef.current !== hospitalPets.length;
+      
+      if (petDidChanged || hospitalPetsChanged) {
+        console.log('반려동물 변경 또는 목록 변경으로 인한 페이지 초기화');
+        setCurrentPage(1);
+      }
+      
+      // 현재 값을 이전 값으로 저장
+      prevPetDidRef.current = selectedPetDid;
+      prevHospitalPetsLengthRef.current = hospitalPets.length;
     } else if (!selectedPetDid) {
       // 선택된 반려동물이 없으면 빈 기록 설정
       setBlockchainRecords([]);
@@ -456,6 +477,59 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
     };
   }, [isEditSuccess, editError]);
 
+  // 페이지네이션된 의료 기록 목록 계산
+  const paginatedRecords = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortedRecords.slice(startIndex, endIndex);
+  }, [sortedRecords, currentPage, itemsPerPage]);
+
+  // 총 페이지 수 계산
+  const totalPages = useMemo(() => {
+    return Math.ceil(sortedRecords.length / itemsPerPage);
+  }, [sortedRecords, itemsPerPage]);
+
+  // 페이지 이동 함수
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // 이전/다음 페이지 이동 함수
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  // 페이지 번호 배열 생성 (최대 5개 표시)
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    // 시작 페이지와 끝 페이지 계산
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = startPage + maxVisiblePages - 1;
+    
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  }, [currentPage, totalPages]);
+
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full gap-5">
       {/* 좌측: 의료 기록 목록 */}
@@ -503,26 +577,46 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-600">우리 병원 기록만</span>
-                    <label className="relative inline-block w-8 h-4" title="우리 병원 기록만 보기 On/Off">
-                      <input
-                        type="checkbox"
-                        className="opacity-0 w-0 h-0"
-                        checked={showOnlyMyHospitalRecords}
-                        onChange={() => setShowOnlyMyHospitalRecords(prev => !prev)}
-                        disabled={!myHospitalAddress}
-                      />
-                      <span
-                        className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 rounded-full transition-colors duration-300 ease-in-out 
-                          ${showOnlyMyHospitalRecords ? 'bg-primary-500' : 'bg-gray-300'}`}
+                  <div className="flex items-center gap-2">
+                    {/* 페이지당 항목 수 선택 */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-600">항목/페이지</span>
+                      <select
+                        className="text-xs border rounded p-0.5"
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                          setItemsPerPage(Number(e.target.value));
+                          setCurrentPage(1); // 항목 수 변경 시 1페이지로 이동
+                        }}
                       >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-600">우리 병원 기록만</span>
+                      <label className="relative inline-block w-8 h-4" title="우리 병원 기록만 보기 On/Off">
+                        <input
+                          type="checkbox"
+                          className="opacity-0 w-0 h-0"
+                          checked={showOnlyMyHospitalRecords}
+                          onChange={() => setShowOnlyMyHospitalRecords(prev => !prev)}
+                          disabled={!myHospitalAddress}
+                        />
                         <span
-                          className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform duration-300 ease-in-out 
-                            ${showOnlyMyHospitalRecords ? 'translate-x-4' : 'translate-x-0'}`}
-                        ></span>
-                      </span>
-                    </label>
+                          className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 rounded-full transition-colors duration-300 ease-in-out 
+                            ${showOnlyMyHospitalRecords ? 'bg-primary-500' : 'bg-gray-300'}`}
+                        >
+                          <span
+                            className={`absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-transform duration-300 ease-in-out 
+                              ${showOnlyMyHospitalRecords ? 'translate-x-4' : 'translate-x-0'}`}
+                          ></span>
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -578,123 +672,77 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
           
           {/* 의료 기록 목록 (스크롤 영역) */}
           {!loading && !error && sortedRecords.length > 0 && (
-            <div className="flex-1 overflow-y-auto">
-              <RecordItem 
-                records={sortedRecords}
-                onRecordSelect={handleRecordSelect}
-                selectedRecordId={selectedRecordId}
-                onSort={toggleSort}
-                sortField={sortField}
-                sortDirection={sortDirection}
-              />
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              <div className="flex-1">
+                <RecordItem 
+                  records={paginatedRecords}
+                  onRecordSelect={handleRecordSelect}
+                  selectedRecordId={selectedRecordId}
+                  onSort={toggleSort}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                />
+              </div>
+              
+              {/* 페이지네이션 UI */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center py-3 border-t">
+                  <button
+                    className={`flex items-center px-2 py-1 text-xs rounded ${
+                      currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-primary-600 hover:bg-primary-50'
+                    }`}
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 1}
+                  >
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    이전
+                  </button>
+                  
+                  <div className="flex mx-2">
+                    {pageNumbers.map(page => (
+                      <button
+                        key={page}
+                        className={`w-6 h-6 flex items-center justify-center text-xs mx-0.5 rounded-full ${
+                          currentPage === page
+                            ? 'bg-primary-500 text-white'
+                            : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                        onClick={() => goToPage(page)}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <button
+                    className={`flex items-center px-2 py-1 text-xs rounded ${
+                      currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-primary-600 hover:bg-primary-50'
+                    }`}
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    다음
+                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
       
-      {/* 모바일에서만 표시되는 상세 정보 */}
-      {selectedRecordId && (
-        <div className="md:hidden mt-4 h-[500px]">
-          {(() => {
-            // 먼저 현재 정렬된 기록에서 찾고, 없으면 전체 기록에서 찾음
-            const record = sortedRecords.find(record => record.id === selectedRecordId) ||
-                           blockchainRecords.find(record => record.id === selectedRecordId);
-            
-            // 디버깅: 레코드를 찾지 못하는 경우 로그 출력
-            if (!record) {
-              console.error('모바일: 레코드를 찾을 수 없음:', { 
-                selectedRecordId, 
-                sortedRecordsCount: sortedRecords.length,
-                blockchainRecordsCount: blockchainRecords.length
-              });
-              return (
-                <div className="p-4 text-center text-red-500">
-                  선택한 기록을 찾을 수 없습니다.
-                </div>
-              );
-            }
-            
-            // 취소된 기록(CANCELED)인 경우 표시하지 않음
-            if (record.diagnosis?.includes('CANCELED')) {
-              return (
-                <div className="p-4 text-center text-gray-500">
-                  취소된 진료 기록입니다.
-                </div>
-              );
-            }
-            
-            // 수정 모드인 경우 수정 폼 표시
-            if (editingRecord && editingRecord.id === record.id) {
-              // flagCertificated가 false인 경우 RecordByOwnerEditForm 사용
-              if (editingRecord.flagCertificated === false) {
-                return (
-                  <RecordByOwnerEditForm 
-                    record={editingRecord}
-                    onSave={async (_updatedRecord) => {
-                      // 성공 후 처리: 목록 새로고침
-                      await fetchHospitalPets();
-                      // 편집 모드 종료
-                      setEditingRecord(null);
-                    }}
-                    onCancel={handleCancelEdit}
-                    petDid={selectedPetDid}
-                  />
-                );
-              }
-              
-              // 일반적인 경우 기존 RecordEditForm 사용
-              return (
-                <RecordEditForm 
-                  key={editingRecord.id}
-                  record={editingRecord}
-                  pictures={editingRecord.pictures}
-                  onSave={async (updatedRecord) => {
-                    // 수정된 기록 사본을 로컬에 저장
-                    const updatedRecordCopy = {...updatedRecord};
-                    console.log('업데이트된 기록 (fetchHospitalPets 호출 전):', {
-                      id: updatedRecordCopy.id,
-                      pictures: updatedRecordCopy.pictures,
-                      hasPictures: !!updatedRecordCopy.pictures,
-                      picturesLength: updatedRecordCopy.pictures?.length
-                    });
-                    
-                    // 기록 새로고침
-                    await fetchHospitalPets();
-                    
-                    // 편집 모드 종료
-                    setEditingRecord(null);
-                  }}
-                  onCancel={handleCancelEdit}
-                  doctors={doctors}
-                  petDid={selectedPetDid}
-                  blockchainRecords={blockchainRecords}
-                />
-              );
-            }
-            
-            // 상세 정보 표시
-            return (
-              <RecordDetail 
-                key={`mobile-detail-${selectedRecordId}`} 
-                record={record}
-                onEditRecord={handleEditRecord}
-                blockchainRecords={blockchainRecords}
-                selectedPetDid={selectedPetDid}
-              />
-            );
-          })()}
-        </div>
-      )}
-      
-      {/* 데스크톱에서는 부모 컴포넌트에서 RecordDetail을 관리 */}
-      {selectedRecordId && (
-        <div className="hidden md:block max-w-sm flex-shrink-0 h-[calc(100vh-216px)] relative">
-          {/* 메인 콘텐츠 - 위치 고정 */}
+      {/* 통합된 RecordDetail - 상세 보기 모드일 때만 표시 */}
+      {selectedRecordId && !editingRecord && (
+        <div className="md:max-w-sm flex-shrink-0 mt-4 md:mt-0 h-[500px] md:h-[calc(100vh-216px)] relative">
           <div className="h-full overflow-auto">
             {(() => {
               // 먼저 현재 정렬된 기록에서 찾고, 없으면 전체 기록에서 찾음
               const record = sortedRecords.find(record => record.id === selectedRecordId) ||
-                            blockchainRecords.find(record => record.id === selectedRecordId);
+                           blockchainRecords.find(record => record.id === selectedRecordId);
               
               // 디버깅: 레코드를 찾지 못하는 경우 로그 출력
               if (!record) {
@@ -719,59 +767,10 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
                 );
               }
               
-              // 수정 모드인 경우 수정 폼 표시
-              if (editingRecord && editingRecord.id === record.id) {
-                // flagCertificated가 false인 경우 RecordByOwnerEditForm 사용
-                if (editingRecord.flagCertificated === false) {
-                  return (
-                    <RecordByOwnerEditForm 
-                      record={editingRecord}
-                      onSave={async (_updatedRecord) => {
-                        // 성공 후 처리: 목록 새로고침
-                        await fetchHospitalPets();
-                        // 편집 모드 종료
-                        setEditingRecord(null);
-                      }}
-                      onCancel={handleCancelEdit}
-                      petDid={selectedPetDid}
-                    />
-                  );
-                }
-                
-                // 일반적인 경우 기존 RecordEditForm 사용
-                return (
-                  <RecordEditForm 
-                    key={editingRecord.id}
-                    record={editingRecord}
-                    pictures={editingRecord.pictures}
-                    onSave={async (updatedRecord) => {
-                      // 수정된 기록 사본을 로컬에 저장
-                      const updatedRecordCopy = {...updatedRecord};
-                      console.log('업데이트된 기록 (fetchHospitalPets 호출 전):', {
-                        id: updatedRecordCopy.id,
-                        pictures: updatedRecordCopy.pictures,
-                        hasPictures: !!updatedRecordCopy.pictures,
-                        picturesLength: updatedRecordCopy.pictures?.length
-                      });
-                      
-                      // 기록 새로고침
-                      await fetchHospitalPets();
-                      
-                      // 편집 모드 종료
-                      setEditingRecord(null);
-                    }}
-                    onCancel={handleCancelEdit}
-                    doctors={doctors}
-                    petDid={selectedPetDid}
-                    blockchainRecords={blockchainRecords}
-                  />
-                );
-              }
-              
               // 상세 정보 표시
               return (
                 <RecordDetail 
-                  key={`desktop-detail-${selectedRecordId}`} 
+                  key={`record-detail-${selectedRecordId}`} 
                   record={record}
                   onEditRecord={handleEditRecord}
                   blockchainRecords={blockchainRecords}
@@ -780,6 +779,50 @@ const TreatmentHistoryList = forwardRef<TreatmentHistoryListRef, TreatmentHistor
               );
             })()}
           </div>
+        </div>
+      )}
+
+      {/* 통합된 RecordEditForm - 편집 모드일 때만 표시 */}
+      {editingRecord && (
+        <div className="md:max-w-sm flex-shrink-0 mt-4 md:mt-0 h-[500px] md:h-[calc(100vh-216px)] relative">
+          {(() => {
+            // flagCertificated가 false인 경우 RecordByOwnerEditForm 사용
+            if (editingRecord.flagCertificated === false) {
+              return (
+                <RecordByOwnerEditForm 
+                  record={editingRecord}
+                  onSave={async (_updatedRecord) => {
+                    // 성공 후 처리: 목록 새로고침
+                    await fetchHospitalPets();
+                    // 편집 모드 종료
+                    setEditingRecord(null);
+                  }}
+                  onCancel={handleCancelEdit}
+                  petDid={selectedPetDid}
+                />
+              );
+            }
+            
+            // 일반적인 경우 기존 RecordEditForm 사용
+            return (
+              <RecordEditForm 
+                key={editingRecord.id}
+                record={editingRecord}
+                pictures={editingRecord.pictures}
+                onSave={async (_updatedRecord) => {
+                  // 기록 새로고침
+                  await fetchHospitalPets();
+                  
+                  // 편집 모드 종료
+                  setEditingRecord(null);
+                }}
+                onCancel={handleCancelEdit}
+                doctors={doctors}
+                petDid={selectedPetDid}
+                blockchainRecords={blockchainRecords}
+              />
+            );
+          })()}
           
           {/* 알림 메시지를 위한 고정 위치 컨테이너 - 가운데 정렬 및 너비 축소 */}
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-10 w-4/5 max-w-xs">

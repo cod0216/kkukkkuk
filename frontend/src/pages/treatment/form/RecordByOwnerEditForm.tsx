@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BlockChainRecord, BlockChainTreatment, TreatmentType } from '@/interfaces';
+import { BlockChainRecord, BlockChainTreatment } from '@/interfaces';
 import { FaSave, FaTimes, FaCamera, FaTrash, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
 import PrescriptionSection from '@/pages/treatment/form/PrescriptionSection';
 import { getAccountAddress } from '@/services/blockchainAuthService';
@@ -56,9 +56,6 @@ const RecordByOwnerEditForm: React.FC<RecordByOwnerEditFormProps> = ({
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>(record.pictures || []); // 최종 S3 URL 목록
   const [isUploading, setIsUploading] = useState(false); // 업로드 진행 상태
   
-  const [prescriptionType, setPrescriptionType] = useState('');
-  const [prescriptionDosage, setPrescriptionDosage] = useState('');
-  const [treatmentType, setTreatmentType] = useState<TreatmentType>(TreatmentType.EXAMINATION);
   const [hospitalAddress, setHospitalAddress] = useState(record.hospitalAddress || '');
   
   // 병원 인증 상태는 항상 false로 유지 (보호자 작성 기록)
@@ -398,12 +395,7 @@ const RecordByOwnerEditForm: React.FC<RecordByOwnerEditFormProps> = ({
             <PrescriptionSection
               prescriptions={prescriptions}
               setPrescriptions={setPrescriptions}
-              treatmentType={treatmentType}
-              setTreatmentType={setTreatmentType}
-              prescriptionType={prescriptionType}
-              setPrescriptionType={setPrescriptionType}
-              prescriptionDosage={prescriptionDosage}
-              setPrescriptionDosage={setPrescriptionDosage}
+              petSpecies={(record as any).petSpecies || (record as any).petBreed || ''}
             />
           </div>
         </div>

@@ -405,7 +405,7 @@ function SignUp() {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700 z-20"
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>

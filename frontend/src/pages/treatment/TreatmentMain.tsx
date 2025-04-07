@@ -341,6 +341,7 @@ const TreatmentMain: React.FC = () => {
               onSave={handleSaveTreatment}
               onCancel={() => setIsFormVisible(true)}
               petDID={selectedPet?.petDid || ""}
+              petSpecies={selectedPet?.speciesName || "개"}
             />
           )}
         </div>
