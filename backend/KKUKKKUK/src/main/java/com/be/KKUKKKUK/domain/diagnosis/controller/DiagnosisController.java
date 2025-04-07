@@ -90,10 +90,10 @@ public class DiagnosisController {
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "403", description = "해당 병원에서 입력한 검사가 아닙니다.")
     })
-    @GetMapping("/{diagnosisName}")
+    @GetMapping("/{search}")
     public ResponseEntity<?> containDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
-                                              @PathVariable String diagnosisName) {
-        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(hospital.getHospital().getId(), diagnosisName);
+                                              @PathVariable String search) {
+        List<DiagnosisResponse> response = diagnosisService.searchDiagnoses(hospital.getHospital().getId(), search);
         return ResponseUtility.success("요청하신 이름이 포함된 검사 항목입니다.", response);
     }
 
