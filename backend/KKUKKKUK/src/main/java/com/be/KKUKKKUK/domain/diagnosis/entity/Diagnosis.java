@@ -24,9 +24,9 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Diagnosis {
+public class Diagnosis { //TODO 자동정렬하는 것을 습관을 들였으면 좋겠습니다. 윈도우 : control + alt + L /  mac : option + cmd + L
     @Id
-    @Column(name="id", nullable = false)
+    @Column(name="id", nullable = false) //TODO column name 을 다시 설정한 이유가 있을까요?
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 

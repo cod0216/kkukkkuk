@@ -46,7 +46,7 @@ public class DiagnosisController {
     @PostMapping
     public ResponseEntity<?> createDiagnosis(@AuthenticationPrincipal HospitalDetails hospital,
                                              @RequestBody DiagnosisRequest request){
-        DiagnosisResponse response= diagnosisService.createDiagnoses(hospital.getHospital().getId(), request);
+        DiagnosisResponse response= diagnosisService.createDiagnoses(hospital.getHospital().getId(), request); //TODO hospital.getHospital().getId() 중복 코드가 존재합니다.
         return ResponseUtility.success("검사 항목이 성공적으로 생성되었습니다.", response);
     }
 

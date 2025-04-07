@@ -23,6 +23,6 @@ import lombok.ToString;
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DiagnosisRequest {
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 100) //TODO nullable 한 데이터인가요? 만약 빈칸도 허용되는 데이터 인가요?
     private String name;
 }

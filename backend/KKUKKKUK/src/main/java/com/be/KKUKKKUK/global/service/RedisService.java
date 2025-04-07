@@ -30,7 +30,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RedisService {
     private final RedisTemplate<String, String> redisTemplate;
-    private final String KEY = "autocorrect";
+    private final String KEY = "autocorrect"; //TODO static 키워드 붙여주세요
     private final int SCORE = 0;
     private final int SEARCH_RANGE = 200;
 
