@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/user/user.dart';
 import 'package:kkuk_kkuk/pages/main/viewmodel/my_page_view_model.dart';
-import 'package:kkuk_kkuk/widgets/common/image_placeholder.dart';
+import 'package:kkuk_kkuk/widgets/mypage/user_profile/user_profile_image_form.dart';
 
 /// 사용자 프로필 카드 위젯
 class ProfileCard extends ConsumerWidget {
@@ -23,10 +23,10 @@ class ProfileCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                ImagePlaceholder(
-                  onImageTap:
-                      () => myPageViewModel.showProfileImageDialog(context),
-                  imageUrl: user.profileImage,
+                // 프로필 이미지 (클릭 가능)
+                UserProfileImageForm(
+                  myPageViewModel: myPageViewModel,
+                  user: user,
                 ),
                 const SizedBox(width: 16),
                 // 사용자 기본 정보
@@ -52,9 +52,12 @@ class ProfileCard extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
+            // 추가 사용자 정보
             const Divider(),
             const SizedBox(height: 8),
             _buildInfoRow('생년월일', '${user.birthYear}년 ${user.birthDay}'),
+            // const SizedBox(height: 8),
+            // _buildInfoRow('성별', user.gender),
           ],
         ),
       ),

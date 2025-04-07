@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/pages/main/notifiers/pet_notifier.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 import 'package:kkuk_kkuk/widgets/pet/card/pet_card.dart';
 import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart';
 
@@ -48,7 +49,7 @@ class _PetSelectionViewState extends ConsumerState<PetSelectionView> {
     final petState = ref.watch(petNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('반려동물 선택')),
+      appBar: CustomAppBar(),
       body:
           petState.isLoading
               ? const LoadingIndicator(message: '반려동물 목록을 불러오는 중입니다')
