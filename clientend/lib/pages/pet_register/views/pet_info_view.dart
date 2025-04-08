@@ -224,7 +224,7 @@ class _PetInfoViewState extends ConsumerState<PetInfoView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const PetRegisterHeader(title: '반려동물 정보를\n입력해주세요'),
+                const CustomHeader(title: '반려동물 정보를\n입력해주세요'),
                 const SizedBox(height: 24),
 
                 // 동물 종류 섹션 (AnimatedDropdown 사용)
