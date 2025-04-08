@@ -79,8 +79,11 @@ class _PetSelectionViewState extends ConsumerState<PetSelectionView> {
                   final pet = petState.pets[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    // Fix: Update the onTap callback to match the expected signature
-                    child: PetCard(pet: pet, onTap: _selectPet),
+                    // Add a SizedBox with a fixed height to constrain the PetCard
+                    child: SizedBox(
+                      height: 200, // Set an appropriate height for your card
+                      child: PetCard(pet: pet, onTap: _selectPet),
+                    ),
                   );
                 },
               ),

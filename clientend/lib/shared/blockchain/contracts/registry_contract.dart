@@ -33,6 +33,8 @@ class RegistryContract {
   late final ContractFunction _getOwnedPetsCount;
   late final ContractFunction _getPetHospitals;
   late final ContractFunction _checkSharingPermission;
+  late final ContractFunction _getMedicalRecordUpdates;
+  late final ContractFunction _getPetOriginalRecords;
 
   RegistryContract(this._blockchainClient);
 
@@ -72,6 +74,8 @@ class RegistryContract {
       _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
       _getPetHospitals = _contract.function('getPetHospitals');
       _checkSharingPermission = _contract.function('checkSharingPermission');
+      _getMedicalRecordUpdates = _contract.function('getMedicalRecordUpdates');
+      _getPetOriginalRecords = _contract.function('getPetOriginalRecords');
     } catch (e) {
       print('컨트랙트 초기화 오류: $e');
       rethrow;
@@ -328,6 +332,7 @@ class RegistryContract {
     required String picturesJson,
     required String status,
     required bool flagCertificated,
+    required BigInt treatmentDate,
   }) async {
     final transaction = Transaction.callContract(
       contract: _contract,
@@ -344,6 +349,7 @@ class RegistryContract {
         picturesJson,
         status,
         flagCertificated,
+        treatmentDate,
       ],
     );
 
@@ -605,6 +611,49 @@ class RegistryContract {
     } catch (e) {
       print('Error waiting for transaction completion: $e');
       rethrow;
+    }
+  }
+
+  Future<List<String>> getMedicalRecordWithUpdates(
+    String originalRecordKey,
+  ) async {
+    try {
+      final result = await _blockchainClient.client.call(
+        contract: _contract,
+        function: _getMedicalRecordUpdates,
+        params: [originalRecordKey],
+      );
+
+      if (result.isEmpty) {
+        return [];
+      }
+
+      final List<String> recordKeys = (result[0] as List).cast<String>();
+      return recordKeys;
+    } catch (e) {
+      print('의료기록 업데이트 목록 조회 오류: $e');
+      throw Exception('Failed to get medical record updates: $e');
+    }
+  }
+
+  Future<List<String>> getPetOriginalRecords(String petAddress) async {
+    try {
+      print(petAddress);
+      final result = await _blockchainClient.client.call(
+        contract: _contract,
+        function: _getPetOriginalRecords,
+        params: [EthereumAddress.fromHex(petAddress)],
+      );
+
+      if (result.isEmpty) {
+        return [];
+      }
+      print(result);
+      final List<String> recordKeys = (result[0] as List).cast<String>();
+      return recordKeys;
+    } catch (e) {
+      print('반려동물 원본 의료기록 목록 조회 오류: $e');
+      throw Exception('Failed to get pet original records: $e');
     }
   }
 }

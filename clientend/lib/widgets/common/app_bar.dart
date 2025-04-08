@@ -45,6 +45,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       // title을 Row 위젯으로 설정하여 아이콘과 텍스트 함께 표시
       title: logoTitle,
       actions: actions,
+      automaticallyImplyLeading: false,
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
       elevation: 0, // 그림자 제거 (이미지 디자인과 유사하게)
