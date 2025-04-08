@@ -25,7 +25,7 @@ class PetProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
-  late final GetAllAtributesUseCase _getMedicalRecordsFromBlockchainUseCase;
+  late final GetAllAttributesUseCase _getAllAttributeUseCase;
 
   // TODO: 화면 새로고침 기능 추가 (진료기록을 아래로 스크롤하면 새로 로드)
   // TODO: 진료 기록 정렬 기능 추가 (최신순/과거순)
@@ -38,9 +38,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _getMedicalRecordsFromBlockchainUseCase = ref.read(
-      getAllAtributesUseCaseProvider,
-    );
+    _getAllAttributeUseCase = ref.read(getAllAtributesUseCaseProvider);
     _loadMedicalRecords();
   }
 
@@ -94,9 +92,7 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
 
       // print('test: $test');
 
-      final records = await _getMedicalRecordsFromBlockchainUseCase.execute(
-        petAddress,
-      );
+      final records = await _getAllAttributeUseCase.execute(petAddress);
 
       if (!mounted) return;
 

@@ -43,9 +43,9 @@ final getSpeciesUseCaseProvider = Provider<GetSpeciesUseCase>((ref) {
   return GetSpeciesUseCase(repository);
 });
 
-final getAllAtributesUseCaseProvider = Provider<GetAllAtributesUseCase>((ref) {
+final getAllAtributesUseCaseProvider = Provider<GetAllAttributesUseCase>((ref) {
   final repository = ref.watch(petRepositoryProvider);
-  return GetAllAtributesUseCase(repository);
+  return GetAllAttributesUseCase(repository);
 });
 
 final grantHospitalAccessUseCaseProvider =

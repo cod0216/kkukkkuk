@@ -38,7 +38,7 @@ class MedicalRecordQueryNotifier
     uniqueRecords.sort((a, b) => b.treatmentDate.compareTo(a.treatmentDate));
 
     state = state.copyWith(
-      records: uniqueRecords,
+      records: allRecords,
       lastQueryDate: DateTime.now(),
       isLoading: false,
     );
