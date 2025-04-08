@@ -26,6 +26,7 @@ import java.util.Objects;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초생성<br>
+ * 25.04.08          eunchang           수정 및 삭제 관련 Redis 수정<br>
  * <br>
  */
 
@@ -36,7 +37,7 @@ public class DiagnosisService {
     private final DiagnosisRepository diagnosisRepository;
     private final HospitalService hospitalService;
     private final DiagnosisMapper diagnosisMapper;
-    private final DiagnosisAutoCompleteService diagnosisAutoCompleteService;
+    private final DiagnosisRedisService diagnosisRedisService;
 
     /**
      * 작성한 검사항목을 모두 조회힙니다.
@@ -44,7 +45,8 @@ public class DiagnosisService {
      * @param HospitalId 동물병원 Id
      * @return 해당 동물 병원에서 작성한 검사 항목 모두 조회
      */
-    public List<DiagnosisResponse> getDiagnoses(Integer HospitalId){
+    @Transactional(readOnly = true)
+    public List<DiagnosisResponse> getDiagnoses(Integer HospitalId) {
         List<Diagnosis> diagnosisList = diagnosisRepository.getDiagnosesByHospitalId(HospitalId);
         return diagnosisMapper.mapDiagnosisToDiagnosisResponseList(diagnosisList);
     }
@@ -52,66 +54,77 @@ public class DiagnosisService {
     /**
      * 해당 검사항목을 제거합니다.
      *
-     * @param hospitalId 동물병원 id
+     * @param hospitalId  동물병원 id
      * @param diagnosisId 삭제할 검사 항목 id
      * @throws ApiException 삭제할 검사 항목을 찾을 수 없을 시
      */
-    public void deleteDiagnosis(Integer hospitalId, Integer diagnosisId){
+    public void deleteDiagnosis(Integer hospitalId, Integer diagnosisId) {
         Diagnosis diagnosis = diagnosisRepository.getDiagnosisById(diagnosisId).orElseThrow(
-                ()-> new ApiException(ErrorCode.DIA_NOT_FOUND));
+                () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToDiagnosis(diagnosis, hospitalId);
         diagnosisRepository.delete(diagnosis);
+        diagnosisRedisService.removeDiagnosisFromRedis(diagnosis);
     }
 
     /**
      * 검사 항목을 수정합니다.
      *
-     * @param hospitalId 병원 id
+     * @param hospitalId  병원 id
      * @param diagnosisId 수정할 검사 항목 id
-     * @param request 수정된 검사 항목을 반환합니다.
+     * @param request     수정된 검사 항목을 반환합니다.
      * @throws ApiException 수정할 검사 항목을 찾을 수 없을 시
      */
-    public DiagnosisResponse updateDiagnosis(Integer hospitalId, Integer diagnosisId, DiagnosisRequest request){
+    public DiagnosisResponse updateDiagnosis(Integer hospitalId, Integer diagnosisId, DiagnosisRequest request) {
         Diagnosis diagnosis = diagnosisRepository.getDiagnosisById(diagnosisId).orElseThrow(
-                ()-> new ApiException(ErrorCode.DIA_NOT_FOUND));
+                () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToDiagnosis(diagnosis, hospitalId);
-        diagnosis.setName(request.getName());
 
-        return diagnosisMapper.mapDiagnosisToDiagnosisResponse(diagnosisRepository.save(diagnosis));
+        diagnosisRedisService.removeDiagnosisFromRedis(diagnosis);
+
+        diagnosis.setName(request.getName());
+        Diagnosis updatedDiagnosis = diagnosisRepository.save(diagnosis);
+
+        diagnosisRedisService.addDiagnosisToRedis(updatedDiagnosis);
+
+        return diagnosisMapper.mapDiagnosisToDiagnosisResponse(updatedDiagnosis);
     }
 
     /**
      * 이름이 포함된 검사 항목을 반환합니다.
+     *
      * @param name 조회할 검사 이름
      * @return 조회할 검사 이름이 포함된 검사 항목들을 반환합니다.
      */
-    public List<DiagnosisResponse> searchDiagnoses(Integer hospitalId, String name){
+    public List<DiagnosisResponse> searchDiagnoses(Integer hospitalId, String name) {
         List<Diagnosis> diagnosisList = diagnosisRepository.findByHospitalIdAndNameContaining(hospitalId, name);
         return diagnosisMapper.mapDiagnosisToDiagnosisResponseList(diagnosisList);
     }
 
     /**
-     *  검사항목을 생성 반환 및 레디스에 추가합니다.
+     * 검사항목을 생성 반환 및 레디스에 추가합니다.
+     *
      * @param hospitalId 병원 id
-     * @param request 생성할 검사 이름
+     * @param request    생성할 검사 이름
      * @return 생성된 검사 항목을 반환합니다.
      * @throws ApiException 이미 생성된 이름인 경우
      */
-    public DiagnosisResponse createDiagnoses(Integer hospitalId, DiagnosisRequest request){
+    public DiagnosisResponse createDiagnoses(Integer hospitalId, DiagnosisRequest request) {
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
-        if(Objects.nonNull(diagnosisRepository.findByName(request.getName()))) throw new ApiException(ErrorCode.DIA_DUPLICATE_NAME);
-        diagnosisAutoCompleteService.addDiagnosisToRedis(new Diagnosis(request.getName(),hospital));
+        if (Boolean.TRUE.equals(diagnosisRepository.existsByName(request.getName())))
+            throw new ApiException(ErrorCode.DIA_DUPLICATE_NAME);
+        diagnosisRedisService.addDiagnosisToRedis(new Diagnosis(request.getName(), hospital));
         return diagnosisMapper.mapDiagnosisToDiagnosisResponse(diagnosisRepository.save(new Diagnosis(request.getName(), hospital)));
     }
 
     /**
-     * 해당 동물병원과 핸들링할 검사 Entitiy의 hospitalId가 일치한지 확인합니다.ㄴ
+     * 해당 동물병원과 핸들링할 검사 Entitiy의 hospitalId가 일치한지 확인합니다. //
      *
-     * @param diagnosis 검사 항목 Entity
+     * @param diagnosis  검사 항목 Entity
      * @param hospitalId 병원 Id
+     * @throws ApiException 해당 병원에서 작성한 검사 목록이 아닐 경우 에러 발생
      */
     private void checkPermissionToDiagnosis(Diagnosis diagnosis, Integer hospitalId) {
-        if(Boolean.FALSE.equals(diagnosis.getHospital().getId().equals(hospitalId)))
+        if (Boolean.FALSE.equals(diagnosis.getHospital().getId().equals(hospitalId)))
             throw new ApiException(ErrorCode.DIA_AUTH_ERROR);
     }
 
