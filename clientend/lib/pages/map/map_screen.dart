@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
+import 'package:kkuk_kkuk/features/hospital/usecase/get_hospital_info_usecase.dart';
 import 'package:kkuk_kkuk/pages/map/widgets/map_floating_buttons.dart';
 import 'package:kkuk_kkuk/pages/map/widgets/map_bottom_sheet.dart';
 import 'package:kkuk_kkuk/shared/lib/permission/permission_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'widgets/hospital_view.dart';
+import 'package:kkuk_kkuk/pages/map/widgets/hospital_view.dart';
 
 
 class MapScreen extends StatefulWidget {
@@ -17,9 +18,12 @@ class MapScreen extends StatefulWidget {
 
 
 class _MapScreenState extends State<MapScreen> {
-  late KakaoMapController mapController;
   final DraggableScrollableController sheetController = DraggableScrollableController();
   final _permissionManager = PermissionManager();
+  late KakaoMapController mapController;
+  late final GetHospitalInfoUseCase _getHospitalInfoUseCase;
+
+
 
   final String myLocationKey = "my_location";
 
@@ -54,6 +58,9 @@ class _MapScreenState extends State<MapScreen> {
   // 병원 정보 요청
   Future<void> _getNearHospitals() async {
     LatLng latLng = await mapController.getCenter();
+
+
+
 
   }
 
@@ -128,32 +135,35 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          KakaoMap(
-            onMapCreated: ((controller) async {
-              mapController = controller;
-            }),
-            markers: markers.toList(),
-            center: LatLng(latitude, longitude),
-          ),
+    return
+      SafeArea(
+       child: Scaffold(
+            body: Stack(
+              children: [
+                KakaoMap(
+                  onMapCreated: ((controller) async {
+                    mapController = controller;
+                  }),
+                  markers: markers.toList(),
+                  center: LatLng(latitude, longitude),
+                ),
 
-          FloatingButtons(
-            onRefresh: _getNearHospitals,
-            onCenter: goCenter,
-          ),
+                FloatingButtons(
+                  onRefresh: _getNearHospitals,
+                  onCenter: goCenter,
+                ),
 
-          MapBottomSheet(
-            locationList: locationList,
-            controller: sheetController,
-            onItemTap: (location) {
-              mapController.setCenter(
-                  LatLng(location["latitude"], location["longitude"]));
-            },
-          ),
-        ],
-      ),
-    );
+                MapBottomSheet(
+                  locationList: locationList,
+                  controller: sheetController,
+                  onItemTap: (location) {
+                    mapController.setCenter(
+                        LatLng(location["latitude"], location["longitude"]));
+                  },
+                ),
+              ],
+            ),
+          ));
+
   }
 }
