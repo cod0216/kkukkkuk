@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/hospital/api/dto/hospital_info_response.dart';
 import 'package:kkuk_kkuk/features/hospital/usecase/hospital_usecase_providers.dart';
 
+import '../../shared/config/s3_icon.dart';
+
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -23,6 +25,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   late KakaoMapController mapController;
 
   static const String _myLocationKey = "my_location";
+  static String authMarker = S3Icon.mapAuthMarker;
+  static String normalMarker = S3Icon.mapNormalMarker;
+
 
   List<HospitalInfo> locationList = [];
   Set<Marker> markers = {};
@@ -124,8 +129,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       newMarkers.add(
           Marker(
               markerId: '${list[i].id}',
-              latLng: LatLng(list[i].yAxis, list[i].xAxis)
-            // markerImageSrc:
+              latLng: LatLng(list[i].yAxis, list[i].xAxis),
+              markerImageSrc: normalMarker
           )
 
       );
