@@ -33,6 +33,7 @@ _HospitalInfo _$HospitalInfoFromJson(Map<String, dynamic> json) =>
       phoneNumber: json['phone_number'] as String?,
       xAxis: (json['x_axis'] as num).toDouble(),
       yAxis: (json['y_axis'] as num).toDouble(),
+      flagCertified: json['flag_certified'] as bool,
     );
 
 Map<String, dynamic> _$HospitalInfoToJson(_HospitalInfo instance) =>
@@ -43,4 +44,5 @@ Map<String, dynamic> _$HospitalInfoToJson(_HospitalInfo instance) =>
       'phone_number': instance.phoneNumber,
       'x_axis': instance.xAxis,
       'y_axis': instance.yAxis,
+      'flag_certified': instance.flagCertified,
     };

@@ -130,7 +130,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           Marker(
               markerId: '${list[i].id}',
               latLng: LatLng(list[i].yAxis, list[i].xAxis),
-              markerImageSrc: normalMarker
+              markerImageSrc: list[i].flagCertified ? authMarker : normalMarker
           )
 
       );

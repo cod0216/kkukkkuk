@@ -20,6 +20,7 @@ class MapBottomSheet extends StatelessWidget {
       initialChildSize: 0.1,
       maxChildSize: 0.8,
       minChildSize: 0.1,
+      controller: controller,
       builder: (context, scrollController) {
         return Container(
           clipBehavior: Clip.hardEdge,
@@ -27,10 +28,32 @@ class MapBottomSheet extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30.0)),
           ),
-          child: CustomScrollView(
-            controller: scrollController,
-            slivers: [
-              SliverToBoxAdapter(
+          child: Stack(
+            children: [
+              CustomScrollView(
+                controller: scrollController,
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 40),
+                  ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                        final HospitalInfo location = locationList[index];
+                        return GestureDetector(
+                          onTap: () => onItemTap(location),
+                          child: HospitalView(location: location),
+                        );
+                      },
+                      childCount: locationList.length,
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
                 child: Center(
                   child: Container(
                     decoration: BoxDecoration(
@@ -39,20 +62,8 @@ class MapBottomSheet extends StatelessWidget {
                     ),
                     height: 4,
                     width: 40,
-                    margin: const EdgeInsets.only(top: 18, bottom: 16),
+                    margin: const EdgeInsets.only(top: 10),
                   ),
-                ),
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    final HospitalInfo location = locationList[index];
-                    return GestureDetector(
-                      onTap: () => onItemTap(location),
-                      child: HospitalView(location: location),
-                    );
-                  },
-                  childCount: locationList.length,
                 ),
               ),
             ],
@@ -61,4 +72,5 @@ class MapBottomSheet extends StatelessWidget {
       },
     );
   }
+
 }

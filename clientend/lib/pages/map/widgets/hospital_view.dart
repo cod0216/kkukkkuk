@@ -24,7 +24,8 @@ class HospitalView extends StatelessWidget {
                   Row(
                     children: [
                       Text(location.name ?? '',
-                          style: Theme.of(context).textTheme.titleMedium),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(overflow: TextOverflow.visible)),
+                      if(location.flagCertified) Icon(Icons.stars_sharp, color: Colors.blue)
                     ],
                   ),
                   Text(location.address ?? '',

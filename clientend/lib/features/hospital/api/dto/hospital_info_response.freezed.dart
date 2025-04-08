@@ -161,8 +161,7 @@ as List<HospitalInfo>,
 /// @nodoc
 mixin _$HospitalInfo {
 
- int get id; String get name; String get address;@JsonKey(name: 'phone_number') String? get phoneNumber;@JsonKey(name: 'x_axis') double get xAxis;// 경도 (longitude)
-@JsonKey(name: 'y_axis') double get yAxis;
+ int get id; String get name; String get address;@JsonKey(name: 'phone_number') String? get phoneNumber;@JsonKey(name: 'x_axis') double get xAxis;@JsonKey(name: 'y_axis') double get yAxis;@JsonKey(name: 'flag_certified') bool get flagCertified;
 /// Create a copy of HospitalInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -175,16 +174,16 @@ $HospitalInfoCopyWith<HospitalInfo> get copyWith => _$HospitalInfoCopyWithImpl<H
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HospitalInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.xAxis, xAxis) || other.xAxis == xAxis)&&(identical(other.yAxis, yAxis) || other.yAxis == yAxis));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HospitalInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.xAxis, xAxis) || other.xAxis == xAxis)&&(identical(other.yAxis, yAxis) || other.yAxis == yAxis)&&(identical(other.flagCertified, flagCertified) || other.flagCertified == flagCertified));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,address,phoneNumber,xAxis,yAxis);
+int get hashCode => Object.hash(runtimeType,id,name,address,phoneNumber,xAxis,yAxis,flagCertified);
 
 @override
 String toString() {
-  return 'HospitalInfo(id: $id, name: $name, address: $address, phoneNumber: $phoneNumber, xAxis: $xAxis, yAxis: $yAxis)';
+  return 'HospitalInfo(id: $id, name: $name, address: $address, phoneNumber: $phoneNumber, xAxis: $xAxis, yAxis: $yAxis, flagCertified: $flagCertified)';
 }
 
 
@@ -195,7 +194,7 @@ abstract mixin class $HospitalInfoCopyWith<$Res>  {
   factory $HospitalInfoCopyWith(HospitalInfo value, $Res Function(HospitalInfo) _then) = _$HospitalInfoCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String address,@JsonKey(name: 'phone_number') String? phoneNumber,@JsonKey(name: 'x_axis') double xAxis,@JsonKey(name: 'y_axis') double yAxis
+ int id, String name, String address,@JsonKey(name: 'phone_number') String? phoneNumber,@JsonKey(name: 'x_axis') double xAxis,@JsonKey(name: 'y_axis') double yAxis,@JsonKey(name: 'flag_certified') bool flagCertified
 });
 
 
@@ -212,7 +211,7 @@ class _$HospitalInfoCopyWithImpl<$Res>
 
 /// Create a copy of HospitalInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? address = null,Object? phoneNumber = freezed,Object? xAxis = null,Object? yAxis = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? address = null,Object? phoneNumber = freezed,Object? xAxis = null,Object? yAxis = null,Object? flagCertified = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -220,7 +219,8 @@ as String,address: null == address ? _self.address : address // ignore: cast_nul
 as String,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,xAxis: null == xAxis ? _self.xAxis : xAxis // ignore: cast_nullable_to_non_nullable
 as double,yAxis: null == yAxis ? _self.yAxis : yAxis // ignore: cast_nullable_to_non_nullable
-as double,
+as double,flagCertified: null == flagCertified ? _self.flagCertified : flagCertified // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -231,7 +231,7 @@ as double,
 @JsonSerializable()
 
 class _HospitalInfo implements HospitalInfo {
-  const _HospitalInfo({required this.id, required this.name, required this.address, @JsonKey(name: 'phone_number') this.phoneNumber, @JsonKey(name: 'x_axis') required this.xAxis, @JsonKey(name: 'y_axis') required this.yAxis});
+  const _HospitalInfo({required this.id, required this.name, required this.address, @JsonKey(name: 'phone_number') this.phoneNumber, @JsonKey(name: 'x_axis') required this.xAxis, @JsonKey(name: 'y_axis') required this.yAxis, @JsonKey(name: 'flag_certified') required this.flagCertified});
   factory _HospitalInfo.fromJson(Map<String, dynamic> json) => _$HospitalInfoFromJson(json);
 
 @override final  int id;
@@ -239,8 +239,8 @@ class _HospitalInfo implements HospitalInfo {
 @override final  String address;
 @override@JsonKey(name: 'phone_number') final  String? phoneNumber;
 @override@JsonKey(name: 'x_axis') final  double xAxis;
-// 경도 (longitude)
 @override@JsonKey(name: 'y_axis') final  double yAxis;
+@override@JsonKey(name: 'flag_certified') final  bool flagCertified;
 
 /// Create a copy of HospitalInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -255,16 +255,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HospitalInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.xAxis, xAxis) || other.xAxis == xAxis)&&(identical(other.yAxis, yAxis) || other.yAxis == yAxis));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HospitalInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.xAxis, xAxis) || other.xAxis == xAxis)&&(identical(other.yAxis, yAxis) || other.yAxis == yAxis)&&(identical(other.flagCertified, flagCertified) || other.flagCertified == flagCertified));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,address,phoneNumber,xAxis,yAxis);
+int get hashCode => Object.hash(runtimeType,id,name,address,phoneNumber,xAxis,yAxis,flagCertified);
 
 @override
 String toString() {
-  return 'HospitalInfo(id: $id, name: $name, address: $address, phoneNumber: $phoneNumber, xAxis: $xAxis, yAxis: $yAxis)';
+  return 'HospitalInfo(id: $id, name: $name, address: $address, phoneNumber: $phoneNumber, xAxis: $xAxis, yAxis: $yAxis, flagCertified: $flagCertified)';
 }
 
 
@@ -275,7 +275,7 @@ abstract mixin class _$HospitalInfoCopyWith<$Res> implements $HospitalInfoCopyWi
   factory _$HospitalInfoCopyWith(_HospitalInfo value, $Res Function(_HospitalInfo) _then) = __$HospitalInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String address,@JsonKey(name: 'phone_number') String? phoneNumber,@JsonKey(name: 'x_axis') double xAxis,@JsonKey(name: 'y_axis') double yAxis
+ int id, String name, String address,@JsonKey(name: 'phone_number') String? phoneNumber,@JsonKey(name: 'x_axis') double xAxis,@JsonKey(name: 'y_axis') double yAxis,@JsonKey(name: 'flag_certified') bool flagCertified
 });
 
 
@@ -292,7 +292,7 @@ class __$HospitalInfoCopyWithImpl<$Res>
 
 /// Create a copy of HospitalInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? address = null,Object? phoneNumber = freezed,Object? xAxis = null,Object? yAxis = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? address = null,Object? phoneNumber = freezed,Object? xAxis = null,Object? yAxis = null,Object? flagCertified = null,}) {
   return _then(_HospitalInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -300,7 +300,8 @@ as String,address: null == address ? _self.address : address // ignore: cast_nul
 as String,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,xAxis: null == xAxis ? _self.xAxis : xAxis // ignore: cast_nullable_to_non_nullable
 as double,yAxis: null == yAxis ? _self.yAxis : yAxis // ignore: cast_nullable_to_non_nullable
-as double,
+as double,flagCertified: null == flagCertified ? _self.flagCertified : flagCertified // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
