@@ -25,6 +25,7 @@ import java.util.Set;
  * 25.03.18          haelim           최초 생성<br>
  * 25.03.31          haelim           getKeys 메서드 추가, 특정 패턴에 맞는 모든 key 조회<br>
  * 25.04.03          eunchang         Drug autoCorrect 관련 메서드 추가 <br>
+ * 25.04.08          eunchang         Redis update 관련 메서드 추가 <br>
  */
 @Service
 @RequiredArgsConstructor
@@ -140,5 +141,13 @@ public class RedisService {
         return redisTemplate.opsForZSet().range(redisKey, index, index + SEARCH_RANGE);
     }
 
-
+    /**
+     * 완전한 단어와 각 단어의 음절들을 제거합니다.
+     *
+     * @param key 완전한 단어
+     * @param member 단어 음절들
+     */
+    public void removeFromSortedSet(String key, String member) {
+        redisTemplate.opsForZSet().remove(key, member);
+    }
 }

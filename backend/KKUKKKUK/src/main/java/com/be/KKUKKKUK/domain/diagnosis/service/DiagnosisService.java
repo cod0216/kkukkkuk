@@ -26,6 +26,7 @@ import java.util.Objects;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초생성<br>
+ * 25.04.08          eunchang           수정 및 삭제 관련 Redis 수정<br>
  * <br>
  */
 
@@ -62,6 +63,7 @@ public class DiagnosisService {
                 () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToDiagnosis(diagnosis, hospitalId);
         diagnosisRepository.delete(diagnosis);
+        diagnosisRedisService.removeDiagnosisFromRedis(diagnosis);
     }
 
     /**
@@ -76,9 +78,15 @@ public class DiagnosisService {
         Diagnosis diagnosis = diagnosisRepository.getDiagnosisById(diagnosisId).orElseThrow(
                 () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToDiagnosis(diagnosis, hospitalId);
-        diagnosis.setName(request.getName());
 
-        return diagnosisMapper.mapDiagnosisToDiagnosisResponse(diagnosisRepository.save(diagnosis));
+        diagnosisRedisService.removeDiagnosisFromRedis(diagnosis);
+
+        diagnosis.setName(request.getName());
+        Diagnosis updatedDiagnosis = diagnosisRepository.save(diagnosis);
+
+        diagnosisRedisService.addDiagnosisToRedis(updatedDiagnosis);
+
+        return diagnosisMapper.mapDiagnosisToDiagnosisResponse(updatedDiagnosis);
     }
 
     /**

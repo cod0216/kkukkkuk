@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초 생성<br>
  * 25.04.07          eunchang           코드 리뷰 제거 <br>
+ * 25.04.08          eunchang           수정 및 삭제 관련 Redis 메서드 추가 <br>
  */
 
 @Service
@@ -85,5 +86,21 @@ public class DiagnosisRedisService {
                 .sorted()
                 .limit(MAX_SIZE)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 레디스에 저장된 진료를 레디스에서 삭제합니다.
+     *
+     * @param diagnosis 진료 이름
+     */
+    public void removeDiagnosisFromRedis(Diagnosis diagnosis) {
+        Integer hospitalId = diagnosis.getHospital().getId();
+        String redisKey = PREFIX + hospitalId;
+        String name = diagnosis.getName();
+        if(name == null || name.isEmpty()) return;
+        redisService.removeFromSortedSet(redisKey, name + SUFFIX);
+        for (int i = name.length(); i > 0; i--) {
+            redisService.removeFromSortedSet(redisKey, name.substring(0, i));
+        }
     }
 }
