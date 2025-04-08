@@ -85,6 +85,24 @@ public class RedisService {
     }
 
     /**
+     * 키와 단어를 Redis Sorted Set에 저장합니다.
+     * @param key 저장할 키
+     * @param keyword 저장할 단어
+     */
+    public void addToSortedSet(String key, String keyword) {
+        redisTemplate.opsForZSet().add(key, keyword, SCORE);
+    }
+
+    /**
+     * Redis Sorted Set에서 주어진 키워드의 인덱스를 조회합니다.
+     * @param key 조회할 키
+     * @param keyword 조회할 단어
+     */
+    public Long findFromSortedSet(String key, String keyword) {
+        return redisTemplate.opsForZSet().rank(key, keyword);
+    }
+
+    /**
      * 단어를 Redis Sorted Set에 저장합니다.
      *
      * @param keyword 저장할 단어
@@ -112,5 +130,15 @@ public class RedisService {
     public Set<String> findAllValuesAfterIndexFromSortedSet(Long index) {
         return redisTemplate.opsForZSet().range(KEY, index, index + SEARCH_RANGE);
     }
+    /**
+     * 키워드로 조회한 인덱스로부터 자동완성 최대 200개를 반환합니다.
+     *
+     * @param index 조회를 시작할 인덱스
+     * @return 키워드로 시작하는 단어 최대 200개 반환
+     */
+    public Set<String> findAllValuesAfterIndexFromSortedSet(String redisKey, Long index) {
+        return redisTemplate.opsForZSet().range(redisKey, index, index + SEARCH_RANGE);
+    }
+
 
 }

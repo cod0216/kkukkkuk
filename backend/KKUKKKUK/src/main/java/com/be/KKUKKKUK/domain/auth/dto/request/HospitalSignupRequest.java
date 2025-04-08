@@ -23,6 +23,7 @@ import lombok.ToString;
  * 25.03.24          haelim           swagger, JsonNaming 설정<br>
  * 25.03.26          haelim           email 추가, did blank 삭제 <br>
  */
+
 @Getter
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

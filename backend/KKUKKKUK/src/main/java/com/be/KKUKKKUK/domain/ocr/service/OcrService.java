@@ -2,13 +2,17 @@ package com.be.KKUKKKUK.domain.ocr.service;
 
 import com.be.KKUKKKUK.domain.ocr.client.OpenAiApiClient;
 import com.be.KKUKKKUK.domain.ocr.dto.mapper.OcrMapper;
+import com.be.KKUKKKUK.domain.ocr.dto.response.EmptyResponse;
 import com.be.KKUKKKUK.domain.ocr.dto.response.OcrResponse;
+import com.be.KKUKKKUK.domain.ocr.dto.response.Response;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
+import com.be.KKUKKKUK.global.util.ResponseUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +27,7 @@ import java.util.Objects;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.02          eunchang           최초 생성<br>
+ * 25.04.08          eunchang           파싱 실패 시 빈객체 반환 <br>
  */
 
 @Slf4j
@@ -74,6 +79,7 @@ public class OcrService {
                     "  \"medications\": [],\n" +
                     "  \"vaccinations\": []\n" +
                     "}\n";
+
     /**
      * 의료 기록 전문 지식을 바탕으로 입력 데이터를 정제하여 반환합니다.
      *
@@ -82,10 +88,10 @@ public class OcrService {
      * @throws ApiException 입력한 데이터가 올바르지 않은 경우
      * @throws ApiException GTP 결과가 올바르지 않거나 error처리가 된 경우
      */
-    public OcrResponse getOcrResult(Map<String, String> request) {
+    public Response getOcrResult(Map<String, String> request) {
         String text = combineText(request);
         if (Objects.isNull(text) || text.trim().isEmpty()) {
-            throw new ApiException(ErrorCode.GPT_INPUT_ERROR);
+            return new EmptyResponse();
         }
 
         String fullPrompt = prompt + "\n\n입력 데이터:\n" + text;
@@ -96,7 +102,11 @@ public class OcrService {
         if (gptResult.contains("\"error\"")) {
             throw new ApiException(ErrorCode.GPT_API_ERROR);
         }
-        return ocrMapper.toOcrResponse(gptResult);
+
+        OcrResponse response = ocrMapper.toOcrResponse(gptResult);
+
+
+        return response;
     }
 
     /**
@@ -104,13 +114,13 @@ public class OcrService {
      *
      * @param requestMap 모바일에서 Json 형식으로 요청한 값
      */
-    public String combineText(Map<String, String> requestMap){
+    public String combineText(Map<String, String> requestMap) {
         StringBuilder combinedText = new StringBuilder();
         requestMap.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith("word_"))
                 .sorted(Comparator.comparingInt(e -> Integer.parseInt(e.getKey().substring(5))))
                 .forEach(entry -> combinedText.append(entry.getValue()).append(" "));
 
-       return combinedText.toString().trim();
+        return combinedText.toString().trim();
     }
 }
