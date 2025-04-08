@@ -179,11 +179,11 @@ public class HospitalController {
      * @return 주변 동물 병원 목록
      */
     @GetMapping
-    public ResponseEntity<?> getAllHospitalsByAxis(@RequestParam @NotNull
+    public ResponseEntity<?> getAllHospitalsByAxis(@RequestParam("x_axis") @NotNull
                                                    @Min(value = -180, message = "xAxis(경도)는 -180 이상이어야 합니다.")
                                                    @Max(value = 180, message = "xAxis(경도)는 180 이하여야 합니다.") BigDecimal xAxis,
 
-                                                   @RequestParam @NotNull
+                                                   @RequestParam("y_axis") @NotNull
                                                    @Min(value = -90, message = "yAxis(위도)는 -90 이상이어야 합니다.")
                                                    @Max(value = 90, message = "yAxis(위도)는 90 이하여야 합니다.") BigDecimal yAxis,
 
