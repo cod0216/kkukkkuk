@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.ocr.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -15,12 +16,11 @@ import java.util.List;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.02          eunchang           최초 생성<br>
+ * 25.04.09          eunchang           Reponse 상속
  */
 
 
-@Data
-@AllArgsConstructor
-public class OcrResponse {
+public abstract class OcrResponse extends Response {
     private String date;
     private String diagnosis;
     private String notes;
