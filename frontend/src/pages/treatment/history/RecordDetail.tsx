@@ -245,7 +245,7 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
                   {record.treatments?.vaccinations?.map((vaccination, index) => (
                     <div key={index} className="flex justify-between py-1 px-2 bg-primary-50 rounded-lg mb-1 text-xs">
                       <span className="font-medium text-gray-800">{vaccination?.key || ''}</span>
-                      <span className="text-gray-600">{vaccination?.value || ''}차</span>
+                      <span className="text-gray-600">{vaccination?.value || ''}</span>
                     </div>
                   ))}
                 </div>
