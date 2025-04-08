@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/wallet/usecase/mnemonic_usecase_provider.dart';
 import 'package:kkuk_kkuk/features/wallet/usecase/wallet_usecase_providers.dart';
-import 'package:kkuk_kkuk/pages/auth/notifiers/auth_notifier.dart';
+import 'package:kkuk_kkuk/pages/splash/notifiers/auth_notifier.dart';
 import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
 
 /// 지갑 생성/등록 결과를 담는 클래스

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class StartButton extends StatelessWidget {
+class KakaoStartButton extends StatelessWidget {
   final Animation<double> buttonFadeAnimation;
   final bool showButton;
   final bool isConnected;
   final VoidCallback onPressed;
 
-  const StartButton({
+  const KakaoStartButton({
     super.key,
     required this.buttonFadeAnimation,
     required this.showButton,
@@ -30,17 +30,13 @@ class StartButton extends StatelessWidget {
             ),
             elevation: 2,
           ).copyWith(
-            backgroundColor: WidgetStateProperty.resolveWith<Color?>((
-              states,
-            ) {
+            backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
               if (states.contains(WidgetState.disabled)) {
                 return Colors.grey[300];
               }
               return const Color(0xFFFEE500);
             }),
-            foregroundColor: WidgetStateProperty.resolveWith<Color?>((
-              states,
-            ) {
+            foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
               if (states.contains(WidgetState.disabled)) {
                 return Colors.grey[600];
               }

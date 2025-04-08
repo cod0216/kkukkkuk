@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/pages/auth/notifiers/auth_notifier.dart';
 import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
 import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_choice_view.dart';
@@ -90,15 +89,19 @@ class WalletScreen extends ConsumerWidget {
 
       case WalletStatus.completed:
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          // First update auth state
-          ref.read(authNotifierProvider.notifier).completeAuth();
-          // Then close the screen
-          Navigator.of(context).pop();
+          // 화면을 닫고 성공(true)을 반환
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop(true); // true 값을 pop 결과로 전달
+          }
         });
         return const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Text('지갑 설정이 완료되었습니다.'), SizedBox(height: 24)],
+            children: [
+              CircularProgressIndicator(), // 완료 후 잠시 로딩 표시
+              SizedBox(height: 16),
+              Text('지갑 설정 완료!'),
+            ],
           ),
         );
     }

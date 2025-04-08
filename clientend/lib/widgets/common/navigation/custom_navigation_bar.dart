@@ -25,7 +25,7 @@ class CustomNavigationBar extends StatelessWidget {
       NavItem(label: 'Pets', icon: Icons.pets, path: '/pets'),
       NavItem(
         label: 'MyPage',
-        icon: Icons.person_outline,
+        icon: Icons.person,
         path: '/mypage',
       ), // MyPage 아이콘 변경
     ];

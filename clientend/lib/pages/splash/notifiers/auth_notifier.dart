@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kkuk_kkuk/pages/auth/states/auth_state.dart';
+import 'package:kkuk_kkuk/pages/splash/states/auth_state.dart';
 import 'package:kkuk_kkuk/features/auth/usecases/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/auth/usecases/oauth/oauth_usecase_providers.dart';
 import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
-// import 'package:kkuk_kkuk/shared/blockchain/client/blockchain_client.dart'; // BlockchainClient import 제거 또는 주석 처리
 
 /// 로그인 결과를 담는 클래스
 class AuthResult {
@@ -28,7 +27,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// 인증 초기화
   void initializeAuth() {
-    // 앱 시작 시 초기 상태를 login으로 설정
     state = state.copyWith(currentStep: AuthStep.login);
   }
 
@@ -36,17 +34,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<AuthResult> signInWithKakao() async {
     try {
       state = state.copyWith(isLoginLoading: true, loginError: null);
-      // 카카오 로그인
       final kakaoLoginUseCase = ref.read(kakaoLoginUseCaseProvider);
       final userInfo = await kakaoLoginUseCase.execute();
-      // 카카오 로그인 성공 시 서버 로그인 처리
       final loginUseCase = ref.read(loginUseCaseProvider);
       final user = await loginUseCase.execute(userInfo);
 
-      // 사용자 정보 저장
       state = state.copyWith(isLoginLoading: false, user: user);
 
-      // 로컬 스토리지에 개인키 저장 확인 (지갑 존재 여부 판단)
       final privateKey = await _secureStorage.read(key: _privateKeyKey);
       final hasWallet = privateKey != null && privateKey.isNotEmpty;
 
@@ -59,100 +53,93 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /* --- 블록체인 네트워크 연결 메서드 (제거 또는 주석 처리) ---
-  // Future<bool> connectToNetwork() async {
-  //   // 스플래시 화면에서 처리하므로 이 메서드는 사용하지 않음
-  //   print("connectToNetwork is now handled in SplashScreen.");
-  //   state = state.copyWith(networkStatus: NetworkConnectionStatus.connected);
-  //   return true; // 스플래시에서 연결되었다고 가정
-  // }
-  */
-
-  /// 로그인 처리 핸들러
-  Future<void> handleLogin() async {
+  Future<AuthResult> handleLogin() async {
+    // *** 반환 타입을 Future<AuthResult>로 명시 ***
     try {
+      state = state.copyWith(isLoginLoading: true); // 로딩 상태 시작
       final result = await signInWithKakao();
 
       if (!result.success) {
-        // 로그인 실패 시 로그인 화면에 머무르며 에러 메시지 표시 (상태 업데이트는 signInWithKakao에서 처리)
-        return;
+        // 로그인 실패 시 에러 상태 설정 및 결과 반환
+        state = state.copyWith(
+          currentStep: AuthStep.login, // 로그인 단계 유지
+          loginError: result.error ?? '로그인에 실패했습니다.',
+          isLoginLoading: false,
+        );
+        return result; // 실패 결과 반환
       }
 
-      // 로그인 성공 후
+      // 로그인 성공 시
       if (result.hasWallet) {
-        // 지갑이 있으면 바로 인증 완료 단계로 이동 (네트워크 연결은 스플래시에서 완료됨)
+        // 지갑 있으면 완료 상태로
         print("Wallet exists, completing authentication.");
-        completeAuth(); // AuthStep.completed로 변경하고 홈으로 이동 트리거
+        // completeAuth(); // 상태 변경만 하고 라우팅은 호출부(SplashScreen)에서 처리
+        state = state.copyWith(
+          currentStep: AuthStep.completed,
+          isLoginLoading: false,
+        );
       } else {
-        // 지갑이 없으면 지갑 설정 단계로 이동
-        print("Wallet does not exist, moving to wallet setup.");
+        // 지갑 없으면 설정 단계로 (상태 변경만)
+        print("Wallet does not exist, moving to wallet setup internally.");
         ref.read(walletNotifierProvider.notifier).reset();
-        moveToWalletSetup();
+        // moveToWalletSetup(); // 상태 변경만 하고 라우팅은 호출부(SplashScreen)에서 처리
+        state = state.copyWith(
+          currentStep: AuthStep.walletSetup,
+          isLoginLoading: false,
+        );
       }
+      return result; // 성공 결과 반환
     } catch (e) {
-      // 예외 발생 시 로그인 화면에 머무르며 에러 상태 설정
+      // 예외 발생 시 에러 상태 설정 및 실패 결과 반환
       state = state.copyWith(
         currentStep: AuthStep.login,
         loginError: '로그인 처리 중 오류: ${e.toString()}',
         isLoginLoading: false,
       );
+      return AuthResult(success: false, error: e.toString()); // 실패 결과 반환
+    } finally {
+      // 로딩 상태 종료 (필요시)
+      // if (state.isLoginLoading) {
+      //   state = state.copyWith(isLoginLoading: false);
+      // }
     }
   }
 
-  /// 지갑 설정 안내 화면으로 이동
-  void moveToWalletSetup() {
-    state = state.copyWith(currentStep: AuthStep.walletSetup);
-  }
+  /// 지갑 설정 안내 화면으로 이동 (상태 변경 로직은 handleLogin 내부에 통합됨)
+  // void moveToWalletSetup() {
+  //   state = state.copyWith(currentStep: AuthStep.walletSetup);
+  // }
 
   /// 지갑 생성 화면으로 이동 (별도 라우트 사용)
   void moveToWalletCreation(BuildContext context) {
-    // WalletNotifier 상태 초기화
     ref.read(walletNotifierProvider.notifier).reset();
-
-    // Auth 상태는 변경하지 않고, 네비게이션만 처리
-    // state = state.copyWith(currentStep: AuthStep.walletCreation); // 이 줄은 제거하거나 주석 처리
-
-    // '/wallet-creation' 라우트로 이동하며 WalletNotifier Provider 전달
-    // context.mounted 체크는 GoRouter 내부에서 처리될 수 있으나, 명시적으로 추가하는 것이 안전할 수 있음
     if (context.mounted) {
       context.push('/wallet-creation', extra: walletNotifierProvider);
     }
   }
 
-  /* --- 네트워크 연결 단계 이동 메서드 (제거 또는 주석 처리) ---
-  // void moveToNetworkConnection() {
-  //   // 스플래시에서 네트워크 연결을 처리하므로 이 단계는 불필요
-  //   print("moveToNetworkConnection is deprecated. Completing auth directly.");
-  //   completeAuth();
+  /// 인증 완료 처리 (상태 변경 로직은 handleLogin 내부에 통합됨)
+  // void completeAuth() {
+  //   print("Authentication completed. Setting state to AuthStep.completed.");
+  //   state = state.copyWith(currentStep: AuthStep.completed);
   // }
-  */
-
-  /// 인증 완료 처리
-  void completeAuth() {
-    print("Authentication completed. Setting state to AuthStep.completed.");
-    // 스플래시에서 블록체인 연결이 완료되었다고 가정하고 바로 완료 상태로 변경
-    state = state.copyWith(currentStep: AuthStep.completed);
-    // AuthScreen의 build 메서드에서 이 상태를 감지하여 홈 화면으로 이동
-  }
 
   /// 에러 발생 시 처리 (로그인 단계로 돌아가도록 수정)
   void handleErrorRetry() {
     print("Handling error retry. Returning to login step.");
-    // 에러 발생 시 로그인 단계로 초기화
     initializeAuth();
-    // WalletNotifier 상태도 초기화 필요 시 추가
     ref.read(walletNotifierProvider.notifier).reset();
   }
 
   /// 인증 흐름 및 관련 상태 초기화
   void reset() {
     print("Resetting AuthNotifier state.");
-    ref.read(walletNotifierProvider.notifier).reset(); // Wallet 상태도 초기화
-    state = AuthState(); // Auth 상태를 기본값으로 초기화
+    ref.read(walletNotifierProvider.notifier).reset();
+    state = AuthState();
   }
 }
 
-/// 인증 뷰 모델 프로바이더 (변경 없음)
+/// 인증 뷰 모델 프로바이더
 final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
   ref,
 ) {
