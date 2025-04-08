@@ -10,5 +10,5 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface ChatMapper {
 
-    List<ChattingResponse> mapToChatResponseList(List<Chat> chats);
+//    List<ChattingResponse> mapToChatResponseList(List<Chat> chats);
 }

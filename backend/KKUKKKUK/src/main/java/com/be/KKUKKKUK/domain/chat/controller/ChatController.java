@@ -1,6 +1,7 @@
 package com.be.KKUKKKUK.domain.chat.controller;
 
 import com.be.KKUKKKUK.domain.chat.dto.request.ChattingRequest;
+import com.be.KKUKKKUK.domain.chat.service.ChatComplexService;
 import com.be.KKUKKKUK.domain.chat.service.ChatService;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
@@ -21,18 +22,18 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @RestController
 @RequiredArgsConstructor
 public class ChatController {
-    private final ChatService chatService;
+    private final ChatComplexService chatComplexService;
     private final JwtUtility jwtUtility;
 
 
-    @SendTo("/topic/chat/{roomId}")
-    @MessageMapping("/chat/{roomId}/send")
-    public ResponseEntity<?> sendMessage(@DestinationVariable Integer roomId,
+    @SendTo("/topic/chat/{receiverId}")
+    @MessageMapping("/chat/{receiverId}/send")
+    public ResponseEntity<?> sendMessage(@DestinationVariable Integer receiverId,
                                          @Header("Authorization") String authorization,
                                          ChattingRequest request
     ) {
         Integer hospitalId = authorizationFromToken(authorization);
-        return ResponseUtility.success("채팅 메세지 성공", chatService.saveMessage(roomId, hospitalId, request));
+        return ResponseUtility.success("채팅 메세지 성공", chatComplexService.saveChat(receiverId, hospitalId, request));
     }
 
     private Integer authorizationFromToken(String authorization){
@@ -42,5 +43,4 @@ public class ChatController {
         }
         return jwtUtility.getUserId(token);
     }
-
 }

@@ -1,5 +1,6 @@
 package com.be.KKUKKKUK.domain.chat.entity;
 
+import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,10 +20,10 @@ public class Chat {
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Integer id;
 
     @Column(nullable = false, length = 100)
-    String content;
+    private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chatroom", nullable = false)
@@ -30,5 +31,9 @@ public class Chat {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    private Hospital hospital;
 }
