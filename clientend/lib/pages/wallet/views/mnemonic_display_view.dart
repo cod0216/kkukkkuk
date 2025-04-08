@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
 
 /// 니모닉 표시 화면
 class MnemonicDisplayView extends ConsumerWidget {

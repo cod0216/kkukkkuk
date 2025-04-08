@@ -6,13 +6,14 @@ import 'package:kkuk_kkuk/pages/splash_screen.dart';
 import 'package:kkuk_kkuk/pages/main/main_screen.dart';
 import 'package:kkuk_kkuk/pages/main/views/pets_view.dart';
 import 'package:kkuk_kkuk/pages/main/views/my_page_view.dart';
-import 'package:kkuk_kkuk/features/auth/ui/auth_screen.dart';
+import 'package:kkuk_kkuk/pages/auth/auth_screen.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/pet_profile_screen.dart';
 import 'package:kkuk_kkuk/pages/pet_register/pet_register_screen.dart';
 // QR 스캐너 라우트 import 추가
 import 'package:kkuk_kkuk/app/routes/qr_scanner_routes.dart';
+import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
 import 'package:kkuk_kkuk/pages/wallet/wallet_screen.dart';
-import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
 import 'package:kkuk_kkuk/pages/map/map_screen.dart';
 
 final router = GoRouter(

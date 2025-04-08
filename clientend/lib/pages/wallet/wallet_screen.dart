@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kkuk_kkuk/features/auth/model/notifiers/auth_notifier.dart';
-import 'package:kkuk_kkuk/features/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/auth/notifiers/auth_notifier.dart';
+import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_choice_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/mnemonic_display_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/mnemonic_confirmation_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_recovery_view.dart';
 import 'package:kkuk_kkuk/pages/wallet/views/wallet_naming_view.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/loading_indicator.dart';
-import 'package:kkuk_kkuk/shared/ui/widgets/error_view.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
+import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart';
+import 'package:kkuk_kkuk/widgets/common/error_view.dart';
 
 /// 지갑 설정 화면
 class WalletScreen extends ConsumerWidget {
@@ -28,7 +30,7 @@ class WalletScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(_getTitle(walletState.status))),
+      appBar: CustomAppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -42,17 +44,6 @@ class WalletScreen extends ConsumerWidget {
                 walletState,
                 ref.read(viewModel.notifier),
               ),
-
-              // 에러 메시지 표시
-              if (walletState.error != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    walletState.error!,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
             ],
           ),
         ),
@@ -110,32 +101,6 @@ class WalletScreen extends ConsumerWidget {
             children: [Text('지갑 설정이 완료되었습니다.'), SizedBox(height: 24)],
           ),
         );
-    }
-  }
-
-  /// 제목 가져오기
-  String _getTitle(WalletStatus status) {
-    switch (status) {
-      case WalletStatus.initial:
-      case WalletStatus.walletChoice:
-        return '지갑 설정';
-      case WalletStatus.generatingMnemonic:
-        return '니모닉 단어 생성 중';
-      case WalletStatus.mnemonicGenerated:
-        return '니모닉 단어 생성 완료';
-      case WalletStatus.mnemonicConfirmation:
-        return '니모닉 단어 확인';
-      case WalletStatus.recoveringWallet:
-        return '지갑 복구';
-      case WalletStatus.namingWallet:
-        return '지갑 이름 설정';
-      case WalletStatus.creatingWallet:
-      case WalletStatus.registeringWallet:
-        return '지갑 생성 중';
-      case WalletStatus.error:
-        return '오류';
-      case WalletStatus.completed:
-        return '지갑 설정 완료';
     }
   }
 
