@@ -2,6 +2,7 @@ package com.be.KKUKKKUK.domain.ocr.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -19,8 +20,9 @@ import java.util.List;
  * 25.04.09          eunchang           Reponse 상속
  */
 
-
-public abstract class OcrResponse extends Response {
+@Getter
+@AllArgsConstructor
+public class OcrResponse extends Response {
     private String date;
     private String diagnosis;
     private String notes;
