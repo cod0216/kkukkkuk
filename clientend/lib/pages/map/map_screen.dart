@@ -106,6 +106,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         markers.add(Marker(
           markerId: _myLocationKey,
           latLng: LatLng(latitude, longitude),
+
         ));
       });
 
@@ -131,6 +132,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               markerId: '${list[i].id}',
               latLng: LatLng(list[i].yAxis, list[i].xAxis),
               markerImageSrc: list[i].flagCertified ? authMarker : normalMarker
+            
           )
 
       );

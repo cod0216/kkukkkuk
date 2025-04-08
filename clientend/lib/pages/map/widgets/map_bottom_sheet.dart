@@ -14,6 +14,7 @@ class MapBottomSheet extends StatelessWidget {
     required this.onItemTap,
   });
 
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -34,7 +35,7 @@ class MapBottomSheet extends StatelessWidget {
                 controller: scrollController,
                 slivers: [
                   SliverToBoxAdapter(
-                    child: SizedBox(height: 40),
+                    child: SizedBox(height: 30),
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
@@ -60,9 +61,9 @@ class MapBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(2),
                       color: Colors.grey[400],
                     ),
-                    height: 4,
+                    height: 6,
                     width: 40,
-                    margin: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 20),
                   ),
                 ),
               ),
@@ -72,5 +73,6 @@ class MapBottomSheet extends StatelessWidget {
       },
     );
   }
+
 
 }
