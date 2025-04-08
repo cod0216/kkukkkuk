@@ -8,8 +8,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/features/hospital/api/dto/hospital_info_response.dart';
 import 'package:kkuk_kkuk/features/hospital/usecase/hospital_usecase_providers.dart';
-
-import '../../shared/config/s3_icon.dart';
+import 'package:kkuk_kkuk/shared/config/s3_icon.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -148,6 +148,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return
       SafeArea(
           child: Scaffold(
+            appBar: CustomAppBar(),
+
             body: Stack(
               children: [
                 KakaoMap(

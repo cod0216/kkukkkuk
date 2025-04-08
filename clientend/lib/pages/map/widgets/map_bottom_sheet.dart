@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../features/hospital/api/dto/hospital_info_response.dart';
-import 'hospital_view.dart';
+import 'package:kkuk_kkuk/features/hospital/api/dto/hospital_info_response.dart';
+import 'package:kkuk_kkuk/pages/map/widgets/hospital_view.dart';
 
 class MapBottomSheet extends StatelessWidget {
   final List<HospitalInfo> locationList;

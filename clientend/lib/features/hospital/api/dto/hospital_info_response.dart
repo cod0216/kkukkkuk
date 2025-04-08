@@ -22,8 +22,9 @@ abstract class HospitalInfo with _$HospitalInfo {
     required String name,
     required String address,
     @JsonKey(name: 'phone_number') String? phoneNumber,
-    @JsonKey(name: 'x_axis') required double xAxis,  // 경도 (longitude)
+    @JsonKey(name: 'x_axis') required double xAxis,
     @JsonKey(name: 'y_axis') required double yAxis,
+    @JsonKey(name: 'flag_certified') required bool flagCertified,
   }) = _HospitalInfo;
 
   factory HospitalInfo.fromJson(Map<String, dynamic> json) => _$HospitalInfoFromJson(json);
