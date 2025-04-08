@@ -77,7 +77,9 @@ final router = GoRouter(
     // QR 스캐너 라우트 추가
     ...qrScannerRoutes,
 
-    GoRoute(path: '/map', builder: (context, state) => MapScreen()),
+    GoRoute(path: '/map',
+        builder: (context, state) => MapScreen()
+    ),
 
   ],
 );

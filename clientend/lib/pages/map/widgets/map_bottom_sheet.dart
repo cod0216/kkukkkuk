@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../features/hospital/api/dto/hospital_info_response.dart';
 import 'hospital_view.dart';
 
 class MapBottomSheet extends StatelessWidget {
-  final List<dynamic> locationList;
+  final List<HospitalInfo> locationList;
   final DraggableScrollableController controller;
-  final void Function(dynamic location) onItemTap;
+  final void Function(HospitalInfo location) onItemTap;
 
   const MapBottomSheet({
     super.key,
@@ -45,7 +46,7 @@ class MapBottomSheet extends StatelessWidget {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                    final location = locationList[index];
+                    final HospitalInfo location = locationList[index];
                     return GestureDetector(
                       onTap: () => onItemTap(location),
                       child: HospitalView(location: location),

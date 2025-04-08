@@ -1,33 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
-import 'package:kkuk_kkuk/features/hospital/usecase/get_hospital_info_usecase.dart';
 import 'package:kkuk_kkuk/pages/map/widgets/map_floating_buttons.dart';
 import 'package:kkuk_kkuk/pages/map/widgets/map_bottom_sheet.dart';
 import 'package:kkuk_kkuk/shared/lib/permission/permission_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:kkuk_kkuk/pages/map/widgets/hospital_view.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/features/hospital/api/dto/hospital_info_response.dart';
+import 'package:kkuk_kkuk/features/hospital/usecase/hospital_usecase_providers.dart';
 
-
-class MapScreen extends StatefulWidget {
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen> {
   final DraggableScrollableController sheetController = DraggableScrollableController();
   final _permissionManager = PermissionManager();
   late KakaoMapController mapController;
-  late final GetHospitalInfoUseCase _getHospitalInfoUseCase;
 
+  static const String _myLocationKey = "my_location";
 
-
-  final String myLocationKey = "my_location";
-
-  List<dynamic> locationList = [];
+  List<HospitalInfo> locationList = [];
   Set<Marker> markers = {};
 
   double latitude = 37;
@@ -45,27 +42,36 @@ class _MapScreenState extends State<MapScreen> {
     await _getNearHospitals();
   }
 
-
-  Widget _getItemBuilder(dynamic location) {
-    return GestureDetector(
-        onTap: () {
-          mapController.setCenter(
-              LatLng(location["latitude"], location["longitude"]));
-        },
-        child: HospitalView(location: location));
-  }
-
   // 병원 정보 요청
   Future<void> _getNearHospitals() async {
     LatLng latLng = await mapController.getCenter();
 
+    final getHospitalUseCase = ref.read(getHospitalUseCaseProvider);
 
+    try {
+      final response = await getHospitalUseCase.getNearHospitals(
+        latLng.longitude,
+        latLng.latitude,
+        500,
+      );
 
+      setState(() {
+        locationList = response.data;
+      });
 
+      await makeMarkers(locationList);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('병원 정보를 불러오는데 실패했습니다.')),
+        );
+      }
+      debugPrint("병원 정보 요청 실패: $e");
+    }
   }
 
   // 현재 위치로 맵 이동
-  void goCenter() {
+  void _goCenter() {
     mapController.setCenter(LatLng(latitude, longitude));
   }
 
@@ -91,10 +97,9 @@ class _MapScreenState extends State<MapScreen> {
         latitude = position.latitude;
         longitude = position.longitude;
 
-        // 기존 내 위치 마커 제거 후 다시 추가
-        markers.removeWhere((marker) => marker.markerId == myLocationKey);
+        markers.removeWhere((marker) => marker.markerId == _myLocationKey);
         markers.add(Marker(
-          markerId: myLocationKey,
+          markerId: _myLocationKey,
           latLng: LatLng(latitude, longitude),
         ));
       });
@@ -105,25 +110,25 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<void> makeMarkers(List<dynamic> list) async {
+  Future<void> makeMarkers(List<HospitalInfo> list) async {
     mapController.clearMarker();
 
     Set<Marker> newMarkers = {
-      // 내 위치 마커 유지
       Marker(
-        markerId: myLocationKey,
+        markerId: _myLocationKey,
         latLng: LatLng(latitude, longitude),
       )
     };
 
     for (int i = 0; i < list.length; i++) {
-      // newMarkers.add(
-      //     // Marker(
-      //     // markerId: '${list[i]["id"]}',
-      //     // latLng: LatLng(list[i]["latitude"], list[i]["longitude"])
-      //     // markerImageSrc: )
-      //
-      // );
+      newMarkers.add(
+          Marker(
+              markerId: '${list[i].id}',
+              latLng: LatLng(list[i].yAxis, list[i].xAxis)
+            // markerImageSrc:
+          )
+
+      );
     }
 
     mapController.addMarker(markers: newMarkers.toList());
@@ -137,7 +142,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return
       SafeArea(
-       child: Scaffold(
+          child: Scaffold(
             body: Stack(
               children: [
                 KakaoMap(
@@ -150,7 +155,7 @@ class _MapScreenState extends State<MapScreen> {
 
                 FloatingButtons(
                   onRefresh: _getNearHospitals,
-                  onCenter: goCenter,
+                  onCenter: _goCenter,
                 ),
 
                 MapBottomSheet(
@@ -158,7 +163,7 @@ class _MapScreenState extends State<MapScreen> {
                   controller: sheetController,
                   onItemTap: (location) {
                     mapController.setCenter(
-                        LatLng(location["latitude"], location["longitude"]));
+                        LatLng(location.yAxis, location.xAxis));
                   },
                 ),
               ],

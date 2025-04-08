@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FloatingButtons extends StatelessWidget {
-  final VoidCallback onRefresh;
+class FloatingButtons extends StatefulWidget {
+  final Future<void> Function() onRefresh;
   final VoidCallback onCenter;
 
   const FloatingButtons({
@@ -11,15 +11,35 @@ class FloatingButtons extends StatelessWidget {
   });
 
   @override
+  State<FloatingButtons> createState() => _FloatingButtonsState();
+}
+
+class _FloatingButtonsState  extends State<FloatingButtons> {
+  @override
   Widget build(BuildContext context) {
+    bool isRefreshing = false;
+
+    Future<void> refreshHospitals() async {
+      if (isRefreshing) return;
+      setState(() {
+        isRefreshing = true;
+      });
+      await widget.onRefresh();
+      if (mounted) {
+        setState(() {
+          isRefreshing = false;
+        });
+      }
+    }
+
     return Positioned(
       right: 10,
-      bottom: 80,
+      bottom: 100,
       child: Column(
         children: [
-          _circleIconButton(Icons.refresh_rounded, onRefresh),
+          _circleIconButton(Icons.refresh_rounded, refreshHospitals),
           const SizedBox(height: 10),
-          _circleIconButton(Icons.location_searching_rounded, onCenter),
+          _circleIconButton(Icons.location_searching_rounded, widget.onCenter),
         ],
       ),
     );
@@ -45,4 +65,5 @@ class FloatingButtons extends StatelessWidget {
       ),
     );
   }
+
 }
