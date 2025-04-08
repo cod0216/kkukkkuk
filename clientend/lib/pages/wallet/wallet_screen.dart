@@ -91,7 +91,7 @@ class WalletScreen extends ConsumerWidget {
       case WalletStatus.completed:
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // First update auth state
-          ref.read(authNotifierProvider.notifier).moveToNetworkConnection();
+          ref.read(authNotifierProvider.notifier).completeAuth();
           // Then close the screen
           Navigator.of(context).pop();
         });

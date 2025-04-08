@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/pages/pet_edit/pet_edit_view.dart';
-import 'package:kkuk_kkuk/pages/splash_screen.dart';
+import 'package:kkuk_kkuk/pages/splash/splash_screen.dart';
 import 'package:kkuk_kkuk/pages/main/main_screen.dart';
 import 'package:kkuk_kkuk/pages/main/views/pets_view.dart';
 import 'package:kkuk_kkuk/pages/main/views/my_page_view.dart';
