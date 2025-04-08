@@ -90,7 +90,7 @@ public class DiagnosisController {
 
     @Operation(summary = "포함된 검사 항목 조회", description = "이름이 포함된 검사 항목을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "403", description = "해당 병원에서 입력한 검사가 아닙니다.")
     })
     @GetMapping("/{search}")

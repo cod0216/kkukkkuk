@@ -25,6 +25,6 @@ import lombok.ToString;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DiagnosisRequest {
     @NotBlank(message = "항목 이름은 필수 입니다.")
-    @Size( max = 100, message = "최대 100자까지만 가능합니다.")
+    @Size(max = 100, message = "최대 100자까지만 가능합니다.")
     private String name;
 }

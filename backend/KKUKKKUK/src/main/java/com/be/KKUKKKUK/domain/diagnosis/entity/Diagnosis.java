@@ -24,7 +24,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Diagnosis { //TODO 자동정렬하는 것을 습관을 들였으면 좋겠습니다. 윈도우 : control + alt + L /  mac : option + cmd + L
+public class Diagnosis {
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
