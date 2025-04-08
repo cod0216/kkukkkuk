@@ -457,6 +457,30 @@ class PetRepository implements IPetRepository {
       };
     }
   }
+
+  @override
+  Future<List<String>> getMedicalRecordWithUpdates(
+    String originalRecordKey,
+  ) async {
+    try {
+      return await _registryContract.getMedicalRecordWithUpdates(
+        originalRecordKey,
+      );
+    } catch (e) {
+      print('의료기록 업데이트 목록 조회 오류: $e');
+      throw Exception('Failed to get medical record updates: $e');
+    }
+  }
+
+  @override
+  Future<List<String>> getPetOriginalRecords(String petAddress) async {
+    try {
+      return await _registryContract.getPetOriginalRecords(petAddress);
+    } catch (e) {
+      print('반려동물 원본 의료기록 목록 조회 오류: $e');
+      throw Exception('Failed to get pet original records: $e');
+    }
+  }
 }
 
 final petRepositoryProvider = Provider<PetRepository>((ref) {
