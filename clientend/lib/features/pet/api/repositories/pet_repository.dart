@@ -364,6 +364,7 @@ class PetRepository implements IPetRepository {
     required String picturesJson,
     required String status,
     required bool flagCertificated,
+    DateTime? treatmentDate,
   }) async {
     try {
       return await _registryContract.addMedicalRecord(
@@ -379,6 +380,7 @@ class PetRepository implements IPetRepository {
         picturesJson: picturesJson,
         status: status,
         flagCertificated: flagCertificated,
+        treatmentDate: BigInt.from(treatmentDate?.millisecondsSinceEpoch ?? 0),
       );
     } catch (e) {
       print('진료 기록 추가 오류: $e');
