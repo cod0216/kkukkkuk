@@ -83,14 +83,14 @@ public class SecurityConfig {
      * HOSPITAL 만 접근 가능한 URL 경로를 설정합니다.
      */
     private static final String[] ROLE_HOSPITAL_URLS = {
-            "/api/hospitals/**", "/api/doctors/**"
+            "/api/hospitals/**", "/api/doctors/**", "/api/drugs/**"
     };
 
     /**
      * OWNER, HOSPITAL 모두 접근 가능한 URL 경로를 설정합니다.
      */
     private static final String[] ROLE_ALL_URLS = {
-//            "/api/breeds/**"
+            "/api/hospitals"
     };
 
 
@@ -137,11 +137,10 @@ public class SecurityConfig {
 
                         .requestMatchers(ALLOWED_URLS).permitAll() // 인증 없이 접근 가능
 
+                        .requestMatchers(ROLE_ALL_URLS).hasAnyRole(RelatedType.OWNER.name(), RelatedType.HOSPITAL.name()) // OWNER와 HOSPITAL 모두 접근 가능
                         .requestMatchers(ROLE_OWNER_URLS).hasRole(RelatedType.OWNER.name()) // OWNER 접근 가능
                         .requestMatchers(ROLE_HOSPITAL_URLS).hasRole(RelatedType.HOSPITAL.name())// HOSPITAL 접근 가능
-                        .requestMatchers(ROLE_ALL_URLS).hasAnyRole(RelatedType.OWNER.name(), RelatedType.HOSPITAL.name()) // OWNER와 HOSPITAL 모두 접근 가능
-                        .
-                        anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

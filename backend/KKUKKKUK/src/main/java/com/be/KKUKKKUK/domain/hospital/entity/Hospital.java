@@ -21,6 +21,7 @@ import java.time.LocalDate;
  * 25.03.14          haelim             licenseNumber, 필드 삭제
  * 25.04.01          haelim             publicKey, 필드 삭제
  */
+
 @Entity
 @Table(name = "hospital")
 @Getter
