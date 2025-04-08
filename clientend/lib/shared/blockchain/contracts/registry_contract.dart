@@ -74,6 +74,8 @@ class RegistryContract {
       _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
       _getPetHospitals = _contract.function('getPetHospitals');
       _checkSharingPermission = _contract.function('checkSharingPermission');
+      _getMedicalRecordUpdates = _contract.function('getMedicalRecordUpdates');
+      _getPetOriginalRecords = _contract.function('getPetOriginalRecords');
     } catch (e) {
       print('컨트랙트 초기화 오류: $e');
       rethrow;
@@ -636,6 +638,7 @@ class RegistryContract {
 
   Future<List<String>> getPetOriginalRecords(String petAddress) async {
     try {
+      print(petAddress);
       final result = await _blockchainClient.client.call(
         contract: _contract,
         function: _getPetOriginalRecords,
@@ -645,7 +648,7 @@ class RegistryContract {
       if (result.isEmpty) {
         return [];
       }
-
+      print(result);
       final List<String> recordKeys = (result[0] as List).cast<String>();
       return recordKeys;
     } catch (e) {

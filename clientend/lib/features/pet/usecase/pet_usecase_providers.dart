@@ -3,7 +3,9 @@ import 'package:kkuk_kkuk/features/pet/api/repositories/pet_repository.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/add_hospital_with_sharing_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_all_attributes_usecase.dart';
+import 'package:kkuk_kkuk/features/pet/usecase/get_medical_record_with_updates_use_case.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_pet_list_usecase.dart';
+import 'package:kkuk_kkuk/features/pet/usecase/get_pet_original_records_use_case.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_species_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/process_medical_record_image_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/register_pet_usecase.dart';
@@ -63,4 +65,16 @@ final processMedicalRecordImageUseCaseProvider =
     Provider<ProcessMedicalRecordImageUseCase>((ref) {
       final repository = ref.watch(petRepositoryProvider);
       return ProcessMedicalRecordImageUseCase(repository);
+    });
+
+final getPetOriginalRecordsUseCaseProvider =
+    Provider<GetPetOriginalRecordsUseCase>((ref) {
+      final repository = ref.watch(petRepositoryProvider);
+      return GetPetOriginalRecordsUseCase(repository);
+    });
+
+final getMedicalRecordWithUpdatesUseCaseProvider =
+    Provider<GetMedicalRecordWithUpdatesUseCase>((ref) {
+      final repository = ref.watch(petRepositoryProvider);
+      return GetMedicalRecordWithUpdatesUseCase(repository);
     });

@@ -6,6 +6,7 @@ import 'package:kkuk_kkuk/features/pet/usecase/get_all_attributes_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_notifier.dart';
 import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_register_notifier.dart';
+import 'package:kkuk_kkuk/shared/utils/did_helper.dart';
 import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/empty_medical_records.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_card.dart';
@@ -87,6 +88,12 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
   /// 블록체인에서 진료 기록 데이터 로드
   Future<void> _loadMedicalRecordsFromBlockchain(String petAddress) async {
     try {
+      // final test = await ref
+      //     .read(getPetOriginalRecordsUseCaseProvider)
+      //     .execute(DidHelper.extractAddressFromDid(petAddress));
+
+      // print('test: $test');
+
       final records = await _getMedicalRecordsFromBlockchainUseCase.execute(
         petAddress,
       );
