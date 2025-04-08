@@ -37,4 +37,7 @@ public class HospitalMapInfoResponse {
 
     @JsonProperty("y_axis")
     private BigDecimal yAxis;
+
+    @JsonProperty("flag_certified")
+    private Boolean flagCertified;
 }
