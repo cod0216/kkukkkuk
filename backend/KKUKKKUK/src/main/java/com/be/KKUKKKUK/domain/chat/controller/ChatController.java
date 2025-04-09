@@ -27,13 +27,13 @@ public class ChatController {
     private final ChatComplexService chatComplexService;
     private final JwtUtility jwtUtility;
 
-    @SendTo("/topic/chats/{receiverId}")
-    @MessageMapping("/chats/{receiverId}/send")
-    public ChattingResponse sendMessage(@DestinationVariable Integer receiverId,
+    @SendTo("/topic/chats/{roomId}")
+    @MessageMapping("/chats/{roomId}/send")
+    public ChattingResponse sendMessage(@DestinationVariable Integer roomId,
                                          @Header(HEADER_AUTHORIZATION) String authorization,
                                          @Valid @RequestBody ChattingRequest request) {
         Integer senderId = extractUserIdFromToken(authorization);
-        return  chatComplexService.sendMessage(receiverId, senderId, request);
+        return  chatComplexService.sendMessage(roomId, senderId, request);
     }
 
     private Integer extractUserIdFromToken(String authorization) {

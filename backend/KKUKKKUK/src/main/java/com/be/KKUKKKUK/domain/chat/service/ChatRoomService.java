@@ -3,6 +3,8 @@ package com.be.KKUKKKUK.domain.chat.service;
 import com.be.KKUKKKUK.domain.chat.entity.ChatRoom;
 import com.be.KKUKKKUK.domain.chat.repository.ChatRoomRepository;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
+import com.be.KKUKKKUK.global.exception.ApiException;
+import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,5 +64,10 @@ public class ChatRoomService {
     public void updateLastMessageTime(ChatRoom chatRoom) {
         chatRoom.setLastMessageAt(LocalDateTime.now());
         chatRoomRepository.save(chatRoom);
+    }
+
+    public ChatRoom getChatRoomById(Integer roomId) {
+        return chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NO_CHATROOM));
     }
 }

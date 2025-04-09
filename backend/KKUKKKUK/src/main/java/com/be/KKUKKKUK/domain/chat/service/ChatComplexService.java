@@ -40,17 +40,17 @@ public class ChatComplexService {
     private final ChatRoomService chatRoomService;
     private final HospitalService hospitalService;
 
-    public ChattingResponse sendMessage(Integer receiverId, Integer senderId, ChattingRequest request) {
+    public ChattingResponse sendMessage(Integer roomId, Integer senderId, ChattingRequest request) {
         // 발신자와 수신자 병원 조회
         Hospital sender = hospitalService.findHospitalById(senderId);
-        Hospital receiver = hospitalService.findHospitalById(receiverId);
+        Hospital receiver = hospitalService.findHospitalById(request.getReceiverId());
 
         if (sender.equals(receiver)) {
             throw new ApiException(ErrorCode.SELF_CHAT_NOT_ALLOWED);
         }
 
-        // 채팅방 조회 또는 생성
-        ChatRoom chatRoom = chatRoomService.getChatRoomByParticipants(sender, receiver);
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomService.getChatRoomById(roomId);
 
         // 채팅 메시지 생성
         Chat chat = Chat.builder()
