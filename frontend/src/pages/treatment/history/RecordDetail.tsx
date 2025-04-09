@@ -109,13 +109,20 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
   // 원본 기록인지 확인 (ID가 'medical_record_'로 시작하는 경우)
   const isOriginalRecord = record.id ? record.id.startsWith('medical_record_') : false;
   
-  
   // 현재 사용자가 작성한 기록인지 확인
   const isOwnRecord = currentUserAddress && record.hospitalAddress && 
     currentUserAddress.toLowerCase() === record.hospitalAddress.toLowerCase();
   
-  // 인증되지 않은 기록인지 확인 (보호자가 작성한 기록)
+  // 병원 주소가 있는지 확인 (기본 인증 조건)
+  const hasHospitalAddress = !!record.hospitalAddress;
+  
+  // 인증되지 않은 기록인지 확인 (명시적으로 false인 경우만 미인증 처리)
   const isUncertifiedRecord = record.flagCertificated === false;
+  
+  // 기록이 병원에서 인증되었는지 여부 
+  // 1. flagCertificated가 명시적으로 false가 아니고
+  // 2. hospitalAddress가 존재하는 경우에만 인증된 것으로 처리
+  const isCertifiedRecord = !isUncertifiedRecord && hasHospitalAddress;
   
   // 수정 가능 여부: 본인이 작성했거나 인증되지 않은 기록
   const canEdit = isOwnRecord || isUncertifiedRecord;
@@ -167,7 +174,7 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2 font-semibold text-gray-800">
             {record.diagnosis}
-            {record.flagCertificated === false ? (
+            {!isCertifiedRecord ? (
               <div className="flex items-center text-xs text-red-500 ml-2">
                 <FaExclamationTriangle className="w-3 h-3 mr-1" />
                 <span>인증되지 않은 기록</span>

@@ -107,7 +107,8 @@ export const getRecordChanges = async (
         examinations: [],
         medications: [],
         vaccinations: []
-      }
+      },
+      flagCertificated: originalData.flagCertificated,
     };
     
     // 모든 수정 기록을 처리하여 현재 기록을 제외한 이전 수정 기록만 추가
@@ -201,7 +202,8 @@ export const getRecordChanges = async (
             examinations: [],
             medications: [],
             vaccinations: []
-          }
+          },
+          flagCertificated: parsedUpdate.flagCertificated,
         };
         
         validUpdateRecords.push(updateBlockchainRecord);
@@ -594,7 +596,8 @@ export const getHospitalPetsWithRecords = async (): Promise<any[]> => {
                       examinations: [],
                       medications: [],
                       vaccinations: []
-                    }
+                    },
+                    flagCertificated: parsedOriginal.flagCertificated,
                   };
                   
                   // 수정 기록 파싱 및 처리
@@ -681,7 +684,8 @@ export const getHospitalPetsWithRecords = async (): Promise<any[]> => {
                             examinations: [],
                             medications: [],
                             vaccinations: []
-                          }
+                          },
+                          flagCertificated: parsedUpdate.flagCertificated,
                         };
                       } catch (error) {
                         console.error('수정 기록 파싱 오류:', error);
@@ -837,7 +841,7 @@ export const getLatestPetRecords = async (): Promise<{
                 
                 // 원본 의료기록 처리 - ID는 반드시 originalKey 사용
                 const originalBlockchainRecord: BlockChainRecord = {
-                  id: originalKey, // 중요: 원본 ID는 항상 medical_record_로 시작
+                  id: originalKey,
                   diagnosis: parsedOriginal.diagnosis || '정보 없음',
                   hospitalName: parsedOriginal.hospitalName || '병원 정보 없음',
                   doctorName: parsedOriginal.doctorName || '',
@@ -853,7 +857,8 @@ export const getLatestPetRecords = async (): Promise<{
                     examinations: [],
                     medications: [],
                     vaccinations: []
-                  }
+                  },
+                  flagCertificated: parsedOriginal.flagCertificated,
                 };
                 
                 // 수정 기록이 없는 경우 원본만 추가
@@ -929,7 +934,8 @@ export const getLatestPetRecords = async (): Promise<{
                         examinations: [],
                         medications: [],
                         vaccinations: []
-                      }
+                      },
+                      flagCertificated: parsedUpdate.flagCertificated,
                     };
                     
                     // 이전 기록과 타임스탬프가 동일한 경우 1초씩 차이 추가
