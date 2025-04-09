@@ -263,7 +263,8 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
         pictures: imageUrls || [],
         expireDate: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60), // 1년 후 만료
         status: isFinalTreatment ? 'COMPLETED' : 'IN_PROGRESS', // 최종 진료면 완료, 아니면 진행 중
-        flagCertificated: true // 병원에서 작성하므로 true
+        flagCertificated: true, // 병원에서 작성하므로 true
+        hospitalAccountId: hospital?.id ? String(hospital.id) : '' // 병원 계정 ID 추가
       };
 
       console.log('저장 전 처방 데이터:', record.treatments);

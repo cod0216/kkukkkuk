@@ -11,6 +11,7 @@ import MyPage from "@/pages/mypage/MyPage"
 import ViewProfile from "@/pages/mypage/ViewProfile"
 import EditProfile from "@/pages/mypage/EditProfile"
 import DoctorManagement from "@/pages/mypage/DoctorManagement"
+import ErrorPage from "@/pages/common/ErrorPage";
 
 /**
  * @module App
@@ -28,6 +29,7 @@ import DoctorManagement from "@/pages/mypage/DoctorManagement"
  * 2025-03-27        eunchang         로그인 상태 관리
  * 2025-03-27        eunchang         자동로그인 여부에 따른 로그인 상태 관리
  * 2025-03-30        sangmuk          마이페이지 라우트 추가
+ * 2025-04-07        AI-Assistant     에러 페이지 라우트 추가
  */
 
 function App() {
@@ -40,7 +42,7 @@ function App() {
   useEffect(() => {
     const checkRefreshToken = async () => {
       const token = await getRefreshToken();
-      const publicPaths = ["/login", "/sign-up", "/find-password", "/find-id"];
+      const publicPaths = ["/login", "/sign-up", "/find-password", "/find-id", "/error"];
       const currentPath = location.pathname;
       const isPublic = publicPaths.some((path) => currentPath.startsWith(path));
       if (!token && !isPublic) {
@@ -95,6 +97,12 @@ function App() {
       <Route path="/find-id" element={<FindId />} />
       <Route path="/sign-up" element={<SignUp />} />
 
+      {/* 에러 페이지 라우트 */}
+      <Route path="/error/403" element={<ErrorPage type="403" />} />
+      <Route path="/error/500" element={<ErrorPage type="500" />} />
+      <Route path="/error/network" element={<ErrorPage type="network" />} />
+      <Route path="/error/blockchain" element={<ErrorPage type="blockchain" />} />
+
       <Route element={<MainLayout />}>
         <Route path="/" element={<TreatmentMain />} />
         <Route path="/treatment" element={<TreatmentMain />} />
@@ -104,6 +112,9 @@ function App() {
           <Route path="doctor-management" element={<DoctorManagement />} />
         </Route>
       </Route>
+
+      {/* 404 에러 페이지 (맨 마지막에 위치) */}
+      <Route path="*" element={<ErrorPage type="404" />} />
     </Routes>
   );
 }

@@ -165,8 +165,8 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
         valueInputRef: React.RefObject<HTMLInputElement | null>
     ) => {
         const handleLocalKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, field: 'key' | 'value') => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
                 if (field === 'key') { valueInputRef?.current?.focus(); }
                 else { addPrescription(type); }
             }
@@ -210,7 +210,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                                 ))}
                             </div>
                         )}
-                    </div>
+                </div>
                     {/* 용량/결과 입력 컬럼 */}
                     <input
                         ref={valueInputRef}
@@ -243,11 +243,11 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                                 {/* 삭제 버튼 */}
                                 <button onClick={() => removePrescription(index, type)} className="text-red-500 hover:text-red-700 text-xs font-bold flex-shrink-0 w-5 h-5 flex items-center justify-center justify-self-end">
                                     <Trash2 className="w-4 h-4" />
-                                </button>
-                            </div>
+                </button>
+            </div>
                         ))
                     )}
-                </div>
+                    </div>
             </div>
         );
     };
