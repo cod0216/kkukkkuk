@@ -4,7 +4,7 @@ package com.be.KKUKKKUK.domain.vaccination.controller;
 import com.be.KKUKKKUK.domain.hospital.dto.HospitalDetails;
 import com.be.KKUKKKUK.domain.vaccination.dto.request.VaccinationRequest;
 import com.be.KKUKKKUK.domain.vaccination.dto.response.VaccinationResponse;
-import com.be.KKUKKKUK.domain.vaccination.service.VaccinationAutoCompleteService;
+import com.be.KKUKKKUK.domain.vaccination.service.VaccinationRedisService;
 import com.be.KKUKKKUK.domain.vaccination.service.VaccinationService;
 import com.be.KKUKKKUK.global.util.ResponseUtility;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +36,7 @@ import java.util.List;
 @RequestMapping("api/vaccinations")
 public class VaccinationController {
     private final VaccinationService vaccinationService;
-    private final VaccinationAutoCompleteService vaccinationAutoCompleteService;
+    private final VaccinationRedisService vaccinationAutoCompleteService;
 
 
     @Operation(summary = "포함된 예방 접종 항목 생성", description = "이름이 포함된 예방 접종 항목을 생성합니다.")

@@ -22,6 +22,6 @@ import java.util.Optional;
 public interface VaccinationRepository extends JpaRepository<Vaccination, Integer> {
     List<Vaccination> getVaccinationByHospitalId(Integer hospitalId);
     List<Vaccination> findByHospitalIdAndNameContaining(Integer HospitalId, String keyword);
-    Vaccination findByName(String name);
+    boolean existsByName(String name);
     Optional<Vaccination> getVaccinationById(Integer vaccinationId);
 }

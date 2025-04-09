@@ -79,6 +79,7 @@ public class DiagnosisService {
                 () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToDiagnosis(diagnosis, hospitalId);
 
+
         diagnosisRedisService.removeDiagnosisFromRedis(diagnosis);
 
         diagnosis.setName(request.getName());

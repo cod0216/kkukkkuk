@@ -28,11 +28,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class VaccinationAutoCompleteService {
+public class VaccinationRedisService {
 
     private final VaccinationRepository vaccinationRepository;
     private final RedisService redisService;
     private static final String SUFFIX = "*";
+    private static final String PREFIX = " autocorrect:diagnosis:";
     private static final int MAX_SIZE = 100;
 
     /**
@@ -53,7 +54,7 @@ public class VaccinationAutoCompleteService {
      */
     public void addvaccinationToRedis(Vaccination vaccination) {
         Integer hospitalId = vaccination.getHospital().getId();
-        String redisKey = "autocorrect:vaccination:" + hospitalId;
+        String redisKey = PREFIX + hospitalId;
 
         String name = vaccination.getName();
         if (name == null || name.isEmpty()) return;
@@ -70,7 +71,7 @@ public class VaccinationAutoCompleteService {
      * @return 검색어로 시작하는 예방 접종 항목 목록
      */
     public List<String> autocorrectKeyword(Integer hospitalId, String keyword) {
-        String redisKey = "autocorrect:vaccination:" + hospitalId;
+        String redisKey = PREFIX + hospitalId;
         Long keywordIndex = redisService.findFromSortedSet(redisKey, keyword);
         if (Objects.isNull(keywordIndex)) {
             return Collections.emptyList();
@@ -82,5 +83,22 @@ public class VaccinationAutoCompleteService {
                 .sorted()
                 .limit(MAX_SIZE)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 레디스에 저장된 진료를 레디스엣서 삭제합니다.
+     *
+     * @param vaccination
+     */
+
+    public void removeVaccinationFromRedis(Vaccination vaccination) {
+        Integer hospitalId = vaccination.getHospital().getId();
+        String redisKey = PREFIX + hospitalId;
+        String name = vaccination.getName();
+        if(name == null || name.isEmpty()) return;
+        redisService.removeFromSortedSet(redisKey, name + SUFFIX);
+        for(int i = name.length(); i> 0; i--) {
+            redisService.removeFromSortedSet(redisKey,name.substring(0, i));
+        }
     }
 }
