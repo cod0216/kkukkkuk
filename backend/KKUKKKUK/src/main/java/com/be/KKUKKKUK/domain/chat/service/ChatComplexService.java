@@ -19,6 +19,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * packageName    : com.be.KKUKKKUK.domain.chat.service <br>
+ * fileName       : ChatComplexService.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : Chatroom entity 에 대한 상위 레벨의 Service 클래스입니다.<br>
+ *                  ChatService, ChatRoomService, HospitalService 등 저수준 Service 클래스를 묶어서
+ *                  복잡한 비즈니스 로직을 처리합니다.
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor

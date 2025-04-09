@@ -4,6 +4,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
+/**
+ * packageName    : com.be.KKUKKKUK.domain.chat.dto.mapper<br>
+ * fileName       : ChattingRequest.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : chatting 요청에 대한 request dto 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Getter
 public class ChattingRequest {
 

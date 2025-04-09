@@ -1,7 +1,7 @@
 package com.be.KKUKKKUK.domain.chat.service;
 
 import com.be.KKUKKKUK.domain.chat.entity.ChatRoom;
-import com.be.KKUKKKUK.domain.chat.respository.ChatRoomRepository;
+import com.be.KKUKKKUK.domain.chat.repository.ChatRoomRepository;
 import com.be.KKUKKKUK.domain.hospital.entity.Hospital;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,8 +9,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * packageName    : com.be.KKUKKKUK.domain.chat.service <br>
+ * fileName       : ChatRoomService.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : chatroom entity 에 대한 service 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor

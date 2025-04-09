@@ -11,6 +11,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * packageName    : com.be.KKUKKKUK.domain.chat.entity<br>
+ * fileName       : ChatRoom.java<br>
+ * author         : haelim <br>
+ * date           : 2025-04-09<br>
+ * description    : Chat entity class 입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초생성<br>
+ */
 @Entity
 @Table(name = "chatroom")
 @Builder

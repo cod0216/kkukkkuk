@@ -7,6 +7,19 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+
+
+/**
+ * packageName    : com.be.KKUKKKUK.domain.Chat.entity<br>
+ * fileName       : Chat.java<br>
+ * author         : haelim <br>
+ * date           : 2025-04-09<br>
+ * description    : Chat entity class 입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초생성<br>
+ */
 @Entity
 @Table(name = "chat")
 @Builder

@@ -12,6 +12,18 @@ import org.mapstruct.ReportingPolicy;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+/**
+ * packageName    : com.be.KKUKKKUK.domain.chat.dto.mapper<br>
+ * fileName       : ChatMapper.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : Chat entity 에 대한 mapper 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ChatMapper {
 

@@ -8,6 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
+/**
+ * packageName    : com.be.KKUKKKUK.domain.chat.controller<br>
+ * fileName       : ChatApiController.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : chatting entity 관련 api 요청을 처리하는 controller 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats")
