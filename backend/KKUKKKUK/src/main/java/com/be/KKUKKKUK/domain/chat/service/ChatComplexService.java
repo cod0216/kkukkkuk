@@ -10,6 +10,7 @@ import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  * -----------------------------------------------------------<br>
  * 25.04.09          haelim           최초 생성<br>
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -102,10 +104,13 @@ public class ChatComplexService {
     }
 
     public ChatRoomSummaryResponse getChatRoomId(Integer partnerId, Integer requesterId) {
+        log.info("getChatRoomId partnerId {} , requesterId {} ", partnerId, requesterId);
+
         Hospital partner = hospitalService.findHospitalById(partnerId);
         Hospital requester = hospitalService.findHospitalById(requesterId);
 
         ChatRoom room = chatRoomService.getChatRoomByParticipants(requester, partner);
+        log.info("room {}", room);
 
         // 마지막 메시지 찾기
         String lastMessageContent = "";
