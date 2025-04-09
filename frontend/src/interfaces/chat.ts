@@ -13,8 +13,8 @@ export interface ChattingResponse {
 
 export interface ChatMessageRequest {
   content: string;
-  chatRoomId: string;
-  receiverId: string;
+  chatRoomId: string | undefined;
+  receiverId: string | undefined;
 }
 
 export interface ChatRoomSummaryResponse {

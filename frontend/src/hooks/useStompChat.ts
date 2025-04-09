@@ -3,7 +3,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import { ChattingResponse, ChatMessageRequest } from '../interfaces/chat';
 import { getAccessToken } from '@/utils/tokenUtil'; 
 
-const useStompChat = (myId : string, receiverId: string, onMessage: (msg: ChattingResponse) => void) => {
+const useStompChat = (myId : string, receiverId: string | undefined, onMessage: (msg: ChattingResponse) => void) => {
   const client = useRef<Client | null>(null);
   const VITE_SOCKET_WS_URL = import.meta.env.VITE_SOCKET_WS_URL;
 

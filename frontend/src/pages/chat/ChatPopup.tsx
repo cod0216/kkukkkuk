@@ -7,8 +7,8 @@ import { ApiResponse, ResponseStatus } from "@/types";
 import { FiSend } from "react-icons/fi";
 
 interface ChatPopupProps {
-  chatRoomId: string;
-  receiverId: string;
+  chatRoomId: string | undefined;
+  receiverId: string | undefined;
 }
 
 export default function ChatPopup({chatRoomId, receiverId }: ChatPopupProps) {

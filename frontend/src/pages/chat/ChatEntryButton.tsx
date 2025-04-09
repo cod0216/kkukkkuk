@@ -4,9 +4,9 @@ import ChatPopup from '@/pages/chat/ChatPopup';
 import DraggableChatPopup from '@/pages/chat/DraggableChatPopup';
 
 interface ChatEntryButtonProps {
-  chatRoomId: string;
-  receiverId: string;
-  hospitalName: string;
+  chatRoomId: string | undefined;
+  receiverId: string | undefined;
+  hospitalName: string | undefined;
 }
 
 export default function ChatEntryButton({ chatRoomId, receiverId, hospitalName }: ChatEntryButtonProps) {

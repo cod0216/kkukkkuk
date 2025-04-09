@@ -1,4 +1,4 @@
-import { ChatRoomSummaryResponse, ChattingResponse, Doctor } from "@/interfaces";
+import { ChatRoomSummaryResponse, ChattingResponse } from "@/interfaces";
 import { request } from "@/services/apiRequest";
 import { ApiResponse } from "@/types";
 
@@ -22,6 +22,6 @@ export const getChatRoomList = async (): Promise<ApiResponse<ChatRoomSummaryResp
 };
 
 
-export const getChatHistory = async (hospitalId:string): Promise<ApiResponse<ChattingResponse[]>> => {
+export const getChatHistory = async (hospitalId:string | undefined): Promise<ApiResponse<ChattingResponse[]>> => {
    return await request.get<ChattingResponse[]>(`/api/chats/history/${hospitalId}`);
 };

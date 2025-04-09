@@ -34,7 +34,7 @@ export interface BlockChainRecord {
   previousRecord?: string; // 이전 기록 ID (수정 기능에서 사용)
   status?: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'SHARED' | 'NONE';  // 진료 상태 (TreatmentState enum과 일치해야 함)
   flagCertificated?: boolean;  // 병원 인증 여부 (병원 작성: true, 보호자 작성: false)
-  hospitalAccountId: string;  // 병원 계정 ID
+  hospitalAccountId?: string;  // 병원 계정 ID
 }
 
 /**

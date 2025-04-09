@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 interface DraggableChatPopupProps {
   onClose: () => void;
   children: React.ReactNode;
-  hospitalName : string;
+  hospitalName : string | undefined;
 }
 
 export default function DraggableChatPopup({ onClose, children, hospitalName }: DraggableChatPopupProps) {
