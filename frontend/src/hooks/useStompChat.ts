@@ -3,7 +3,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import { ChattingResponse, ChatMessageRequest } from '../interfaces/chat';
 import { getAccessToken } from '@/utils/tokenUtil'; 
 
-const useStompChat = (myId : string, receiverId: string | undefined, onMessage: (msg: ChattingResponse) => void) => {
+const useStompChat = (myId : string, roomId: string | undefined, onMessage: (msg: ChattingResponse) => void) => {
   const client = useRef<Client | null>(null);
   const VITE_SOCKET_WS_URL = import.meta.env.VITE_SOCKET_WS_URL;
 
@@ -21,7 +21,7 @@ const useStompChat = (myId : string, receiverId: string | undefined, onMessage: 
         },
         reconnectDelay: 5000,
         onConnect: () => {
-          client.current?.subscribe(`/topic/chats/${receiverId}`, (message: IMessage) => {
+          client.current?.subscribe(`/topic/chats/${roomId}`, (message: IMessage) => {
             try {
               const body: ChattingResponse = JSON.parse(message.body);
               onMessage(body);
@@ -30,14 +30,6 @@ const useStompChat = (myId : string, receiverId: string | undefined, onMessage: 
             }
           });
 
-          client.current?.subscribe(`/topic/chats/${myId}`, (message: IMessage) => {
-            try {
-              const body: ChattingResponse = JSON.parse(message.body);
-              onMessage(body);
-            } catch (error) {
-
-            }
-          });
         },
       });
   
@@ -49,13 +41,13 @@ const useStompChat = (myId : string, receiverId: string | undefined, onMessage: 
     return () => {
       client.current?.deactivate();
     };
-  }, [receiverId]);
+  }, [roomId]);
   
   const sendMessage = async (msg: ChatMessageRequest) => {
     const token = getAccessToken(); 
     if (client.current?.connected) {
       client.current.publish({
-        destination: `/app/chats/${msg.receiverId}/send`,
+        destination: `/app/chats/${msg.chatRoomId}/send`,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

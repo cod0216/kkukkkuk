@@ -17,7 +17,7 @@ import { ApiResponse } from "@/types";
 
 
 
-export const getChatRoomList = async (): Promise<ApiResponse<ChatRoomSummaryResponse[]>> => {
+export const getChatRooms = async (): Promise<ApiResponse<ChatRoomSummaryResponse[]>> => {
    return await request.get<ChatRoomSummaryResponse[]>(`/api/chats/rooms`);
 };
 
@@ -25,3 +25,7 @@ export const getChatRoomList = async (): Promise<ApiResponse<ChatRoomSummaryResp
 export const getChatHistory = async (hospitalId:string | undefined): Promise<ApiResponse<ChattingResponse[]>> => {
    return await request.get<ChattingResponse[]>(`/api/chats/history/${hospitalId}`);
 };
+
+export const getChatRoomWithPartner = async (partnerId: string): Promise<ApiResponse<ChatRoomSummaryResponse>> => {
+   return await request.post<ChatRoomSummaryResponse>(`/api/chats/rooms/${partnerId}`);
+ };
