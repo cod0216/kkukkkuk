@@ -100,4 +100,36 @@ public class ChatComplexService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public ChatRoomSummaryResponse getChatRoomId(Integer partnerId, Integer requesterId) {
+        Hospital partner = hospitalService.findHospitalById(partnerId);
+        Hospital requester = hospitalService.findHospitalById(requesterId);
+
+        ChatRoom room = chatRoomService.getChatRoomByParticipants(requester, partner);
+
+        // 마지막 메시지 찾기
+        String lastMessageContent = "";
+        if (room.getMessages() != null && !room.getMessages().isEmpty()) {
+            Optional<Chat> lastMessage = room.getMessages().stream()
+                    .max(Comparator.comparing(Chat::getSentAt));
+            lastMessageContent = lastMessage.map(Chat::getContent).orElse("");
+        }
+
+        // 읽지 않은 메시지 수 계산
+        int unreadCount = 0;
+        if (room.getMessages() != null) {
+            unreadCount = (int) room.getMessages().stream()
+                    .filter(chat -> !chat.getSender().getId().equals(requesterId) && !chat.getFlagRead())
+                    .count();
+        }
+
+        return ChatRoomSummaryResponse.builder()
+                .chatRoomId(room.getId())
+                .partnerName(partner.getName())
+                .partnerId(partner.getId())
+                .lastMessage(lastMessageContent)
+                .lastMessageAt(room.getLastMessageAt())
+                .unreadMessageCount(unreadCount)
+                .build();
+    }
 }

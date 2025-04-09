@@ -32,6 +32,14 @@ public class ChatApiController {
         return ResponseUtility.success("채팅방 목록 조회 성공", chatComplexService.getChatRoomList(hospitalId));
     }
 
+
+    @PostMapping("/rooms/{partnerId}")
+    public ResponseEntity<?> getChatRooms(@PathVariable Integer partnerId,
+                                          @AuthenticationPrincipal HospitalDetails hospitalDetails) {
+        Integer hospitalId = Integer.parseInt(hospitalDetails.getUsername());
+        return ResponseUtility.success("채팅방 번호 조회 성공", chatComplexService.getChatRoomId(partnerId, hospitalId));
+    }
+
     @GetMapping("/history/{partnerId}")
     public ResponseEntity<?> getChatHistory(@PathVariable Integer partnerId,
                                             @AuthenticationPrincipal HospitalDetails hospitalDetails)  {
