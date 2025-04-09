@@ -32,7 +32,7 @@ public class Breed {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne
     @JoinColumn(name = "parent_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Breed parentId;
 }

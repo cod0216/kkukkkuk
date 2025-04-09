@@ -73,9 +73,13 @@ public enum ErrorCode {
     GPT_JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-003", "OpenAI API 응답 파싱을 실패하였습니다."),
     GPT_MAPPER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OCR-004", "GPT 결과를 OcrResponse로 매핑하는 데 실패했습니다."),
 
+    SELF_CHAT_NOT_ALLOWED(HttpStatus.CONFLICT, "CHAT-001", ""),
+
     DIA_AUTH_ERROR(HttpStatus.FORBIDDEN,"DIG-001","해당 병원에서 입력한 검사 항목이 아닙니다."),
     DIA_NOT_FOUND(HttpStatus.NOT_FOUND,"DIG-002","해당 검사 품목을 찾을수없습니다."),
     DIA_DUPLICATE_NAME(HttpStatus.CONFLICT,"DIG-003","해당 검사 품목이 이미 작성되어있습니다.");
+
+
 
     private final HttpStatus httpStatus;
     private final String code;
