@@ -1,20 +1,19 @@
-// lib/pages/pet_profile/pet_profile_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/features/ocr/ocr_service.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
-// ... (다른 import들) ...
 import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_notifier.dart'; // Notifier import
 import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_register_notifier.dart';
 import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
 import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart'; // LoadingIndicator import
 import 'package:kkuk_kkuk/widgets/common/error_view.dart';
+import 'package:kkuk_kkuk/widgets/common/primary_section.dart';
 import 'package:kkuk_kkuk/widgets/controller/refresh_controller.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/empty_medical_records.dart';
-import 'package:kkuk_kkuk/widgets/pet/profile/last_treatment_date.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_card.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_image_picker.dart';
 import 'package:kkuk_kkuk/widgets/pet/profile/pet_profile_header.dart'; // ErrorView import
@@ -187,46 +186,69 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ref.watch를 사용하여 상태 변화 감지
     final medicalRecordState = ref.watch(medicalRecordQueryProvider);
     final records = medicalRecordState.records;
     final isLoading = medicalRecordState.isLoading;
     final error = medicalRecordState.error;
-
-    // 등록 상태 감시
     final registerState = ref.watch(medicalRecordRegisterProvider);
 
+    // 최근 진료일 찾기 (여기서 계산 또는 LastTreatmentDate 위젯 내부에서 처리)
+    MedicalRecord? latestRecord;
+    if (records.isNotEmpty) {
+      latestRecord = records.reduce(
+        (a, b) => a.treatmentDate.isAfter(b.treatmentDate) ? a : b,
+      );
+    }
+    final formattedLatestDate =
+        latestRecord != null
+            ? DateFormat('yyyy년 MM월 dd일').format(latestRecord.treatmentDate)
+            : '진료 기록 없음';
+
     return Scaffold(
-      appBar: CustomAppBar(),
-      body: Column(
-        children: [
-          PetProfileHeader(pet: widget.pet), // 펫 프로필 헤더
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: LastTreatmentDate(records: records), // 최근 진료일 표시
-          ),
-          Expanded(
-            child: _buildMedicalRecordList(
-              isLoading,
-              error,
-              records,
-            ), // 목록 빌더 분리
-          ),
-        ],
+      appBar: CustomAppBar(), // 기존 AppBar 유지
+      body: RefreshIndicator(
+        // RefreshIndicator 추가
+        onRefresh: _onRefresh,
+        child: CustomScrollView(
+          // 스크롤 가능한 영역 구성
+          slivers: [
+            // 1. 펫 프로필 헤더
+            SliverToBoxAdapter(child: PetProfileHeader(pet: widget.pet)),
+            // 2. "진료 기록" 제목 및 최근 진료일 (PrimarySection 활용)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ), // 패딩 조정
+              sliver: SliverToBoxAdapter(
+                child: PrimarySection(
+                  // PrimarySection 사용
+                  title: '진료 기록',
+                  spacing: 4, // 제목과 내용 간격 조정
+                  child: Text(
+                    '최근 진료: $formattedLatestDate',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                  ),
+                ),
+              ),
+            ),
+            // 3. 진료 기록 목록 또는 상태 표시
+            _buildMedicalRecord(isLoading, error, records),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
+        // FAB 스타일은 유지
         onPressed:
             registerState.isLoading
                 ? null
                 : () {
-                  // 등록 중일 때 비활성화
                   if (widget.pet.did == null || widget.pet.did!.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('반려동물 정보(DID)가 없습니다.')),
                     );
                     return;
                   }
-                  // 이미지 피커 표시
                   final imagePicker = MedicalRecordImagePicker(
                     context: context,
                     onImageSelected: _handleImageSelected,
@@ -239,46 +261,49 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
                 ? const CircularProgressIndicator(
                   color: Colors.white,
                   strokeWidth: 2.0,
-                ) // 등록 중 로딩 표시
-                : const Icon(Icons.add_photo_alternate_outlined), // 아이콘 변경
+                )
+                : const Icon(Icons.add_photo_alternate_outlined),
       ),
     );
   }
 
-  /// 진료 기록 목록 위젯 빌더
-  Widget _buildMedicalRecordList(
+  Widget _buildMedicalRecord(
     bool isLoading,
     String? error,
     List<MedicalRecord> records,
   ) {
-    // 초기 로딩 상태 (아직 데이터 없고 로딩 중)
+    // 초기 로딩 상태
     if (isLoading && records.isEmpty) {
-      return const Center(child: LoadingIndicator(message: '진료 기록을 불러오는 중...'));
+      return const SliverFillRemaining(
+        // 남은 공간 채우도록 변경
+        child: Center(child: LoadingIndicator(message: '진료 기록을 불러오는 중...')),
+      );
     }
     // 에러 상태
     if (error != null) {
-      return Center(
-        child: ErrorView(
-          // 공통 에러 위젯 사용
-          message: error,
-          onRetry: _loadMedicalRecords, // 재시도 함수 연결
+      return SliverFillRemaining(
+        child: Center(
+          child: ErrorView(message: error, onRetry: _loadMedicalRecords),
         ),
       );
     }
     // 로딩 완료 후 데이터 없음
     if (records.isEmpty) {
-      return const EmptyRecords(); // 데이터 없음 표시 위젯
+      return const SliverFillRemaining(
+        child: EmptyRecords(), // 데이터 없음 표시 위젯
+      );
     }
-    // 데이터 있음
-    return RefreshIndicator(
-      onRefresh: _onRefresh, // 새로고침 함수 연결
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(), // 항상 스크롤 가능하도록
-        padding: const EdgeInsets.all(16),
-        itemCount: records.length,
-        itemBuilder: (context, index) {
-          return MedicalRecordCard(record: records[index]); // 각 기록 카드
-        },
+    // 데이터 있음 (SliverList 사용)
+    return SliverPadding(
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: 80,
+      ), // FAB 공간 확보 및 좌우 패딩
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return MedicalRecordCard(record: records[index]); // 스타일 수정된 카드 사용
+        }, childCount: records.length),
       ),
     );
   }
