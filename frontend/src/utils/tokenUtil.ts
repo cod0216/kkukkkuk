@@ -31,8 +31,9 @@ export const getAccessToken = (): string | null => {
  * @param token JWT 문자열
  * @returns payload 객체 or null
  */
-export function parseJwt(token: string): any | null {
+export function parseJwt(token: string | null): any | null {
   try {
+    if(!token) return;
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(

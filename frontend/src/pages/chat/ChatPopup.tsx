@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { ChattingResponse, ChatMessageRequest } from '../../interfaces/chat';
 import useStompChat from '@/hooks/useStompChat';
 import { getAccessToken, parseJwt } from "@/utils/tokenUtil";
-
+// TODO : 이전 진료 기록 불러오기
 
 interface ChatPopupProps {
-  chatRoomId: number;
-  receiverId: number;
+  chatRoomId: string;
+  receiverId: string;
   onClose: () => void;
 }
 
@@ -14,25 +14,12 @@ export default function ChatPopup({ chatRoomId, receiverId, onClose }: ChatPopup
   const [messages, setMessages] = useState<ChattingResponse[]>([]);
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [userId, serUserId] = useState<number | null>(0);
-  // const t = getAccessToken();
-
-  // const payload = parseJwt(t); // t로 바로 파싱
-
-  // useEffect(() => {
-  //   const fetchToken = async () => {
-  //     setToken(t);
-      
-  //     if (payload?.id) {
-  //       serUserId(payload.id);
-  //     }
-  //   };
-  //   fetchToken();
-  // }, []);
   
+  const accessToken = getAccessToken();
+  const payload = parseJwt(accessToken);
+  const userId=  payload.id;
 
-  const { sendMessage } = useStompChat(chatRoomId.toString(), handleReceive);
+  const { sendMessage } = useStompChat(chatRoomId, handleReceive);
 
   function handleReceive(msg: ChattingResponse) {
     setMessages(prev => [...prev, msg]);
@@ -64,7 +51,7 @@ export default function ChatPopup({ chatRoomId, receiverId, onClose }: ChatPopup
           <div
             key={msg.id}
             className={`px-4 py-2 w-max rounded-xl text-sm max-w-[80%] ${
-              msg.senderId ? 'bg-primary-500 text-white text-right ml-auto' : 'text-left bg-gray-200 text-black'
+              msg.senderId == userId ? 'bg-primary-500 text-white text-right ml-auto' : 'text-left bg-gray-200 text-black'
             }`}
           >
             {msg.content}

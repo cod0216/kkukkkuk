@@ -5,13 +5,14 @@ import { getRefreshToken } from '../utils/iDBUtil';
 
 const useStompChat = (receiverId: string, onMessage: (msg: ChattingResponse) => void) => {
   const client = useRef<Client | null>(null);
+  const BASE_URL = import.meta.env.SOCKET_WS_URL;
 
   useEffect(() => {
     const connect = async () => {
       const token = await getRefreshToken(); 
   
       client.current = new Client({
-        brokerURL: 'ws://localhost:8080/kkukkkuk',
+        brokerURL: BASE_URL,
         connectHeaders: {
           Authorization: `Bearer ${token}`,
         },
@@ -20,21 +21,20 @@ const useStompChat = (receiverId: string, onMessage: (msg: ChattingResponse) => 
         },
         reconnectDelay: 5000,
         onConnect: () => {
-          console.log('[STOMP] ✅ Connected');
-
+          // console.log('[STOMP] ✅ Connected');
           client.current?.subscribe(`/topic/chat/${receiverId}`, (message: IMessage) => {
             try {
               const body: ChattingResponse = JSON.parse(message.body);
-              console.log('[📩 Chat Received]', body); // ✅ 로그 찍기
+              // console.log('[📩 Chat Received]', body); // ✅ 로그 찍기
               onMessage(body); // ✅ 채팅 추가 콜백 실행
             } catch (error) {
               console.error('[STOMP] ❌ Failed to parse message:', error);
             }
           });
         },
-        onStompError: (frame) => {
-          console.error('[STOMP] ❌ STOMP error:', frame);
-        },
+        // onStompError: (frame) => {
+          // console.error('[STOMP] ❌ STOMP error:', frame);
+        // },
       });
   
       client.current.activate();

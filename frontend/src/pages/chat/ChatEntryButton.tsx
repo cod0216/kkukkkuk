@@ -3,8 +3,8 @@ import { useState } from 'react';
 import ChatPopup from '@/pages/chat/ChatPopup';
 
 interface ChatEntryButtonProps {
-  chatRoomId: number;
-  receiverId: number;
+  chatRoomId: string;
+  receiverId: string;
 }
 
 export default function ChatEntryButton({ chatRoomId, receiverId }: ChatEntryButtonProps) {

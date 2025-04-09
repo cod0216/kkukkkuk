@@ -4,6 +4,7 @@ import RecordHistory from './RecordHistory';
 import { FaChevronDown, FaChevronUp, FaEdit, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { getAccountAddress } from '@/services/blockchainAuthService';
 import { getRecordChanges } from '@/services/treatmentRecordService';
+import ChatEntryButton from '@/pages/chat/ChatEntryButton'
 
 /**
  * @component RecordDetail
@@ -199,7 +200,10 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
         <div className="text-xs text-gray-500">
           {record.timestamp ? formatDate(record.timestamp) : record.createdAt}
         </div>
-        <div className="text-xs text-gray-600 font-medium mt-1">{record.hospitalName}</div>
+        <div className='flex justify-between items-center'>
+          <div className="text-xs text-gray-600 font-medium mt-1">{record.hospitalName}</div>
+          <ChatEntryButton chatRoomId={record.hospitalAccountId} receiverId={record.hospitalAccountId}/>
+        </div>
       </div>
 
       {/* 상세 정보 (정상 진료 기록) */}
