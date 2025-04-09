@@ -37,4 +37,6 @@ class AppConfig {
 
   // Kakao 설정
   static String get kakaoAppKey => dotenv.env['KAKAO_APP_KEY'] ?? '';
+  static String get kakaoJavaScriptKey => dotenv.env['KAKAO_JS_KEY'] ?? '';
+
 }
