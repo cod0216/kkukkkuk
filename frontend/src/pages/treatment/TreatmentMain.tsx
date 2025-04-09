@@ -115,28 +115,45 @@ const TreatmentMain: React.FC = () => {
   /**
    * 취소 처리가 완료된 후 호출되는 함수입니다.
    */
-  const handleCancellationComplete = useCallback(() => {
+  const handleCancellationComplete = useCallback(async () => {
     // 취소된 상태로 설정
     if (selectedPet) {
-      // 현재 선택된 반려동물이 있으면 상태를 강제로 갱신
-      if (selectedPet.petDid && sidebarRef.current) {
-        // 선택된 반려동물의 상태만 새로고침
-        sidebarRef.current.refreshPetState(selectedPet.petDid);
-        console.log(`진료 취소 완료 후 ${selectedPet.name} 상태 새로고침`);
-      } else {
-        // 전체 목록 새로고침 (fallback)
-        if (sidebarRef.current) {
-          console.log('진료 취소 완료 후 전체 목록 새로고침');
-          sidebarRef.current.fetchPetsData();
+      try {
+        // 현재 선택된 반려동물이 있으면 상태를 강제로 갱신
+        if (selectedPet.petDid && sidebarRef.current) {
+          // 1. 선택된 반려동물의 상태만 새로고침
+          console.log(`진료 취소 완료 후 ${selectedPet.name} 상태 새로고침 시작`);
+          await sidebarRef.current.refreshPetState(selectedPet.petDid);
+          console.log(`${selectedPet.name} 상태 새로고침 완료`);
+        } else {
+          // 전체 목록 새로고침 (fallback)
+          if (sidebarRef.current) {
+            console.log('진료 취소 완료 후 전체 목록 새로고침 시작');
+            await sidebarRef.current.fetchPetsData();
+            console.log('전체 목록 새로고침 완료');
+          }
         }
-      }
-      
-      // 의료 기록 목록 새로고침
-      if (historyListRef.current) {
-        setTimeout(() => {
-          historyListRef.current?.refreshRecords();
-          console.log('진료 취소 완료 후 의료 기록 목록 새로고침');
-        }, 1000); // 블록체인 상태 업데이트 시간을 고려해 약간의 지연 추가
+        
+        // 2. 의료 기록 목록 새로고침
+        if (historyListRef.current) {
+          console.log('진료 취소 완료 후 의료 기록 목록 새로고침 시작');
+          await historyListRef.current.refreshRecords();
+          console.log('의료 기록 목록 새로고침 완료');
+        }
+      } catch (error) {
+        console.error('진료 취소 후 상태 갱신 중 오류 발생:', error);
+        
+        // 오류 발생해도 일정 시간 후 다시 시도
+        setTimeout(async () => {
+          try {
+            if (historyListRef.current) await historyListRef.current.refreshRecords();
+            if (selectedPet?.petDid && sidebarRef.current) {
+              await sidebarRef.current.refreshPetState(selectedPet.petDid);
+            }
+          } catch (retryError) {
+            console.error('재시도 중 오류:', retryError);
+          }
+        }, 2000);
       }
     }
   }, [selectedPet]);
@@ -198,29 +215,45 @@ const TreatmentMain: React.FC = () => {
    * 현재 진료기록의 상태에 따라 필요한 CSS 요소를 반환합니다.
    * @returns {string} state 상태에 따른 CSS 태그
    */
-  const handleSaveTreatment = (record: any): void => {
+  const handleSaveTreatment = async (record: any): Promise<void> => {
     console.log('진료 기록 저장 완료:', record);
     
     // 진료 저장 후 폼 숨기고 기록 목록 표시
     setIsFormVisible(true);
 
-    // 사이드바에서 현재 선택된 반려동물의 상태 새로고침
-    if (selectedPet?.petDid && sidebarRef.current) {
-      // 선택된 반려동물의 상태만 새로고침
-      sidebarRef.current.refreshPetState(selectedPet.petDid);
-      console.log(`진료 저장 완료 후 ${selectedPet.name} 상태 새로고침`);
-    } else if (sidebarRef.current) {
-      // 전체 목록 새로고침 (fallback)
-      console.log('진료 저장 완료 후 전체 목록 새로고침');
-      sidebarRef.current.fetchPetsData();
-    }
-    
-    // 의료 기록 목록 새로고침
-    if (historyListRef.current) {
-      setTimeout(() => {
-        historyListRef.current?.refreshRecords();
-        console.log('진료 저장 완료 후 의료 기록 목록 새로고침');
-      }, 1000); // 블록체인 상태 업데이트 시간을 고려해 약간의 지연 추가
+    try {
+      // 1. 먼저 의료 기록 목록 새로고침 (블록체인 상태가 반영될 때까지 대기)
+      if (historyListRef.current) {
+        console.log('진료 저장 완료 후 의료 기록 목록 새로고침 시작');
+        await historyListRef.current.refreshRecords();
+        console.log('의료 기록 목록 새로고침 완료');
+      }
+
+      // 2. 사이드바에서 현재 선택된 반려동물의 상태 새로고침
+      if (selectedPet?.petDid && sidebarRef.current) {
+        console.log(`진료 저장 완료 후 ${selectedPet.name} 상태 새로고침 시작`);
+        await sidebarRef.current.refreshPetState(selectedPet.petDid);
+        console.log(`${selectedPet.name} 상태 새로고침 완료`);
+      } else if (sidebarRef.current) {
+        // 전체 목록 새로고침 (fallback)
+        console.log('진료 저장 완료 후 전체 목록 새로고침 시작');
+        await sidebarRef.current.fetchPetsData();
+        console.log('전체 목록 새로고침 완료');
+      }
+    } catch (error) {
+      console.error('진료 기록 저장 후 상태 갱신 중 오류 발생:', error);
+      
+      // 오류 발생해도 일정 시간 후 다시 시도
+      setTimeout(async () => {
+        try {
+          if (historyListRef.current) await historyListRef.current.refreshRecords();
+          if (selectedPet?.petDid && sidebarRef.current) {
+            await sidebarRef.current.refreshPetState(selectedPet.petDid);
+          }
+        } catch (retryError) {
+          console.error('재시도 중 오류:', retryError);
+        }
+      }, 2000);
     }
   };
 

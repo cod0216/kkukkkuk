@@ -317,7 +317,7 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
                     disabled={!hasHistory}
                   >
                     <span>
-                      {hasHistory ? '수정된 기록 (이전 버전 있음)' : '수정된 기록 (최초 수정본)'}
+                      {hasHistory ? '수정 내역 모아 보기' : '수정 내역 없음'}
                     </span>
                     {hasHistory && (showHistory ? <FaChevronUp className="h-3 w-3" /> : <FaChevronDown className="h-3 w-3" />)}
                   </button>
