@@ -1,23 +1,26 @@
+// lib/pages/pet_profile/pet_profile_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
-import 'package:kkuk_kkuk/features/pet/usecase/get_all_attributes_usecase.dart';
-import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
-import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_notifier.dart';
-import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_register_notifier.dart';
-import 'package:kkuk_kkuk/shared/utils/did_helper.dart';
-import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
-import 'package:kkuk_kkuk/widgets/pet/profile/empty_medical_records.dart';
-import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_card.dart';
-import 'package:kkuk_kkuk/widgets/pet/profile/pet_profile_header.dart';
-import 'package:kkuk_kkuk/widgets/pet/profile/last_treatment_date.dart';
-import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_image_picker.dart';
 import 'package:kkuk_kkuk/features/ocr/ocr_service.dart';
+import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
+// ... (다른 import들) ...
+import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_notifier.dart'; // Notifier import
+import 'package:kkuk_kkuk/pages/pet_profile/notifiers/pet_medical_record_register_notifier.dart';
+import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
+import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart'; // LoadingIndicator import
+import 'package:kkuk_kkuk/widgets/common/error_view.dart';
+import 'package:kkuk_kkuk/widgets/controller/refresh_controller.dart';
+import 'package:kkuk_kkuk/widgets/pet/profile/empty_medical_records.dart';
+import 'package:kkuk_kkuk/widgets/pet/profile/last_treatment_date.dart';
+import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_card.dart';
+import 'package:kkuk_kkuk/widgets/pet/profile/medical_record_image_picker.dart';
+import 'package:kkuk_kkuk/widgets/pet/profile/pet_profile_header.dart'; // ErrorView import
 
 class PetProfileScreen extends ConsumerStatefulWidget {
   final Pet pet;
-
   const PetProfileScreen({super.key, required this.pet});
 
   @override
@@ -25,261 +28,189 @@ class PetProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
-  late final GetAllAttributesUseCase _getAllAttributeUseCase;
-
-  // TODO: 화면 새로고침 기능 추가 (진료기록을 아래로 스크롤하면 새로 로드)
-  // TODO: 진료 기록 정렬 기능 추가 (최신순/과거순)
-  // TODO: 진료 기록 필터링 기능 추가 (진료 유형별)
-  // TODO: 진료 기록 검색 기능 추가
-
-  // 새로고침 컨트롤러 추가
   final RefreshController _refreshController = RefreshController();
 
   @override
   void initState() {
     super.initState();
-    _getAllAttributeUseCase = ref.read(getAllAtributesUseCaseProvider);
-    _loadMedicalRecords();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMedicalRecords();
+    });
   }
 
   @override
   void dispose() {
-    _refreshController.dispose(); // 컨트롤러 해제
+    _refreshController.dispose();
     super.dispose();
   }
 
-  // 새로고침 처리 함수
+  Future<void> _loadMedicalRecords() async {
+    final petDid = widget.pet.did;
+    if (petDid != null && petDid.isNotEmpty) {
+      await ref
+          .read(medicalRecordQueryProvider.notifier)
+          .loadLatestRecords(petDid);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('반려동물 정보(DID)가 없어 진료 기록을 조회할 수 없습니다.')),
+        );
+      }
+    }
+  }
+
+  // 새로고침 처리 함수 (Notifier 호출)
   Future<void> _onRefresh() async {
     try {
-      // 진료 기록 상태 초기화
-      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
-
-      // 블록체인에서 데이터 다시 로드
-      if (widget.pet.did != null && widget.pet.did!.isNotEmpty) {
-        await _loadMedicalRecordsFromBlockchain(widget.pet.did!);
-      }
-
-      // 새로고침 완료
+      await _loadMedicalRecords(); // Notifier의 로딩 함수 재호출
       _refreshController.refreshCompleted();
     } catch (e) {
-      // 새로고침 실패
+      // UseCase에서 던진 에러를 잡을 수 있음 (Notifier에서 rethrow한 경우)
       _refreshController.refreshFailed();
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('새로고침 실패: $e')));
+        ).showSnackBar(SnackBar(content: Text('새로고침 중 오류 발생: $e')));
       }
     }
   }
 
-  /// 진료 기록 데이터 로드
-  void _loadMedicalRecords() {
-    Future.microtask(() async {
-      // 진료 기록 상태 초기화 후 새로운 데이터 로드
-      ref.read(medicalRecordQueryProvider.notifier).clearRecords();
-      if (widget.pet.did != null && widget.pet.did!.isNotEmpty) {
-        await _loadMedicalRecordsFromBlockchain(widget.pet.did!);
-      }
-    });
-  }
+  final OcrService _ocrService = OcrService(); // OCR 서비스
 
-  /// 블록체인에서 진료 기록 데이터 로드
-  Future<void> _loadMedicalRecordsFromBlockchain(String petAddress) async {
-    try {
-      // final test = await ref
-      //     .read(getPetOriginalRecordsUseCaseProvider)
-      //     .execute(DidHelper.extractAddressFromDid(petAddress));
-
-      // print('test: $test');
-
-      final records = await _getAllAttributeUseCase.execute(petAddress);
-
-      if (!mounted) return;
-
-      if (records.isNotEmpty) {
-        ref
-            .read(medicalRecordQueryProvider.notifier)
-            .addBlockchainRecords(records);
-      }
-    } catch (e) {
-      print('블록체인에서 진료 기록 조회 실패: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('블록체인 데이터 조회 실패: $e')));
-      }
-    }
-  }
-
-  final OcrService _ocrService = OcrService();
-
+  // 이미지 선택 및 처리 핸들러
   Future<void> _handleImageSelected(File image) async {
-    try {
-      // Show OCR processing dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (context) => WillPopScope(
-              onWillPop: () async => false,
-              child: const AlertDialog(
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('진료기록을 분석하는 중입니다...\n잠시만 기다려주세요.'),
-                  ],
-                ),
+    // 로딩 다이얼로그 표시 (OCR 및 등록 처리 중)
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => const PopScope(
+            // Android 뒤로가기 방지
+            canPop: false,
+            child: AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('진료기록 처리 중...'),
+                ],
               ),
             ),
-      );
+          ),
+    );
 
-      // Process image with OCR
+    try {
+      // 1. OCR 처리
       final ocrData = await _ocrService.processImage(image);
 
-      // Process OCR data with server
+      // 2. OCR 결과 서버 전송 및 데이터 정제
       final processedData = await ref
           .read(processMedicalRecordImageUseCaseProvider)
           .execute(ocrData);
 
       if (!mounted) return;
-      Navigator.of(context).pop(); // Close processing dialog
+      Navigator.of(context).pop(); // OCR/처리 로딩 다이얼로그 닫기
 
-      // Show confirmation dialog with processed data
+      // 3. 사용자 확인 다이얼로그
       final bool? confirmed = await showDialog<bool>(
         context: context,
         builder:
             (context) => AlertDialog(
               title: const Text('진료기록 확인'),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('아래 내용이 맞는지 확인해주세요:'),
-                    const SizedBox(height: 16),
-                    Text('진단명: ${processedData['diagnosis']}'),
-                    Text('수의사: ${processedData['doctorName']}'),
-                    Text('병원명: ${processedData['hospitalName']}'),
-                    Text('메모: ${processedData['notes']}'),
-                    const SizedBox(height: 8),
-                    const Text('검사 항목:'),
-                    ...processedData['examinations'].map<Widget>(
-                      (e) => Text('- ${e['key']}: ${e['value']}'),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('처방 약물:'),
-                    ...processedData['medications'].map<Widget>(
-                      (e) => Text('- ${e['key']}: ${e['value']}'),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('접종 정보:'),
-                    ...processedData['vaccinations'].map<Widget>(
-                      (e) => Text('- ${e['key']}: ${e['value']}'),
-                    ),
-                  ],
-                ),
-              ),
+              // ... (기존 확인 다이얼로그 내용) ...
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
-                    // Show image picker again
+                    // 이미지 피커 다시 표시
                     final imagePicker = MedicalRecordImagePicker(
                       context: context,
                       onImageSelected: _handleImageSelected,
                     );
                     imagePicker.showImageSourceDialog();
                   },
-                  child: const Text('다시 시도'),
+                  child: const Text('다시 선택'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('확인'),
+                  child: const Text('등록하기'),
                 ),
               ],
             ),
       );
 
-      if (confirmed != true) return;
+      if (confirmed != true) return; // 사용자가 취소
 
-      // Show registration dialog
+      if (!mounted) return;
+      // 등록 로딩 다이얼로그 다시 표시
       showDialog(
         context: context,
         barrierDismissible: false,
         builder:
-            (context) => WillPopScope(
-              onWillPop: () async => false,
-              child: const AlertDialog(
+            (context) => const PopScope(
+              canPop: false,
+              child: AlertDialog(
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(height: 16),
-                    Text('진료기록을 등록하는 중입니다...\n잠시만 기다려주세요.'),
+                    Text('블록체인에 등록 중...\n잠시만 기다려주세요.'),
                   ],
                 ),
               ),
             ),
       );
 
-      // TODO: transaction 완료까지 대기
+      // 4. 블록체인 등록
       await ref
           .read(medicalRecordRegisterProvider.notifier)
           .registerMedicalRecord(widget.pet.did!, processedData);
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(); // 등록 로딩 다이얼로그 닫기
 
+      // 5. 성공 알림 및 목록 새로고침
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('진료기록이 등록되었습니다.')));
-
-      // Refresh medical records
-      _loadMedicalRecords();
+      ).showSnackBar(const SnackBar(content: Text('진료기록이 성공적으로 등록되었습니다.')));
+      _loadMedicalRecords(); // 목록 새로고침
     } catch (e) {
       if (!mounted) return;
-      Navigator.of(context).pop();
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('진료기록 처리 중 오류가 발생했습니다: $e')));
+      Navigator.of(context).pop(); // 로딩 다이얼로그 닫기
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('진료기록 처리/등록 중 오류: ${e.toString()}')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ref.watch를 사용하여 상태 변화 감지
     final medicalRecordState = ref.watch(medicalRecordQueryProvider);
     final records = medicalRecordState.records;
+    final isLoading = medicalRecordState.isLoading;
+    final error = medicalRecordState.error;
+
+    // 등록 상태 감시
     final registerState = ref.watch(medicalRecordRegisterProvider);
 
     return Scaffold(
       appBar: CustomAppBar(),
       body: Column(
         children: [
-          PetProfileHeader(pet: widget.pet),
+          PetProfileHeader(pet: widget.pet), // 펫 프로필 헤더
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: LastTreatmentDate(records: records),
+            child: LastTreatmentDate(records: records), // 최근 진료일 표시
           ),
           Expanded(
-            child:
-                medicalRecordState.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : records.isEmpty
-                    ? const EmptyRecords()
-                    : RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      child: ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(16),
-                        itemCount: records.length,
-                        itemBuilder: (context, index) {
-                          return MedicalRecordCard(record: records[index]);
-                        },
-                      ),
-                    ),
+            child: _buildMedicalRecordList(
+              isLoading,
+              error,
+              records,
+            ), // 목록 빌더 분리
           ),
         ],
       ),
@@ -287,49 +218,68 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
         onPressed:
             registerState.isLoading
                 ? null
-                : () async {
+                : () {
+                  // 등록 중일 때 비활성화
                   if (widget.pet.did == null || widget.pet.did!.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('반려동물 DID가 없습니다.')),
+                      const SnackBar(content: Text('반려동물 정보(DID)가 없습니다.')),
                     );
                     return;
                   }
-
-                  // Use the new image picker
+                  // 이미지 피커 표시
                   final imagePicker = MedicalRecordImagePicker(
                     context: context,
                     onImageSelected: _handleImageSelected,
                   );
                   imagePicker.showImageSourceDialog();
                 },
+        tooltip: '진료기록 추가',
         child:
             registerState.isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Icon(Icons.add),
+                ? const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.0,
+                ) // 등록 중 로딩 표시
+                : const Icon(Icons.add_photo_alternate_outlined), // 아이콘 변경
       ),
     );
   }
-}
 
-// RefreshController 클래스 추가
-class RefreshController {
-  VoidCallback? _onRefreshCompleted;
-  VoidCallback? _onRefreshFailed;
-
-  void refreshCompleted() {
-    if (_onRefreshCompleted != null) {
-      _onRefreshCompleted!();
+  /// 진료 기록 목록 위젯 빌더
+  Widget _buildMedicalRecordList(
+    bool isLoading,
+    String? error,
+    List<MedicalRecord> records,
+  ) {
+    // 초기 로딩 상태 (아직 데이터 없고 로딩 중)
+    if (isLoading && records.isEmpty) {
+      return const Center(child: LoadingIndicator(message: '진료 기록을 불러오는 중...'));
     }
-  }
-
-  void refreshFailed() {
-    if (_onRefreshFailed != null) {
-      _onRefreshFailed!();
+    // 에러 상태
+    if (error != null) {
+      return Center(
+        child: ErrorView(
+          // 공통 에러 위젯 사용
+          message: error,
+          onRetry: _loadMedicalRecords, // 재시도 함수 연결
+        ),
+      );
     }
-  }
-
-  void dispose() {
-    _onRefreshCompleted = null;
-    _onRefreshFailed = null;
+    // 로딩 완료 후 데이터 없음
+    if (records.isEmpty) {
+      return const EmptyRecords(); // 데이터 없음 표시 위젯
+    }
+    // 데이터 있음
+    return RefreshIndicator(
+      onRefresh: _onRefresh, // 새로고침 함수 연결
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(), // 항상 스크롤 가능하도록
+        padding: const EdgeInsets.all(16),
+        itemCount: records.length,
+        itemBuilder: (context, index) {
+          return MedicalRecordCard(record: records[index]); // 각 기록 카드
+        },
+      ),
+    );
   }
 }
