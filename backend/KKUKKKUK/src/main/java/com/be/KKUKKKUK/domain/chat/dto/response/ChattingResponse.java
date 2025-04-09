@@ -1,19 +1,29 @@
 package com.be.KKUKKKUK.domain.chat.dto.response;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Setter
+@Data
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ChattingResponse {
-    private String messageId;
+    private Long id;
+
     private String content;
-    private Integer hospitalId;
-    private String hospitalName;
-    private LocalDateTime createdAt;
+
+    private Long chatRoomId;
+
+    private Integer senderId;
+
+    private String senderName;
+
+    private LocalDateTime sentAt;
+
+    private Boolean flagRead;
+
+    private LocalDateTime readAt;
+
+    private Boolean flagSentByMe;
 }

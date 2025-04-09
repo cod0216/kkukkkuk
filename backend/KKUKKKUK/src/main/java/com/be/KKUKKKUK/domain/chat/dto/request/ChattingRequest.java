@@ -1,19 +1,13 @@
 package com.be.KKUKKKUK.domain.chat.dto.request;
 
-import com.be.KKUKKKUK.domain.chat.entity.Chat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ChattingRequest {
-    private String content;
-    private Integer hospitalId;
 
-    public Chat toChatEntity() {
-        return Chat.builder()
-                .content(content)
-                .build();
-    }
+    @NotBlank(message = "메시지 내용은 필수입니다")
+    @Size(max = 1000, message = "메시지는 1000자를 초과할 수 없습니다")
+    private String content;
 }

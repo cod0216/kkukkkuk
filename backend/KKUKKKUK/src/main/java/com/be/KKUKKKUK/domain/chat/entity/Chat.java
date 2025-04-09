@@ -7,33 +7,40 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "chat")
+@Builder
 @Getter
 @Setter
-@Builder
+@ToString(exclude = "chatRoom")
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Chat {
+
     @Id
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatroom", nullable = false)
+    @JoinColumn(name = "sender_hospital_id", nullable = false)
+    private Hospital sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chatroom_id", nullable = false)
     private ChatRoom chatRoom;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "sent_at", nullable = false, updatable = false)
+    private LocalDateTime sentAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hospital_id")
-    private Hospital hospital;
+    @Column(name = "flag_read", nullable = false)
+    private Boolean flagRead = false;
+
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
 }
