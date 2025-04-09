@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초 생성<br>
+ * 25.04.09          eunchang           Class 이름 수정<br>
  */
 
 @Service
@@ -33,7 +34,7 @@ public class VaccinationRedisService {
     private final VaccinationRepository vaccinationRepository;
     private final RedisService redisService;
     private static final String SUFFIX = "*";
-    private static final String PREFIX = " autocorrect:diagnosis:";
+    private static final String PREFIX = "autocorrect:vaccination:";
     private static final int MAX_SIZE = 100;
 
     /**

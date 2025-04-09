@@ -16,6 +16,7 @@ import java.util.Optional;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초생성<br>
+ * 25.04.08          eunchang           existsByName 추가 <br>
  * <br>
  */
 

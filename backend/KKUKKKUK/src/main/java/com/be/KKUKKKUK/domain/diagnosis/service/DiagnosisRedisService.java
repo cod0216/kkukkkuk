@@ -36,7 +36,7 @@ public class DiagnosisRedisService {
     private final DiagnosisRepository diagnosisRepository;
     private final RedisService redisService;
     private static final String SUFFIX = "*";
-    private static final String PREFIX = " autocorrect:diagnosis:";
+    private static final String PREFIX = "autocorrect:diagnosis:";
     private static final int MAX_SIZE = 100;
 
     /**
