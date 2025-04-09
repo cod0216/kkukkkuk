@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
 import 'package:kkuk_kkuk/pages/main/notifiers/pet_notifier.dart';
 import 'package:kkuk_kkuk/widgets/main/add_pet_button.dart';
+import 'package:kkuk_kkuk/widgets/pet/empty_pet_placeholder_card.dart';
 import 'package:kkuk_kkuk/widgets/pet/pet_carousel.dart';
 import 'package:kkuk_kkuk/widgets/main/qr_scan_button.dart';
 
@@ -55,60 +56,47 @@ class _PetsViewState extends ConsumerState<PetsView>
       child: RefreshIndicator(
         onRefresh: _refreshPetList,
         child: Column(
-          // 전체 구조 Column
           children: [
             Expanded(
-              // 스크롤 가능한 영역
               child: ListView(
-                padding: EdgeInsets.zero, // ListView 기본 패딩 제거
+                padding: EdgeInsets.zero,
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  // 1. 캐러셀 상단 여백
-                  const SizedBox(height: 24.0), // 값 조절
-
+                  const SizedBox(height: 24.0),
+                  // -- 펫 카드 영역 --
                   if (petState.isLoading && pets.isEmpty)
                     const Center(child: CircularProgressIndicator())
                   else if (pets.isEmpty)
-                    // 펫 없을 때: AddPetButton (큰 카드 형태)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32.0,
-                        vertical: 50.0,
-                      ),
-                      // AddPetButton 자체가 크므로 내부 Column 사용 안 함
-                      child: AddNewPetInlineButton(
-                        onTap: _navigateToPetRegister,
-                      ),
+                    Column(
+                      children: [
+                        EmptyPetPlaceholderCard(onTap: _navigateToPetRegister),
+                      ],
                     )
                   else
-                    // 펫 있을 때: 캐러셀 + 추가 버튼
                     Column(
                       children: [
                         PetCarousel(
                           pets: pets,
                           onPetTap: (pet) => _onPetTap(context, pet),
                         ),
-                        // 2. 캐러셀과 '+' 버튼 사이 여백
-                        const SizedBox(height: 20.0), // 값 조절
-                        AddNewPetInlineButton(onTap: _navigateToPetRegister),
                       ],
                     ),
-                  // 3. '+' 버튼과 '병원 찾기' 버튼 사이 여백 (ListView 마지막에 추가)
-                  const SizedBox(height: 24.0), // 값 조절
+
+                  // -- 버튼 영역 --
+                  const SizedBox(height: 24.0),
+                  AddNewPetInlineButton(onTap: _navigateToPetRegister),
+                  const SizedBox(height: 24.0),
+
+                  FindHospitalButton(), // TODO: FindHospitalButton 구현 확인
+                  const SizedBox(height: 16.0),
+                  QrScanButton(
+                    onTap: () {
+                      context.push('/qr-scanner');
+                    },
+                  ),
                 ],
               ),
-            ), // Expanded 끝
-            // --- 고정 버튼 영역 ---
-            // 4. '병원 찾기' 버튼과 'QR 스캔' 버튼 사이 여백
-            FindHospitalButton(), // TODO: FindHospitalButton 구현 확인
-            const SizedBox(height: 8.0), // 값 조절
-            QrScanButton(
-              onTap: () {
-                context.push('/qr-scanner');
-              },
             ),
-            // 5. 'QR 스캔' 버튼 하단 여백 (QrScanButton 위젯 내부에 Padding(16)이 이미 있음)
-            // 추가 여백 필요시 SizedBox(height: 16.0) 추가
           ],
         ),
       ),
