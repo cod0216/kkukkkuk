@@ -13,7 +13,7 @@ import 'package:kkuk_kkuk/entities/wallet/wallet.dart';
 import 'package:kkuk_kkuk/features/auth/usecases/auth_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/user/usecase/user_usecase_providers.dart';
 import 'package:kkuk_kkuk/features/wallet/usecase/wallet_usecase_providers.dart';
-import 'package:kkuk_kkuk/pages/auth/notifiers/auth_notifier.dart';
+import 'package:kkuk_kkuk/pages/splash/notifiers/auth_notifier.dart';
 import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
 
 /// 마이페이지 컨트롤러 - 마이페이지의 비즈니스 로직을 처리하는 클래스

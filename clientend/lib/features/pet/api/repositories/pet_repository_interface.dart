@@ -63,4 +63,8 @@ abstract class IPetRepository {
   Future<Map<String, dynamic>> processMedicalRecordImage(
     Map<String, dynamic> ocrData,
   );
+
+  Future<List<String>> getMedicalRecordWithUpdates(String originalRecordKey);
+
+  Future<List<String>> getPetOriginalRecords(String petAddress);
 }
