@@ -20,5 +20,9 @@ abstract class MedicalRecord with _$MedicalRecord {
     required String status,
     required bool flagCertificated,
     @Default([]) List<String> pictures,
+    @Default(false) bool isUpdate,
+    String? originalRecordKey,
+    @Default('') String recordKey,
+    // --- ---
   }) = _MedicalRecord;
 }

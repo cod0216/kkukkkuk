@@ -35,7 +35,7 @@ class RegistryContract {
   late final ContractFunction _getOwnedPetsCount;
   late final ContractFunction _getPetHospitals;
   late final ContractFunction _checkSharingPermission;
-  late final ContractFunction _getMedicalRecordUpdates;
+  late final ContractFunction _getMedicalRecordWithUpdates;
   late final ContractFunction _getPetOriginalRecords;
 
   RegistryContract(this._blockchainClient);
@@ -76,7 +76,9 @@ class RegistryContract {
       _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
       _getPetHospitals = _contract.function('getPetHospitals');
       _checkSharingPermission = _contract.function('checkSharingPermission');
-      _getMedicalRecordUpdates = _contract.function('getMedicalRecordUpdates');
+      _getMedicalRecordWithUpdates = _contract.function(
+        'getMedicalRecordWithUpdates',
+      );
       _getPetOriginalRecords = _contract.function('getPetOriginalRecords');
     } catch (e) {
       print('컨트랙트 초기화 오류: $e');
@@ -626,23 +628,26 @@ class RegistryContract {
     }
   }
 
-  Future<List<String>> getMedicalRecordWithUpdates(
+  Future<Map<String, dynamic>> getMedicalRecordWithUpdates(
+    String petAddress,
     String originalRecordKey,
   ) async {
     try {
       final result = await _blockchainClient.client.call(
         sender: await _getCurrentUserAddress(),
         contract: _contract,
-        function: _getMedicalRecordUpdates,
-        params: [originalRecordKey],
+        function: _getMedicalRecordWithUpdates,
+        params: [EthereumAddress.fromHex(petAddress), originalRecordKey],
       );
 
       if (result.isEmpty) {
-        return [];
+        return {'originalRecord': '', 'updateRecords': <String>[]};
       }
 
-      final List<String> recordKeys = (result[0] as List).cast<String>();
-      return recordKeys;
+      final String originalRecord = result[0] as String;
+      final List<String> updateRecords = (result[1] as List).cast<String>();
+
+      return {'originalRecord': originalRecord, 'updateRecords': updateRecords};
     } catch (e) {
       print('의료기록 업데이트 목록 조회 오류: $e');
       throw Exception('Failed to get medical record updates: $e');

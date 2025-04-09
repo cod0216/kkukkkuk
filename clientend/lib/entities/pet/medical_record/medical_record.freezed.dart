@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MedicalRecord {
 
- DateTime get treatmentDate; String get diagnosis; String get veterinarian; String get hospitalName; String get hospitalAddress; List<Examination>? get examinations; List<Medication>? get medications; List<Vaccination>? get vaccinations; String? get memo; String get status; bool get flagCertificated; List<String> get pictures;
+ DateTime get treatmentDate; String get diagnosis; String get veterinarian; String get hospitalName; String get hospitalAddress; List<Examination>? get examinations; List<Medication>? get medications; List<Vaccination>? get vaccinations; String? get memo; String get status; bool get flagCertificated; List<String> get pictures; bool get isUpdate; String? get originalRecordKey; String get recordKey;
 /// Create a copy of MedicalRecord
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +26,16 @@ $MedicalRecordCopyWith<MedicalRecord> get copyWith => _$MedicalRecordCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MedicalRecord&&(identical(other.treatmentDate, treatmentDate) || other.treatmentDate == treatmentDate)&&(identical(other.diagnosis, diagnosis) || other.diagnosis == diagnosis)&&(identical(other.veterinarian, veterinarian) || other.veterinarian == veterinarian)&&(identical(other.hospitalName, hospitalName) || other.hospitalName == hospitalName)&&(identical(other.hospitalAddress, hospitalAddress) || other.hospitalAddress == hospitalAddress)&&const DeepCollectionEquality().equals(other.examinations, examinations)&&const DeepCollectionEquality().equals(other.medications, medications)&&const DeepCollectionEquality().equals(other.vaccinations, vaccinations)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.status, status) || other.status == status)&&(identical(other.flagCertificated, flagCertificated) || other.flagCertificated == flagCertificated)&&const DeepCollectionEquality().equals(other.pictures, pictures));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MedicalRecord&&(identical(other.treatmentDate, treatmentDate) || other.treatmentDate == treatmentDate)&&(identical(other.diagnosis, diagnosis) || other.diagnosis == diagnosis)&&(identical(other.veterinarian, veterinarian) || other.veterinarian == veterinarian)&&(identical(other.hospitalName, hospitalName) || other.hospitalName == hospitalName)&&(identical(other.hospitalAddress, hospitalAddress) || other.hospitalAddress == hospitalAddress)&&const DeepCollectionEquality().equals(other.examinations, examinations)&&const DeepCollectionEquality().equals(other.medications, medications)&&const DeepCollectionEquality().equals(other.vaccinations, vaccinations)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.status, status) || other.status == status)&&(identical(other.flagCertificated, flagCertificated) || other.flagCertificated == flagCertificated)&&const DeepCollectionEquality().equals(other.pictures, pictures)&&(identical(other.isUpdate, isUpdate) || other.isUpdate == isUpdate)&&(identical(other.originalRecordKey, originalRecordKey) || other.originalRecordKey == originalRecordKey)&&(identical(other.recordKey, recordKey) || other.recordKey == recordKey));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,treatmentDate,diagnosis,veterinarian,hospitalName,hospitalAddress,const DeepCollectionEquality().hash(examinations),const DeepCollectionEquality().hash(medications),const DeepCollectionEquality().hash(vaccinations),memo,status,flagCertificated,const DeepCollectionEquality().hash(pictures));
+int get hashCode => Object.hash(runtimeType,treatmentDate,diagnosis,veterinarian,hospitalName,hospitalAddress,const DeepCollectionEquality().hash(examinations),const DeepCollectionEquality().hash(medications),const DeepCollectionEquality().hash(vaccinations),memo,status,flagCertificated,const DeepCollectionEquality().hash(pictures),isUpdate,originalRecordKey,recordKey);
 
 @override
 String toString() {
-  return 'MedicalRecord(treatmentDate: $treatmentDate, diagnosis: $diagnosis, veterinarian: $veterinarian, hospitalName: $hospitalName, hospitalAddress: $hospitalAddress, examinations: $examinations, medications: $medications, vaccinations: $vaccinations, memo: $memo, status: $status, flagCertificated: $flagCertificated, pictures: $pictures)';
+  return 'MedicalRecord(treatmentDate: $treatmentDate, diagnosis: $diagnosis, veterinarian: $veterinarian, hospitalName: $hospitalName, hospitalAddress: $hospitalAddress, examinations: $examinations, medications: $medications, vaccinations: $vaccinations, memo: $memo, status: $status, flagCertificated: $flagCertificated, pictures: $pictures, isUpdate: $isUpdate, originalRecordKey: $originalRecordKey, recordKey: $recordKey)';
 }
 
 
@@ -46,7 +46,7 @@ abstract mixin class $MedicalRecordCopyWith<$Res>  {
   factory $MedicalRecordCopyWith(MedicalRecord value, $Res Function(MedicalRecord) _then) = _$MedicalRecordCopyWithImpl;
 @useResult
 $Res call({
- DateTime treatmentDate, String diagnosis, String veterinarian, String hospitalName, String hospitalAddress, List<Examination>? examinations, List<Medication>? medications, List<Vaccination>? vaccinations, String? memo, String status, bool flagCertificated, List<String> pictures
+ DateTime treatmentDate, String diagnosis, String veterinarian, String hospitalName, String hospitalAddress, List<Examination>? examinations, List<Medication>? medications, List<Vaccination>? vaccinations, String? memo, String status, bool flagCertificated, List<String> pictures, bool isUpdate, String? originalRecordKey, String recordKey
 });
 
 
@@ -63,7 +63,7 @@ class _$MedicalRecordCopyWithImpl<$Res>
 
 /// Create a copy of MedicalRecord
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? treatmentDate = null,Object? diagnosis = null,Object? veterinarian = null,Object? hospitalName = null,Object? hospitalAddress = null,Object? examinations = freezed,Object? medications = freezed,Object? vaccinations = freezed,Object? memo = freezed,Object? status = null,Object? flagCertificated = null,Object? pictures = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? treatmentDate = null,Object? diagnosis = null,Object? veterinarian = null,Object? hospitalName = null,Object? hospitalAddress = null,Object? examinations = freezed,Object? medications = freezed,Object? vaccinations = freezed,Object? memo = freezed,Object? status = null,Object? flagCertificated = null,Object? pictures = null,Object? isUpdate = null,Object? originalRecordKey = freezed,Object? recordKey = null,}) {
   return _then(_self.copyWith(
 treatmentDate: null == treatmentDate ? _self.treatmentDate : treatmentDate // ignore: cast_nullable_to_non_nullable
 as DateTime,diagnosis: null == diagnosis ? _self.diagnosis : diagnosis // ignore: cast_nullable_to_non_nullable
@@ -77,7 +77,10 @@ as List<Vaccination>?,memo: freezed == memo ? _self.memo : memo // ignore: cast_
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,flagCertificated: null == flagCertificated ? _self.flagCertificated : flagCertificated // ignore: cast_nullable_to_non_nullable
 as bool,pictures: null == pictures ? _self.pictures : pictures // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,isUpdate: null == isUpdate ? _self.isUpdate : isUpdate // ignore: cast_nullable_to_non_nullable
+as bool,originalRecordKey: freezed == originalRecordKey ? _self.originalRecordKey : originalRecordKey // ignore: cast_nullable_to_non_nullable
+as String?,recordKey: null == recordKey ? _self.recordKey : recordKey // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -88,7 +91,7 @@ as List<String>,
 
 
 class _MedicalRecord implements MedicalRecord {
-  const _MedicalRecord({required this.treatmentDate, required this.diagnosis, required this.veterinarian, required this.hospitalName, required this.hospitalAddress, final  List<Examination>? examinations, final  List<Medication>? medications, final  List<Vaccination>? vaccinations, this.memo, required this.status, required this.flagCertificated, final  List<String> pictures = const []}): _examinations = examinations,_medications = medications,_vaccinations = vaccinations,_pictures = pictures;
+  const _MedicalRecord({required this.treatmentDate, required this.diagnosis, required this.veterinarian, required this.hospitalName, required this.hospitalAddress, final  List<Examination>? examinations, final  List<Medication>? medications, final  List<Vaccination>? vaccinations, this.memo, required this.status, required this.flagCertificated, final  List<String> pictures = const [], this.isUpdate = false, this.originalRecordKey, this.recordKey = ''}): _examinations = examinations,_medications = medications,_vaccinations = vaccinations,_pictures = pictures;
   
 
 @override final  DateTime treatmentDate;
@@ -133,6 +136,9 @@ class _MedicalRecord implements MedicalRecord {
   return EqualUnmodifiableListView(_pictures);
 }
 
+@override@JsonKey() final  bool isUpdate;
+@override final  String? originalRecordKey;
+@override@JsonKey() final  String recordKey;
 
 /// Create a copy of MedicalRecord
 /// with the given fields replaced by the non-null parameter values.
@@ -144,16 +150,16 @@ _$MedicalRecordCopyWith<_MedicalRecord> get copyWith => __$MedicalRecordCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MedicalRecord&&(identical(other.treatmentDate, treatmentDate) || other.treatmentDate == treatmentDate)&&(identical(other.diagnosis, diagnosis) || other.diagnosis == diagnosis)&&(identical(other.veterinarian, veterinarian) || other.veterinarian == veterinarian)&&(identical(other.hospitalName, hospitalName) || other.hospitalName == hospitalName)&&(identical(other.hospitalAddress, hospitalAddress) || other.hospitalAddress == hospitalAddress)&&const DeepCollectionEquality().equals(other._examinations, _examinations)&&const DeepCollectionEquality().equals(other._medications, _medications)&&const DeepCollectionEquality().equals(other._vaccinations, _vaccinations)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.status, status) || other.status == status)&&(identical(other.flagCertificated, flagCertificated) || other.flagCertificated == flagCertificated)&&const DeepCollectionEquality().equals(other._pictures, _pictures));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MedicalRecord&&(identical(other.treatmentDate, treatmentDate) || other.treatmentDate == treatmentDate)&&(identical(other.diagnosis, diagnosis) || other.diagnosis == diagnosis)&&(identical(other.veterinarian, veterinarian) || other.veterinarian == veterinarian)&&(identical(other.hospitalName, hospitalName) || other.hospitalName == hospitalName)&&(identical(other.hospitalAddress, hospitalAddress) || other.hospitalAddress == hospitalAddress)&&const DeepCollectionEquality().equals(other._examinations, _examinations)&&const DeepCollectionEquality().equals(other._medications, _medications)&&const DeepCollectionEquality().equals(other._vaccinations, _vaccinations)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.status, status) || other.status == status)&&(identical(other.flagCertificated, flagCertificated) || other.flagCertificated == flagCertificated)&&const DeepCollectionEquality().equals(other._pictures, _pictures)&&(identical(other.isUpdate, isUpdate) || other.isUpdate == isUpdate)&&(identical(other.originalRecordKey, originalRecordKey) || other.originalRecordKey == originalRecordKey)&&(identical(other.recordKey, recordKey) || other.recordKey == recordKey));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,treatmentDate,diagnosis,veterinarian,hospitalName,hospitalAddress,const DeepCollectionEquality().hash(_examinations),const DeepCollectionEquality().hash(_medications),const DeepCollectionEquality().hash(_vaccinations),memo,status,flagCertificated,const DeepCollectionEquality().hash(_pictures));
+int get hashCode => Object.hash(runtimeType,treatmentDate,diagnosis,veterinarian,hospitalName,hospitalAddress,const DeepCollectionEquality().hash(_examinations),const DeepCollectionEquality().hash(_medications),const DeepCollectionEquality().hash(_vaccinations),memo,status,flagCertificated,const DeepCollectionEquality().hash(_pictures),isUpdate,originalRecordKey,recordKey);
 
 @override
 String toString() {
-  return 'MedicalRecord(treatmentDate: $treatmentDate, diagnosis: $diagnosis, veterinarian: $veterinarian, hospitalName: $hospitalName, hospitalAddress: $hospitalAddress, examinations: $examinations, medications: $medications, vaccinations: $vaccinations, memo: $memo, status: $status, flagCertificated: $flagCertificated, pictures: $pictures)';
+  return 'MedicalRecord(treatmentDate: $treatmentDate, diagnosis: $diagnosis, veterinarian: $veterinarian, hospitalName: $hospitalName, hospitalAddress: $hospitalAddress, examinations: $examinations, medications: $medications, vaccinations: $vaccinations, memo: $memo, status: $status, flagCertificated: $flagCertificated, pictures: $pictures, isUpdate: $isUpdate, originalRecordKey: $originalRecordKey, recordKey: $recordKey)';
 }
 
 
@@ -164,7 +170,7 @@ abstract mixin class _$MedicalRecordCopyWith<$Res> implements $MedicalRecordCopy
   factory _$MedicalRecordCopyWith(_MedicalRecord value, $Res Function(_MedicalRecord) _then) = __$MedicalRecordCopyWithImpl;
 @override @useResult
 $Res call({
- DateTime treatmentDate, String diagnosis, String veterinarian, String hospitalName, String hospitalAddress, List<Examination>? examinations, List<Medication>? medications, List<Vaccination>? vaccinations, String? memo, String status, bool flagCertificated, List<String> pictures
+ DateTime treatmentDate, String diagnosis, String veterinarian, String hospitalName, String hospitalAddress, List<Examination>? examinations, List<Medication>? medications, List<Vaccination>? vaccinations, String? memo, String status, bool flagCertificated, List<String> pictures, bool isUpdate, String? originalRecordKey, String recordKey
 });
 
 
@@ -181,7 +187,7 @@ class __$MedicalRecordCopyWithImpl<$Res>
 
 /// Create a copy of MedicalRecord
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? treatmentDate = null,Object? diagnosis = null,Object? veterinarian = null,Object? hospitalName = null,Object? hospitalAddress = null,Object? examinations = freezed,Object? medications = freezed,Object? vaccinations = freezed,Object? memo = freezed,Object? status = null,Object? flagCertificated = null,Object? pictures = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? treatmentDate = null,Object? diagnosis = null,Object? veterinarian = null,Object? hospitalName = null,Object? hospitalAddress = null,Object? examinations = freezed,Object? medications = freezed,Object? vaccinations = freezed,Object? memo = freezed,Object? status = null,Object? flagCertificated = null,Object? pictures = null,Object? isUpdate = null,Object? originalRecordKey = freezed,Object? recordKey = null,}) {
   return _then(_MedicalRecord(
 treatmentDate: null == treatmentDate ? _self.treatmentDate : treatmentDate // ignore: cast_nullable_to_non_nullable
 as DateTime,diagnosis: null == diagnosis ? _self.diagnosis : diagnosis // ignore: cast_nullable_to_non_nullable
@@ -195,7 +201,10 @@ as List<Vaccination>?,memo: freezed == memo ? _self.memo : memo // ignore: cast_
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,flagCertificated: null == flagCertificated ? _self.flagCertificated : flagCertificated // ignore: cast_nullable_to_non_nullable
 as bool,pictures: null == pictures ? _self._pictures : pictures // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,isUpdate: null == isUpdate ? _self.isUpdate : isUpdate // ignore: cast_nullable_to_non_nullable
+as bool,originalRecordKey: freezed == originalRecordKey ? _self.originalRecordKey : originalRecordKey // ignore: cast_nullable_to_non_nullable
+as String?,recordKey: null == recordKey ? _self.recordKey : recordKey // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
