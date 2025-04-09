@@ -25,10 +25,3 @@ export interface ChatRoomSummaryResponse {
   lastMessageAt: string;
   unreadMessageCount: number;
 }
-
-export interface ChatPopupProps {
-    roomId: string;
-    senderId: string;
-    receiverId: string;
-    onClose: () => void;
-  }

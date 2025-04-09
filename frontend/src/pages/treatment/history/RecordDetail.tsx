@@ -202,7 +202,7 @@ export const RecordDetail: React.FC<RecordDetailProps> = ({
         </div>
         <div className='flex justify-between items-center'>
           <div className="text-xs text-gray-600 font-medium mt-1">{record.hospitalName}</div>
-          <ChatEntryButton chatRoomId={record.hospitalAccountId} receiverId={record.hospitalAccountId}/>
+          <ChatEntryButton hospitalName={record.hospitalName} chatRoomId={record.hospitalAccountId} receiverId={record.hospitalAccountId}/>
         </div>
       </div>
 
