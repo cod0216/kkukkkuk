@@ -107,7 +107,9 @@ export const getRecordChanges = async (
         examinations: [],
         medications: [],
         vaccinations: []
-      }
+      },
+      flagCertificated: originalData.flagCertificated,
+      hospitalAccountId: originalData.hospitalAccountId || '',
     };
     
     // 모든 수정 기록을 처리하여 현재 기록을 제외한 이전 수정 기록만 추가
@@ -201,7 +203,9 @@ export const getRecordChanges = async (
             examinations: [],
             medications: [],
             vaccinations: []
-          }
+          },
+          flagCertificated: parsedUpdate.flagCertificated,
+          hospitalAccountId: parsedUpdate.hospitalAccountId || '',
         };
         
         validUpdateRecords.push(updateBlockchainRecord);
@@ -245,6 +249,10 @@ export const getRecordChanges = async (
     updatedRecord: BlockChainRecord,
   ): Promise<{ success: boolean; error?: string; newRecordId?: string }> => {
     try {
+      // 트랜잭션 시작 시간 기록
+      const startTime = performance.now();
+      console.log(`[트랜잭션 시작] 진료 기록 수정 - ${new Date().toISOString()}`);
+      
       // pictures 필드 디버깅
       console.log('updateBlockchainTreatment에 전달된 pictures 데이터:', {
         raw: updatedRecord.pictures,
@@ -369,7 +377,7 @@ export const getRecordChanges = async (
         pictures: picturesJson,
         status,
         flagCertificated,
-        treatmentDate // 새로 추가: 실제 진료 일시
+        treatmentDate
       });
       
       try {
@@ -392,6 +400,10 @@ export const getRecordChanges = async (
           status = updatedRecord.status || 'IN_PROGRESS';
         }
         
+        // 트랜잭션 실행 시작 시간 기록
+        const txStartTime = performance.now();
+        console.log(`[트랜잭션 실행] 진료 기록 수정 요청 - ${new Date().toISOString()}`);
+        
         // appendMedicalRecord 함수 호출하여 이전 기록을 참조하는 새 기록 생성
         const tx = await contract.appendMedicalRecord(
           petDID,
@@ -407,12 +419,26 @@ export const getRecordChanges = async (
           status,                // 진료 상태 추가
           flagCertificated,      // 병원 인증 여부 추가
           treatmentDate,         // 변경: 실제 진료 일시 전달
+          updatedRecord.hospitalAccountId || '', // 병원 계정 ID 추가
           { gasLimit: 300000000 }  // 가스 한도 증가
         );
         
+        console.log(`[트랜잭션 전송] TX Hash: ${tx.hash} - ${new Date().toISOString()}`);
+        console.log(`트랜잭션 요청 시간: ${((performance.now() - txStartTime) / 1000).toFixed(2)}초`);
+        
+        // 트랜잭션 완료 대기 시작 시간
+        const waitStartTime = performance.now();
+        console.log(`[트랜잭션 대기] 블록 생성 대기 중... - ${new Date().toISOString()}`);
+        
         // 트랜잭션 완료 대기
         const receipt = await tx.wait();
-        console.log('트랜잭션 완료:', receipt);
+        
+        // 트랜잭션 완료 시간 측정
+        const waitEndTime = performance.now();
+        const waitTime = (waitEndTime - waitStartTime) / 1000;
+        console.log(`[트랜잭션 완료] 블록 확인 완료 - ${new Date().toISOString()}`);
+        console.log(`트랜잭션 대기 시간: ${waitTime.toFixed(2)}초`);
+        console.log(`블록 번호: ${receipt.blockNumber}, 가스 사용량: ${receipt.gasUsed.toString()}`);
         
         // 트랜잭션 상태 확인
         if (receipt.status === 0) {
@@ -447,12 +473,20 @@ export const getRecordChanges = async (
           console.log('예상 레코드 ID 생성:', actualRecordId);
         }
         
+        // 총 소요 시간 측정
+        const endTime = performance.now();
+        const totalTime = (endTime - startTime) / 1000;
+        console.log(`[트랜잭션 완료] 총 소요 시간: ${totalTime.toFixed(2)}초 - ${new Date().toISOString()}`);
+        
         return {
           success: true,
           newRecordId: actualRecordId
         };
       } catch (error: any) {
-        console.error('진료 기록 수정 중 오류:', error);
+        // 트랜잭션 오류 시간 기록
+        const errorTime = performance.now();
+        const totalTime = (errorTime - startTime) / 1000;
+        console.error(`[트랜잭션 오류] 진료 기록 수정 중 오류 (${totalTime.toFixed(2)}초 소요):`, error);
         
         // 오류 메시지 개선
         let errorMessage = error.message || '진료 기록 수정 중 오류가 발생했습니다.';
@@ -594,7 +628,9 @@ export const getHospitalPetsWithRecords = async (): Promise<any[]> => {
                       examinations: [],
                       medications: [],
                       vaccinations: []
-                    }
+                    },
+                    flagCertificated: parsedOriginal.flagCertificated,
+                    hospitalAccountId: parsedOriginal.hospitalAccountId || '',
                   };
                   
                   // 수정 기록 파싱 및 처리
@@ -681,7 +717,9 @@ export const getHospitalPetsWithRecords = async (): Promise<any[]> => {
                             examinations: [],
                             medications: [],
                             vaccinations: []
-                          }
+                          },
+                          flagCertificated: parsedUpdate.flagCertificated,
+                          hospitalAccountId: parsedUpdate.hospitalAccountId || '',
                         };
                       } catch (error) {
                         console.error('수정 기록 파싱 오류:', error);
@@ -837,7 +875,7 @@ export const getLatestPetRecords = async (): Promise<{
                 
                 // 원본 의료기록 처리 - ID는 반드시 originalKey 사용
                 const originalBlockchainRecord: BlockChainRecord = {
-                  id: originalKey, // 중요: 원본 ID는 항상 medical_record_로 시작
+                  id: originalKey,
                   diagnosis: parsedOriginal.diagnosis || '정보 없음',
                   hospitalName: parsedOriginal.hospitalName || '병원 정보 없음',
                   doctorName: parsedOriginal.doctorName || '',
@@ -853,7 +891,9 @@ export const getLatestPetRecords = async (): Promise<{
                     examinations: [],
                     medications: [],
                     vaccinations: []
-                  }
+                  },
+                  flagCertificated: parsedOriginal.flagCertificated,
+                  hospitalAccountId: parsedOriginal.hospitalAccountId || '',
                 };
                 
                 // 수정 기록이 없는 경우 원본만 추가
@@ -929,7 +969,9 @@ export const getLatestPetRecords = async (): Promise<{
                         examinations: [],
                         medications: [],
                         vaccinations: []
-                      }
+                      },
+                      flagCertificated: parsedUpdate.flagCertificated,
+                      hospitalAccountId: parsedUpdate.hospitalAccountId || ''
                     };
                     
                     // 이전 기록과 타임스탬프가 동일한 경우 1초씩 차이 추가
@@ -1033,6 +1075,10 @@ export const createBlockchainTreatment = async (
   record: BlockChainRecord
 ): Promise<{ success: boolean; error?: string; newRecordId?: string }> => {
   try {
+    // 트랜잭션 시작 시간 기록
+    const startTime = performance.now();
+    console.log(`[트랜잭션 시작] 진료 기록 생성 - ${new Date().toISOString()}`);
+    
     // 블록체인 인증 서비스를 통해 계정 연결 및 Registry 컨트랙트 가져오기
     const { getRegistryContract, getSigner } = await import('@/services/blockchainAuthService');
     const contract = await getRegistryContract();
@@ -1119,6 +1165,10 @@ export const createBlockchainTreatment = async (
     });
     
     try {
+      // 트랜잭션 실행 시작 시간 기록
+      const txStartTime = performance.now();
+      console.log(`[트랜잭션 실행] 진료 기록 생성 요청 - ${new Date().toISOString()}`);
+      
       // addMedicalRecord 함수 호출하여 새 의료 기록 생성
       const tx = await contract.addMedicalRecord(
         petDID,
@@ -1133,12 +1183,26 @@ export const createBlockchainTreatment = async (
         status,                // 진료 상태 추가
         flagCertificated,      // 병원 인증 여부 추가
         treatmentDate,         // 진료 일시 전달
+        record.hospitalAccountId || '', // 병원 계정 ID 추가
         { gasLimit: 300000000 }  // 가스 한도 설정
       );
       
+      console.log(`[트랜잭션 전송] TX Hash: ${tx.hash} - ${new Date().toISOString()}`);
+      console.log(`트랜잭션 요청 시간: ${((performance.now() - txStartTime) / 1000).toFixed(2)}초`);
+      
+      // 트랜잭션 완료 대기 시작 시간
+      const waitStartTime = performance.now();
+      console.log(`[트랜잭션 대기] 블록 생성 대기 중... - ${new Date().toISOString()}`);
+      
       // 트랜잭션 완료 대기
       const receipt = await tx.wait();
-      console.log('트랜잭션 완료:', receipt);
+      
+      // 트랜잭션 완료 시간 측정
+      const waitEndTime = performance.now();
+      const waitTime = (waitEndTime - waitStartTime) / 1000;
+      console.log(`[트랜잭션 완료] 블록 확인 완료 - ${new Date().toISOString()}`);
+      console.log(`트랜잭션 대기 시간: ${waitTime.toFixed(2)}초`);
+      console.log(`블록 번호: ${receipt.blockNumber}, 가스 사용량: ${receipt.gasUsed.toString()}`);
       
       // 트랜잭션 상태 확인
       if (receipt.status === 0) {
@@ -1173,12 +1237,20 @@ export const createBlockchainTreatment = async (
         console.log('예상 레코드 ID 생성:', actualRecordId);
       }
       
+      // 총 소요 시간 측정
+      const endTime = performance.now();
+      const totalTime = (endTime - startTime) / 1000;
+      console.log(`[트랜잭션 완료] 총 소요 시간: ${totalTime.toFixed(2)}초 - ${new Date().toISOString()}`);
+      
       return {
         success: true,
         newRecordId: actualRecordId
       };
     } catch (error: any) {
-      console.error('진료 기록 생성 중 오류:', error);
+      // 트랜잭션 오류 시간 기록
+      const errorTime = performance.now();
+      const totalTime = (errorTime - startTime) / 1000;
+      console.error(`[트랜잭션 오류] 진료 기록 생성 중 오류 (${totalTime.toFixed(2)}초 소요):`, error);
       
       // 오류 메시지 개선
       let errorMessage = error.message || '진료 기록 생성 중 오류가 발생했습니다.';
@@ -1221,6 +1293,9 @@ export const softDeleteMedicalRecord = async (
     petDID: string,
     recordKey: string
   ): Promise<{ success: boolean; error?: string }> => {
+    // 트랜잭션 시작 시간 기록
+    const startTime = performance.now();
+    console.log(`[트랜잭션 시작] 진료 기록 삭제 - ${new Date().toISOString()}`);
     console.log('softDeleteMedicalRecord 함수 시작:', { petDID, recordKey });
     
     // DID 형식 확인 (0x로 시작하는지)
@@ -1310,6 +1385,10 @@ export const softDeleteMedicalRecord = async (
           console.error('함수 검증 중 오류:', fnError);
         }
         
+        // 트랜잭션 실행 시작 시간 기록
+        const txStartTime = performance.now();
+        console.log(`[트랜잭션 실행] 진료 기록 삭제 요청 - ${new Date().toISOString()}`);
+        
         // softDeleteMedicalRecord 함수 호출하여 진료 기록 소프트 삭제
         console.log('소프트 삭제 트랜잭션 요청 시작');
         const tx = await contract.softDeleteMedicalRecord(
@@ -1317,12 +1396,24 @@ export const softDeleteMedicalRecord = async (
           recordKey,
           { gasLimit: 300000000 }  // 가스 한도 설정
         );
-        console.log('트랜잭션 요청 성공:', tx.hash);
+        
+        console.log(`[트랜잭션 전송] TX Hash: ${tx.hash} - ${new Date().toISOString()}`);
+        console.log(`트랜잭션 요청 시간: ${((performance.now() - txStartTime) / 1000).toFixed(2)}초`);
+        
+        // 트랜잭션 완료 대기 시작 시간
+        const waitStartTime = performance.now();
+        console.log(`[트랜잭션 대기] 블록 생성 대기 중... - ${new Date().toISOString()}`);
         
         // 트랜잭션 완료 대기
         console.log('트랜잭션 완료 대기...');
         const receipt = await tx.wait();
-        console.log('트랜잭션 완료:', receipt);
+        
+        // 트랜잭션 완료 시간 측정
+        const waitEndTime = performance.now();
+        const waitTime = (waitEndTime - waitStartTime) / 1000;
+        console.log(`[트랜잭션 완료] 블록 확인 완료 - ${new Date().toISOString()}`);
+        console.log(`트랜잭션 대기 시간: ${waitTime.toFixed(2)}초`);
+        console.log(`블록 번호: ${receipt.blockNumber}, 가스 사용량: ${receipt.gasUsed.toString()}`);
         
         // 트랜잭션 상태 확인
         if (receipt.status === 0) {
@@ -1351,6 +1442,11 @@ export const softDeleteMedicalRecord = async (
         } catch (eventError) {
           console.warn('이벤트 조회 중 오류:', eventError);
         }
+        
+        // 총 소요 시간 측정
+        const endTime = performance.now();
+        const totalTime = (endTime - startTime) / 1000;
+        console.log(`[트랜잭션 완료] 총 소요 시간: ${totalTime.toFixed(2)}초 - ${new Date().toISOString()}`);
         
         return {
           success: true

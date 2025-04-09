@@ -46,7 +46,7 @@ export const getAllDrugs = async (): Promise<DrugsResponse> => {
     console.log(`[API] 전체 약품 목록 조회 요청`);
     
     // API 요청 (apiClient 사용)
-    const response = await apiClient.get('/api/drugs/');
+    const response = await apiClient.get('/api/drugs');
     
     // 응답 확인
     if (response.status === 200) {
@@ -208,15 +208,15 @@ export const getDrugAutoComplete = async (search: string, petBreed?: string): Pr
 
 /**
  * 약품 상세 정보를 조회합니다.
- * @param drugId 약품 ID
+ * @param drugName 약품 이름
  * @returns 약품 상세 정보
  */
-export const getDrugDetail = async (drugId: number): Promise<DrugDetailResponse> => {
+export const getDrugDetail = async (drugName: string): Promise<DrugDetailResponse> => {
   try {
-    console.log(`[API] 약품 상세 정보 조회 요청: ID ${drugId}`);
+    console.log(`[API] 약품 상세 정보 조회 요청: "${drugName}"`);
     
-    // API 요청
-    const response = await apiClient.get(`/api/drugs/${drugId}`);
+    // API 요청 (약품 이름으로 검색)
+    const response = await apiClient.get(`/api/drugs/${encodeURIComponent(drugName)}`);
     
     // 응답 확인
     if (response.status === 200) {

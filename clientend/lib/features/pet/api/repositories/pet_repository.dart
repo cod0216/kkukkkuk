@@ -364,6 +364,7 @@ class PetRepository implements IPetRepository {
     required String picturesJson,
     required String status,
     required bool flagCertificated,
+    DateTime? treatmentDate,
   }) async {
     try {
       return await _registryContract.addMedicalRecord(
@@ -379,6 +380,7 @@ class PetRepository implements IPetRepository {
         picturesJson: picturesJson,
         status: status,
         flagCertificated: flagCertificated,
+        treatmentDate: BigInt.from(treatmentDate?.millisecondsSinceEpoch ?? 0),
       );
     } catch (e) {
       print('진료 기록 추가 오류: $e');
@@ -453,6 +455,30 @@ class PetRepository implements IPetRepository {
         'medications': [],
         'vaccinations': [],
       };
+    }
+  }
+
+  @override
+  Future<List<String>> getMedicalRecordWithUpdates(
+    String originalRecordKey,
+  ) async {
+    try {
+      return await _registryContract.getMedicalRecordWithUpdates(
+        originalRecordKey,
+      );
+    } catch (e) {
+      print('의료기록 업데이트 목록 조회 오류: $e');
+      throw Exception('Failed to get medical record updates: $e');
+    }
+  }
+
+  @override
+  Future<List<String>> getPetOriginalRecords(String petAddress) async {
+    try {
+      return await _registryContract.getPetOriginalRecords(petAddress);
+    } catch (e) {
+      print('반려동물 원본 의료기록 목록 조회 오류: $e');
+      throw Exception('Failed to get pet original records: $e');
     }
   }
 }

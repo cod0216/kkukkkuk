@@ -13,7 +13,7 @@ export const NETWORK_CONFIG = {
 };
 
 // 컨트랙트 주소
-export const DID_REGISTRY_ADDRESS = '0x437b7C81dC9e4f0AcE47C98AB505235C437B972E';
+export const DID_REGISTRY_ADDRESS = '0x56e3e3B9d31B070c96e264b645D0763b2DC49e65';
 
 // 가스 설정
 export const GAS_SETTINGS = {
@@ -544,6 +544,79 @@ export const didRegistryABI = [
       },
       {
         "internalType": "string",
+        "name": "diagnosis",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "hospitalName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "doctorName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "notes",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "examinationsJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "medicationsJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "vaccinationsJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "picturesJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "flagCertificated",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "treatmentDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "hospitalAccountId",
+        "type": "string"
+      }
+    ],
+    "name": "addMedicalRecord",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "petAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
         "name": "previousRecordKey",
         "type": "string"
       },
@@ -601,6 +674,84 @@ export const didRegistryABI = [
         "internalType": "uint256",
         "name": "treatmentDate",
         "type": "uint256"
+      }
+    ],
+    "name": "appendMedicalRecord",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "petAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "previousRecordKey",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "diagnosis",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "hospitalName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "doctorName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "notes",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "examinationsJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "medicationsJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "vaccinationsJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "picturesJson",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "flagCertificated",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "treatmentDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "hospitalAccountId",
+        "type": "string"
       }
     ],
     "name": "appendMedicalRecord",
