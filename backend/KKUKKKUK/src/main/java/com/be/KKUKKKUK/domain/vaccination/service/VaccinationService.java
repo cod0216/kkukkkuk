@@ -26,6 +26,7 @@ import java.util.Objects;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초생성<br>
+ * 25.04.09          eunchang           update 및 delete에 관한 Redis메서드 추가<br>
  * <br>
  */
 
@@ -36,7 +37,7 @@ public class VaccinationService {
     private final VaccinationRepository vaccinationRepository;
     private final HospitalService hospitalService;
     private final VaccinationMapper vaccinationMapper;
-    private final VaccinationAutoCompleteService vaccinationAutoCompleteService;
+    private final VaccinationRedisService vaccinationRedisService;
 
     /**
      * 작성한 예방 접종항목을 모두 조회힙니다.
@@ -44,7 +45,7 @@ public class VaccinationService {
      * @param HospitalId 동물병원 Id
      * @return 해당 동물 병원에서 작성한 예방 접종 항목 모두 조회
      */
-    public List<VaccinationResponse> getVaccinations(Integer HospitalId){
+    public List<VaccinationResponse> getVaccinations(Integer HospitalId) {
         List<Vaccination> vaccinationList = vaccinationRepository.getVaccinationByHospitalId(HospitalId);
         return vaccinationMapper.mapVaccinationToVaccinationResponseList(vaccinationList);
     }
@@ -52,55 +53,66 @@ public class VaccinationService {
     /**
      * 해당 예방 접종 항목을 제거합니다.
      *
-     * @param hospitalId 동물병원 id
+     * @param hospitalId    동물병원 id
      * @param vaccinationId 삭제할 예방 접종 항목 id
      * @throws ApiException 삭제할 예방 접종 항목을 찾을 수 없을 시
      */
-    public void deleteVaccination(Integer hospitalId, Integer vaccinationId){
+    public void deleteVaccination(Integer hospitalId, Integer vaccinationId) {
         Vaccination vaccination = vaccinationRepository.getVaccinationById(vaccinationId).orElseThrow(
-                ()-> new ApiException(ErrorCode.DIA_NOT_FOUND));
+                () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToVaccination(vaccination, hospitalId);
         vaccinationRepository.delete(vaccination);
+        vaccinationRedisService.removeVaccinationFromRedis(vaccination);
+
     }
 
     /**
      * 예방 접종 항목을 수정합니다.
      *
-     * @param hospitalId 병원 id
+     * @param hospitalId    병원 id
      * @param vaccinationId 수정할 예방 접종 항목 id
-     * @param request 수정된 예방 접종 항목을 반환합니다.
+     * @param request       수정된 예방 접종 항목을 반환합니다.
      * @throws ApiException 수정할 예방 접종 항목을 찾을 수 없을 시
      */
-    public VaccinationResponse updateVaccination(Integer hospitalId, Integer vaccinationId, VaccinationRequest request){
+    public VaccinationResponse updateVaccination(Integer hospitalId, Integer vaccinationId, VaccinationRequest request) {
         Vaccination vaccination = vaccinationRepository.getVaccinationById(vaccinationId).orElseThrow(
-                ()-> new ApiException(ErrorCode.DIA_NOT_FOUND));
+                () -> new ApiException(ErrorCode.DIA_NOT_FOUND));
         checkPermissionToVaccination(vaccination, hospitalId);
-        vaccination.setName(request.getName());
 
-        return vaccinationMapper.mapVaccinationToVaccinationResponse(vaccinationRepository.save(vaccination));
+        vaccinationRedisService.removeVaccinationFromRedis(vaccination);
+
+        vaccination.setName(request.getName());
+        Vaccination updatedVaccination = vaccinationRepository.save(vaccination);
+
+        vaccinationRedisService.addvaccinationToRedis(updatedVaccination);
+
+        return vaccinationMapper.mapVaccinationToVaccinationResponse(updatedVaccination);
     }
 
     /**
      * 이름이 포함된 예방 접종 항목을 반환합니다.
+     *
      * @param name 조회할 예방 접종 이름
      * @return 조회할 예방 접종 이름이 포함된 예방 접종 항목들을 반환합니다.
      */
-    public List<VaccinationResponse> searchVaccinations(Integer hospitalId, String name){
+    public List<VaccinationResponse> searchVaccinations(Integer hospitalId, String name) {
         List<Vaccination> vaccinationList = vaccinationRepository.findByHospitalIdAndNameContaining(hospitalId, name);
         return vaccinationMapper.mapVaccinationToVaccinationResponseList(vaccinationList);
     }
 
     /**
-     *  예방 접종 항목을 생성 반환 및 레디스에 추가합니다.
+     * 예방 접종 항목을 생성 반환 및 레디스에 추가합니다.
+     *
      * @param hospitalId 병원 id
-     * @param request 생성할 예방 접종 이름
+     * @param request    생성할 예방 접종 이름
      * @return 생성된 예방 접종 항목을 반환합니다.
      * @throws ApiException 이미 생성된 이름인 경우
      */
-    public VaccinationResponse createVaccinations(Integer hospitalId, VaccinationRequest request){
+    public VaccinationResponse createVaccinations(Integer hospitalId, VaccinationRequest request) {
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
-        if(Objects.nonNull(vaccinationRepository.findByName(request.getName()))) throw new ApiException(ErrorCode.DIA_DUPLICATE_NAME);
-        vaccinationAutoCompleteService.addvaccinationToRedis(new Vaccination(request.getName(),hospital));
+        if (Boolean.TRUE.equals(vaccinationRepository.existsByName(request.getName())))
+            throw new ApiException(ErrorCode.DIA_DUPLICATE_NAME);
+        vaccinationRedisService.addvaccinationToRedis(new Vaccination(request.getName(), hospital));
         return vaccinationMapper.mapVaccinationToVaccinationResponse(vaccinationRepository.save(new Vaccination(request.getName(), hospital)));
     }
 
@@ -108,10 +120,10 @@ public class VaccinationService {
      * 해당 동물병원과 핸들링할 예방 접종 Entitiy의 hospitalId가 일치한지 확인합니다.ㄴ
      *
      * @param vaccination 예방 접종 항목 Entity
-     * @param hospitalId 병원 Id
+     * @param hospitalId  병원 Id
      */
     private void checkPermissionToVaccination(Vaccination vaccination, Integer hospitalId) {
-        if(Boolean.FALSE.equals(vaccination.getHospital().getId().equals(hospitalId)))
+        if (Boolean.FALSE.equals(vaccination.getHospital().getId().equals(hospitalId)))
             throw new ApiException(ErrorCode.DIA_AUTH_ERROR);
     }
 

@@ -16,12 +16,16 @@ import java.util.Optional;
  * DATE              AUTHOR             NOTE<br>
  * -----------------------------------------------------------<br>
  * 25.04.07          eunchang           최초생성<br>
+ * 25.04.07          eunchang           find메서드 제거 및 exist메서드 추가<br>
  * <br>
  */
 
 public interface DiagnosisRepository extends JpaRepository<Diagnosis, Integer> {
     List<Diagnosis> getDiagnosesByHospitalId(Integer hospitalId);
+
     List<Diagnosis> findByHospitalIdAndNameContaining(Integer HospitalId, String keyword);
-    Diagnosis findByName(String name);
+
+    boolean existsByName(String name);
+
     Optional<Diagnosis> getDiagnosisById(Integer diagnosisId);
 }

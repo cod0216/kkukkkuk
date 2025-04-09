@@ -26,19 +26,19 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Diagnosis {
     @Id
-    @Column(name="id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hospital_id", nullable = false )
+    @JoinColumn(name = "hospital_id", nullable = false)
     private Hospital hospital;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String name;
 
     @Builder
-    public Diagnosis(String name, Hospital hospital){
+    public Diagnosis(String name, Hospital hospital) {
         this.name = name;
         this.hospital = hospital;
     }
