@@ -12,6 +12,7 @@ import 'package:kkuk_kkuk/app/routes/qr_scanner_routes.dart';
 import 'package:kkuk_kkuk/pages/wallet/states/wallet_state.dart';
 import 'package:kkuk_kkuk/pages/wallet/wallet_screen.dart';
 import 'package:kkuk_kkuk/pages/wallet/notifiers/wallet_notifier.dart';
+import 'package:kkuk_kkuk/pages/map/map_screen.dart';
 
 final router = GoRouter(
   initialLocation: '/',
@@ -72,5 +73,10 @@ final router = GoRouter(
     ),
     // QR 스캐너 라우트 추가
     ...qrScannerRoutes,
+
+    GoRoute(path: '/map',
+        builder: (context, state) => MapScreen()
+    ),
+
   ],
 );

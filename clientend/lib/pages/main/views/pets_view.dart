@@ -130,13 +130,7 @@ class FindHospitalButton extends StatelessWidget {
       ), // QrScanButton과 좌우 패딩 맞춤
       child: ElevatedButton(
         onPressed: () {
-          // TODO: 가까운 병원 찾기 기능 구현
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('구현중인 기능입니다.'),
-              duration: Duration(seconds: 1),
-            ),
-          );
+          context.push('/map');
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange, // 이미지의 주황색 버튼
