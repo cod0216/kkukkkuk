@@ -14,7 +14,7 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private static final String PUBLISH = "/app";
-    private static final String ENDPOINT = "/kkukkkukk";
+    private static final String ENDPOINT = "/kkukkkuk";
     private static final String SIMPLE_BROKER = "/topic";
 
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
@@ -31,8 +31,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*");
     }
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors((ChannelInterceptor) webSocketAuthInterceptor);
-    }
+//    @Override
+//    public void configureClientInboundChannel(ChannelRegistration registration) {
+//        registration.interceptors((ChannelInterceptor) webSocketAuthInterceptor);
+//    }
 }

@@ -7,6 +7,7 @@ import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import com.be.KKUKKKUK.global.util.JwtUtility;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
@@ -37,8 +39,8 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = extractToken(accessor);
-            if (Objects.isNull(token) || !jwtUtility.validateToken(token)) {
-                throw new IllegalArgumentException("Invalid or missing JWT token");
+            if (Objects.isNull(token) || jwtUtility.validateToken(token)) {
+                throw new ApiException(ErrorCode.INVALID_TOKEN);
             }
             Authentication authentication = getAuthentication(token);
             accessor.setUser(authentication);
@@ -48,12 +50,16 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
     private String extractToken(StompHeaderAccessor accessor) {
         List<String> authorizationHeaders = accessor.getNativeHeader(HEADER_AUTHORIZATION);
+        log.debug("Authorization header: {}", authorizationHeaders);
+
         if (Objects.nonNull(authorizationHeaders) && !authorizationHeaders.isEmpty()) {
             String authHeader = authorizationHeaders.get(0);
+            log.debug("authHeader : {}", authHeader);
             if (authHeader.startsWith(HEADER_BEARER)) {
                 return authHeader.substring(HEADER_BEARER_LENGTH);
             }
         }
+        log.debug("Authorization header is empty");
         return null;
     }
 
