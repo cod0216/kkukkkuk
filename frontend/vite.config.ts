@@ -23,6 +23,9 @@ import path from "path";
  */
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'global': {},
+    },
   resolve: {
     alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],
   },
