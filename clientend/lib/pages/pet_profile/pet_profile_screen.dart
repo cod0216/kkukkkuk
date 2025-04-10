@@ -114,22 +114,34 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
       // 3. 사용자 확인 다이얼로그
       final bool? confirmed = await showDialog<bool>(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('진료기록 확인'),
-              // ... (기존 확인 다이얼로그 내용) ...
+        builder: (context) => AlertDialog(
+          title: const Text('OCR 결과 확인'),
+          // content를 SingleChildScrollView로 감싸 스크롤 가능하게 함
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('추출된 진료기록 정보입니다.\n내용 확인 후 등록해주세요.'),
+                const SizedBox(height: 16),
+                _buildOcrResultItem('진료일', processedData['date'] ?? '없음'),
+                _buildOcrResultItem('진단명', processedData['diagnosis'] ?? '없음'),
+                _buildOcrResultItem('병원명', processedData['hospitalName'] ?? '없음'),
+                _buildOcrResultItem('수의사명', processedData['doctorName'] ?? '없음'),
+                _buildOcrResultItem('메모/증상', processedData['notes'] ?? '없음'),
+                // 검사, 처방, 접종 목록 표시
+                _buildOcrResultList('검사', processedData['examinations']),
+                _buildOcrResultList('처방', processedData['medications']),
+                _buildOcrResultList('접종', processedData['vaccinations']),
+              ],
+            ),
+          ),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
-                    // 이미지 피커 다시 표시
-                    final imagePicker = MedicalRecordImagePicker(
-                      context: context,
-                      onImageSelected: _handleImageSelected,
-                    );
-                    imagePicker.showImageSourceDialog();
                   },
-                  child: const Text('다시 선택'),
+                  child: const Text('취소'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
@@ -183,7 +195,53 @@ class _PetProfileScreenState extends ConsumerState<PetProfileScreen> {
       );
     }
   }
-
+// OCR 결과 항목 표시 위젯
+  Widget _buildOcrResultItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Expanded(child: Text(value.isNotEmpty ? value : '추출 안됨')),
+        ],
+      ),
+    );
+  }
+// OCR 결과 목록 표시 위젯 (검사, 처방, 접종용)
+  Widget _buildOcrResultList(String label, List<dynamic>? items) {
+    if (items == null || items.isEmpty) {
+      return _buildOcrResultItem(label, '없음');
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label:', style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: items.map((item) {
+                String itemText = '';
+                if (item is Map) {
+                  // Examination, Medication, Vaccination 모두 'key', 'value'를 가짐
+                  itemText = '${item['key'] ?? ''}: ${item['value'] ?? ''}';
+                  // Examination의 경우 'type'도 추가 가능
+                  if (item.containsKey('type') && item['type'] != null && item['type'].isNotEmpty) {
+                    itemText = '[${item['type']}] $itemText';
+                  }
+                }
+                return Text('• ${itemText.isNotEmpty ? itemText : '내용 없음'}');
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final medicalRecordState = ref.watch(medicalRecordQueryProvider);
