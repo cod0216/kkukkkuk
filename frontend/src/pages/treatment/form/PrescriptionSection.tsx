@@ -28,10 +28,6 @@ import { autoCorrectVaccination as getVaccinationAutoComplete } from "@/services
  * 2025-04-05        youName          약품 자동완성 기능 추가
  * 2025-04-05        eunchang          접종 및 검사 자동완성 기능 추가
  */
-
-// 입력 상태 타입 정의
-
-// 입력 상태 타입 정의
 interface InputState {
   key: string;
   value: string;
@@ -58,7 +54,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
   setPrescriptions,
   petSpecies = "",
 }) => {
-  // 섹션별 입력 상태
   const [examinationInput, setExaminationInput] = useState<InputState>({
     key: "",
     value: "",
@@ -134,14 +129,11 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
   // 약물 자동완성 API 호출
   useEffect(() => {
     const fetchAutoComplete = async () => {
-      if (skipMedicationAutoComplete) return; // skip 상태이면 API 호출 건너뜀
+      if (skipMedicationAutoComplete) return;
       if (medicationInput.key.trim().length >= 1) {
         setIsSearching(true);
         try {
-          const result = await getDrugAutoComplete(
-            medicationInput.key,
-            petSpecies
-          );
+          const result = await getDrugAutoComplete(medicationInput.key);
           setAutoCompleteResults(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -161,7 +153,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       }
     };
     fetchAutoComplete();
-  }, [medicationInput.key, petSpecies, skipMedicationAutoComplete]);
+  }, [medicationInput.key, skipMedicationAutoComplete]);
 
   // 검사 자동완성 API 호출
   useEffect(() => {
@@ -169,7 +161,10 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       if (skipExamAutoComplete) return;
       if (examinationInput.key.trim().length >= 1) {
         try {
-          const result = await getExamAutoComplete(examinationInput.key);
+          const result = await getExamAutoComplete(
+            examinationInput.key,
+            petSpecies
+          );
           setAutoCompleteResultsExam(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -180,7 +175,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
           console.error("[UI] 자동완성 검색 오류 (검사):", error);
           setAutoCompleteResultsExam([]);
           setShowAutoCompleteExam(false);
-        } finally {
         }
       } else {
         setAutoCompleteResultsExam([]);
@@ -196,7 +190,10 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       if (skipVaccAutoComplete) return;
       if (vaccinationInput.key.trim().length >= 1) {
         try {
-          const result = await getVaccinationAutoComplete(vaccinationInput.key);
+          const result = await getVaccinationAutoComplete(
+            vaccinationInput.key,
+            petSpecies
+          );
           setAutoCompleteResultsVacc(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -207,7 +204,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
           console.error("[UI] 자동완성 검색 오류 (접종):", error);
           setAutoCompleteResultsVacc([]);
           setShowAutoCompleteVacc(false);
-        } finally {
         }
       } else {
         setAutoCompleteResultsVacc([]);
@@ -217,27 +213,44 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     fetchAutoCompleteVacc();
   }, [vaccinationInput.key, petSpecies, skipVaccAutoComplete]);
 
-  // 약물 선택 핸들러
+  // onChange 이벤트에서 skip 플래그 초기화
+  const handleMedicationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMedicationInput((prev) => ({ ...prev, key: e.target.value }));
+    setSkipMedicationAutoComplete(false);
+  };
+  const handleExamChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setExaminationInput((prev) => ({ ...prev, key: e.target.value }));
+    setSkipExamAutoComplete(false);
+  };
+  const handleVaccChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVaccinationInput((prev) => ({ ...prev, key: e.target.value }));
+    setSkipVaccAutoComplete(false);
+  };
+
+  // 약물 선택 핸들러 (클릭 시)
   const handleDrugSelect = (drugName: string) => {
     setMedicationInput((prev) => ({ ...prev, key: drugName }));
     setShowAutoComplete(false);
     setSelectedIndex(-1);
+    setSkipMedicationAutoComplete(true);
     medicationValueInputRef.current?.focus();
   };
 
-  // 검사 선택 핸들러
+  // 검사 선택 핸들러 (클릭 시)
   const handleExamSelect = (examName: string) => {
     setExaminationInput((prev) => ({ ...prev, key: examName }));
     setShowAutoCompleteExam(false);
     setSelectedIndexExam(-1);
+    setSkipExamAutoComplete(true);
     examinationValueInputRef.current?.focus();
   };
 
-  // 접종 선택 핸들러
+  // 접종 선택 핸들러 (클릭 시)
   const handleVaccSelect = (vaccName: string) => {
     setVaccinationInput((prev) => ({ ...prev, key: vaccName }));
     setShowAutoCompleteVacc(false);
     setSelectedIndexVacc(-1);
+    setSkipVaccAutoComplete(true);
     vaccinationValueInputRef.current?.focus();
   };
 
@@ -255,7 +268,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
       } else if (e.key === "Enter") {
         e.preventDefault();
-        // 엔터 입력 시 선택된 항목이 있으면 해당 항목 반영하고 skip 플래그 설정하여 API 재호출 방지
         setShowAutoComplete(false);
         setSelectedIndex(-1);
         setSkipMedicationAutoComplete(true);
@@ -459,7 +471,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                 value={inputState.key}
                 onChange={(e) => {
                   setInputState((prev) => ({ ...prev, key: e.target.value }));
-                  // onChange 시 skip 플래그 초기화
                   if (type === TreatmentType.MEDICATION)
                     setSkipMedicationAutoComplete(false);
                   else if (type === TreatmentType.EXAMINATION)
@@ -473,36 +484,51 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                 onFocus={() => {
                   if (
                     type === TreatmentType.MEDICATION &&
+                    !skipMedicationAutoComplete &&
                     autoCompleteResults.length > 0
                   ) {
                     setShowAutoComplete(true);
                   }
                   if (
                     type === TreatmentType.EXAMINATION &&
+                    !skipExamAutoComplete &&
                     autoCompleteResultsExam.length > 0
                   ) {
                     setShowAutoCompleteExam(true);
                   }
                   if (
                     type === TreatmentType.VACCINATION &&
+                    !skipVaccAutoComplete &&
                     autoCompleteResultsVacc.length > 0
                   ) {
                     setShowAutoCompleteVacc(true);
                   }
                 }}
               />
-              {type === TreatmentType.MEDICATION && isSearching && (
-                <span className="absolute right-2 top-1/2 -translate-y-1/2">
-                  <Loader className="w-4 h-4 animate-spin text-gray-400" />
-                </span>
-              )}
+              {/* 약물 자동완성 드롭다운 */}
               {type === TreatmentType.MEDICATION &&
-                !isSearching &&
-                inputState.key.length > 0 &&
-                !showAutoComplete && (
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <Search className="w-4 h-4 text-gray-400" />
-                  </span>
+                showAutoComplete &&
+                autoCompleteResults.length > 0 && (
+                  <div
+                    ref={autoCompleteRef}
+                    className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-40 overflow-y-auto text-xs"
+                  >
+                    {autoCompleteResults.map((item, index) => (
+                      <div
+                        key={index}
+                        className={`p-2 hover:bg-gray-100 cursor-pointer ${
+                          selectedIndex === index
+                            ? "bg-primary-50 text-primary-700 font-semibold"
+                            : ""
+                        }`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleDrugSelect(item)}
+                        onMouseEnter={() => setSelectedIndex(index)}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
                 )}
               {/* 검사 자동완성 드롭다운 */}
               {type === TreatmentType.EXAMINATION &&
@@ -520,6 +546,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                             ? "bg-primary-50 text-primary-700 font-semibold"
                             : ""
                         }`}
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => handleExamSelect(item)}
                         onMouseEnter={() => setSelectedIndexExam(index)}
                       >
@@ -544,6 +571,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
                             ? "bg-primary-50 text-primary-700 font-semibold"
                             : ""
                         }`}
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => handleVaccSelect(item)}
                         onMouseEnter={() => setSelectedIndexVacc(index)}
                       >
