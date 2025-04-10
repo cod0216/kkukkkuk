@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import TreatmentHeader from "@/pages/treatment/layout/TreatmentHeader";
-import TreatmentSidebar, { TreatmentSidebarRef } from "@/pages/treatment/layout/TreatmentSidebar";
+import TreatmentSidebar, {
+  TreatmentSidebarRef,
+} from "@/pages/treatment/layout/TreatmentSidebar";
 import TreatmentForm from "@/pages/treatment/form/TreatmentForm";
 import { ApiResponse, ResponseStatus } from "@/types";
-import {
-  Treatment,
-  TreatmentState,
-  Doctor,
-} from "@/interfaces";
+import { Treatment, TreatmentState, Doctor } from "@/interfaces";
 import { getDoctors } from "@/services/doctorService";
-import TreatmentHistoryList, { TreatmentHistoryListRef } from "@/pages/treatment/history/TreatmentHistoryList";
+import TreatmentHistoryList, {
+  TreatmentHistoryListRef,
+} from "@/pages/treatment/history/TreatmentHistoryList";
 import { connectWallet } from "@/services/blockchainAuthService";
 
 /**
@@ -42,7 +42,7 @@ const TreatmentMain: React.FC = () => {
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  
+
   // Sidebar ref 추가
   const sidebarRef = useRef<TreatmentSidebarRef>(null);
   // 히스토리 목록 ref 추가
@@ -95,29 +95,53 @@ const TreatmentMain: React.FC = () => {
   /**
    * 반려동물의 상태가 변경되었을 때 호출되는 함수입니다.
    */
-  const handlePetStateChanged = useCallback((petId: string, newState: TreatmentState, isCancelled: boolean) => {
-    // 블록체인 반려동물 목록 업데이트
-    setBlockchainPets(prev => 
-      prev.map(pet => 
-        pet.petDid === petId 
-          ? { ...pet, calculatedState: newState, isCancelled } 
-          : pet
-      )
-    );
-    
-    // 선택된 반려동물이 취소된 경우 상태 업데이트
-    if (selectedPetId === petId && isCancelled) {
-      // 취소 후 필요한 추가 로직이 있다면 여기에 작성
-      console.log('선택된 반려동물 취소됨:', petId);
-    }
-  }, [selectedPetId]);
-  
+  const handlePetStateChanged = useCallback(
+    (petId: string, newState: TreatmentState, isCancelled: boolean) => {
+      // 블록체인 반려동물 목록 업데이트
+      setBlockchainPets((prev) =>
+        prev.map((pet) =>
+          pet.petDid === petId
+            ? { ...pet, calculatedState: newState, isCancelled }
+            : pet
+        )
+      );
+
+      // 선택된 반려동물이 취소된 경우 상태 업데이트
+      if (selectedPetId === petId && isCancelled) {
+        // 취소 후 필요한 추가 로직이 있다면 여기에 작성
+        console.log("선택된 반려동물 취소됨:", petId);
+      }
+    },
+    [selectedPetId]
+  );
+
   /**
    * 취소 처리가 완료된 후 호출되는 함수입니다.
    */
   const handleCancellationComplete = useCallback(async () => {
     // 취소된 상태로 설정
     if (selectedPet) {
+<<<<<<< HEAD
+      // 현재 선택된 반려동물이 있으면 상태를 강제로 갱신
+      if (selectedPet.petDid && sidebarRef.current) {
+        // 선택된 반려동물의 상태만 새로고침
+        sidebarRef.current.refreshPetState(selectedPet.petDid);
+        console.log(`진료 취소 완료 후 ${selectedPet.name} 상태 새로고침`);
+      } else {
+        // 전체 목록 새로고침 (fallback)
+        if (sidebarRef.current) {
+          console.log("진료 취소 완료 후 전체 목록 새로고침");
+          sidebarRef.current.fetchPetsData();
+        }
+      }
+
+      // 의료 기록 목록 새로고침
+      if (historyListRef.current) {
+        setTimeout(() => {
+          historyListRef.current?.refreshRecords();
+          console.log("진료 취소 완료 후 의료 기록 목록 새로고침");
+        }, 1000); // 블록체인 상태 업데이트 시간을 고려해 약간의 지연 추가
+=======
       try {
         // 현재 선택된 반려동물이 있으면 상태를 강제로 갱신
         if (selectedPet.petDid && sidebarRef.current) {
@@ -154,22 +178,26 @@ const TreatmentMain: React.FC = () => {
             console.error('재시도 중 오류:', retryError);
           }
         }, 2000);
+>>>>>>> c696c2c672e01498d00bb7315a9e77ca3ab2ce44
       }
     }
   }, [selectedPet]);
-  
+
   /**
    * 새로운 반려동물 공유 후 호출되는 함수입니다.
    */
-  const handleSharingComplete = useCallback((petAddress: string, petName: string) => {
-    console.log(`새로운 반려동물 "${petName}"(${petAddress}) 공유 완료`);
-    
-    // 전체 목록 새로고침
-    if (sidebarRef.current) {
-      console.log('반려동물 공유 완료 후 전체 목록 새로고침');
-      sidebarRef.current.fetchPetsData();
-    }
-  }, []);
+  const handleSharingComplete = useCallback(
+    (petAddress: string, petName: string) => {
+      console.log(`새로운 반려동물 "${petName}"(${petAddress}) 공유 완료`);
+
+      // 전체 목록 새로고침
+      if (sidebarRef.current) {
+        console.log("반려동물 공유 완료 후 전체 목록 새로고침");
+        sidebarRef.current.fetchPetsData();
+      }
+    },
+    []
+  );
 
   /**
    * 동물 상태에 따라 화면에 보여줄 스타일을 반환합니다.
@@ -215,6 +243,31 @@ const TreatmentMain: React.FC = () => {
    * 현재 진료기록의 상태에 따라 필요한 CSS 요소를 반환합니다.
    * @returns {string} state 상태에 따른 CSS 태그
    */
+<<<<<<< HEAD
+  const handleSaveTreatment = (record: any): void => {
+    console.log("진료 기록 저장 완료:", record);
+
+    // 진료 저장 후 폼 숨기고 기록 목록 표시
+    setIsFormVisible(true);
+
+    // 사이드바에서 현재 선택된 반려동물의 상태 새로고침
+    if (selectedPet?.petDid && sidebarRef.current) {
+      // 선택된 반려동물의 상태만 새로고침
+      sidebarRef.current.refreshPetState(selectedPet.petDid);
+      console.log(`진료 저장 완료 후 ${selectedPet.name} 상태 새로고침`);
+    } else if (sidebarRef.current) {
+      // 전체 목록 새로고침 (fallback)
+      console.log("진료 저장 완료 후 전체 목록 새로고침");
+      sidebarRef.current.fetchPetsData();
+    }
+
+    // 의료 기록 목록 새로고침
+    if (historyListRef.current) {
+      setTimeout(() => {
+        historyListRef.current?.refreshRecords();
+        console.log("진료 저장 완료 후 의료 기록 목록 새로고침");
+      }, 1000); // 블록체인 상태 업데이트 시간을 고려해 약간의 지연 추가
+=======
   const handleSaveTreatment = async (record: any): Promise<void> => {
     console.log('진료 기록 저장 완료:', record);
     
@@ -254,6 +307,7 @@ const TreatmentMain: React.FC = () => {
           console.error('재시도 중 오류:', retryError);
         }
       }, 2000);
+>>>>>>> c696c2c672e01498d00bb7315a9e77ca3ab2ce44
     }
   };
 
@@ -267,7 +321,7 @@ const TreatmentMain: React.FC = () => {
   // selectedPetId가 변경될 때 selectedPet 업데이트
   useEffect(() => {
     if (selectedPetId) {
-      const pet = blockchainPets.find(pet => pet.petDid === selectedPetId);
+      const pet = blockchainPets.find((pet) => pet.petDid === selectedPetId);
       setSelectedPet(pet || null);
     } else {
       setSelectedPet(null);
@@ -319,7 +373,8 @@ const TreatmentMain: React.FC = () => {
                 공유받으세요.
               </li>
               <li>
-                메타마스트 계정 연결 후에 저장버튼이 동작하지 않을 경우, 확장프로그램 위치의 알림을 확인하세요.
+                메타마스트 계정 연결 후에 저장버튼이 동작하지 않을 경우,
+                확장프로그램 위치의 알림을 확인하세요.
               </li>
             </ul>
           </div>
@@ -342,7 +397,7 @@ const TreatmentMain: React.FC = () => {
         <TreatmentSidebar
           ref={sidebarRef}
           treatments={treatments}
-          selectedPetId={selectedPetId || ''}
+          selectedPetId={selectedPetId || ""}
           setSelectedPetId={setSelectedPetId}
           getStateColor={getStateColor}
           getStateBadgeColor={getStateBadgeColor}
@@ -364,9 +419,9 @@ const TreatmentMain: React.FC = () => {
           />
 
           {isFormVisible ? (
-            <TreatmentHistoryList 
+            <TreatmentHistoryList
               ref={historyListRef}
-              selectedPetDid={selectedPet?.petDid} 
+              selectedPetDid={selectedPet?.petDid}
             />
           ) : (
             <TreatmentForm
