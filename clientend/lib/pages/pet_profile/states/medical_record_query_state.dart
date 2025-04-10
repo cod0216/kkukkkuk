@@ -14,10 +14,6 @@ class MedicalRecordQueryState {
     this.lastQueryDate,
   });
 
-  // TODO: 진료 기록 정렬 기능 추가 (날짜순, 진료유형별 등)
-  // TODO: 진료 기록 필터링 기능 추가 (기간별, 진료유형별 등)
-  // TODO: 진료 기록 검색 기능 추가 (키워드 검색)
-
   /// 상태 복사 메서드
   MedicalRecordQueryState copyWith({
     List<MedicalRecord>? records,
