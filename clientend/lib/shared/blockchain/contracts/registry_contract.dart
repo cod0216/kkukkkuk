@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kkuk_kkuk/shared/config/app_config.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:kkuk_kkuk/shared/blockchain/client/blockchain_client.dart';
 class RegistryContract {
   final BlockchainClient _blockchainClient;
   late final DeployedContract _contract;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   // 컨트랙트 함수들 정의
   late final ContractFunction _registerPetWithAttributes;
@@ -33,7 +35,7 @@ class RegistryContract {
   late final ContractFunction _getOwnedPetsCount;
   late final ContractFunction _getPetHospitals;
   late final ContractFunction _checkSharingPermission;
-  late final ContractFunction _getMedicalRecordUpdates;
+  late final ContractFunction _getMedicalRecordWithUpdates;
   late final ContractFunction _getPetOriginalRecords;
 
   RegistryContract(this._blockchainClient);
@@ -74,12 +76,24 @@ class RegistryContract {
       _getOwnedPetsCount = _contract.function('getOwnedPetsCount');
       _getPetHospitals = _contract.function('getPetHospitals');
       _checkSharingPermission = _contract.function('checkSharingPermission');
-      _getMedicalRecordUpdates = _contract.function('getMedicalRecordUpdates');
+      _getMedicalRecordWithUpdates = _contract.function(
+        'getMedicalRecordWithUpdates',
+      );
       _getPetOriginalRecords = _contract.function('getPetOriginalRecords');
     } catch (e) {
       print('컨트랙트 초기화 오류: $e');
       rethrow;
     }
+  }
+
+  Future<EthereumAddress> _getCurrentUserAddress() async {
+    final ownerAddressHex = await _secureStorage.read(
+      key: 'eth_address',
+    ); // 저장된 키 확인 필요
+    if (ownerAddressHex == null || ownerAddressHex.isEmpty) {
+      throw Exception("현재 사용자 주소를 찾을 수 없습니다. 로그인이 필요할 수 있습니다.");
+    }
+    return EthereumAddress.fromHex(ownerAddressHex);
   }
 
   // 컨트랙트 함수 호출 메서드들
@@ -614,22 +628,26 @@ class RegistryContract {
     }
   }
 
-  Future<List<String>> getMedicalRecordWithUpdates(
+  Future<Map<String, dynamic>> getMedicalRecordWithUpdates(
+    String petAddress,
     String originalRecordKey,
   ) async {
     try {
       final result = await _blockchainClient.client.call(
+        sender: await _getCurrentUserAddress(),
         contract: _contract,
-        function: _getMedicalRecordUpdates,
-        params: [originalRecordKey],
+        function: _getMedicalRecordWithUpdates,
+        params: [EthereumAddress.fromHex(petAddress), originalRecordKey],
       );
 
       if (result.isEmpty) {
-        return [];
+        return {'originalRecord': '', 'updateRecords': <String>[]};
       }
 
-      final List<String> recordKeys = (result[0] as List).cast<String>();
-      return recordKeys;
+      final String originalRecord = result[0] as String;
+      final List<String> updateRecords = (result[1] as List).cast<String>();
+
+      return {'originalRecord': originalRecord, 'updateRecords': updateRecords};
     } catch (e) {
       print('의료기록 업데이트 목록 조회 오류: $e');
       throw Exception('Failed to get medical record updates: $e');
@@ -638,8 +656,8 @@ class RegistryContract {
 
   Future<List<String>> getPetOriginalRecords(String petAddress) async {
     try {
-      print(petAddress);
       final result = await _blockchainClient.client.call(
+        sender: await _getCurrentUserAddress(),
         contract: _contract,
         function: _getPetOriginalRecords,
         params: [EthereumAddress.fromHex(petAddress)],
@@ -648,7 +666,6 @@ class RegistryContract {
       if (result.isEmpty) {
         return [];
       }
-      print(result);
       final List<String> recordKeys = (result[0] as List).cast<String>();
       return recordKeys;
     } catch (e) {

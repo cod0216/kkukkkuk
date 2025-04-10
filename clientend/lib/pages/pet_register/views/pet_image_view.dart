@@ -201,7 +201,7 @@ class _PetImageViewState extends ConsumerState<PetImageView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 헤더
-              PetRegisterHeader(title: '$petName의 사진을\n등록하시겠어요?'),
+              CustomHeader(title: '$petName의 사진을\n등록하시겠어요?'),
               const SizedBox(height: 24),
 
               // 이미지 플레이스홀더 대신 PetCard 사용

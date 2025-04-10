@@ -290,7 +290,7 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
           
           // 상위 컴포넌트 콜백 호출 (있는 경우)
           if (onSave) {
-            onSave(record);
+            await onSave(record);
           }
 
           console.log('블록체인에 저장한 데이터:', record.treatments);

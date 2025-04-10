@@ -12,6 +12,7 @@ import { ApiResponse, ResponseStatus } from "@/types"
 import QRGenerator from '@/pages/treatment/QRGenerator';
 import { getAccountAddress } from '@/services/blockchainAuthService';
 import { LuLogIn, LuLogOut, LuUser, LuQrCode } from 'react-icons/lu';
+import ChatManager from "@/pages/chat/ChatRoomManager";
 
 /**
  * @module Header
@@ -191,6 +192,9 @@ const Header: React.FC = () => {
         onClose={closeQrModal} 
         hospitalInfo={hospitalInfo}
       />
+
+    <ChatManager/>
+
     </header>
   );
 };

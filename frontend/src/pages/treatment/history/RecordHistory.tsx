@@ -71,7 +71,6 @@ const RecordHistory: React.FC<RecordHistoryProps> = ({ historyChain }) => {
   
   return (
     <div className="mt-3">
-      <h4 className="text-xs font-semibold text-gray-800 mb-2">이전 수정 내역</h4>
       
       {historyChain.length === 0 ? (
         <div className="border border-gray-200 rounded-md p-3 text-xs text-gray-500">

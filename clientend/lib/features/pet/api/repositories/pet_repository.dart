@@ -459,11 +459,13 @@ class PetRepository implements IPetRepository {
   }
 
   @override
-  Future<List<String>> getMedicalRecordWithUpdates(
+  Future<Map<String, dynamic>> getMedicalRecordWithUpdates(
+    String petAddress,
     String originalRecordKey,
   ) async {
     try {
       return await _registryContract.getMedicalRecordWithUpdates(
+        petAddress,
         originalRecordKey,
       );
     } catch (e) {

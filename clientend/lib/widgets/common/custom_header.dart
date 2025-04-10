@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class PetRegisterHeader extends StatelessWidget {
+class CustomHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  const PetRegisterHeader({
+  const CustomHeader({
     super.key,
     required this.title,
     this.subtitle,

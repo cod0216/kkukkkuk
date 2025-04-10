@@ -23,3 +23,4 @@ export * from "@/interfaces/doctor";
 export * from "@/interfaces/auth.signup";
 export * from "@/interfaces/Diagnosis";
 export * from "@/interfaces/vaccination";
+export * from "@/interfaces/chat";

@@ -7,6 +7,7 @@ import 'package:kkuk_kkuk/features/pet/usecase/get_medical_record_with_updates_u
 import 'package:kkuk_kkuk/features/pet/usecase/get_pet_list_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_pet_original_records_use_case.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/get_species_usecase.dart';
+import 'package:kkuk_kkuk/features/pet/usecase/load_medical_records_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/process_medical_record_image_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/register_pet_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/update_pet_usecase.dart';
@@ -78,3 +79,18 @@ final getMedicalRecordWithUpdatesUseCaseProvider =
       final repository = ref.watch(petRepositoryProvider);
       return GetMedicalRecordWithUpdatesUseCase(repository);
     });
+
+final loadMedicalRecordsUseCaseProvider = Provider<LoadMedicalRecordsUseCase>((
+  ref,
+) {
+  final getPetOriginalRecordsUseCase = ref.watch(
+    getPetOriginalRecordsUseCaseProvider,
+  );
+  final getMedicalRecordWithUpdatesUseCase = ref.watch(
+    getMedicalRecordWithUpdatesUseCaseProvider,
+  );
+  return LoadMedicalRecordsUseCase(
+    getPetOriginalRecordsUseCase,
+    getMedicalRecordWithUpdatesUseCase,
+  );
+});
