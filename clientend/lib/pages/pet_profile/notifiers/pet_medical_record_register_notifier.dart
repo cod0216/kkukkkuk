@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/examination.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medical_record.dart';
@@ -5,6 +6,7 @@ import 'package:kkuk_kkuk/features/pet/usecase/add_medical_record_usecase.dart';
 import 'package:kkuk_kkuk/features/pet/usecase/pet_usecase_providers.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/medication.dart';
 import 'package:kkuk_kkuk/entities/pet/medical_record/vaccination.dart';
+import 'package:kkuk_kkuk/features/image/usecase/upload_permanent_image_usecase.dart';
 
 class MedicalRecordRegisterState {
   final bool isLoading;
@@ -33,9 +35,12 @@ class MedicalRecordRegisterState {
 class MedicalRecordRegisterNotifier
     extends StateNotifier<MedicalRecordRegisterState> {
   final AddMedicalRecordUseCase _addMedicalRecordUseCase;
+  final UploadPermanentImageUseCase _uploadImageUseCase;
 
-  MedicalRecordRegisterNotifier(this._addMedicalRecordUseCase)
-    : super(const MedicalRecordRegisterState());
+  MedicalRecordRegisterNotifier(
+    this._addMedicalRecordUseCase,
+    this._uploadImageUseCase,
+  ) : super(const MedicalRecordRegisterState());
 
   Future<void> registerMedicalRecord(
     String petDid,
@@ -43,6 +48,16 @@ class MedicalRecordRegisterNotifier
   ) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
+
+      // 이미지 업로드 처리
+      List<String> pictureUrls = [];
+      if (data['ocrImage'] != null && data['ocrImage'] is File) {
+        final imageUrl = await _uploadImageUseCase.execute(
+          data['ocrImage'] as File,
+          'medical_record',
+        );
+        pictureUrls.add(imageUrl);
+      }
 
       final record = MedicalRecord(
         treatmentDate: DateTime.parse(data['date']),
@@ -71,7 +86,7 @@ class MedicalRecordRegisterNotifier
         memo: data['notes'],
         status: 'NONE',
         flagCertificated: false,
-        pictures: [],
+        pictures: pictureUrls,
       );
 
       final txHash = await _addMedicalRecordUseCase.execute(
@@ -91,5 +106,9 @@ final medicalRecordRegisterProvider = StateNotifierProvider<
   MedicalRecordRegisterState
 >((ref) {
   final addMedicalRecordUseCase = ref.watch(addMedicalRecordUseCaseProvider);
-  return MedicalRecordRegisterNotifier(addMedicalRecordUseCase);
+  final uploadImageUseCase = ref.watch(uploadPermanentImageUseCaseProvider);
+  return MedicalRecordRegisterNotifier(
+    addMedicalRecordUseCase,
+    uploadImageUseCase,
+  );
 });

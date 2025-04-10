@@ -4,21 +4,33 @@ import 'package:kkuk_kkuk/app/routes/app_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:kkuk_kkuk/shared/config/app_config.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize timezone database
+  tz.initializeTimeZones();
+  // Set default timezone to Korea
+  tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
   // .env 파일 로드
   await AppConfig.load();
 
   // kakao sdk 초기화
-  KakaoSdk.init(nativeAppKey: AppConfig.kakaoAppKey);
-  AuthRepository.initialize(
-      appKey: AppConfig.kakaoJavaScriptKey,
-      baseUrl: AppConfig.apiBaseUrl
-  );
+  await _initKakao();
+
 
   runApp(const ProviderScope(child: MyApp()));
+}
+
+Future<void> _initKakao() async {
+  KakaoSdk.init(nativeAppKey: AppConfig.kakaoAppKey);
+  AuthRepository.initialize(
+    appKey: AppConfig.kakaoJavaScriptKey,
+    baseUrl: AppConfig.apiBaseUrl,
+  );
 }
 
 class MyApp extends StatelessWidget {

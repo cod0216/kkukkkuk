@@ -38,12 +38,19 @@ android {
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
-        }
-    }
+     release {
+         // TODO: Add your own signing config for the release build.
+         // Signing with the debug keys for now, so `flutter run --release` works.
+         signingConfig = signingConfigs.getByName("debug")
+
+         // R8 코드 축소 및 난독화 활성화 (Kotlin 문법)
+         isMinifyEnabled = true
+         // 리소스 축소 활성화 (Kotlin 문법)
+         isShrinkResources = true
+         // ProGuard 파일 지정 (Kotlin 문법 - 함수 호출)
+         proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+     }
+  }
 }
 
 dependencies {
