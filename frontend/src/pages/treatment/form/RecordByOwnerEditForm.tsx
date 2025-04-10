@@ -263,13 +263,22 @@ const RecordByOwnerEditForm: React.FC<RecordByOwnerEditFormProps> = ({
         
         // 성공 시 상위 컴포넌트에 알림 (있는 경우)
         if (onSave) {
-          onSave(updatedRecord);
+          try {
+            await onSave(updatedRecord);
+            console.log('상위 컴포넌트 onSave 콜백 완료');
+            
+            // 폼 닫기 (onSave 콜백 완료 후)
+            onCancel();
+          } catch (callbackError) {
+            console.error('onSave 콜백 실행 중 오류:', callbackError);
+            // 오류가 있어도 성공 메시지는 표시 (블록체인에는 이미 저장됨)
+          }
+        } else {
+          // onSave 콜백이 없는 경우 1.5초 후 폼 닫기
+          setTimeout(() => {
+            onCancel();
+          }, 1500);
         }
-        
-        // 폼 닫기 (성공 메시지 표시 후)
-        setTimeout(() => {
-          onCancel();
-        }, 1500);
       } else {
         showMessage(result.error || '진료 기록 수정 중 오류가 발생했습니다', true);
       }
