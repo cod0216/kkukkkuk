@@ -115,6 +115,7 @@ const TreatmentHeader: React.FC<TreatmentHeaderProps> = ({
   // 프로필 이미지 존재 여부
   const hasProfileImage = treatment?.profileUrl && treatment.profileUrl.length > 0;
   
+  
   // 공유 계약 정보 확인
   const hasAgreementInfo = treatment && !!treatment.agreementInfo;
   
