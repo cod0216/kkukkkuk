@@ -7,11 +7,12 @@ import Login from "@/pages/auth/Login";
 import FindPw from "@/pages/auth/FindPw";
 import FindId from "@/pages/auth/FindId";
 import { getRefreshToken, removeRefreshToken } from "@/utils/iDBUtil";
-import MyPage from "@/pages/mypage/MyPage"
-import ViewProfile from "@/pages/mypage/ViewProfile"
-import EditProfile from "@/pages/mypage/EditProfile"
-import DoctorManagement from "@/pages/mypage/DoctorManagement"
+import MyPage from "@/pages/mypage/MyPage";
+import ViewProfile from "@/pages/mypage/ViewProfile";
+import EditProfile from "@/pages/mypage/EditProfile";
+import DoctorManagement from "@/pages/mypage/DoctorManagement";
 import ErrorPage from "@/pages/common/ErrorPage";
+import MedicalManagement from "@/pages/mypage/MedicalManagement";
 
 /**
  * @module App
@@ -30,6 +31,7 @@ import ErrorPage from "@/pages/common/ErrorPage";
  * 2025-03-27        eunchang         자동로그인 여부에 따른 로그인 상태 관리
  * 2025-03-30        sangmuk          마이페이지 라우트 추가
  * 2025-04-07        AI-Assistant     에러 페이지 라우트 추가
+ * 2025-04-08        eunchang     의료 관리 라우트 추가
  */
 
 function App() {
@@ -42,7 +44,13 @@ function App() {
   useEffect(() => {
     const checkRefreshToken = async () => {
       const token = await getRefreshToken();
-      const publicPaths = ["/login", "/sign-up", "/find-password", "/find-id", "/error"];
+      const publicPaths = [
+        "/login",
+        "/sign-up",
+        "/find-password",
+        "/find-id",
+        "/error",
+      ];
       const currentPath = location.pathname;
       const isPublic = publicPaths.some((path) => currentPath.startsWith(path));
       if (!token && !isPublic) {
@@ -101,7 +109,10 @@ function App() {
       <Route path="/error/403" element={<ErrorPage type="403" />} />
       <Route path="/error/500" element={<ErrorPage type="500" />} />
       <Route path="/error/network" element={<ErrorPage type="network" />} />
-      <Route path="/error/blockchain" element={<ErrorPage type="blockchain" />} />
+      <Route
+        path="/error/blockchain"
+        element={<ErrorPage type="blockchain" />}
+      />
 
       <Route element={<MainLayout />}>
         <Route path="/" element={<TreatmentMain />} />
@@ -110,6 +121,7 @@ function App() {
           <Route index element={<ViewProfile />} />
           <Route path="edit-profile" element={<EditProfile />} />
           <Route path="doctor-management" element={<DoctorManagement />} />
+          <Route path="medical-management" element={<MedicalManagement />} />
         </Route>
       </Route>
 
