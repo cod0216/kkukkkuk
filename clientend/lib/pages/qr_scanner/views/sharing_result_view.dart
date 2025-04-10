@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kkuk_kkuk/entities/pet/pet.dart';
@@ -7,6 +6,9 @@ import 'package:kkuk_kkuk/features/qr_scanner/model/hospital_qr_data.dart';
 import 'package:kkuk_kkuk/pages/qr_scanner/states/sharing_state.dart';
 import 'package:kkuk_kkuk/pages/qr_scanner/notifiers/pet_sharing_notifier.dart';
 import 'package:kkuk_kkuk/widgets/common/app_bar.dart';
+import 'package:kkuk_kkuk/widgets/common/loading_indicator.dart'; // LoadingIndicator 사용
+import 'package:kkuk_kkuk/widgets/common/primary_button.dart'; // PrimaryButton 사용
+import 'package:kkuk_kkuk/widgets/common/status_indicator.dart'; // StatusIndicator 사용
 
 class SharingResultView extends ConsumerStatefulWidget {
   final Pet pet;
@@ -26,7 +28,6 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
   @override
   void initState() {
     super.initState();
-    // 권한 부여 시작
     Future.microtask(() {
       ref
           .read(petSharingNotifierProvider.notifier)
@@ -34,7 +35,6 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
     });
   }
 
-  // 재시도 로직
   void _retry() {
     ref
         .read(petSharingNotifierProvider.notifier)
@@ -51,50 +51,21 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: switch (sharingState.status) {
-            SharingStatus.processing => const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 24),
-                Text('병원에 권한 부여 중...'),
-              ],
+            // 로딩 상태 (LoadingIndicator 사용)
+            SharingStatus.processing => const LoadingIndicator(
+              message: '병원에 권한 부여 중...',
             ),
-            SharingStatus.success => SharingSuccessIndicator(
+            // 성공 상태 (StatusIndicator 사용)
+            SharingStatus.success => SharingSuccessContent(
               sharingState: sharingState,
             ),
-            SharingStatus.error => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, size: 80, color: Colors.red),
-                const SizedBox(height: 24),
-                const Text(
-                  '권한 부여 실패',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '${sharingState.hospital?.name}에 권한을 부여하는 중\n오류가 발생했습니다.\n${sharingState.errorMessage}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _retry,
-                      child: const Text('다시 시도'),
-                    ),
-                    const SizedBox(width: 16),
-                    OutlinedButton(
-                      onPressed: () => context.go('/pets'),
-                      child: const Text('반려동물 목록으로'),
-                    ),
-                  ],
-                ),
-              ],
+            // 에러 상태 (StatusIndicator 및 버튼 스타일 수정)
+            SharingStatus.error => SharingErrorContent(
+              sharingState: sharingState,
+              onRetry: _retry,
             ),
-            _ => const SizedBox(),
+            // 초기 상태 등 (보통 표시되지 않음)
+            _ => const SizedBox.shrink(),
           },
         ),
       ),
@@ -102,8 +73,9 @@ class _SharingResultViewState extends ConsumerState<SharingResultView> {
   }
 }
 
-class SharingSuccessIndicator extends StatelessWidget {
-  const SharingSuccessIndicator({super.key, required this.sharingState});
+// 성공 시 표시될 컨텐츠 위젯
+class SharingSuccessContent extends StatelessWidget {
+  const SharingSuccessContent({super.key, required this.sharingState});
 
   final SharingState sharingState;
 
@@ -112,26 +84,103 @@ class SharingSuccessIndicator extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle, size: 80, color: Colors.green),
-        const SizedBox(height: 24),
-        const Text(
-          '권한 부여 완료',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          '${sharingState.pet?.name}의 진료 기록에 대한 접근 권한이\n${sharingState.hospital?.name}에 부여되었습니다.',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
-        ),
-
-        const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: () => context.go('/pets'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        // StatusIndicator 사용
+        StatusIndicator(
+          icon: Icons.check_circle_outline,
+          iconColor: Colors.green,
+          iconSize: 80,
+          message: '권한 부여 완료',
+          messageStyle: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-          child: const Text('홈으로 돌아가기'),
+        ),
+        const SizedBox(height: 24), // 간격 조정
+        Text(
+          '${sharingState.pet?.name}의 진료 기록 접근 권한이\n${sharingState.hospital?.name}에 부여되었습니다.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey.shade700,
+            height: 1.4,
+          ), // 스타일 조정
+        ),
+        const SizedBox(height: 40), // 간격 조정
+        // PrimaryButton 사용
+        PrimaryButton(
+          text: '홈으로 돌아가기',
+          onPressed: () => context.go('/pets'),
+          isFullWidth: false, // 버튼 너비 자동 조절
+          leadingIcon: const Icon(Icons.home_outlined, size: 20),
+        ),
+      ],
+    );
+  }
+}
+
+// 에러 시 표시될 컨텐츠 위젯
+class SharingErrorContent extends StatelessWidget {
+  const SharingErrorContent({
+    super.key,
+    required this.sharingState,
+    required this.onRetry,
+  });
+
+  final SharingState sharingState;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // StatusIndicator 사용 (에러 아이콘)
+        StatusIndicator(
+          icon: Icons.error_outline,
+          iconColor: Colors.red.shade700,
+          iconSize: 80,
+          message: '권한 부여 실패',
+          messageStyle: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          '${sharingState.hospital?.name}에 권한을 부여하는 중 오류가 발생했습니다.\n${sharingState.errorMessage ?? '알 수 없는 오류'}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey.shade700,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 40),
+        // 버튼 스타일 수정 (Row 사용)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // OutlinedButton 사용 (취소 또는 다른 동작)
+            OutlinedButton(
+              onPressed: () => context.go('/pets'), // 홈으로 가기
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                side: BorderSide(color: Colors.grey.shade400),
+              ),
+              child: const Text('홈으로'),
+            ),
+            const SizedBox(width: 16),
+            // PrimaryButton 사용 (재시도)
+            PrimaryButton(
+              text: '다시 시도',
+              onPressed: onRetry,
+              isFullWidth: false,
+              leadingIcon: const Icon(Icons.refresh, size: 20),
+            ),
+          ],
         ),
       ],
     );
