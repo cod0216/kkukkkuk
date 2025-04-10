@@ -457,9 +457,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
 
     return (
       <div className="mb-4">
-        <div
-          className={`grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] gap-x-2 items-center w-full mb-2`}
-        >
+        <div className="grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] gap-x-2 items-center w-full mb-2">
           <h4 className="font-bold text-sm text-gray-700 w-12 text-right pr-2">
             {title}
           </h4>
