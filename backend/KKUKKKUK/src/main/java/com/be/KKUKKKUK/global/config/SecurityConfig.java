@@ -56,7 +56,9 @@ public class SecurityConfig {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**",
             "/api/auths/**",
             "/api/hospitals/authorization-number/**", "/api/hospitals/account/**", "/api/hospitals/name/**",
-            "/api/breeds/**"
+            "/api/breeds/**",
+            "/ws/*", "/kkukkkuk/**"
+
     };
 
     /**
@@ -77,7 +79,7 @@ public class SecurityConfig {
      * HOSPITAL 만 접근 가능한 URL 경로를 설정합니다.
      */
     private static final String[] ROLE_HOSPITAL_URLS = {
-            "/api/hospitals/**", "/api/doctors/**", "/api/drugs/**"
+            "/api/hospitals/**", "/api/doctors/**", "/api/drugs/**", "/api/chats/**", "/api/diagnoses/**", "/api/vaccinations/**"
     };
 
     /**

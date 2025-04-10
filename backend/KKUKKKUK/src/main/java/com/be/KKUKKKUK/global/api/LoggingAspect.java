@@ -28,8 +28,8 @@ import java.util.Map;
  * 25.03.19          haelim           Service 로깅 추가 <br>
  */
 @Slf4j
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class LoggingAspect {
 
     /**
