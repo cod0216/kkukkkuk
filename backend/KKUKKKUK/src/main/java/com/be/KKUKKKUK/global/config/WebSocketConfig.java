@@ -9,6 +9,17 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.web.socket.config.annotation.*;
 
 
+/**
+ * packageName    : com.be.KKUKKKUK.global.config<br>
+ * fileName       : WebSocketConfig.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : stomp 웹소켓 통신을 위한 config 클래스입니다.<br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker

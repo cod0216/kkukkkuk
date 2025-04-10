@@ -21,6 +21,18 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * packageName    : com.be.KKUKKKUK.global.config<br>
+ * fileName       : WebSocketConfig.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : stomp 웹소켓 통신을 위한 intercepter 클래스입니다. <br>
+ *                  사용자 요청 header 에서 jwt 토큰을 검증합니다.
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

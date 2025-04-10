@@ -10,6 +10,7 @@ import com.be.KKUKKKUK.domain.hospital.service.HospitalService;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  * -----------------------------------------------------------<br>
  * 25.04.09          haelim           최초 생성<br>
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -40,17 +42,17 @@ public class ChatComplexService {
     private final ChatRoomService chatRoomService;
     private final HospitalService hospitalService;
 
-    public ChattingResponse sendMessage(Integer receiverId, Integer senderId, ChattingRequest request) {
+    public ChattingResponse sendMessage(Integer roomId, Integer senderId, ChattingRequest request) {
         // 발신자와 수신자 병원 조회
         Hospital sender = hospitalService.findHospitalById(senderId);
-        Hospital receiver = hospitalService.findHospitalById(receiverId);
+        Hospital receiver = hospitalService.findHospitalById(request.getReceiverId());
 
         if (sender.equals(receiver)) {
             throw new ApiException(ErrorCode.SELF_CHAT_NOT_ALLOWED);
         }
 
-        // 채팅방 조회 또는 생성
-        ChatRoom chatRoom = chatRoomService.getChatRoomByParticipants(sender, receiver);
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomService.getChatRoomById(roomId);
 
         // 채팅 메시지 생성
         Chat chat = Chat.builder()
@@ -99,5 +101,40 @@ public class ChatComplexService {
 
                 })
                 .collect(Collectors.toList());
+    }
+
+    public ChatRoomSummaryResponse getChatRoomId(Integer partnerId, Integer requesterId) {
+        log.info("getChatRoomId partnerId {} , requesterId {} ", partnerId, requesterId);
+
+        Hospital partner = hospitalService.findHospitalById(partnerId);
+        Hospital requester = hospitalService.findHospitalById(requesterId);
+
+        ChatRoom room = chatRoomService.getChatRoomByParticipants(requester, partner);
+        log.info("room {}", room);
+
+        // 마지막 메시지 찾기
+        String lastMessageContent = "";
+        if (room.getMessages() != null && !room.getMessages().isEmpty()) {
+            Optional<Chat> lastMessage = room.getMessages().stream()
+                    .max(Comparator.comparing(Chat::getSentAt));
+            lastMessageContent = lastMessage.map(Chat::getContent).orElse("");
+        }
+
+        // 읽지 않은 메시지 수 계산
+        int unreadCount = 0;
+        if (room.getMessages() != null) {
+            unreadCount = (int) room.getMessages().stream()
+                    .filter(chat -> !chat.getSender().getId().equals(requesterId) && !chat.getFlagRead())
+                    .count();
+        }
+
+        return ChatRoomSummaryResponse.builder()
+                .chatRoomId(room.getId())
+                .partnerName(partner.getName())
+                .partnerId(partner.getId())
+                .lastMessage(lastMessageContent)
+                .lastMessageAt(room.getLastMessageAt())
+                .unreadMessageCount(unreadCount)
+                .build();
     }
 }

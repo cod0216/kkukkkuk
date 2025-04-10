@@ -14,6 +14,17 @@ import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * packageName    : com.be.KKUKKKUK.global.exception<br>
+ * fileName       : StompExceptionHandler.java<br>
+ * author         : haelim<br>
+ * date           : 2025-04-09<br>
+ * description    : stomp 웹소켓 통신의 예외 처리를 위한 클래스입니다. <br>
+ * ===========================================================<br>
+ * DATE              AUTHOR             NOTE<br>
+ * -----------------------------------------------------------<br>
+ * 25.04.09          haelim           최초 생성<br>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
