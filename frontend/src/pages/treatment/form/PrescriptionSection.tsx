@@ -88,7 +88,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     string[]
   >([]);
   const [showAutoCompleteExam, setShowAutoCompleteExam] = useState(false);
-  const [isSearchingExam, setIsSearchingExam] = useState(false);
   const [selectedIndexExam, setSelectedIndexExam] = useState(-1);
   const [skipExamAutoComplete, setSkipExamAutoComplete] = useState(false);
   const autoCompleteRefExam = useRef<HTMLDivElement>(null);
@@ -100,7 +99,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     string[]
   >([]);
   const [showAutoCompleteVacc, setShowAutoCompleteVacc] = useState(false);
-  const [isSearchingVacc, setIsSearchingVacc] = useState(false);
   const [selectedIndexVacc, setSelectedIndexVacc] = useState(-1);
   const [skipVaccAutoComplete, setSkipVaccAutoComplete] = useState(false);
   const autoCompleteRefVacc = useRef<HTMLDivElement>(null);
@@ -170,12 +168,8 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     const fetchAutoCompleteExam = async () => {
       if (skipExamAutoComplete) return;
       if (examinationInput.key.trim().length >= 1) {
-        setIsSearchingExam(true);
         try {
-          const result = await getExamAutoComplete(
-            examinationInput.key,
-            petSpecies
-          );
+          const result = await getExamAutoComplete(examinationInput.key);
           setAutoCompleteResultsExam(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -187,7 +181,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
           setAutoCompleteResultsExam([]);
           setShowAutoCompleteExam(false);
         } finally {
-          setIsSearchingExam(false);
         }
       } else {
         setAutoCompleteResultsExam([]);
@@ -202,12 +195,8 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     const fetchAutoCompleteVacc = async () => {
       if (skipVaccAutoComplete) return;
       if (vaccinationInput.key.trim().length >= 1) {
-        setIsSearchingVacc(true);
         try {
-          const result = await getVaccinationAutoComplete(
-            vaccinationInput.key,
-            petSpecies
-          );
+          const result = await getVaccinationAutoComplete(vaccinationInput.key);
           setAutoCompleteResultsVacc(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -219,7 +208,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
           setAutoCompleteResultsVacc([]);
           setShowAutoCompleteVacc(false);
         } finally {
-          setIsSearchingVacc(false);
         }
       } else {
         setAutoCompleteResultsVacc([]);
@@ -228,20 +216,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     };
     fetchAutoCompleteVacc();
   }, [vaccinationInput.key, petSpecies, skipVaccAutoComplete]);
-
-  // onChange 이벤트에서 skip 플래그 초기화
-  const handleMedicationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMedicationInput((prev) => ({ ...prev, key: e.target.value }));
-    setSkipMedicationAutoComplete(false);
-  };
-  const handleExamChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setExaminationInput((prev) => ({ ...prev, key: e.target.value }));
-    setSkipExamAutoComplete(false);
-  };
-  const handleVaccChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVaccinationInput((prev) => ({ ...prev, key: e.target.value }));
-    setSkipVaccAutoComplete(false);
-  };
 
   // 약물 선택 핸들러
   const handleDrugSelect = (drugName: string) => {
