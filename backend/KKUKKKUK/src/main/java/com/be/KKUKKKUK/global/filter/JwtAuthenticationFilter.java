@@ -3,7 +3,6 @@ package com.be.KKUKKKUK.global.filter;
 import com.be.KKUKKKUK.domain.auth.service.TokenService;
 import com.be.KKUKKKUK.domain.hospital.service.HospitalDetailService;
 import com.be.KKUKKKUK.domain.owner.service.OwnerDetailService;
-import com.be.KKUKKKUK.global.api.StatusEnum;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
 import com.be.KKUKKKUK.global.exception.ApiException;
 import com.be.KKUKKKUK.global.exception.ErrorCode;
@@ -13,7 +12,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,8 +47,8 @@ import java.util.Objects;
  * -----------------------------------------------------------<br>
  * 2025-03-13          haelim          최초생성<br>
  * 2025-03-20          haelim          액세스 토큰 블랙리스트 추가<br>
+ * 2025-04-07          haelim          writeErrorResponse 삭제, ExceptionHandlingFilter 에서 처리 <br>
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -79,6 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auths/logout", "/api/auths/logout/all",
     };
 
+
     /**
      * 요청을 필터링하여 인증을 수행합니다.
      * 요청에서 JWT 토큰을 추출하고, 해당 토큰이 유효한지 검증한 후, 인증 정보를 SecurityContext에 설정합니다.
@@ -93,7 +92,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain ) throws ServletException, IOException {
-
         String uri = request.getRequestURI();
 
         // 1. 허용된 URL에 대해서는 인증 필터 통과
@@ -105,8 +103,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 2. 헤더에서 access token 확인
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
         if (Objects.isNull(authHeader) || !authHeader.startsWith(HEADER_BEARER)) {
-            writeErrorResponse(response, ErrorCode.NO_ACCESS_TOKEN);
-            return;
+            throw new ApiException(ErrorCode.NO_ACCESS_TOKEN);
         }
 
         // 3. access token 유효성 검증
@@ -114,8 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwtUtility.validateToken(accessToken)) {
             // 3-1. 액세스 토큰이 유효하면 블랙리스트 검증
             if (checkTokenBlacklisted(accessToken)) {
-                writeErrorResponse(response, ErrorCode.INVALID_TOKEN);  // 블랙리스트에 있으면 오류 응답
-                return;
+                throw new ApiException(ErrorCode.INVALID_TOKEN);
             }
 
             // 3-2. 인증 토큰을 SecurityContext에 설정
@@ -124,12 +120,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 3-3. 유효한 토큰 처리
             processValidAccessToken(accessToken);
+
+            filterChain.doFilter(request, response);
         } else {
             SecurityContextHolder.clearContext(); // 인증 실패 시 보안 컨텍스트 초기화
-            writeErrorResponse(response, ErrorCode.INVALID_TOKEN);
-            return;
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
-        filterChain.doFilter(request, response);  // 필터 체인을 계속해서 호출
     }
 
     /**
@@ -144,7 +140,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * 유효한 액세스 토큰에 대해 사용자 인증을 처리하는 메서드입니다.
-     * 유효한 액세스 토큰을 기반으로 사용자를 인증하고, 인증 정보를 SecurityContext에 설정합니다.
+     * 유효한 액세스 토큰을 기반으로 사용자를 인증하고, 인증 정보를 SecurityContext 에 설정합니다.
      *
      * @param accessToken 유효한 액세스 토큰
      */
@@ -165,27 +161,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    /**
-     * 인증 오류 응답을 작성하는 메서드입니다.
-     * 응답에 오류 메시지와 상태 코드를 포함하여 클라이언트에게 전송합니다.
-     *
-     * @param response 응답 객체
-     * @param errorCode 오류 코드
-     * @throws IOException I/O 예외
-     */
-    private void writeErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
-        response.setStatus(errorCode.getHttpStatus().value());
-        response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(
-                String.format("{\"status\": \"%s\",\"status_code\": \"%s\", \"name\": \"%s\", \"code\": \"%s\", \"message\": \"%s\"}",
-                        StatusEnum.FAILURE,
-                        errorCode.getHttpStatus().value(),
-                        errorCode.name(),
-                        errorCode.getCode(),
-                        errorCode.getMessage())
-        );
     }
 
     /**

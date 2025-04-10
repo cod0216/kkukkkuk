@@ -1,11 +1,8 @@
 package com.be.KKUKKKUK.global.config;
 
-import com.be.KKUKKKUK.domain.auth.service.TokenService;
-import com.be.KKUKKKUK.domain.hospital.service.HospitalDetailService;
-import com.be.KKUKKKUK.domain.owner.service.OwnerDetailService;
 import com.be.KKUKKKUK.global.enumeration.RelatedType;
+import com.be.KKUKKKUK.global.exception.ExceptionHandlingFilter;
 import com.be.KKUKKKUK.global.filter.JwtAuthenticationFilter;
-import com.be.KKUKKKUK.global.util.JwtUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
@@ -40,16 +37,15 @@ import java.util.Arrays;
  * 25.03.13          haelim           최초생성<br>
  * 25.03.27          haelim           허용 url 추가(auth) <br>
  * 25.03.29          haelim           회원 유형에 따른 허용 URL 설정 <br>
+ * 25.04.07          haelim           ExceptionHandlingFilter 추가 <br>
  */
 @Configurable
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final TokenService tokenService;
-    private final JwtUtility jwtUtility;
-    private final HospitalDetailService hospitalDetailService;
-    private final OwnerDetailService ownerDetailService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ExceptionHandlingFilter exceptionHandlingFilter;
 
     /**
      * 인증 없이 접근을 허용할 URL 경로를 설정합니다.
@@ -101,14 +97,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * JWT 인증을 처리하기 위해 커스텀 필터를 빈으로 설정합니다. 이 필터는 요청에 포함된 JWT를 검증하여 인증을 수행합니다.
-     * @return JwtAuthenticationFilter 객체
-     */
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(tokenService, jwtUtility, hospitalDetailService, ownerDetailService);
-    }
 
     /**
      *
@@ -140,7 +128,10 @@ public class SecurityConfig {
                         .requestMatchers(ROLE_HOSPITAL_URLS).hasRole(RelatedType.HOSPITAL.name())// HOSPITAL 접근 가능
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlingFilter, JwtAuthenticationFilter.class);
+        ;
+
 
         return http.build();
     }

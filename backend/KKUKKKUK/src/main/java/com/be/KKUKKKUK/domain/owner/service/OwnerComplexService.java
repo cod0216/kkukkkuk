@@ -96,4 +96,8 @@ public class OwnerComplexService {
         s3Service.deleteImage(ownerId, RelatedType.OWNER);
         ownerService.deleteOwner(ownerId);
     }
+
+    public void deleteOwnerImage(Integer ownerId) {
+        s3Service.deleteImage(ownerId, RelatedType.OWNER);
+    }
 }
