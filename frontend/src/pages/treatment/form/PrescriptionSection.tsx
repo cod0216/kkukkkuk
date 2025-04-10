@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from "react";
-import { PlusCircle, Loader, Search, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import {
   TreatmentType,
   ExaminationTreatment,
@@ -52,7 +52,6 @@ interface PrescriptionSectionProps {
 const PrescriptionSection: FC<PrescriptionSectionProps> = ({
   prescriptions,
   setPrescriptions,
-  petSpecies = "",
 }) => {
   const [examinationInput, setExaminationInput] = useState<InputState>({
     key: "",
@@ -70,7 +69,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
   // 약물 자동완성 상태 및 Ref
   const [autoCompleteResults, setAutoCompleteResults] = useState<string[]>([]);
   const [showAutoComplete, setShowAutoComplete] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [skipMedicationAutoComplete, setSkipMedicationAutoComplete] =
     useState(false);
@@ -131,7 +129,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
     const fetchAutoComplete = async () => {
       if (skipMedicationAutoComplete) return;
       if (medicationInput.key.trim().length >= 1) {
-        setIsSearching(true);
         try {
           const result = await getDrugAutoComplete(medicationInput.key);
           setAutoCompleteResults(
@@ -144,8 +141,6 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
           console.error("[UI] 자동완성 검색 오류 (약물):", error);
           setAutoCompleteResults([]);
           setShowAutoComplete(false);
-        } finally {
-          setIsSearching(false);
         }
       } else {
         setAutoCompleteResults([]);
@@ -161,10 +156,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       if (skipExamAutoComplete) return;
       if (examinationInput.key.trim().length >= 1) {
         try {
-          const result = await getExamAutoComplete(
-            examinationInput.key,
-            petSpecies
-          );
+          const result = await getExamAutoComplete(examinationInput.key);
           setAutoCompleteResultsExam(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -182,7 +174,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       }
     };
     fetchAutoCompleteExam();
-  }, [examinationInput.key, petSpecies, skipExamAutoComplete]);
+  }, [examinationInput.key, skipExamAutoComplete]);
 
   // 접종 자동완성 API 호출
   useEffect(() => {
@@ -190,10 +182,7 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       if (skipVaccAutoComplete) return;
       if (vaccinationInput.key.trim().length >= 1) {
         try {
-          const result = await getVaccinationAutoComplete(
-            vaccinationInput.key,
-            petSpecies
-          );
+          const result = await getVaccinationAutoComplete(vaccinationInput.key);
           setAutoCompleteResultsVacc(
             result.status === "SUCCESS" ? result.data || [] : []
           );
@@ -211,21 +200,10 @@ const PrescriptionSection: FC<PrescriptionSectionProps> = ({
       }
     };
     fetchAutoCompleteVacc();
-  }, [vaccinationInput.key, petSpecies, skipVaccAutoComplete]);
+  }, [vaccinationInput.key, skipVaccAutoComplete]);
 
   // onChange 이벤트에서 skip 플래그 초기화
-  const handleMedicationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMedicationInput((prev) => ({ ...prev, key: e.target.value }));
-    setSkipMedicationAutoComplete(false);
-  };
-  const handleExamChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setExaminationInput((prev) => ({ ...prev, key: e.target.value }));
-    setSkipExamAutoComplete(false);
-  };
-  const handleVaccChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVaccinationInput((prev) => ({ ...prev, key: e.target.value }));
-    setSkipVaccAutoComplete(false);
-  };
+  // (만약 별도의 onChange 핸들러가 필요없다면, 인라인 onChange에서 처리할 수 있음)
 
   // 약물 선택 핸들러 (클릭 시)
   const handleDrugSelect = (drugName: string) => {
