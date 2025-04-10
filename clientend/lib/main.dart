@@ -19,13 +19,18 @@ Future<void> main() async {
   await AppConfig.load();
 
   // kakao sdk 초기화
+  await _initKakao();
+
+
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+Future<void> _initKakao() async {
   KakaoSdk.init(nativeAppKey: AppConfig.kakaoAppKey);
   AuthRepository.initialize(
     appKey: AppConfig.kakaoJavaScriptKey,
     baseUrl: AppConfig.apiBaseUrl,
   );
-
-  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
