@@ -45,12 +45,12 @@
 ## 📐 시스템 설계
 
 ### 📊 ERD
-<img src="/image/ERD.gif"/>
+<img src="/image/ERD.png"/>
 
 ### 📱 와이어프레임 (추가 예정)
 
 ### 🏛 아키텍처
-<img src="/image/Architecture.gif"/>
+<img src="/image/Architecture.png"/>
 
 
 ## 📁 폴더 구조
