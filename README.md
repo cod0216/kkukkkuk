@@ -47,7 +47,6 @@
 ### 📊 ERD
 <img src="/image/ERD.png"/>
 
-### 📱 와이어프레임 (추가 예정)
 
 ### 🏛 아키텍처
 <img src="/image/Architecture.png"/>
@@ -81,7 +80,7 @@ src
      └─ resources
 ```
 
-### Frontend
+### Web
 ```
 src
  ├─ components
@@ -184,7 +183,7 @@ src
 
 ---
 
-## 📱 모바일(보호자 회원원) 기능 소개
+## 📱 모바일(보호자 회원) 기능 소개
 
 ### 카카오 로그인  
 <img src="/image/로그인.gif" width="200"/>
